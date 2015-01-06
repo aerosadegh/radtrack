@@ -1,0 +1,98 @@
+# -*- coding: utf-8 -*-
+
+# Form implementation generated from reading ui file 'dcpwidget.ui'
+#
+# Created: Thu Apr 24 16:10:07 2014
+#      by: pyside-uic 0.2.14 running on PySide 1.1.2
+#
+# WARNING! All changes made in this file will be lost!
+
+from PySide import QtCore, QtGui
+from RadTrack.gui.matplotlibwidget import matplotlibWidget
+
+class Ui_dcpwidget(object):
+    def setupUi(self, dcpwidget):
+        dcpwidget.setObjectName("dcpwidget")
+        dcpwidget.resize(946, 523)
+        self.gridLayout = QtGui.QGridLayout(dcpwidget)
+        self.gridLayout.setObjectName("gridLayout")
+        self.verticalLayout = QtGui.QVBoxLayout()
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.pushButton = QtGui.QPushButton(dcpwidget)
+        self.pushButton.setObjectName("pushButton")
+        self.verticalLayout.addWidget(self.pushButton)
+        self.comboBox = QtGui.QComboBox(dcpwidget)
+        self.comboBox.setObjectName("comboBox")
+        self.verticalLayout.addWidget(self.comboBox)
+        self.gridLayout.addLayout(self.verticalLayout, 5, 5, 1, 1)
+        spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.gridLayout.addItem(spacerItem, 4, 5, 1, 1)
+        self.filetype = QtGui.QLabel(dcpwidget)
+        self.filetype.setObjectName("filetype")
+        self.gridLayout.addWidget(self.filetype, 0, 2, 1, 1)
+        self.label = QtGui.QLabel(dcpwidget)
+        self.label.setObjectName("label")
+        self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
+        self.label_5 = QtGui.QLabel(dcpwidget)
+        self.label_5.setObjectName("label_5")
+        self.gridLayout.addWidget(self.label_5, 4, 0, 1, 1)
+        self.label_6 = QtGui.QLabel(dcpwidget)
+        self.label_6.setObjectName("label_6")
+        self.gridLayout.addWidget(self.label_6, 4, 4, 1, 1)
+        self.label_4 = QtGui.QLabel(dcpwidget)
+        self.label_4.setObjectName("label_4")
+        self.gridLayout.addWidget(self.label_4, 1, 0, 1, 1)
+        self.textEdit = QtGui.QTextEdit(dcpwidget)
+        self.textEdit.setObjectName("textEdit")
+        self.gridLayout.addWidget(self.textEdit, 5, 4, 1, 1)
+        self.page = QtGui.QComboBox(dcpwidget)
+        self.page.setObjectName("page")
+        self.gridLayout.addWidget(self.page, 1, 1, 1, 1)
+        self.file = QtGui.QLabel(dcpwidget)
+        self.file.setObjectName("file")
+        self.gridLayout.addWidget(self.file, 0, 1, 1, 1)
+        self.data = QtGui.QTableWidget(dcpwidget)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.data.sizePolicy().hasHeightForWidth())
+        self.data.setSizePolicy(sizePolicy)
+        self.data.setRowCount(25)
+        self.data.setColumnCount(4)
+        self.data.setObjectName("data")
+        self.data.setColumnCount(4)
+        self.data.setRowCount(25)
+        self.gridLayout.addWidget(self.data, 2, 0, 1, 4)
+        self.widget = matplotlibWidget(dcpwidget)
+        self.widget.setObjectName("widget")
+        self.gridLayout.addWidget(self.widget, 0, 4, 4, 2)
+        spacerItem1 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
+        self.gridLayout.addItem(spacerItem1, 3, 3, 1, 1)
+        spacerItem2 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.gridLayout.addItem(spacerItem2, 0, 3, 1, 1)
+        self.param = QtGui.QTableWidget(dcpwidget)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.param.sizePolicy().hasHeightForWidth())
+        self.param.setSizePolicy(sizePolicy)
+        self.param.setRowCount(10)
+        self.param.setColumnCount(4)
+        self.param.setObjectName("param")
+        self.param.setColumnCount(4)
+        self.param.setRowCount(10)
+        self.gridLayout.addWidget(self.param, 5, 0, 2, 4)
+
+        self.retranslateUi(dcpwidget)
+        QtCore.QMetaObject.connectSlotsByName(dcpwidget)
+
+    def retranslateUi(self, dcpwidget):
+        dcpwidget.setWindowTitle(QtGui.QApplication.translate("dcpwidget", "dcpwidget", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton.setText(QtGui.QApplication.translate("dcpwidget", "Plot", None, QtGui.QApplication.UnicodeUTF8))
+        self.filetype.setText(QtGui.QApplication.translate("dcpwidget", "File Type", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("dcpwidget", "Current File:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_5.setText(QtGui.QApplication.translate("dcpwidget", "Parameters", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_6.setText(QtGui.QApplication.translate("dcpwidget", "Legend", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_4.setText(QtGui.QApplication.translate("dcpwidget", "DATA", None, QtGui.QApplication.UnicodeUTF8))
+        self.file.setText(QtGui.QApplication.translate("dcpwidget", "File Name", None, QtGui.QApplication.UnicodeUTF8))
+
