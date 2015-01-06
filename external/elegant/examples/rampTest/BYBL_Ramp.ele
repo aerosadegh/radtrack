@@ -1,0 +1,49 @@
+&run_setup
+    lattice =BYBL.lte,
+    use_beamline = "ring",
+    !p_central=5870.841,
+     p_central_mev = 200,
+    default_order = 3,
+    concat_order = 3,
+    parameters = %s.param,
+   output=%s.out
+   losses=%s.lost
+&end
+
+
+
+&run_control
+        n_steps = 1,
+        !n_passes = 189263 ! number of turns for 100ms
+	n_passes = 3
+&end
+
+
+
+&twiss_output
+	matched=1
+	radiation_integrals=1
+	filename="%s.twi"
+&end
+
+&bunched_beam 
+ bunch=InjectedBeam.bun
+first_is_fiducial=1
+ n_particles_per_bunch=100
+ emit_x=155e-9
+ emit_y=155e-9
+ use_twiss_command_values=1
+ matched_to_cell=ring
+ Po=391.3894
+ sigma_dp=5e-3
+ sigma_s=0.003
+ distribution_type[0]=3*"gaussian",
+ distribution_cutoff[0]=5,5,5
+&end
+
+&track 
+ &end
+
+
+
+

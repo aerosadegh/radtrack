@@ -1,0 +1,212 @@
+
+
+
+C: CHARGE,TOTAL= 300E-12
+M1:	MARK, FITPOINT=1
+m2:	MARK, FITPOINT=1
+M3:	MARK, FITPOINT=1
+
+HO00:    DRIF,          L=0.20
+
+HPOP1:   MARK,        
+HO01:    DRIF,          L=0.17
+HQ1:     QUAD,     L=0.10,       K1=6.745, ORDER=3
+HO02:    DRIF,          L=0.20
+HQ2:     QUAD,     L=0.20,       K1=-6.745, ORDER=3
+HO03:    DRIF,          L=0.20
+HQ3:     QUAD,     L=0.10,       K1=7.420, ORDER=3
+HO04:    DRIF,          L=0.17
+HPOP2:   MARK,       
+
+! Chicane not activated
+CHBEND1:  SBEN,         L=0.41, ANGLE=+0.0, E1=-0.0, E2=0.0, 
+CHBEND2:  SBEN,         L=0.41, ANGLE=0.0, E1=-0.0, 
+CHBEND3:  SBEN,         L=0.41, ANGLE=0.0, E2=0.0, 
+CHBEND4:  SBEN,         L=0.41, ANGLE=0.0, E1=-0.0, &
+                         E2=0.0,
+! Arc Length L=0.447 for ANGLE=20.0
+
+CHO1:    DRIF,          L=0.845
+CHO2:    DRIF,          L=0.08
+CHO3:    DRIF,          L=0.24
+CHO4:    DRIF,          L=0.535
+
+HPOP3:   MARK,        
+HO06:    DRIF,          L=0.17
+HQ4:     QUAD,     L=0.10,       K1=0, ORDER=3
+HO07:    DRIF,          L=0.20
+HQ5:     QUAD,     L=0.20,       K1=0, ORDER=3
+HO08:    DRIF,          L=0.20
+HQ6:     QUAD,     L=0.10,       K1=0, ORDER=3
+HO09:    DRIF,          L=0.17
+HPOP4:   MARK,        
+
+HO10:    DRIF,          L=.75
+
+HPOP5:   MARK,        
+HO11:    DRIF,          L=0.17
+HQ7:     QUAD,     L=0.10,       K1=-8.634, ORDER=3
+HO12:    DRIF,          L=0.20
+HQ8:     QUAD,     L=0.20,       K1=-4.047, ORDER=3
+HO13:    DRIF,          L=0.20
+HQ9:     QUAD,     L=0.10,       K1=13.761, ORDER=3
+HO14:    DRIF,          L=0.17
+HPOP6:   MARK,       
+
+HO15:    DRIF,          L=0.25
+BPM5:    MARK,        
+HO16:    DRIF,         
+
+H:      LINE=(HO00,HPOP1,HO01,HQ1,HO02,HQ2,HO03,HQ3,HO04,HPOP2, &
+              CHO1,CHBEND1,CHO2,CHBEND2,CHO3,CHBEND3,CHO2,CHBEND4, &
+              CHO4,HPOP3,HO06,HQ4,HO07,HQ5,HO08,HQ6,HO09,HPOP4, &
+              HO10,m2,HO10,HPOP5,HO11,HQ7,HO12,M1,HQ8,HO13,HQ9,HO14,HPOP6, &
+              HO15,BPM5,HO16,M1)
+
+
+
+
+FD1:    CSRCSBEND,        L=0.4000,       ANGLE=-0.3491, HGAP=0.015,  FINT=0.5, EDGE1_EFFECTS=1,E1= 0.000000000E+00, &
+               EDGE2_EFFECTS=0, &
+		N_KICKS =10, &
+		INTEGRATION_ORDER=4, &
+		BINS=500, &
+		STEADY_STATE=0, &
+		SG_ORDER=1, &
+		SG_HALFWIDTH =2
+
+FO01:   DRIF,          L=0.6705
+FPOP1:  MARK,               
+FO02:   DRIFT,         L=0.3500
+FQ1:    QUAD,		L=0.1000,       K1=-7.514, ORDER=3
+FO03:   DRIF,          L=0.1925
+HES:    MARK,
+FO03a:	DRIF,		L=1.1918,
+S1:	SEXT,		L=0.05,		 K2=-90,ORDER=3, 
+!K2=-132
+FO03b:	DRIF,		L=0.5657, 
+!Changed FO04 to incorporate Sextupole              
+!FO04:   DRIF,          L=1.8075
+FQ2:    QUAD,    	L=0.100,       K1=8.351, ORDER=3
+!FQ2:	QUAD,		L=0.0500,	K1=-5.3084 !half-length to min disp at center
+FO05:   DRIF,		L=0.2230
+FPOP2:  MARK,        
+FO06:   DRIF,          L=1.6654
+FQ3:    QUAD,     	L=0.1000,       K1=-4.897, ORDER=3
+FO07:   DRIF,          L=1.1520
+FD2:    SBEN,          L=0.4000,       ANGLE=0.3491, HGAP=0.015, FINT=0.5
+
+FO08:   DRIF,          L=0.9475
+FQ4:    QUAD,     L=0.1000,       	K1=8.540, ORDER=3
+FO09:   DRIF,          L=2.0000
+FQ5:    QUAD,     L=0.1000,       	K1=-4.101, ORDER=3
+FO10:   DRIF,          L=0.4929
+FP3:    MARK,        
+FO11:   DRIF,          L=0.5445
+
+
+F:     LINE=(FD1,FO01,FPOP1,FO02,FQ1,FO03,HES,FO03a,S1,FO03b,FQ2,FO05, &
+              FPOP2,FO06,FQ3,FO07,FO08,FQ4,FO09,FQ5,FO10,FP3,FO11)
+!------------CSR
+FOCS01:   CSRDRIFT,          L=0.6705,USE_STUPAKOV=1,N_KICKS= 12,CSR=1
+FOCS02:   CSRDRIFT,         L=0.3500,USE_STUPAKOV=1,N_KICKS= 12,CSR=1
+FOCS03:   CSRDRIFT,          L=0.1925,USE_STUPAKOV=1,N_KICKS= 12,CSR=1               
+FOCS03a: CSRDRIFT,	L=1.1918,USE_STUPAKOV=1,N_KICKS=12,CSR=1
+FOCS03b: CSRDRIFT,	L=0.5657,USE_STUPAKOV=1,N_KICKS=12,CSR=1
+!FOCS04:   CSRDRIFT,          L=1.8075,USE_STUPAKOV=1,N_KICKS= 12,CSR=1
+FOCS05:   CSRDRIFT,	L=0.2230,USE_STUPAKOV=1,N_KICKS= 12,CSR=1
+FOCS06:   CSRDRIFT,          L=1.6654,USE_STUPAKOV=1,N_KICKS= 12,CSR=1
+FOCS07:   CSRDRIFT,          L=1.1520,USE_STUPAKOV=1,N_KICKS= 12,CSR=1
+FOCS08:   CSRDRIFT,          L=0.9475,USE_STUPAKOV=1,N_KICKS= 12,CSR=1
+FOCS09:   CSRDRIFT,          L=2.0000,USE_STUPAKOV=1,N_KICKS= 12,CSR=1
+FOCS10:   CSRDRIFT,          L=0.4929,USE_STUPAKOV=1,N_KICKS= 12,CSR=1        
+FOCS11:   CSRDRIFT,          L=0.5445,USE_STUPAKOV=1,N_KICKS= 12,CSR=1
+
+FCS:     LINE=(FD1,FOCS01,FPOP1,FOCS02,FQ1,FOCS03,HES,FOCS03a,S1,FOCS03b,FQ2,FOCS05, &
+              FPOP2,FOCS06,FQ3,FOCS07,FOCS08,FQ4,FOCS09,FQ5,FOCS10,FP3,FOCS11)
+!-------------------
+
+ID1:            CSRCSBEND,  L=0.4000,  ANGLE=0.3491, HGAP=0.015,  FINT=0.5, EDGE1_EFFECTS=1,E1= 0.000000000E+00, &
+               EDGE2_EFFECTS=0, &
+		N_KICKS =10, &
+		INTEGRATION_ORDER=4, &
+		BINS=500, &
+		STEADY_STATE=0, &
+		SG_ORDER=1, &
+		SG_HALFWIDTH =2
+
+IO01:           DRIF,  L=0.435
+
+IP1:            MARK
+IO02:           DRIF,  L=0.15
+IQ1:            QUAD,  L=0.1000,   K1=12.546, ORDER=3
+IO03:           DRIF,  L=0.17
+IQ2:            QUAD,  L=0.2000,   K1=-11.278, ORDER=3
+IQ3:            QUAD,  L=0.1000,   K1=13.896, ORDER=3
+IP2:            MARK
+
+IO04:           DRIF,  L=0.7
+IP3:            MARK
+IO05:           DRIF,  L=.38
+IO05a:          DRIF,  L=1.5
+
+IL1:      LINE=(ID1,M1,IO01,IP1,IO02,IQ1,IO03,IQ2,IO03,IQ3,IO02,IP2,IO04,IP3,IO05,&
+              M3,IO05a)
+!------------CSR
+
+IOCS01:           CSRDRIFT,  L=0.435,USE_STUPAKOV=1,N_KICKS= 12,CSR=1
+IOCS02:           CSRDRIFT,  L=0.15,USE_STUPAKOV=1,N_KICKS= 12,CSR=1
+IOCS03:           CSRDRIFT,  L=0.17,USE_STUPAKOV=1,N_KICKS= 12,CSR=1
+IOCS04:           CSRDRIFT,  L=0.7,USE_STUPAKOV=1,N_KICKS= 12,CSR=1
+IOCS05:           CSRDRIFT,  L=.38,USE_STUPAKOV=1,N_KICKS= 12,CSR=1
+IOCS05a:          CSRDRIFT,  L=1.5,USE_STUPAKOV=1,N_KICKS= 12,CSR=1
+
+Wtest:	WATCH,filename="%s.wtest",mode=coord
+ICSL1:      LINE=(ID1,Wtest,M1,IOCS01,IP1,IOCS02,IQ1,IOCS03,IQ2,IOCS03,IQ3,IOCS02,IP2,IOCS04,IP3,IOCS05,&
+              M3,IOCS05a)
+!---------------
+
+
+IP4:            MARK
+IO06:           DRIF,  L=0.27
+IQ4:            QUAD,  L=0.1000,   K1=26.981, ORDER=3
+IO07:           DRIF,  L=0.20
+IQ5:            QUAD,  L=0.2000,   K1=-26.981, ORDER=3
+IQ6:            QUAD,  L=0.1000,   K1=26.981, ORDER=3
+IO08:           DRIF,  L=0.17
+IP5:            MARK
+
+IO09:           DRIF,  L=0.45
+IP6:            MARK
+IO10:           DRIF,  L=0.45
+IP8:            MARK
+IO11:           DRIF,  L=0.11
+IQ7:            QUAD,     L=0.0760,       K1=-20.985, ORDER=2
+IO12:           DRIF,  L=0.7
+
+IL2:      LINE=(IP4,IO06,IQ4,IO07,IQ5,IO07,IQ6,IO08,IP5,IO09,IP6,IO10,IP8,IO11,&
+               IQ7,IO12)
+
+
+!ID2:    SBEN,  L=0.4000,  ANGLE=0.3491, HGAP=0.015, FINT=0.5
+!IO13:   DRIF,          L=0.20
+!IQ8:    QUAD,     L=0.0760,       K1=17.988
+!IO13:   DRIF,          L=0.17
+!IQ9:    QUAD,     L=0.0760,       K1=-10.793
+!IO14:   DRIF,          L=0.56
+!IQ10:   QUAD,     L=0.0760,       K1=17.988
+!IO15:   DRIF,          L=0.43
+!IQ11:   QUADR,     L=0.0760,       K1=-10.793
+!IO16:   DRIF,          L=0.27
+!IP9:    MARK
+!IL3:             LINE=(ID2,IO12,IQ7,IO13,IQ8,IO14,IQ9,IO15,IP9)
+
+I: LINE=(ICSL1)
+
+W0:	WATCH,filename="%s.w0",mode=coord
+W1:	WATCH,filename="%s.w1",mode=coord
+W2:	WATCH,filename="%s.w2",mode=coord
+
+BL:	Line=(C,W0,H,FCS,I,W2)
+
+RETURN

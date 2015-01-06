@@ -1,0 +1,17 @@
+! This Elegant file was created by RadTrack
+! RadTrack (c) 2013, RadiaSoft, LLC
+
+
+
+! New elements for beamline: BL_0
+"DRIF_01":  DRIF, L=1
+"QUAD_1":  QUAD, L=0.1, K1=5
+
+BL_0:  LINE=("DRIF_01","QUAD_1")
+
+
+! New elements for beamline: BL_2
+"MARK_1":  MARK, DX=0, DY=0
+
+BL_2:  LINE=("BL_0","BL_0","BL_0","BL_0","BL_0","BL_0", &
+       "DRIF_01")

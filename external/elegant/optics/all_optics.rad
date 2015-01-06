@@ -1,0 +1,18 @@
+! This Elegant file was created by RadTrack
+! RadTrack (c) 2013, RadiaSoft, LLC
+
+D:    DRIFT, L=.3
+C:    CIRCULAR_APERTURE, R=.1, L=.05
+L:    LENS, F=1, R=.1
+L1:    LENS, F=-1, R=.1
+G:    GRATING, P=1, THETA=1, XSIZE=.1, YSIZE=.1
+M:    MIRROR, THETA=1, F=1, XSIZE=.1, YSIZE=.1
+R:    RECTANGULAR_APERTURE, SIZE_X=.1, SIZE_Y=.1, L=.05
+R1:    REFLECTIVE_GRATING, P=1, THETA=1, BLAZE=1, XSIZE=.1, YSIZE=.1
+T:    THICK_LENS, R1=1, R2=0, N=1, L=1, R=.1
+W:    WATCH_POINT
+
+BL_:    LINE=(D,C,D,L,D,L1,D,G,D,M,D,R,D,R1,D,T,D,W,D)
+
+
+RETURN

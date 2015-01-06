@@ -1,0 +1,660 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>bunchInterface</class>
+ <widget class="QWidget" name="bunchInterface">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1260</width>
+    <height>758</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QWidget" name="formLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>120</y>
+     <width>231</width>
+     <height>74</height>
+    </rect>
+   </property>
+   <layout class="QFormLayout" name="formLayout">
+    <property name="fieldGrowthPolicy">
+     <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+    </property>
+    <item row="0" column="0">
+     <widget class="QLabel" name="numPtclsLabel">
+      <property name="text">
+       <string># macroparticles</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QLineEdit" name="numPtcls">
+      <property name="toolTip">
+       <string>The number of macro-particles in the distribution.
+</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="designMomentumLabel">
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;design pC [eV]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QLineEdit" name="designMomentum">
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Design momentum is the average momentum for zero offset.&lt;/p&gt;&lt;p&gt;Defaul units can be overridden.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QLabel" name="charge">
+      <property name="text">
+       <string>total Q [C]</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QLineEdit" name="totalCharge">
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Total charge of the beam.&lt;/p&gt;&lt;p&gt;Default units [C] can be overridden.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QTableWidget" name="twissTable">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>250</y>
+     <width>341</width>
+     <height>91</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Specify the horizontal (x-x') and vertical (y-y') Twiss parameters for the bunch.
+Default units for beta [m/rad] can be overridden as follows:
+    mm (implies mm/rad), um (implies um/rad), etc.
+    Note that [m/rad] is equivalent to [mm/mrad]
+Default units for the emittance [m-rad] can also be overridden:
+    microns (implies microns-rad, equivalent to mm-mrad), etc.
+Do not specify units for alpha, which is dimensionless.</string>
+   </property>
+   <row>
+    <property name="text">
+     <string>x-x'</string>
+    </property>
+   </row>
+   <row>
+    <property name="text">
+     <string>y-y'</string>
+    </property>
+   </row>
+   <column>
+    <property name="text">
+     <string>alpha</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>beta [m/rad]</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>eps [m-rad]</string>
+    </property>
+   </column>
+   <item row="0" column="0">
+    <property name="text">
+     <string/>
+    </property>
+   </item>
+  </widget>
+  <widget class="QLabel" name="perpTwissLabel">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>230</y>
+     <width>181</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Twiss Parameters (rms, normalized)</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="highLevelInputsLabel">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>100</y>
+     <width>91</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Charge &amp; Energy</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="offsetLabel">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>470</y>
+     <width>71</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>beam offsets</string>
+   </property>
+  </widget>
+  <widget class="QTableWidget" name="offsetTable">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>490</y>
+     <width>241</width>
+     <height>121</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Specification of the bunch offsets in position and angle.
+In general, these should be small compared to bunch dimensions.
+Default units can be overridden in the usual way.
+    s = ct
+    dp = relative momentum spread with respect to design momentum
+
+The offset in 's' can be large, as it represents the full distance
+    propagated by the bunch down the beamline.</string>
+   </property>
+   <row>
+    <property name="text">
+     <string>x-x'</string>
+    </property>
+   </row>
+   <row>
+    <property name="text">
+     <string>y-y'</string>
+    </property>
+   </row>
+   <row>
+    <property name="text">
+     <string>s-dp</string>
+    </property>
+   </row>
+   <column>
+    <property name="text">
+     <string>position [m]</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>angle [rad]</string>
+    </property>
+   </column>
+  </widget>
+  <widget class="QToolButton" name="generateBunch">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>101</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Generate a particle beam with the specified parameters.</string>
+   </property>
+   <property name="text">
+    <string>Generate Beam</string>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="saveToFile">
+   <property name="geometry">
+    <rect>
+     <x>130</x>
+     <y>10</y>
+     <width>81</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Save particle data to a file.</string>
+   </property>
+   <property name="text">
+    <string>Save to File</string>
+   </property>
+  </widget>
+  <widget class="matplotlibWidget" name="ypyPlot" native="true">
+   <property name="geometry">
+    <rect>
+     <x>830</x>
+     <y>10</y>
+     <width>411</width>
+     <height>361</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>The 2D vertical projection (y-y') of the full 6D phase space.
+Use 'Plot Type' button to select scatter, contour, combo or to erase.
+Use 'Axis Type' button to center plot on bunch or on beamline axis.
+Use 'NT' button to toggle the title on or off (more room for image).
+
+The icons below are standard features of matplotlib, which provide
+full interactivity and allow for saving of publication quality graphics.</string>
+   </property>
+  </widget>
+  <widget class="matplotlibWidget" name="xyPlot" native="true">
+   <property name="geometry">
+    <rect>
+     <x>390</x>
+     <y>380</y>
+     <width>421</width>
+     <height>361</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Transverse cross-section (x-y) of the full 6D bunch distribution.
+Use 'Plot Type' button to select scatter, contour, combo or to erase.
+Use 'Axis Type' button to center plot on bunch or on beamline axis.
+Use 'NT' button to toggle the title on or off (more room for image).
+Use 'AR' button to toggle aspect ratio between 'square' and 'tight',
+    where 'square' means that a round beam will be seen as round,
+    while 'tight' uses the plot area most effectively.
+
+The icons below are standard features of matplotlib, which provide
+full interactivity and allow for saving of publication quality graphics.</string>
+   </property>
+  </widget>
+  <widget class="matplotlibWidget" name="tpzPlot" native="true">
+   <property name="geometry">
+    <rect>
+     <x>830</x>
+     <y>380</y>
+     <width>411</width>
+     <height>361</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>The 2D longitudinal projection (s-dp) of the full 6D phase space.
+    s = ct  includes the full propagation distance of the bunch
+    dp is the relative momentum spread, with respect to design value.
+Use 'Plot Type' button to select scatter, contour, combo or to erase.
+Use 'Axis Type' button to center plot on bunch or on beamline axis.
+Use 'NT' button to toggle the title on or off (more room for image).
+
+The icons below are standard features of matplotlib, which provide
+full interactivity and allow for saving of publication quality graphics.</string>
+   </property>
+  </widget>
+  <widget class="matplotlibWidget" name="xpxPlot" native="true">
+   <property name="geometry">
+    <rect>
+     <x>390</x>
+     <y>10</y>
+     <width>421</width>
+     <height>361</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>The 2D horizontal projection (x-x') of the full 6D phase space.
+Use 'Plot Type' button to select scatter, contour, combo or to erase.
+Use 'Axis Type' button to center plot on bunch or on beamline axis.
+Use 'NT' button to toggle the title on or off (more room for image).
+
+The icons below are standard features of matplotlib, which provide
+full interactivity and allow for saving of publication quality graphics.</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="unitsLabel">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>100</y>
+     <width>81</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Plotting units</string>
+   </property>
+  </widget>
+  <widget class="QWidget" name="formLayoutWidget_2">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>120</y>
+     <width>101</width>
+     <height>74</height>
+    </rect>
+   </property>
+   <layout class="QFormLayout" name="units">
+    <property name="fieldGrowthPolicy">
+     <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+    </property>
+    <item row="0" column="0">
+     <widget class="QLabel" name="unitsPosLabel">
+      <property name="text">
+       <string>position</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QLineEdit" name="unitsPos">
+      <property name="toolTip">
+       <string>Units to be used for axis labels of position-like variables.
+For example: m, mm, um (or microns), nm ...</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="unitsAngleLabel">
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;angle&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QLineEdit" name="unitsAngle">
+      <property name="toolTip">
+       <string>Units to be used for axis labels of angle-like variables.
+For example: rad, mrad, urad (or microrad) ...</string>
+      </property>
+      <property name="dragEnabled">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QLabel" name="ticksLabel">
+      <property name="text">
+       <string># ticks</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QLineEdit" name="numTicks">
+      <property name="toolTip">
+       <string>Suggest a maximum # of tick marks for the axes.
+Logic for actual # is due to matplotlib library.</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QToolButton" name="importFile">
+   <property name="geometry">
+    <rect>
+     <x>130</x>
+     <y>40</y>
+     <width>81</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Import particle data from a file.</string>
+   </property>
+   <property name="text">
+    <string>Import File</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="calculateTwiss">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>40</y>
+     <width>101</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Calculate Twiss parameters directly from particle distribution and overwrite all fields.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+   <property name="text">
+    <string>Calculate Twiss</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="longTwissLabel">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>370</y>
+     <width>161</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Longitudinal phase space (rms)</string>
+   </property>
+  </widget>
+  <widget class="QTableWidget" name="twissTableZ">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>390</y>
+     <width>341</width>
+     <height>61</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Specification of the longitucinal phase space varies widely.
+Use the 'Spec' button to the upper right to choose a convention.
+RMS values are specified, with default units shown in the label.
+
+Default units can be overridden in the usual way.
+Default units for the emittance [m-rad] can also be overridden:
+    microns (implies microns-rad, equivalent to mm-mrad), etc.
+Do not specify units for alpha, which is dimensionless.
+
+    s = ct
+    bct = beta0*s  (beta0 is relativistic factor; not Twiss beta)
+    dp = relative momentum spread with respect to design momentum
+            units (rad, mrad, etc.) represent the fractional value
+            e.g. 1 mrad = 0.001 rad = 0.1%   (but don't use % symbol)</string>
+   </property>
+   <row>
+    <property name="text">
+     <string>s-dp</string>
+    </property>
+   </row>
+   <column>
+    <property name="text">
+     <string>alpha</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>bct [m]</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>dp/p [rad]</string>
+    </property>
+   </column>
+  </widget>
+  <widget class="QToolButton" name="plotType">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>10</y>
+     <width>71</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Choose how particle data should be plotted.</string>
+   </property>
+   <property name="text">
+    <string>Plot Type</string>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="longTwissSpec">
+   <property name="geometry">
+    <rect>
+     <x>300</x>
+     <y>360</y>
+     <width>41</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Choose how longitudinal Twiss parameters are to be specified.</string>
+   </property>
+   <property name="text">
+    <string>Spec</string>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="perpTwissSpec">
+   <property name="geometry">
+    <rect>
+     <x>300</x>
+     <y>220</y>
+     <width>41</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Choose how transverse Twiss parameters are to be specified.</string>
+   </property>
+   <property name="text">
+    <string>Spec</string>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="axisType">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>40</y>
+     <width>71</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Choose a convention for the axis limits.</string>
+   </property>
+   <property name="text">
+    <string>Axis Type</string>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="aspectRatio">
+   <property name="geometry">
+    <rect>
+     <x>320</x>
+     <y>70</y>
+     <width>31</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Toggle the aspect ratio of the x-y plot.</string>
+   </property>
+   <property name="text">
+    <string>AR</string>
+   </property>
+   <property name="popupMode">
+    <enum>QToolButton::InstantPopup</enum>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="noTitles">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>70</y>
+     <width>31</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Toggle plot titles on/off.</string>
+   </property>
+   <property name="statusTip">
+    <string>Toggle plot titles on/off.</string>
+   </property>
+   <property name="text">
+    <string>NT</string>
+   </property>
+   <property name="popupMode">
+    <enum>QToolButton::InstantPopup</enum>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="noTitles_2">
+   <property name="geometry">
+    <rect>
+     <x>760</x>
+     <y>580</y>
+     <width>31</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Toggle plot titles on/off.</string>
+   </property>
+   <property name="statusTip">
+    <string>Toggle plot titles on/off.</string>
+   </property>
+   <property name="text">
+    <string>NT</string>
+   </property>
+   <property name="popupMode">
+    <enum>QToolButton::InstantPopup</enum>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="toggleToolTips">
+   <property name="geometry">
+    <rect>
+     <x>220</x>
+     <y>70</y>
+     <width>51</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Toggle plot titles on/off.</string>
+   </property>
+   <property name="statusTip">
+    <string>Toggle plot titles on/off.</string>
+   </property>
+   <property name="text">
+    <string>Tool Tips</string>
+   </property>
+   <property name="popupMode">
+    <enum>QToolButton::InstantPopup</enum>
+   </property>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>matplotlibWidget</class>
+   <extends>QWidget</extends>
+   <header>matplotlibwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>numPtcls</tabstop>
+  <tabstop>designMomentum</tabstop>
+  <tabstop>generateBunch</tabstop>
+  <tabstop>calculateTwiss</tabstop>
+  <tabstop>saveToFile</tabstop>
+  <tabstop>importFile</tabstop>
+  <tabstop>unitsPos</tabstop>
+  <tabstop>unitsAngle</tabstop>
+  <tabstop>twissTable</tabstop>
+  <tabstop>twissTableZ</tabstop>
+  <tabstop>offsetTable</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>
