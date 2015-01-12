@@ -1,5 +1,5 @@
 import rbcbt, sys
-from PySide import QtGui
+from PyQt4 import QtGui, QtCore
 
 class RbBunchTransport(rbcbt.RbCbt):
     def __init__(self, parent = None):
