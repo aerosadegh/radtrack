@@ -32,7 +32,6 @@ class RbCbt(QtGui.QWidget):
         self.importer = module.fileImporter
         self.exporter = module.fileExporter
 
-        self.argument = particle_laser
         self.resolution = self.classDictionary.values()[0]().getResolution()
         self.defaultBeamline = ''
         #set layout
