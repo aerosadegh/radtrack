@@ -8,8 +8,8 @@ import os
 import subprocess
 import tempfile
 
-from PySide.QtCore import *
-from PySide.QtGui import *
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
 from RadTrack.interactions.rbele import *
 from rbcbt import RbCbt
 from RbUtility import stripComments
@@ -37,7 +37,7 @@ class RbEle(QWidget):
         
     def getBUN(self):
         if self.ui.bunchChoice.currentText() == self.ui.fileBunchChoice:
-            sddsfileName, _ = QtGui.QFileDialog.getOpenFileName(self, 'Open',
+            sddsfileName = QtGui.QFileDialog.getOpenFileName(self, 'Open',
                     self.parent.lastUsedDirectory, '*.sdds')
             if sddsfileName == '':
                 return
@@ -62,7 +62,7 @@ class RbEle(QWidget):
         elif self.ui.latticeChoice.currentText() == self.ui.tabBeamChoice:
             loader = self.parent.chargedBeamTransportTab
         elif self.ui.latticeChoice.currentText() == self.ui.fileBeamChoice:
-            fileName, _ = QtGui.QFileDialog.getOpenFileName(self, 'Open',
+            fileName = QtGui.QFileDialog.getOpenFileName(self, 'Open',
                     self.parent.lastUsedDirectory, '*.lte')
             if fileName == '':
                 return
@@ -145,7 +145,7 @@ class RbEle(QWidget):
             return
 
         #generate ele file
-        outputFileName, _ = QFileDialog.getSaveFileName(self, 'Save As',
+        outputFileName = QFileDialog.getSaveFileName(self, 'Save As',
                 self.parent.lastUsedDirectory, '*' + self.fileExtension)
         if outputFileName == '':
             return

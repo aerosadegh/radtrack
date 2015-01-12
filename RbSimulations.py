@@ -1,5 +1,7 @@
 import sys, os, subprocess
-from PySide import QtGui, QtCore
+import sip
+sip.setapi('QString', 2)
+from PyQt4 import QtGui, QtCore
 from RadTrack.interactions.simulationpanel import Ui_Form
 from RadTrack.srw.RbSrwUndulator import *
 from RadTrack.srw.srwlib import *

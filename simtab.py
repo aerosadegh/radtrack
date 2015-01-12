@@ -1,5 +1,5 @@
 import sys
-from PySide import QtGui, QtCore
+from PyQt4 import QtGui, QtCore
 from RadTrack.interactions.simulationpanel import Ui_Form
 
 class simtab(QtGui.QWidget):

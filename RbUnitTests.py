@@ -1,4 +1,6 @@
-from PySide import QtGui
+import sip
+sip.setapi('QString', 2)
+from PyQt4 import QtGui
 import sys
 
 app = QtGui.QApplication(sys.argv)

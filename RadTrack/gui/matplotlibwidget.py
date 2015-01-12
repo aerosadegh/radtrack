@@ -1,13 +1,10 @@
 #!/usr/bin/python
-from PySide import QtGui
-
-import matplotlib
-matplotlib.use('Qt4Agg')
-matplotlib.rcParams['backend.qt4']='PySide'
+from PyQt4 import QtGui
 
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas 
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg as Navigationtoolbar
 from matplotlib.figure import Figure
+
 
 #Embeddable matplotlib figure/canvas
 class MplCanvas(FigureCanvas): 

@@ -5,14 +5,14 @@ import sys
 import numpy as np
 import matplotlib
 matplotlib.use('Qt4Agg')
-matplotlib.rcParams['backend.qt4']='PySide'
+matplotlib.rcParams['backend.qt4']='PyQt4'
 from matplotlib.figure import Figure
 from matplotlib.backend_bases import * #key_press_handler
 from matplotlib.backends.backend_qt4agg import (
     FigureCanvasQTAgg as FigureCanvas,
     NavigationToolbar2QTAgg as NavigationToolbar)
-from PySide.QtCore import *
-from PySide.QtGui import *
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
 
 
 class AppForm(QMainWindow):

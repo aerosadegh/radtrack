@@ -7,7 +7,9 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PySide import QtCore, QtGui
+import sip
+sip.setapi('QString', 2)
+from PyQt4 import QtCore, QtGui
 
 class Ui_srwdialog(object):
     def setupUi(self, srwdialog):

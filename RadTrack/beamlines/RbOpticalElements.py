@@ -1,7 +1,7 @@
 # Classes here describe all optical elements that propgate
 # wavefronts
 
-from PySide.QtCore import Qt
+from PyQt4.QtCore import Qt
 from RbElementCommon import *
 from RbElegantElements import importFile, exportToFile
 from RbBeamlines import BeamlineCommon

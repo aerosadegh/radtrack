@@ -7,11 +7,11 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PySide import QtCore, QtGui
+from PyQt4 import QtCore, QtGui
 
 class dtreeWidget(QtGui.QTreeWidget):
-    itemDoubleClicked = QtCore.Signal(str)
-    contextMenuClicked = QtCore.Signal(str,str,QtCore.QPoint)
+    itemDoubleClicked = QtCore.pyqtSignal(str)
+    contextMenuClicked = QtCore.pyqtSignal(str,str,QtCore.QPoint)
 
     def __init__(self):
         super(dtreeWidget, self).__init__()
@@ -35,9 +35,9 @@ class dtreeWidget(QtGui.QTreeWidget):
             self.contextMenuClicked.emit(item.text(0), "tree", event.globalPos())
 
 class dlistWidget(QtGui.QListWidget):
-    lengthChange = QtCore.Signal()
-    itemDoubleClicked = QtCore.Signal(str)
-    contextMenuClicked = QtCore.Signal(str,str,QtCore.QPoint)
+    lengthChange = QtCore.pyqtSignal()
+    itemDoubleClicked = QtCore.pyqtSignal(str)
+    contextMenuClicked = QtCore.pyqtSignal(str,str,QtCore.QPoint)
 
     def __init__(self, parent=None):
         super(dlistWidget, self).__init__(parent)
@@ -64,10 +64,10 @@ class dlistWidget(QtGui.QListWidget):
 
 
 class beamGraphicsWindow(QtGui.QGraphicsView):
-    itemDoubleClicked = QtCore.Signal(str)
-    wheelZoom = QtCore.Signal(int)
-    contextMenuClicked = QtCore.Signal(str,str,QtCore.QPoint)
-    dragDone = QtCore.Signal()
+    itemDoubleClicked = QtCore.pyqtSignal(str)
+    wheelZoom = QtCore.pyqtSignal(int)
+    contextMenuClicked = QtCore.pyqtSignal(str,str,QtCore.QPoint)
+    dragDone = QtCore.pyqtSignal()
 
     def __init__(self, layoutWidget):
         super(beamGraphicsWindow, self).__init__(layoutWidget)
@@ -96,7 +96,7 @@ class beamGraphicsWindow(QtGui.QGraphicsView):
             self.contextMenuClicked.emit(None, "picture", event.globalPos())
 
 class Ui_tree(QtCore.QObject):
-    contextMenuClicked = QtCore.Signal(str,str,QtCore.QPoint)
+    contextMenuClicked = QtCore.pyqtSignal(str,str,QtCore.QPoint)
 
     def __init__(self, tree, particle_laser):
         super(Ui_tree, self).__init__()

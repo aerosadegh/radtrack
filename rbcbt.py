@@ -1,6 +1,11 @@
 import os.path
 from collections import OrderedDict
-from PySide import QtGui, QtCore
+import sip
+try:
+    sip.setapi('QString', 2)
+except ValueError:
+    pass
+from PyQt4 import QtGui, QtCore
 
 from RadTrack.beamlines.cbt import Ui_tree, genDialog, advDialog
 from RbUtility import displayWithUnitsNumber, \
@@ -492,7 +497,7 @@ class RbCbt(QtGui.QWidget):
 
     def savePreviewImage(self):
         imageSuffixes = ['.png', '.jpg', '.bmp', '.ppm', '.tiff', '.xbm', '.xpm']
-        fileName, fileExtension = QtGui.QFileDialog.getSaveFileName(self, 'Save As',
+        fileName = QtGui.QFileDialog.getSaveFileName(self, 'Save As',
                 self.parent.lastUsedDirectory, ';;'.join(['*' + suffix for suffix in imageSuffixes]))
         if fileName == '':
             return
@@ -578,7 +583,7 @@ class RbCbt(QtGui.QWidget):
 
     def exportToFile(self, outputFileName = None):
         if not outputFileName:
-            outputFileName, _ = QtGui.QFileDialog.getSaveFileName(self,
+            outputFileName = QtGui.QFileDialog.getSaveFileName(self,
                 'Export Charged Beam Transport',
                 self.parent.lastUsedDirectory,
                 '*.' + self.acceptsFileTypes[0])

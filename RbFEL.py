@@ -1,4 +1,6 @@
-from PySide import QtGui, QtCore
+import sip
+sip.setapi('QString', 2)
+from PyQt4 import QtGui, QtCore
 from RadTrack.fel.mxcal import Ui_Form
 from RbUtility import displayWithUnitsNumber, \
                       displayWithUnitsString, \

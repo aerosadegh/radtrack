@@ -1,7 +1,7 @@
 import sys
 #from genesis import *
 from genesispages import *
-from PySide import QtGui, QtCore
+from PyQt4 import QtGui, QtCore
 
 class RbGenesis(QtGui.QWidget):
     def __init__(self,parent=None):

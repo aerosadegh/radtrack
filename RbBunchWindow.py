@@ -23,13 +23,12 @@ import csv
 # SciPy imports
 import numpy as np
 import matplotlib
-matplotlib.use('Qt4Agg')
-matplotlib.rcParams['backend.qt4']='PySide'
+#matplotlib.use('Qt4Agg')
+#matplotlib.rcParams['backend.qt4']='PyQt4'
 import matplotlib.pyplot as plt
 
-# PySide imports
-from PySide.QtCore import *
-from PySide.QtGui import *
+# PyQt4 imports
+from PyQt4 import QtCore, QtGui
 
 # RadTrack imports
 import RadTrack.bunch.RbParticleBeam6D as beam
@@ -54,7 +53,7 @@ else:
     raise Exception(msg)
 # from RadTrack.dcp.Servicelib import SDDSreshape
 
-class RbBunchWindow(QWidget):
+class RbBunchWindow(QtGui.QWidget):
 
     def __init__(self,parent=None):
         # initialization
@@ -79,12 +78,12 @@ class RbBunchWindow(QWidget):
         self.ui.noTitles.clicked.connect(self.togglePlotTitles)
 
         # create a menu for saving files
-        exportMenu = QMenu(self)
-        saveToCSV = QAction("RadTrack CSV format",self)
+        exportMenu = QtGui.QMenu(self)
+        saveToCSV = QtGui.QAction("RadTrack CSV format",self)
         exportMenu.addAction(saveToCSV)
-        saveToSDDS = QAction("Elegant SDDS format",self)
+        saveToSDDS = QtGui.QAction("Elegant SDDS format",self)
         exportMenu.addAction(saveToSDDS)
-        convertToSDDS = QAction("Convert CSV to SDDS",self)
+        convertToSDDS = QtGui.QAction("Convert CSV to SDDS",self)
         exportMenu.addAction(convertToSDDS)
         
         # associate these actions with class methods
@@ -95,13 +94,13 @@ class RbBunchWindow(QWidget):
         # grab an existing button & insert the menu
         saveToFileButton = self.ui.saveToFile
         saveToFileButton.setMenu(exportMenu)
-        saveToFileButton.setPopupMode(QToolButton.InstantPopup)
+        saveToFileButton.setPopupMode(QtGui.QToolButton.InstantPopup)
         
         # create a menu for importing particle data
-        importMenu = QMenu(self)
-        readFromCSV = QAction("RadTrack CSV format",self)
+        importMenu = QtGui.QMenu(self)
+        readFromCSV = QtGui.QAction("RadTrack CSV format",self)
         importMenu.addAction(readFromCSV)
-        readFromSDDS = QAction("Elegant SDDS format",self)
+        readFromSDDS = QtGui.QAction("Elegant SDDS format",self)
         importMenu.addAction(readFromSDDS)
 
         self.acceptsFileTypes = ['sdds', 'csv']
@@ -113,15 +112,15 @@ class RbBunchWindow(QWidget):
         # grab an existing button & insert the menu
         importFileButton = self.ui.importFile
         importFileButton.setMenu(importMenu)
-        importFileButton.setPopupMode(QToolButton.InstantPopup)
+        importFileButton.setPopupMode(QtGui.QToolButton.InstantPopup)
         
         # create a menu for bunch generation
-        bunchMenu = QMenu(self)
-        radtrackGaussian = QAction("RadTrack - gaussian",self)
+        bunchMenu = QtGui.QMenu(self)
+        radtrackGaussian = QtGui.QAction("RadTrack - gaussian",self)
         bunchMenu.addAction(radtrackGaussian)
-        radtrackUniform = QAction("RadTrack - uniform",self)
+        radtrackUniform = QtGui.QAction("RadTrack - uniform",self)
         bunchMenu.addAction(radtrackUniform)
-        elegantGaussian = QAction("Elegant - gaussian",self)
+        elegantGaussian = QtGui.QAction("Elegant - gaussian",self)
         bunchMenu.addAction(elegantGaussian)
         
         # associate these actions with class methods
@@ -132,17 +131,17 @@ class RbBunchWindow(QWidget):
         # grab an existing button & insert the menu
         bunchButton = self.ui.generateBunch
         bunchButton.setMenu(bunchMenu)
-        bunchButton.setPopupMode(QToolButton.InstantPopup)
+        bunchButton.setPopupMode(QtGui.QToolButton.InstantPopup)
         
         # create a menu for plot type
-        plotsMenu = QMenu(self)
-        scatterPlots = QAction("scatter",self)
+        plotsMenu = QtGui.QMenu(self)
+        scatterPlots = QtGui.QAction("scatter",self)
         plotsMenu.addAction(scatterPlots)
-        contourPlots = QAction("contour",self)
+        contourPlots = QtGui.QAction("contour",self)
         plotsMenu.addAction(contourPlots)
-        comboPlots = QAction("combo",self)
+        comboPlots = QtGui.QAction("combo",self)
         plotsMenu.addAction(comboPlots)
-        erasePlots = QAction("erase",self)
+        erasePlots = QtGui.QAction("erase",self)
         plotsMenu.addAction(erasePlots)
         
         # associate these actions with class methods
@@ -154,15 +153,15 @@ class RbBunchWindow(QWidget):
         # grab an existing button & insert the menu
         plotsButton = self.ui.plotType
         plotsButton.setMenu(plotsMenu)
-        plotsButton.setPopupMode(QToolButton.InstantPopup)
+        plotsButton.setPopupMode(QtGui.QToolButton.InstantPopup)
         
         # create a menu for axis type
-        axisMenu = QMenu(self)
-        bunchCenteredAxis = QAction("bunch-centered",self)
+        axisMenu = QtGui.QMenu(self)
+        bunchCenteredAxis = QtGui.QAction("bunch-centered",self)
         axisMenu.addAction(bunchCenteredAxis)
-        compactAxis = QAction("compact",self)
+        compactAxis = QtGui.QAction("compact",self)
         axisMenu.addAction(compactAxis)
-        symmetricAxis = QAction("symmetric",self)
+        symmetricAxis = QtGui.QAction("symmetric",self)
         axisMenu.addAction(symmetricAxis)
         
         # associate these actions with class methods
@@ -173,15 +172,15 @@ class RbBunchWindow(QWidget):
         # grab an existing button & insert the menu
         axisButton = self.ui.axisType
         axisButton.setMenu(axisMenu)
-        axisButton.setPopupMode(QToolButton.InstantPopup)
+        axisButton.setPopupMode(QtGui.QToolButton.InstantPopup)
         
         # create a menu for transverse Twiss conventions
-        perpTwissMenu = QMenu(self)
-        rmsNormalized = QAction("rms, normalized",self)
+        perpTwissMenu = QtGui.QMenu(self)
+        rmsNormalized = QtGui.QAction("rms, normalized",self)
         perpTwissMenu.addAction(rmsNormalized)
-        ninetyNormalized = QAction("90%, normalized",self)
+        ninetyNormalized = QtGui.QAction("90%, normalized",self)
         perpTwissMenu.addAction(ninetyNormalized)
-        rmsGeometric = QAction("rms, geometric",self)
+        rmsGeometric = QtGui.QAction("rms, geometric",self)
         perpTwissMenu.addAction(rmsGeometric)
         
         # associate these actions with class methods
@@ -192,15 +191,15 @@ class RbBunchWindow(QWidget):
         # grab an existing button & insert the menu
         perpTwissButton = self.ui.perpTwissSpec
         perpTwissButton.setMenu(perpTwissMenu)
-        perpTwissButton.setPopupMode(QToolButton.InstantPopup)
+        perpTwissButton.setPopupMode(QtGui.QToolButton.InstantPopup)
         
         # create a menu for longitudinal Twiss conventions
-        longTwissMenu = QMenu(self)
-        alphaBctDp = QAction("alpha-bct-dp",self)
+        longTwissMenu = QtGui.QMenu(self)
+        alphaBctDp = QtGui.QAction("alpha-bct-dp",self)
         longTwissMenu.addAction(alphaBctDp)
-        couplingBctDp = QAction("coupling-bct-dp",self)
+        couplingBctDp = QtGui.QAction("coupling-bct-dp",self)
         longTwissMenu.addAction(couplingBctDp)
-        alphaBetaEmit = QAction("alpha-beta-emit",self)
+        alphaBetaEmit = QtGui.QAction("alpha-beta-emit",self)
         longTwissMenu.addAction(alphaBetaEmit)
         
         # associate these actions with class methods
@@ -211,7 +210,7 @@ class RbBunchWindow(QWidget):
         # grab an existing button & insert the menu
         longTwissButton = self.ui.longTwissSpec
         longTwissButton.setMenu(longTwissMenu)
-        longTwissButton.setPopupMode(QToolButton.InstantPopup)
+        longTwissButton.setPopupMode(QtGui.QToolButton.InstantPopup)
         
         # specify physical constants
         self.c     = 299792458.           # speed of light [m/s]
@@ -237,23 +236,23 @@ class RbBunchWindow(QWidget):
         self.ui.unitsAngle.setText(self.unitsAngle)
         self.ui.numTicks.setText(str(self.numTicks))
         
-        self.ui.twissTable.setItem(0,0,QTableWidgetItem('0.'))
-        self.ui.twissTable.setItem(1,0,QTableWidgetItem('0.'))
-        self.ui.twissTable.setItem(0,1,QTableWidgetItem('1 m'))
-        self.ui.twissTable.setItem(1,1,QTableWidgetItem('1 m'))
-        self.ui.twissTable.setItem(0,2,QTableWidgetItem('1 micron'))
-        self.ui.twissTable.setItem(1,2,QTableWidgetItem('1 micron'))
+        self.ui.twissTable.setItem(0,0,QtGui.QTableWidgetItem('0.'))
+        self.ui.twissTable.setItem(1,0,QtGui.QTableWidgetItem('0.'))
+        self.ui.twissTable.setItem(0,1,QtGui.QTableWidgetItem('1 m'))
+        self.ui.twissTable.setItem(1,1,QtGui.QTableWidgetItem('1 m'))
+        self.ui.twissTable.setItem(0,2,QtGui.QTableWidgetItem('1 micron'))
+        self.ui.twissTable.setItem(1,2,QtGui.QTableWidgetItem('1 micron'))
 
-        self.ui.twissTableZ.setItem(0,0,QTableWidgetItem('0'))
-        self.ui.twissTableZ.setItem(0,1,QTableWidgetItem('1 mm'))
-        self.ui.twissTableZ.setItem(0,2,QTableWidgetItem('1.e-3'))
+        self.ui.twissTableZ.setItem(0,0,QtGui.QTableWidgetItem('0'))
+        self.ui.twissTableZ.setItem(0,1,QtGui.QTableWidgetItem('1 mm'))
+        self.ui.twissTableZ.setItem(0,2,QtGui.QTableWidgetItem('1.e-3'))
         
-        self.ui.offsetTable.setItem(0,0,QTableWidgetItem('0 mm'))
-        self.ui.offsetTable.setItem(1,0,QTableWidgetItem('0 mm'))
-        self.ui.offsetTable.setItem(2,0,QTableWidgetItem('0 mm'))
-        self.ui.offsetTable.setItem(0,1,QTableWidgetItem('0 mrad'))
-        self.ui.offsetTable.setItem(1,1,QTableWidgetItem('0 mrad'))
-        self.ui.offsetTable.setItem(2,1,QTableWidgetItem('0 mrad'))
+        self.ui.offsetTable.setItem(0,0,QtGui.QTableWidgetItem('0 mm'))
+        self.ui.offsetTable.setItem(1,0,QtGui.QTableWidgetItem('0 mm'))
+        self.ui.offsetTable.setItem(2,0,QtGui.QTableWidgetItem('0 mm'))
+        self.ui.offsetTable.setItem(0,1,QtGui.QTableWidgetItem('0 mrad'))
+        self.ui.offsetTable.setItem(1,1,QtGui.QTableWidgetItem('0 mrad'))
+        self.ui.offsetTable.setItem(2,1,QtGui.QTableWidgetItem('0 mrad'))
 
         # file directories
         self.parent = parent
@@ -275,12 +274,12 @@ class RbBunchWindow(QWidget):
         self.generateBunchRT()
 
     def radtrackUniform(self):
-        msgBox = QMessageBox()
+        msgBox = QtGui.QMessageBox()
         msgBox.setText("This feature has not yet been implemented. Coming soon!")
         msgBox.exec_()        
 
     def elegantGaussian(self):
-        msgBox = QMessageBox()
+        msgBox = QtGui.QMessageBox()
         msgBox.setText("This feature has not yet been implemented. Coming soon!")
         msgBox.exec_()        
         
@@ -309,7 +308,7 @@ class RbBunchWindow(QWidget):
             self.twissEmitNZ = (self.bctRms/beta0) * self.dPopRms / math.sqrt(1.+self.twissAlphaZ**2)
             self.twissBetaZ  = (self.bctRms/beta0) / self.dPopRms * math.sqrt(1.+self.twissAlphaZ**2)
         elif self.longTwissFlag == "coupling-bct-dp":
-            msgBox = QMessageBox()
+            msgBox = QtGui.QMessageBox()
             message  = 'Error --\n\n'
             message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
             message += '  This value is not yet supported, but is coming soon!\n\n'
@@ -318,7 +317,7 @@ class RbBunchWindow(QWidget):
             msgBox.setText(message)
             msgBox.exec_()        
         elif self.longTwissFlag == "alpha-beta-emit":
-            msgBox = QMessageBox()
+            msgBox = QtGui.QMessageBox()
             message  = 'Error --\n\n'
             message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
             message += '  This value is not yet supported, but is coming soon!\n\n'
@@ -327,7 +326,7 @@ class RbBunchWindow(QWidget):
             msgBox.setText(message)
             msgBox.exec_()        
         else:
-            msgBox = QMessageBox()
+            msgBox = QtGui.QMessageBox()
             message  = 'Error --\n\n'
             message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
             message += '  This choice is invalid!\n\n'
@@ -785,7 +784,7 @@ class RbBunchWindow(QWidget):
 #        self.perpTwissFlag = 'rms-geometric'
         
         # not yet implemented...
-        msgBox = QMessageBox()
+        msgBox = QtGui.QMessageBox()
         msgBox.setText("This feature has not yet been implemented. Coming soon!")
         msgBox.exec_()
 
@@ -794,7 +793,7 @@ class RbBunchWindow(QWidget):
 #        self.perpTwissFlag = '90%-normalized'
         
         # not yet implemented...
-        msgBox = QMessageBox()
+        msgBox = QtGui.QMessageBox()
         msgBox.setText("This feature has not yet been implemented. Coming soon!")
         msgBox.exec_()
 
@@ -811,7 +810,7 @@ class RbBunchWindow(QWidget):
         # specify the longitudinal Twiss conventions
 #        self.longTwissFlag = 'coupling-bct-dp'
         
-        msgBox = QMessageBox()
+        msgBox = QtGui.QMessageBox()
         msgBox.setText("This feature has not yet been implemented. Coming soon!")
         msgBox.exec_()        
 
@@ -819,7 +818,7 @@ class RbBunchWindow(QWidget):
         # specify the longitudinal Twiss conventions
 #        self.longTwissFlag = 'alpha-beta-emit'
         
-        msgBox = QMessageBox()
+        msgBox = QtGui.QMessageBox()
         msgBox.setText("This feature has not yet been implemented. Coming soon!")
         msgBox.exec_()        
 
@@ -850,12 +849,12 @@ class RbBunchWindow(QWidget):
         self.twissEmitNZ = self.twissZ.getEmitRMS()
 
         # load Twiss parameters into window for user to see
-        self.ui.twissTable.setItem(0,0,QTableWidgetItem("{:.5e}".format(self.twissAlphaX)))
-        self.ui.twissTable.setItem(1,0,QTableWidgetItem("{:.5e}".format(self.twissAlphaY)))
-        self.ui.twissTable.setItem(0,1,QTableWidgetItem("{:.5e}".format(self.twissBetaX)))
-        self.ui.twissTable.setItem(1,1,QTableWidgetItem("{:.5e}".format(self.twissBetaY)))
-        self.ui.twissTable.setItem(0,2,QTableWidgetItem("{:.5e}".format(self.twissEmitNX)))
-        self.ui.twissTable.setItem(1,2,QTableWidgetItem("{:.5e}".format(self.twissEmitNY)))
+        self.ui.twissTable.setItem(0,0,QtGui.QTableWidgetItem("{:.5e}".format(self.twissAlphaX)))
+        self.ui.twissTable.setItem(1,0,QtGui.QTableWidgetItem("{:.5e}".format(self.twissAlphaY)))
+        self.ui.twissTable.setItem(0,1,QtGui.QTableWidgetItem("{:.5e}".format(self.twissBetaX)))
+        self.ui.twissTable.setItem(1,1,QtGui.QTableWidgetItem("{:.5e}".format(self.twissBetaY)))
+        self.ui.twissTable.setItem(0,2,QtGui.QTableWidgetItem("{:.5e}".format(self.twissEmitNX)))
+        self.ui.twissTable.setItem(1,2,QtGui.QTableWidgetItem("{:.5e}".format(self.twissEmitNY)))
 
         # need the design momentum in order to handle the longitudinal phase space
         self.designMomentumEV = self.myBunch.getDesignMomentumEV()
@@ -870,12 +869,12 @@ class RbBunchWindow(QWidget):
             twissGammaZ = (1.+self.twissAlphaZ**2) / self.twissBetaZ
             self.dPopRms = math.sqrt(self.twissEmitNZ*twissGammaZ)
             
-            self.ui.twissTableZ.setItem(0,0,QTableWidgetItem("{:.5e}".format(self.twissAlphaZ)))
-            self.ui.twissTableZ.setItem(0,1,QTableWidgetItem("{:.5e}".format(self.bctRms)))
-            self.ui.twissTableZ.setItem(0,2,QTableWidgetItem("{:.5e}".format(self.dPopRms)))
+            self.ui.twissTableZ.setItem(0,0,QtGui.QTableWidgetItem("{:.5e}".format(self.twissAlphaZ)))
+            self.ui.twissTableZ.setItem(0,1,QtGui.QTableWidgetItem("{:.5e}".format(self.bctRms)))
+            self.ui.twissTableZ.setItem(0,2,QtGui.QTableWidgetItem("{:.5e}".format(self.dPopRms)))
 
         elif self.longTwissFlag == "coupling-bct-dp":
-            msgBox = QMessageBox()
+            msgBox = QtGui.QMessageBox()
             message  = 'Error --\n\n'
             message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
             message += '  This value is not yet supported, but is coming soon!\n\n'
@@ -884,7 +883,7 @@ class RbBunchWindow(QWidget):
             msgBox.setText(message)
             msgBox.exec_()        
         elif self.longTwissFlag == "alpha-beta-emit":
-            msgBox = QMessageBox()
+            msgBox = QtGui.QMessageBox()
             message  = 'Error --\n\n'
             message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
             message += '  This value is not yet supported, but is coming soon!\n\n'
@@ -893,7 +892,7 @@ class RbBunchWindow(QWidget):
             msgBox.setText(message)
             msgBox.exec_()        
         else:
-            msgBox = QMessageBox()
+            msgBox = QtGui.QMessageBox()
             message  = 'Error --\n\n'
             message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
             message += '  This choice is invalid!\n\n'
@@ -906,12 +905,12 @@ class RbBunchWindow(QWidget):
         avgArray = self.myStat.calcAverages6D(self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D())
 
         # load offsets into window for user to see
-        self.ui.offsetTable.setItem(0,0,QTableWidgetItem("{:.5e}".format(avgArray[0])))
-        self.ui.offsetTable.setItem(1,0,QTableWidgetItem("{:.5e}".format(avgArray[2])))
-        self.ui.offsetTable.setItem(2,0,QTableWidgetItem("{:.5e}".format(avgArray[4])))
-        self.ui.offsetTable.setItem(0,1,QTableWidgetItem("{:.5e}".format(avgArray[1])))
-        self.ui.offsetTable.setItem(1,1,QTableWidgetItem("{:.5e}".format(avgArray[3])))
-        self.ui.offsetTable.setItem(2,1,QTableWidgetItem("{:.5e}".format(avgArray[5])))
+        self.ui.offsetTable.setItem(0,0,QtGui.QTableWidgetItem("{:.5e}".format(avgArray[0])))
+        self.ui.offsetTable.setItem(1,0,QtGui.QTableWidgetItem("{:.5e}".format(avgArray[2])))
+        self.ui.offsetTable.setItem(2,0,QtGui.QTableWidgetItem("{:.5e}".format(avgArray[4])))
+        self.ui.offsetTable.setItem(0,1,QtGui.QTableWidgetItem("{:.5e}".format(avgArray[1])))
+        self.ui.offsetTable.setItem(1,1,QtGui.QTableWidgetItem("{:.5e}".format(avgArray[3])))
+        self.ui.offsetTable.setItem(2,1,QtGui.QTableWidgetItem("{:.5e}".format(avgArray[5])))
         
         # obtain top-level parameters
         self.designMomentumEV = self.myBunch.getDesignMomentumEV()
@@ -925,7 +924,7 @@ class RbBunchWindow(QWidget):
     def readFromSDDS(self, fileName = None):
         # use Qt file dialog
         if not fileName:
-            fileName, _ = QFileDialog.getOpenFileName(self, "Import Elegant/SDDS particle file -- ",
+            fileName = QFileDialog.getOpenFileName(self, "Import Elegant/SDDS particle file -- ",
                                                   self.parent.lastUsedDirectory, "*.sdds")
         # if user cancels out, do nothing
         if fileName == '':
@@ -936,7 +935,7 @@ class RbBunchWindow(QWidget):
             
         # throw exception for bad extensions
         if ext != '.sdds':
-            msgBox = QMessageBox()
+            msgBox = QtGui.QMessageBox()
             message  = 'ERROR --\n\n'
             message += '  The selected file extension "' + ext + '" is invalid.\n'
             message += '  Please select a file with extension ".sdds" - thanks!'
@@ -979,7 +978,7 @@ class RbBunchWindow(QWidget):
                 print ' paramDefs[',iLoop,'] = ', paramDefs[iLoop]
 
         # give the user a look at the parameters (if any)
-        msgBox = QMessageBox()
+        msgBox = QtGui.QMessageBox()
         if numParams == 0:
             message  = 'WARNING --\n\n'
             message += 'No parameters were found in your selected SDDS file!!\n\n'
@@ -1045,7 +1044,7 @@ class RbBunchWindow(QWidget):
 
         # check whether the particle data is 6D
         if numColumns != 6:
-            msgBox = QMessageBox()
+            msgBox = QtGui.QMessageBox()
             message  = 'ERROR --\n\n'
             message += '  Particle data in the selected SDDS file is not 6D!\n\n'
             message += '  Column names are: \n'
@@ -1117,7 +1116,7 @@ class RbBunchWindow(QWidget):
         # initial validation of the column data
         for iLoop in range(6):
             if dataRead[iLoop] == False:                
-                msgBox = QMessageBox()
+                msgBox = QtGui.QMessageBox()
                 message  = 'ERROR --\n\n'
                 message += '  Not all of the data columns could be correctly interpreted!\n'
                 message += '  These are the column headings that were parsed from the file:\n'
@@ -1150,7 +1149,7 @@ class RbBunchWindow(QWidget):
         
         for iLoop in range(5):
             if numElements[iLoop+1] != numElements[0]:
-                msgBox = QMessageBox()
+                msgBox = QtGui.QMessageBox()
                 message  = 'ERROR --\n\n'
                 message += '  Not all of the data columns have the same length!\n'
                 message += '  Here is the number of elements found in each column:\n'
@@ -1203,8 +1202,8 @@ class RbBunchWindow(QWidget):
 
     def readFromCSV(self, fileName = None):
         if fileName is None or fileName == '':
-            fileName, _ = QFileDialog.getOpenFileName(self, "Import RadTrack particle file -- ",
-                                                      self.parent.lastUsedDirectory, "*.csv")
+            fileName = QFileDialog.getOpenFileName(self, "Import RadTrack particle file -- ",
+                                                   self.parent.lastUsedDirectory, "*.csv")
             if fileName == '':
                 return
             self.parent.lastUsedDirectory = dirname(fileName)
@@ -1213,7 +1212,7 @@ class RbBunchWindow(QWidget):
             
         # notify user about bad extensions
         if ext != '.csv':
-            msgBox = QMessageBox()
+            msgBox = QtGui.QMessageBox()
             message  = 'ERROR --\n\n'
             message += '  The selected file extension "' + ext + '" is invalid.\n'
             message += '  Please select a file with extension ".csv" - thanks!'
@@ -1237,7 +1236,7 @@ class RbBunchWindow(QWidget):
             if lineNumber == 1:
                 if rawData[0] != 'RadTrack':
                     fileObject.close()
-                    msgBox = QMessageBox()
+                    msgBox = QtGui.QMessageBox()
                     message  = 'ERROR --\n\n'
                     message += '  The selected CSV file was not generated by RadTrack.\n'
                     message += '  Please select another file.\n\n'
@@ -1270,7 +1269,7 @@ class RbBunchWindow(QWidget):
         arrayShape = np.shape(tmp6)
         numDimensions = arrayShape[0]
         if numDimensions != 6:
-            msgBox = QMessageBox()
+            msgBox = QtGui.QMessageBox()
             message  = 'ERROR --\n\n'
             message += '  Particle data in the selected CSV file is not 6D!\n'
             message += '  Please select another file.\n\n'
@@ -1311,7 +1310,7 @@ class RbBunchWindow(QWidget):
        
     def saveToCSV(self, fileName = None):
         if fileName is None or fileName == '':
-            fileName, _ = QFileDialog.getSaveFileName(self, 'Save distribution to RadTrack file ...',
+            fileName = QFileDialog.getSaveFileName(self, 'Save distribution to RadTrack file ...',
                              self.parent.lastUsedDirectory, "*.csv")
             if fileName == '':
                 return
@@ -1323,7 +1322,7 @@ class RbBunchWindow(QWidget):
             
         # throw exception for bad extensions
         if ext != '.csv':
-            msgBox = QMessageBox()
+            msgBox = QtGui.QMessageBox()
             message  = 'ERROR --\n\n'
             message += '  The specified file extension "' + ext + '" is not ".csv"!\n'
             message += '  Please try again, but be sure to specify a ".csv" extension.\n\n'
@@ -1366,7 +1365,7 @@ class RbBunchWindow(QWidget):
        
     def saveToSDDS(self, sddsFileName = None):
         if sddsFileName is None or sddsFileName == '':
-            sddsFileName, _ = QFileDialog.getSaveFileName(self, 'Save distribution to Elegant/SDDS file ...',
+            sddsFileName = QtGui.QFileDialog.getSaveFileName(self, 'Save distribution to Elegant/SDDS file ...',
                               self.parent.lastUsedDirectory, "*.sdds")
             if sddsFileName == '':
                 return
@@ -1378,7 +1377,7 @@ class RbBunchWindow(QWidget):
             
         # check for bad extensions
         if ext != '.sdds':
-            msgBox = QMessageBox()
+            msgBox = QtGui.QMessageBox()
             message  = 'ERROR --\n\n'
             message += '  The specified file extension "' + ext + '" is not ".sdds"!\n'
             message += '  Please try again, but be sure to specify a ".sdds" extension.\n\n'
@@ -1424,7 +1423,7 @@ class RbBunchWindow(QWidget):
        
     def convertToSDDS(self):
         # use Qt file dialog
-        csvFileName, _ = QFileDialog.getOpenFileName(self, 'Choose CSV file to be converted...',
+        csvFileName = QtGui.QFileDialog.getOpenFileName(self, 'Choose CSV file to be converted...',
                          self.parent.lastUsedDirectory, "*.csv")
 
         # if user cancels out, do nothing
@@ -1436,7 +1435,7 @@ class RbBunchWindow(QWidget):
             
         # check for bad extensions
         if ext != '.csv':
-            msgBox = QMessageBox()
+            msgBox = QtGui.QMessageBox()
             message  = 'ERROR --\n\n'
             message += '  The specified file extension "' + ext + '" is not ".csv"!\n'
             message += '  Please try again, but be sure to specify a ".csv" extension.\n\n'

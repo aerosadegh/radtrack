@@ -5,7 +5,7 @@ Created on Wed Aug 28 18:35:56 2013
 @author: Steven Wu, Mark Harrison
 """
 
-from PySide.QtCore import QPointF
+from PyQt4.QtCore import QPointF
 import math
 
 from RbElementCommon import sanitizeName

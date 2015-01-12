@@ -3,11 +3,9 @@ Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 """
 import sys, math
 import numpy as np
-from PySide import QtGui, QtCore
+from PyQt4 import QtGui, QtCore
 from os.path import expanduser, dirname
 import matplotlib
-matplotlib.use('Qt4Agg')
-matplotlib.rcParams['backend.qt4']='PySide'
 from RadTrack.dcp.Servicelib import *
 from RadTrack.dcp.SRWlib import SRWFileRead1, SRW
 from RadTrack.dcp.Flatfilelib import FF, FFColRead

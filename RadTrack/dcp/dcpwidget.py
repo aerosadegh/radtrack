@@ -7,7 +7,7 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PySide import QtCore, QtGui
+from PyQt4 import QtCore, QtGui
 from RadTrack.gui.matplotlibwidget import matplotlibWidget
 
 class Ui_dcpwidget(object):

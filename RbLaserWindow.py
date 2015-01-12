@@ -23,13 +23,15 @@ import math
 # SciPy imports
 import numpy as np
 import matplotlib
-matplotlib.use('Qt4Agg')
-matplotlib.rcParams['backend.qt4']='PySide'
+#matplotlib.use('Qt4Agg')
+#matplotlib.rcParams['backend.qt4']='PyQt4'
 import matplotlib.pyplot as plt
 from scipy.optimize import leastsq
 
-# PySide imports
-from PySide.QtGui import *
+# PyQt4 imports
+import sip
+sip.setapi('QString', 2)
+from PyQt4.QtGui import *
 
 # RadTrack imports
 import RadTrack.fields.RbGaussHermiteMN as hermite
@@ -93,10 +95,10 @@ class RbLaserWindow(QWidget):
         self.ui.noTitles.clicked.connect(self.togglePlotTitles)
 
         # create a menu for saving files
-        exportMenu = QMenu(self)
-        saveToCSV = QAction("RadTrack CSV format",self)
+        exportMenu = QtGui.QMenu(self)
+        saveToCSV = QtGui.QAction("RadTrack CSV format",self)
         exportMenu.addAction(saveToCSV)
-        saveToSDDS = QAction("SRW SDDS format",self)
+        saveToSDDS = QtGui.QAction("SRW SDDS format",self)
         exportMenu.addAction(saveToSDDS)
 
         # associate these actions with class methods
@@ -106,13 +108,13 @@ class RbLaserWindow(QWidget):
         # grab an existing button & insert the menu
         saveToFileButton = self.ui.saveToFile
         saveToFileButton.setMenu(exportMenu)
-        saveToFileButton.setPopupMode(QToolButton.InstantPopup)
+        saveToFileButton.setPopupMode(QtGui.QToolButton.InstantPopup)
 
         # create a menu for importing particle data
-        importMenu = QMenu(self)
-        readFromCSV = QAction("RadTrack CSV format",self)
+        importMenu = QtGui.QMenu(self)
+        readFromCSV = QtGui.QAction("RadTrack CSV format",self)
         importMenu.addAction(readFromCSV)
-        readFromSDDS = QAction("SRW SDDS format",self)
+        readFromSDDS = QtGui.QAction("SRW SDDS format",self)
         importMenu.addAction(readFromSDDS)
 
         self.acceptsFileTypes = ['sdds', 'csv']
@@ -124,7 +126,7 @@ class RbLaserWindow(QWidget):
         # grab an existing button & insert the menu
         importFileButton = self.ui.importFile
         importFileButton.setMenu(importMenu)
-        importFileButton.setPopupMode(QToolButton.InstantPopup)
+        importFileButton.setPopupMode(QtGui.QToolButton.InstantPopup)
 
         # create a menu for laser pulse generation
         pulseMenu = QMenu(self)
@@ -659,7 +661,7 @@ class RbLaserWindow(QWidget):
     def readFromSDDS(self, fileName = None):
         # use Qt file dialog
         if not fileName:
-            fileName, _ = QFileDialog.getOpenFileName(self, "Import Elegant/SDDS particle file -- ",
+            fileName = QFileDialog.getOpenFileName(self, "Import Elegant/SDDS particle file -- ",
                                                   self.parent.lastUsedDirectory, "*.sdds")
         # if user cancels out, do nothing
         if fileName == '':
@@ -670,7 +672,7 @@ class RbLaserWindow(QWidget):
 
         # throw exception for bad extensions
         if ext != '.sdds':
-            msgBox = QMessageBox()
+            msgBox = QtGui.QMessageBox()
             message  = 'ERROR --\n\n'
             message += '  The selected file extension "' + ext + '" is invalid.\n'
             message += '  Please select a file with extension ".sdds" - thanks!'
@@ -713,7 +715,7 @@ class RbLaserWindow(QWidget):
                 print ' paramDefs[',iLoop,'] = ', paramDefs[iLoop]
 
         # give the user a look at the parameters (if any)
-        msgBox = QMessageBox()
+        msgBox = QtGui.QMessageBox()
         if numParams == 0:
             message  = 'WARNING --\n\n'
             message += 'No parameters were found in your selected SDDS file!!\n\n'
@@ -779,7 +781,7 @@ class RbLaserWindow(QWidget):
 
         # check whether the particle data is 6D
         if numColumns != 6:
-            msgBox = QMessageBox()
+            msgBox = QtGui.QMessageBox()
             message  = 'ERROR --\n\n'
             message += '  Particle data in the selected SDDS file is not 6D!\n\n'
             message += '  Column names are: \n'
@@ -851,7 +853,7 @@ class RbLaserWindow(QWidget):
         # initial validation of the column data
         for iLoop in range(6):
             if dataRead[iLoop] == False:
-                msgBox = QMessageBox()
+                msgBox = QtGui.QMessageBox()
                 message  = 'ERROR --\n\n'
                 message += '  Not all of the data columns could be correctly interpreted!\n'
                 message += '  These are the column headings that were parsed from the file:\n'
@@ -884,7 +886,7 @@ class RbLaserWindow(QWidget):
 
         for iLoop in range(5):
             if numElements[iLoop+1] != numElements[0]:
-                msgBox = QMessageBox()
+                msgBox = QtGui.QMessageBox()
                 message  = 'ERROR --\n\n'
                 message += '  Not all of the data columns have the same length!\n'
                 message += '  Here is the number of elements found in each column:\n'
@@ -937,7 +939,7 @@ class RbLaserWindow(QWidget):
 
     def readFromCSV(self, fileName = None):
         if fileName is None or fileName == '':
-            fileName, _ = QFileDialog.getOpenFileName(self, "Import RadTrack particle file -- ",
+            fileName, _ = QtGui.QFileDialog.getOpenFileName(self, "Import RadTrack particle file -- ",
                                                       self.parent.lastUsedDirectory, "*.csv")
             if fileName == '':
                 return
@@ -947,7 +949,7 @@ class RbLaserWindow(QWidget):
 
         # notify user about bad extensions
         if ext != '.csv':
-            msgBox = QMessageBox()
+            msgBox = QtGui.QMessageBox()
             message  = 'ERROR --\n\n'
             message += '  The selected file extension "' + ext + '" is invalid.\n'
             message += '  Please select a file with extension ".csv" - thanks!'
@@ -971,7 +973,7 @@ class RbLaserWindow(QWidget):
             if lineNumber == 1:
                 if rawData[0] != 'RadTrack':
                     fileObject.close()
-                    msgBox = QMessageBox()
+                    msgBox = QtGui.QMessageBox()
                     message  = 'ERROR --\n\n'
                     message += '  The selected CSV file was not generated by RadTrack.\n'
                     message += '  Please select another file.\n\n'
@@ -1004,7 +1006,7 @@ class RbLaserWindow(QWidget):
         arrayShape = np.shape(tmp6)
         numDimensions = arrayShape[0]
         if numDimensions != 6:
-            msgBox = QMessageBox()
+            msgBox = QtGui.QMessageBox()
             message  = 'ERROR --\n\n'
             message += '  Particle data in the selected CSV file is not 6D!\n'
             message += '  Please select another file.\n\n'
@@ -1045,7 +1047,7 @@ class RbLaserWindow(QWidget):
 
     def saveToCSV(self, fileName = None):
         if fileName is None or fileName == '':
-            fileName, _ = QFileDialog.getSaveFileName(self, 'Save distribution to RadTrack file ...',
+            fileName, _ = QtGui.QFileDialog.getSaveFileName(self, 'Save distribution to RadTrack file ...',
                              self.parent.lastUsedDirectory, "*.csv")
             if fileName == '':
                 return
@@ -1057,7 +1059,7 @@ class RbLaserWindow(QWidget):
 
         # throw exception for bad extensions
         if ext != '.csv':
-            msgBox = QMessageBox()
+            msgBox = QtGui.QMessageBox()
             message  = 'ERROR --\n\n'
             message += '  The specified file extension "' + ext + '" is not ".csv"!\n'
             message += '  Please try again, but be sure to specify a ".csv" extension.\n\n'
@@ -1100,7 +1102,7 @@ class RbLaserWindow(QWidget):
 
     def saveToSDDS(self, sddsFileName = None):
         if sddsFileName is None or sddsFileName == '':
-            sddsFileName, _ = QFileDialog.getSaveFileName(self, 'Save distribution to Elegant/SDDS file ...',
+            sddsFileName, _ = QtGui.QFileDialog.getSaveFileName(self, 'Save distribution to Elegant/SDDS file ...',
                               self.parent.lastUsedDirectory, "*.sdds")
             if sddsFileName == '':
                 return
@@ -1112,7 +1114,7 @@ class RbLaserWindow(QWidget):
 
         # check for bad extensions
         if ext != '.sdds':
-            msgBox = QMessageBox()
+            msgBox = QtGui.QMessageBox()
             message  = 'ERROR --\n\n'
             message += '  The specified file extension "' + ext + '" is not ".sdds"!\n'
             message += '  Please try again, but be sure to specify a ".sdds" extension.\n\n'

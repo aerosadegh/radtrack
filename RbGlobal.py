@@ -5,7 +5,9 @@ Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 import sys, os, tempfile, shutil
 from zipfile import ZipFile
 
-from PySide import QtGui
+import sip
+sip.setapi('QString', 2)
+from PyQt4 import QtGui
 
 from globalgu import Ui_globalgu
 from RbLaserWindow import RbLaserWindow
@@ -24,6 +26,8 @@ class RbGlobal(QtGui.QMainWindow):
     #Constructor
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
+        self.ui = Ui_globalgu()
+        self.ui.setupUi(self)
 
         self.lastUsedDirectory = os.path.expanduser('~')
         self.fileExtension = '.radtrack'
@@ -155,8 +159,8 @@ class RbGlobal(QtGui.QMainWindow):
 
 
     def importFile(self, openFile = None):
-        if openFile is None or openFile == '':
-            openFile, _ = QtGui.QFileDialog.getOpenFileName(self, 'Open file', self.lastUsedDirectory,
+        if not openFile:
+            openFile = QtGui.QFileDialog.getOpenFileName(self, 'Open file', self.lastUsedDirectory,
                     "All Files (*.*);;" +
                     "Laser Transport (*.rad);;" +
                     "Charged Beam Transport (*.lte);;" +
@@ -217,7 +221,7 @@ class RbGlobal(QtGui.QMainWindow):
     def openProjectFile(self, fileName = None):
         print "Opening: ", fileName
         if fileName is None or fileName == '':
-            fileName, _ = QtGui.QFileDialog.getOpenFileName(self, 
+            fileName = QtGui.QFileDialog.getOpenFileName(self, 
                     'Open file', 
                     self.lastUsedDirectory, 
                     '*' + self.fileExtension)
@@ -247,7 +251,7 @@ class RbGlobal(QtGui.QMainWindow):
         dest.lastUsedDirectory = os.path.dirname(fileName)
 
     def saveProjectFile(self):
-        fileName, _ = QtGui.QFileDialog.getSaveFileName(self,
+        fileName = QtGui.QFileDialog.getSaveFileName(self,
                 'Save Project',
                 self.lastUsedDirectory,
                 '*' + self.fileExtension)

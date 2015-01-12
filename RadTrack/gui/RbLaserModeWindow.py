@@ -1,28 +1,49 @@
+"""
+Module defining interactive window for Gauss-Hermite laser modes.
+
+Imports the auto-generated RbLaserModeInterface.py module, which is
+created via pyside-uic.exe from Qt's RbLaserModeInterface.ui file.
+
+Here, the window is instantiated and hooks to the production
+Python code are established.
+
+moduleauthor:: David Bruhwiler <bruhwiler@radiasoft.net>
+Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
+"""
+
+# system imports
 import sys
+
+# SciPy imports
 import numpy as np
+import matplotlib
+#matplotlib.use('Qt4Agg')
+#matplotlib.rcParams['backend.qt4']='PyQt4'
+
+# PyQt4 imports
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-import matplotlib
-matplotlib.use('Qt4Agg')
-matplotlib.rcParams['backend.qt4']='PyQt4'
+
+# RadTrack imports
 import RadTrack.fields.RbGaussHermiteMN as hermite
-from RadTrack.gui.dcp3 import *
+from RadTrack.gui.RbLaserModeInterface import *
 
-class RbContour(QMainWindow):
-    def __init__(self, parent=None):
-        super(RbContour, self).__init__()
-        self.ui = Ui_DCP3()
-        self.ui.setupUi(self)
+class RbLaserModeWindow(QMainWindow):
+    def __init__(self,parent=None):
+	super(RbLaserModeWindow, self).__init__()
+	self.ui = Ui_laserModeInterface()
+	self.ui.setupUi(self)
 
-        self.ui.pushButton.clicked.connect(self.display)
-    
+	self.ui.generatePulse.clicked.connect(self.display)
 
     def display(self):
-        mystring = self.ui.lineEdit.text()
-        hcoef = int(mystring)
+        # get output from text boxes
+        hcoef = int(self.ui.hModeInput.text())
+        vcoef = int(self.ui.vModeInput.text())
+
         # Specify the desired grid size
-        numX = 100 
-        numY = 100
+        numX = 128 
+        numY = 128
         numCells = numX * numY 
 
         # Specify the laser beam parameters
@@ -30,8 +51,8 @@ class RbContour(QMainWindow):
         w0x = 10.*wavelength  # w0 at z=0.
 
         # load up the x,y locations of the mesh [m]
-        xMin = -4.*w0x
-        xMax =  4.*w0x
+        xMin = -8.*w0x
+        xMax =  8.*w0x
         yMin = xMin
         yMax = xMax
 
@@ -53,7 +74,8 @@ class RbContour(QMainWindow):
         # Create a class instance for mode 0,0 (Gaussian)
         exMax = 1.3e+09
         gh00 = hermite.RbGaussHermiteMN(wavelength,w0x,2.0*w0x,0.)
-        gh00.setCoeffSingleMode(hcoef, exMax, 0, 1.)
+        gh00.setCoeffSingleModeX(hcoef, exMax)
+        gh00.setCoeffSingleModeY(vcoef, 1.)
 
         # Calculate Ex at the 2D array of x,y values
         Ex = np.reshape(gh00.evaluateEx(np.reshape(xGrid,numCells),   \
@@ -71,16 +93,13 @@ class RbContour(QMainWindow):
         self.ui.widget.canvas.ax.clear()
         self.ui.widget.canvas.ax.contourf(x_nm, y_nm, Ex, 20)
         self.ui.widget.canvas.draw()
-        
-        
 
 
 def main():
-
     app = QtGui.QApplication(sys.argv)
-    myapp = RbContour()
+    myapp = RbLaserModeWindow()
     myapp.show()
     sys.exit(app.exec_())
 
 if __name__ == '__main__':
-    main()
+   main()

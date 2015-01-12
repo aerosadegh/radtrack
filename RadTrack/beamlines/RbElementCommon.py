@@ -8,8 +8,8 @@ by Steven Wu, Mark Harrison
 """
 
 import string
-import PySide.QtGui as pygui
-import PySide.QtCore as pycore
+import PyQt4.QtGui as pygui
+import PyQt4.QtCore as pycore
 from math import sin, cos, tan, pi, sqrt
 
 def cot(angle):
@@ -161,7 +161,7 @@ class alphaPic:
                 placement(pos,angle)
 
         
-        item = pygui.QGraphicsPolygonItem(alphBox)
+        item = pygui.QGraphicsPolygonItem(pygui.QPolygonF(alphBox))
         item.setToolTip(self.toolTip())
         item.setTransform(transform)
         item.setBrush(pygui.QBrush(pycore.Qt.red))
@@ -206,7 +206,7 @@ class bendPic:
 
         transform = pygui.QTransform().rotateRadians(.5*bendAngle)*placement(pos,angle)
             
-        pic = pygui.QGraphicsPolygonItem(trapezoid)
+        pic = pygui.QGraphicsPolygonItem(pygui.QPolygonF(trapezoid))
         pic.setTransform(transform)
         pic.setBrush(pygui.QBrush(pycore.Qt.blue))
         pic.setToolTip(self.toolTip())
@@ -255,8 +255,8 @@ class aperturePic(driftPic):
                  pycore.QPointF(length, -height),
                  pycore.QPointF(length, -opening)]        
 
-        itemLower = pygui.QGraphicsPolygonItem(lower)
-        itemUpper = pygui.QGraphicsPolygonItem(lower)
+        itemLower = pygui.QGraphicsPolygonItem(pygui.QPolygonF(lower))
+        itemUpper = pygui.QGraphicsPolygonItem(pygui.QPolygonF(lower))
 
         # Create upper part from lower part
         upperTransform = pygui.QTransform().translate(length,0).rotate(180)
@@ -309,7 +309,7 @@ class reflectiveGratingPic:
         gratingShape.append(pycore.QPointF(xSize, -ySize))
         gratingShape.append(pycore.QPointF(xSize, ySize))
 
-        item = pygui.QGraphicsPolygonItem(gratingShape)
+        item = pygui.QGraphicsPolygonItem(pygui.QPolygonF(gratingShape))
         item.setTransform(placement(pos, angle+rotationAngle))
         item.setBrush(pycore.Qt.gray)
         item.setToolTip(self.toolTip())
@@ -335,7 +335,7 @@ class gratingPic:
             boxShape.append(pycore.QPointF(-boxWidth, y+boxHeight))
             boxShape.append(pycore.QPointF(0, y+boxHeight))
             boxShape.append(pycore.QPointF(0, y))
-            item = pygui.QGraphicsPolygonItem(boxShape)
+            item = pygui.QGraphicsPolygonItem(pygui.QPolygonF(boxShape))
             item.setTransform(placement(pos, angle))
             item.setBrush(pycore.Qt.black)
             item.setToolTip(self.toolTip())
@@ -364,7 +364,7 @@ class lensPic:
             position += advance
 
             if previousSurface is not None:
-                item = pygui.QGraphicsPolygonItem(previousSurface + surface)
+                item = pygui.QGraphicsPolygonItem(pygui.QPolygonF(previousSurface + surface))
                 item.setTransform(placement(pos, angle))
                 item.setBrush(pygui.QColor(pycore.Qt.blue).lighter())
                 item.setToolTip(self.toolTip())
@@ -389,7 +389,7 @@ class magnetPic:
                 pycore.QPointF(0,       0.5*height),
                 pycore.QPointF(length,  0.5*height),
                 pycore.QPointF(length, -0.5*height)]        
-        item = pygui.QGraphicsPolygonItem(quad)
+        item = pygui.QGraphicsPolygonItem(pygui.QPolygonF(quad))
 
         item.setToolTip(self.toolTip())
         item.setTransform(placement(pos,angle))
@@ -422,7 +422,7 @@ class mirrorPic:
         backSurface, _ = curvedSurface(sign, height, advance)
         backSurface.reverse()
 
-        item = pygui.QGraphicsPolygonItem(frontSurface + backSurface)
+        item = pygui.QGraphicsPolygonItem(pygui.QPolygonF(frontSurface + backSurface))
         item.setTransform(placement(pos, angle+rotationAngle))
         item.setBrush(pygui.QColor(pycore.Qt.blue).lighter())
         item.setToolTip(self.toolTip())
@@ -455,14 +455,14 @@ class recircPic:
         arrowHead = [pycore.QPointF(radius  ,  0),
                      pycore.QPointF(radius-d, d),
                      pycore.QPointF(radius+d, d)]
-        head1 = pygui.QGraphicsPolygonItem(arrowHead)
+        head1 = pygui.QGraphicsPolygonItem(pygui.QPolygonF(arrowHead))
         head1.setBrush(pycore.Qt.green)
         head1.setPen(pen)
         head1.setTransform(placement(pycore.QPointF(0,0), min(thetas))*placement(pos, angle))
         head1.setToolTip(self.toolTip())
         scene.addItem(head1)
 
-        head2 = pygui.QGraphicsPolygonItem(arrowHead)
+        head2 = pygui.QGraphicsPolygonItem(pygui.QPolygonF(arrowHead))
         head2.setBrush(pycore.Qt.green)
         head2.setPen(pen)
         head2.setTransform(placement(pycore.QPointF(0,0), pi+min(thetas))*placement(pos, angle))
@@ -486,7 +486,7 @@ class solenoidPic:
                        pycore.QPointF(length, -height/2),
                        pycore.QPointF(length,  height/2)]
         
-        item = pygui.QGraphicsPolygonItem(solenoidBox)
+        item = pygui.QGraphicsPolygonItem(pygui.QPolygonF(solenoidBox))
         item.setToolTip(self.toolTip())
         item.setTransform(placement(pos,angle))
         item.setBrush(pygui.QBrush(pygui.QColor(pycore.Qt.blue).lighter()))
@@ -528,8 +528,8 @@ class undulatorPic:
                             pycore.QPointF((j+1)*longBoxSize,      tranBoxSize),
                             pycore.QPointF((j+1)*longBoxSize,  0.5*tranBoxSize)]
 
-            itemLower = pygui.QGraphicsPolygonItem(boxLower)
-            itemUpper = pygui.QGraphicsPolygonItem(boxLower)
+            itemLower = pygui.QGraphicsPolygonItem(pygui.QPolygonF(boxLower))
+            itemUpper = pygui.QGraphicsPolygonItem(pygui.QPolygonF(boxLower))
 
             # Create upper part of undulator from lower part
             upperTransform = pygui.QTransform()
@@ -580,7 +580,7 @@ class watchPic:
                 pycore.QPointF(0, -2*flagSizePix), 
                 pycore.QPointF(0, 0)]
                  
-        flagItem = pygui.QGraphicsPolygonItem(flag)
+        flagItem = pygui.QGraphicsPolygonItem(pygui.QPolygonF(flag))
         flagItem.setTransform(placement(pos, angle))
         flagItem.setBrush(pygui.QBrush(pycore.Qt.green))
         flagItem.setToolTip(self.toolTip())
