@@ -1,0 +1,93 @@
+# -*- coding: utf-8 -*-
+
+# Form implementation generated from reading ui file 'mesh.ui'
+#
+# Created: Tue Jan 13 16:20:52 2015
+#      by: pyside-uic 0.2.14 running on PySide 1.1.2
+#
+# WARNING! All changes made in this file will be lost!
+
+from PySide import QtCore, QtGui
+
+class Ui_Mesh(object):
+    def setupUi(self, Mesh):
+        Mesh.setObjectName("Mesh")
+        Mesh.resize(326, 331)
+        self.formLayoutWidget = QtGui.QWidget(Mesh)
+        self.formLayoutWidget.setGeometry(QtCore.QRect(30, 30, 261, 271))
+        self.formLayoutWidget.setObjectName("formLayoutWidget")
+        self.formLayout = QtGui.QFormLayout(self.formLayoutWidget)
+        self.formLayout.setContentsMargins(0, 0, 0, 0)
+        self.formLayout.setObjectName("formLayout")
+        self.label = QtGui.QLabel(self.formLayoutWidget)
+        self.label.setObjectName("label")
+        self.formLayout.setWidget(0, QtGui.QFormLayout.LabelRole, self.label)
+        self.ncar = QtGui.QLineEdit(self.formLayoutWidget)
+        self.ncar.setObjectName("ncar")
+        self.formLayout.setWidget(0, QtGui.QFormLayout.FieldRole, self.ncar)
+        self.label_2 = QtGui.QLabel(self.formLayoutWidget)
+        self.label_2.setObjectName("label_2")
+        self.formLayout.setWidget(1, QtGui.QFormLayout.LabelRole, self.label_2)
+        self.lbc = QtGui.QPushButton(self.formLayoutWidget)
+        self.lbc.setObjectName("lbc")
+        self.formLayout.setWidget(1, QtGui.QFormLayout.FieldRole, self.lbc)
+        self.label_3 = QtGui.QLabel(self.formLayoutWidget)
+        self.label_3.setObjectName("label_3")
+        self.formLayout.setWidget(2, QtGui.QFormLayout.LabelRole, self.label_3)
+        self.rmax0 = QtGui.QLineEdit(self.formLayoutWidget)
+        self.rmax0.setObjectName("rmax0")
+        self.formLayout.setWidget(2, QtGui.QFormLayout.FieldRole, self.rmax0)
+        self.label_4 = QtGui.QLabel(self.formLayoutWidget)
+        self.label_4.setObjectName("label_4")
+        self.formLayout.setWidget(3, QtGui.QFormLayout.LabelRole, self.label_4)
+        self.dgrid = QtGui.QLineEdit(self.formLayoutWidget)
+        self.dgrid.setObjectName("dgrid")
+        self.formLayout.setWidget(3, QtGui.QFormLayout.FieldRole, self.dgrid)
+        self.label_5 = QtGui.QLabel(self.formLayoutWidget)
+        self.label_5.setObjectName("label_5")
+        self.formLayout.setWidget(4, QtGui.QFormLayout.LabelRole, self.label_5)
+        self.nscz = QtGui.QSpinBox(self.formLayoutWidget)
+        self.nscz.setObjectName("nscz")
+        self.formLayout.setWidget(4, QtGui.QFormLayout.FieldRole, self.nscz)
+        self.label_6 = QtGui.QLabel(self.formLayoutWidget)
+        self.label_6.setObjectName("label_6")
+        self.formLayout.setWidget(5, QtGui.QFormLayout.LabelRole, self.label_6)
+        self.nscr = QtGui.QLineEdit(self.formLayoutWidget)
+        self.nscr.setObjectName("nscr")
+        self.formLayout.setWidget(5, QtGui.QFormLayout.FieldRole, self.nscr)
+        self.label_7 = QtGui.QLabel(self.formLayoutWidget)
+        self.label_7.setObjectName("label_7")
+        self.formLayout.setWidget(6, QtGui.QFormLayout.LabelRole, self.label_7)
+        self.nptr = QtGui.QLineEdit(self.formLayoutWidget)
+        self.nptr.setObjectName("nptr")
+        self.formLayout.setWidget(6, QtGui.QFormLayout.FieldRole, self.nptr)
+        self.label_8 = QtGui.QLabel(self.formLayoutWidget)
+        self.label_8.setObjectName("label_8")
+        self.formLayout.setWidget(7, QtGui.QFormLayout.LabelRole, self.label_8)
+        self.rmax0sc = QtGui.QLineEdit(self.formLayoutWidget)
+        self.rmax0sc.setObjectName("rmax0sc")
+        self.formLayout.setWidget(7, QtGui.QFormLayout.FieldRole, self.rmax0sc)
+        self.label_9 = QtGui.QLabel(self.formLayoutWidget)
+        self.label_9.setObjectName("label_9")
+        self.formLayout.setWidget(8, QtGui.QFormLayout.LabelRole, self.label_9)
+        self.iscrkup = QtGui.QPushButton(self.formLayoutWidget)
+        self.iscrkup.setObjectName("iscrkup")
+        self.formLayout.setWidget(8, QtGui.QFormLayout.FieldRole, self.iscrkup)
+
+        self.retranslateUi(Mesh)
+        QtCore.QMetaObject.connectSlotsByName(Mesh)
+
+    def retranslateUi(self, Mesh):
+        Mesh.setWindowTitle(QtGui.QApplication.translate("Mesh", "Form", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("Mesh", "Number of Grid Points:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setText(QtGui.QApplication.translate("Mesh", "Boundary Condition:", None, QtGui.QApplication.UnicodeUTF8))
+        self.lbc.setText(QtGui.QApplication.translate("Mesh", "Direchlet/Neumann", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_3.setText(QtGui.QApplication.translate("Mesh", "RMAX0:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_4.setText(QtGui.QApplication.translate("Mesh", "Grid Size:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_5.setText(QtGui.QApplication.translate("Mesh", "Number of Fourier Components:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_6.setText(QtGui.QApplication.translate("Mesh", "Number of Azimuthal Modes:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_7.setText(QtGui.QApplication.translate("Mesh", "Number of Radial Grid Points:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_8.setText(QtGui.QApplication.translate("Mesh", "RMAX0SC:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_9.setText(QtGui.QApplication.translate("Mesh", "Runge-Kutta:", None, QtGui.QApplication.UnicodeUTF8))
+        self.iscrkup.setText(QtGui.QApplication.translate("Mesh", "Yes/No", None, QtGui.QApplication.UnicodeUTF8))
+

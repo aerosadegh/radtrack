@@ -11,6 +11,14 @@ class RbGenesis2(QtGui.QWidget):
         self.ui.undulator.clicked.connect(self.undpopup)
         self.ui.focus.clicked.connect(self.fodopopup)
         self.ui.beam.clicked.connect(self.beampopup)
+        self.ui.radiation.clicked.connect(self.radpopup)
+        self.ui.particle.clicked.connect(self.ploadpopup)
+        self.ui.mesh.clicked.connect(self.meshpopup)
+        self.ui.time.clicked.connect(self.timepopup)
+        self.ui.simulation.clicked.connect(self.simpopup)
+        self.ui.scan.clicked.connect(self.scanpopup)
+        self.ui.io.clicked.connect(self.iopopup)
+        
 
     def undpopup(self):
         dialog = undulator_dialog()
@@ -26,8 +34,41 @@ class RbGenesis2(QtGui.QWidget):
         dialog = beam_dialog()
         if dialog.exec_():
             pass
-                                      
 
+    def radpopup(self):
+        dialog = radiation_dialog()
+        if dialog.exec_():
+            pass
+
+    def ploadpopup(self):
+        dialog = ploading_dialog()
+        if dialog.exec_():
+            pass
+
+    def meshpopup(self):
+        dialog = mesh_dialog()
+        if dialog.exec_():
+            pass
+
+    def timepopup(self):
+        dialog = time_dialog()
+        if dialog.exec_():
+            pass
+
+    def simpopup(self):
+        dialog = sim_dialog()
+        if dialog.exec_():
+            pass
+
+    def scanpopup(self):
+        dialog = scan_dialog()
+        if dialog.exec_():
+            pass
+
+    def iopopup(self):
+        dialog = io_dialog()
+        if dialog.exec_():
+            pass
 
 class undulator_dialog(QtGui.QDialog):
     def __init__(self):
@@ -38,6 +79,8 @@ class undulator_dialog(QtGui.QDialog):
         buttonBox = QtGui.QDialogButtonBox()
         buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
         mainlayout.addWidget(buttonBox,1,0)
+        buttonBox.accepted.connect(self.accept)
+        buttonBox.rejected.connect(self.reject)
 
 class fodo_dialog(QtGui.QDialog):
     def __init__(self):
@@ -48,6 +91,8 @@ class fodo_dialog(QtGui.QDialog):
         buttonBox = QtGui.QDialogButtonBox()
         buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
         mainlayout.addWidget(buttonBox,1,0)
+        buttonBox.accepted.connect(self.accept)
+        buttonBox.rejected.connect(self.reject)
         
 class beam_dialog(QtGui.QDialog):
     def __init__(self):
@@ -58,8 +103,92 @@ class beam_dialog(QtGui.QDialog):
         buttonBox = QtGui.QDialogButtonBox()
         buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
         mainlayout.addWidget(buttonBox,1,0)
-        
+        buttonBox.accepted.connect(self.accept)
+        buttonBox.rejected.connect(self.reject)
 
+class radiation_dialog(QtGui.QDialog):
+    def __init__(self):
+        QtGui.QDialog.__init__(self)
+        mainlayout = QtGui.QGridLayout(self)
+        self.setMinimumSize(QtCore.QSize(400,400))
+        mainlayout.addWidget(makerad(),0,0)
+        buttonBox = QtGui.QDialogButtonBox()
+        buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
+        mainlayout.addWidget(buttonBox,1,0)
+        buttonBox.accepted.connect(self.accept)
+        buttonBox.rejected.connect(self.reject)
+
+class ploading_dialog(QtGui.QDialog):
+    def __init__(self):
+        QtGui.QDialog.__init__(self)
+        mainlayout = QtGui.QGridLayout(self)
+        self.setMinimumSize(QtCore.QSize(400,400))
+        mainlayout.addWidget(makepload(),0,0)
+        buttonBox = QtGui.QDialogButtonBox()
+        buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
+        mainlayout.addWidget(buttonBox,1,0)
+        buttonBox.accepted.connect(self.accept)
+        buttonBox.rejected.connect(self.reject)
+class mesh_dialog(QtGui.QDialog):
+    def __init__(self):
+        QtGui.QDialog.__init__(self)
+        mainlayout = QtGui.QGridLayout(self)
+        self.setMinimumSize(QtCore.QSize(400,400))
+        mainlayout.addWidget(makemesh(),0,0)
+        buttonBox = QtGui.QDialogButtonBox()
+        buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
+        mainlayout.addWidget(buttonBox,1,0)
+        buttonBox.accepted.connect(self.accept)
+        buttonBox.rejected.connect(self.reject)
+
+class time_dialog(QtGui.QDialog):
+    def __init__(self):
+        QtGui.QDialog.__init__(self)
+        mainlayout = QtGui.QGridLayout(self)
+        self.setMinimumSize(QtCore.QSize(400,400))
+        mainlayout.addWidget(maketime(),0,0)
+        buttonBox = QtGui.QDialogButtonBox()
+        buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
+        mainlayout.addWidget(buttonBox,1,0)
+        buttonBox.accepted.connect(self.accept)
+        buttonBox.rejected.connect(self.reject)
+
+class sim_dialog(QtGui.QDialog):
+    def __init__(self):
+        QtGui.QDialog.__init__(self)
+        mainlayout = QtGui.QGridLayout(self)
+        self.setMinimumSize(QtCore.QSize(400,400))
+        mainlayout.addWidget(makesim(),0,0)
+        buttonBox = QtGui.QDialogButtonBox()
+        buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
+        mainlayout.addWidget(buttonBox,1,0)
+        buttonBox.accepted.connect(self.accept)
+        buttonBox.rejected.connect(self.reject)
+
+class scan_dialog(QtGui.QDialog):
+    def __init__(self):
+        QtGui.QDialog.__init__(self)
+        mainlayout = QtGui.QGridLayout(self)
+        self.setMinimumSize(QtCore.QSize(400,400))
+        mainlayout.addWidget(makescan(),0,0)
+        buttonBox = QtGui.QDialogButtonBox()
+        buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
+        mainlayout.addWidget(buttonBox,1,0)
+        buttonBox.accepted.connect(self.accept)
+        buttonBox.rejected.connect(self.reject)
+
+class io_dialog(QtGui.QDialog):
+    def __init__(self):
+        QtGui.QDialog.__init__(self)
+        mainlayout = QtGui.QGridLayout(self)
+        self.setMinimumSize(QtCore.QSize(400,400))
+        mainlayout.addWidget(makeio(),0,0)
+        buttonBox = QtGui.QDialogButtonBox()
+        buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
+        mainlayout.addWidget(buttonBox,1,0)
+        buttonBox.accepted.connect(self.accept)
+        buttonBox.rejected.connect(self.reject)
+        
 def main():
 
     app = QtGui.QApplication(sys.argv)
