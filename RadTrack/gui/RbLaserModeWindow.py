@@ -17,8 +17,6 @@ import sys
 # SciPy imports
 import numpy as np
 import matplotlib
-#matplotlib.use('Qt4Agg')
-#matplotlib.rcParams['backend.qt4']='PyQt4'
 
 # PyQt4 imports
 from PyQt4.QtCore import *

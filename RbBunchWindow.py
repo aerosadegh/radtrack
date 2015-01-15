@@ -23,8 +23,6 @@ import csv
 # SciPy imports
 import numpy as np
 import matplotlib
-#matplotlib.use('Qt4Agg')
-#matplotlib.rcParams['backend.qt4']='PyQt4'
 import matplotlib.pyplot as plt
 
 # PyQt4 imports
