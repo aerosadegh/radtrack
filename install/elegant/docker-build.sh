@@ -1,8 +1,13 @@
 #!/bin/sh
+if [ "x$(id -u)" != x0 ]; then
+    echo 'Must be run as root' 1>&2
+    exit 1
+fi
 if [ -z "$DOCKER_MAINTAINER" ]; then
     export DOCKER_MAINTAINER="RadiaSoft <info@radiasoft.net>"
 fi
 set -e
+cd $(dirname $0)
 image=radiasoft/elegant
 read x1 x2 owner group x3 <<< "$(ls -adl .)"
 tmp=.docker$$.build
@@ -29,7 +34,7 @@ cat <<'END' >> ~vagrant/.bashrc
 export TERM=dumb
 export PROMPT_COMMAND=
 if [ ! -z "$PS1" ]; then
-    export PS1='$ '
+    export PS1='docker$ '
 fi
 END
 sh /cfg/install.sh
