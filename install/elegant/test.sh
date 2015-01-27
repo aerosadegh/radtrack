@@ -1,6 +1,8 @@
 #!/bin/sh
-cd /cfg/constructOrbitBump1
-if env RPN_DEFNS=/dev/null elegant run.ele &>/dev/null; then
+cd "$(dirname $0)"/constructOrbitBump1
+cmd='elegant run.ele'
+echo -n "running '$cmd': "
+if env RPN_DEFNS=/dev/null $cmd &>/dev/null; then
     echo 'passed'
 else
     echo 'failed' 1>&2
