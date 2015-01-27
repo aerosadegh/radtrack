@@ -1,7 +1,6 @@
 #!/bin/sh
 if [ -z "$DOCKER_MAINTAINER" ]; then
-    echo 'you must supply $DOCKER_MAINTAINER' 1>&2
-    exit 1
+    export DOCKER_MAINTAINER="RadiaSoft <info@radiasoft.net>"
 fi
 IMAGE=radiasoft/elegant
 cat > Dockerfile <<EOF
@@ -13,3 +12,4 @@ EOF
 
 docker rmi $IMAGE
 docker build --tag=$IMAGE .
+sh docker-test.sh
