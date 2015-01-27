@@ -1,1 +1,5 @@
 *.pyc
+RadTrack/dcp/sddsdata.pyd
+RadTrack/srw/srwlpy.pyd
+RadTrack/dcp/sddsdata.pyd
+RadTrack/srw/srwlpy.pyd
