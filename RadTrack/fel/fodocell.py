@@ -17,22 +17,29 @@ class fodocell:
         if abs(stability) > 1.:
             print '!Warning -- FODO lattice may be unstable'
 
-        self.transfer_matrix[0,0] = 1. - 0.5*LuOf**2
+        self.transfer_matrix[0,0] = 1.+LuOf
         self.transfer_matrix[0,1] = self.Lu*(2.+LuOf)
-        self.transfer_matrix[1,0] = -0.5*LuOf*(1-0.5*LuOf)/self.f
-        self.transfer_matrix[1,1] = 1. - 0.5*LuOf**2
-        self.transfer_matrix[2,2] = 1. - 0.5*LuOf**2
+        self.transfer_matrix[1,0] = -LuOf/self.f
+        self.transfer_matrix[1,1] = 1.-LuOf-LuOf**2
+        self.transfer_matrix[2,2] = 1.-LuOf
         self.transfer_matrix[2,3] = self.Lu*(2.-LuOf)
-        self.transfer_matrix[3,2] = -0.5*LuOf*(1+0.5*LuOf)/self.f
-        self.transfer_matrix[3,3] = 1. - 0.5*LuOf**2
+        self.transfer_matrix[3,2] = -LuOf/self.f
+        self.transfer_matrix[3,3] = 1.+LuOf-LuOf**2
 
         print self.transfer_matrix
+
+    def compute_phase_advance(self):
+        phix = np.arccos(0.5*self.transfer_matrix[2,2]+
+                        0.5*self.transfer_matrix[3,3])
+        phiy = np.arccos(0.5*self.transfer_matrix[0,0]+
+                        0.5*self.transfer_matrix[1,1])
+        return phix, phiy
 
     def compute_average_beta(self):
         if self.f and self.Lu:
             print self.transfer_matrix
-            phi = np.arccos(self.transfer_matrix[0,0])
-            beta_average = 2*self.Lu/phi
+            phix, phiy = self.compute_phase_advance()
+            beta_average = self.Lu/phix+self.Lu/phiy
             return beta_average
         else:
             print 'FODO cell not specified'
@@ -43,17 +50,18 @@ class fodocell:
 
     def get_twiss_parameters(self):
         if self.f and self.Lu:
-            phi = np.arccos(self.transfer_matrix[0,0])
-            sinphi = np.sin(phi)
-            betax  = self.transfer_matrix[0,1]/sinphi
-            gammax = -self.transfer_matrix[1,0]/sinphi
-            alphax = (self.transfer_matrix[0,0]-
-                      self.transfer_matrix[1,1])/(2.*sinphi)
+            phix, phiy = self.compute_phase_advance()
+            sinphix = np.sin(phix)
+            sinphiy = np.sin(phiy)
+            betay  = self.transfer_matrix[0,1]/sinphiy
+            gammay = -self.transfer_matrix[1,0]/sinphiy
+            alphay = (self.transfer_matrix[0,0]-
+                      self.transfer_matrix[1,1])/(2.*sinphiy)
 
-            betay  = self.transfer_matrix[2,3]/sinphi
-            gammay = -self.transfer_matrix[3,2]/sinphi
-            alphay = (self.transfer_matrix[2,2]-
-                      self.transfer_matrix[3,3])/(2.*sinphi)
+            betax  = self.transfer_matrix[2,3]/sinphix
+            gammax = -self.transfer_matrix[3,2]/sinphix
+            alphax = (self.transfer_matrix[2,2]-
+                      self.transfer_matrix[3,3])/(2.*sinphix)
 
             print 'X beta, gamma, alpha =', betax, gammax, alphax
             print 'Y beta, gamma, alpha =', betay, gammay, alphay
@@ -80,15 +88,22 @@ class fodocell:
 
         sArray = np.arange(0, self.Lu, 0.1*self.Lu)
 
+        #After passing through the thin quad, the focusing changes the Twiss
+        #  parameters
+        gammax += 2.*alphax/self.f + betax/self.f**2
+        alphax += betax/self.f
+        gammay += -2.*alphay/self.f + betay/self.f**2
+        alphay += -betay/self.f
+
         betaXArray   = 1./gammax + gammax*(sArray - alphax/gammax)**2
         betaYArray   = 1./gammay + gammay*(sArray - alphay/gammay)**2
-        betaXArray   = np.append(betaXArray, betaXArray[1:-1])
-        betaYArray   = np.append(betaYArray, betaYArray[1:-1])
 
-        print betaXArray
+        tailXArray = betaXArray[::-1]
+        tailYArray = betaYArray[::-1]
+        betaXArray   = np.append(betaXArray, tailXArray[1::])
+        betaYArray   = np.append(betaYArray, tailYArray[1::])
 
-        sArray = np.append(sArray, sArray[1:-1]+self.Lu)
-        print 's=',sArray
+        sArray = np.append(sArray, sArray[1::]+self.Lu)
 
         plt.plot(sArray, betaXArray, label=r'$\beta_x$', c='b')
         plt.plot(sArray, betaYArray, label=r'$\beta_y$', c='r')
