@@ -594,7 +594,7 @@ class RbFEL(QtGui.QWidget):
 
     def exportToFile(self, fileName = None):
         if fileName is None or fileName == '':
-            fileName, _ = QtGui.QFileDialog.getSaveFileName(self, 'Save file', self.parent.lastUsedDirectory,
+            fileName = QtGui.QFileDialog.getSaveFileName(self, 'Save file', self.parent.lastUsedDirectory,
                     "FEL (*." + self.acceptsFileTypes[0] + ")")
             if fileName == '':
                 return
@@ -611,7 +611,7 @@ class RbFEL(QtGui.QWidget):
 
     def importFile(self, fileName = None):
         if not fileName:
-            fileName, _ = QtGui.QFileDialog.getOpenFileName(self, 'Open file', self.parent.lastUsedDirectory,
+            fileName = QtGui.QFileDialog.getOpenFileName(self, 'Open file', self.parent.lastUsedDirectory,
                     "All Files (*.*);;" +
                     "FEL (*." + self.acceptsFileTypes[0] + ")")
             if fileName == '':
