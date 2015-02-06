@@ -14,7 +14,7 @@ def parse(file_xlsx):
     """Read file_xlsx and produce an internal tree of sheets and params"""
     wb = openpyxl.load_workbook(file_xlsx)
     res = {}
-    headings = ['parameter', 'py_type', 'units', 'is_primary', 'description']
+    headings = ['name', 'py_type', 'units', 'is_primary', 'description']
     valid_types = ['int', 'str', 'float', 'bool']
     valid_units = ['m', 'in', '', 'secs']
 
