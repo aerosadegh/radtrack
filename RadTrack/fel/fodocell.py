@@ -3,8 +3,8 @@ __author__ = 'swebb'
 from matplotlib import pyplot as plt
 import numpy as np
 
-class fodocell(self, Lu, l, K):
-    def __init__:
+class fodocell(object):
+    def __init__(self, Lu, l, K):
         self.Lu = Lu
         self.quad_K = K
         self.quad_l = l
