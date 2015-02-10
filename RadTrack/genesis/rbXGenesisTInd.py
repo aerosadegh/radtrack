@@ -27,28 +27,30 @@ class RbXGenesis:
         self.data_set['p_mid'] = -1
         self.data_label['p_mid'] = '???'
         self.data_set['Phase'] = -1
-        self.data_label['Phase'] = 'Phase [rad]'
+        self.data_label['Phase'] = u'\u03A6 [rad]'
         self.data_set['Rad. Size'] = -1
         self.data_label['Rad. Size'] = 'RMS radiation width [m]'
         self.data_set['Far Field'] = -1
-        self.data_label['Far Field'] = 'dP/dW [W/rad^2]'
+        self.data_label['Far Field'] = u'dP/d\u03A9 [W/rad^2]'
         self.data_set['Energy'] = -1
-        self.data_label['Energy'] = '(E - E_0)/mc^2'
+        self.data_label['Energy'] = u'(\u03B3 - \u03B3\u2080)/mc^2'
         self.data_set['Energy Spread'] = -1
-        self.data_label['Energy Spread'] = 'RMS Gamma'
+        self.data_label['Energy Spread'] = u'\u03C3\u2091 [keV]'
         self.data_set['X Beam Size'] = -1
-        self.data_label['X Beam Size'] = 'RMS x size [m]'
+        self.data_label['X Beam Size'] = u'\u03C3_x [m]'
         self.data_set['Y Beam Size'] = -1
-        self.data_label['Y Beam Size'] =  'RMS y size [m]'
+        self.data_label['Y Beam Size'] =  u'\u03C3_y [m]'
         self.data_set['X Centroid'] = -1
         self.data_label['X Centroid'] = '<x> [m]'
         self.data_set['Y Centroid'] = -1
         self.data_label['Y Centroid'] = '<y> [m]'
         self.data_set['Bunching'] = -1
-        self.data_label['Bunching'] = '|< e^(i theta)>|'
+        self.data_label['Bunching'] = u'|<exp(i \u03B8)>|'
         self.data_set['Error'] = -1
-        self.data_label['Error'] = 'Delta P/P$ [%]'
+        self.data_label['Error'] = u'\u0394P/P [%]'
 
+        self.semilog = False
+        self.perrorbars = False
 
 
     def parse_output(self, filename):
@@ -96,6 +98,29 @@ class RbXGenesis:
 
         genesis_file.close()
 
+
+    def set_semilog(self):
+        """
+        Make the y-axis logarithmic for plotting
+        :return:
+        """
+        if self.semilog == False:
+            self.semilog = True
+        else:
+            self.semilog = False
+
+
+    def set_ploterrors(self):
+        """
+        Plot error bars on the power
+        :return:
+        """
+        if self.perrorbars == False:
+            self.perrorbars = True
+        else:
+            self.perrorbars = False
+
+
     def plot_data(self, x_axis, y_axis):
         """
         Plot data from the keys given as arguments
@@ -111,6 +136,15 @@ class RbXGenesis:
             Exception(msg)
 
         plt.plot(self.data_set[x_axis], self.data_set[y_axis])
+
+        if self.perrorbars and y_axis == 'Power':
+            power_error = self.data_set['Error']*self.data_set['Power']/100.
+            plt.errorbar(self.data_set[x_axis], self.data_set[y_axis],
+                            yerr=power_error, ecolor='r')
+
+        if self.semilog:
+            plt.yscale('log')
+
         plt.xlabel(self.data_label[x_axis])
         plt.ylabel(self.data_label[y_axis])
         plt.tight_layout()
