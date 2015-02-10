@@ -267,23 +267,12 @@ class RbBunchWindow(QtGui.QWidget):
         # instantiate an object for doing statistics
         self.myStat = stat.RbStatistics6D()
 
-        # interaction with top-level widget
-        self.closedTabs = []
-        self.globalHasChanged = False
+        # Has this tab been modified since it was created?
+        self.modified = False
 
     # return True or False to indicate whether tab's data has changed and needs to be saved
     def hasChanged(self):
-        if self.globalHasChanged:
-            return True
-
-        for widget in [getRealWidget(self.tabWidget.widget(i)) for i in range(self.tabWidget.count())]:
-            try:
-                if widget.hasChanged():
-                    return True
-            except AttributeError:
-                print('*** ' + type(widget).__name__ + " has no hasChanged() method")
-
-        return False
+        return self.modified
 
     def radtrackGaussian(self):
         self.distributionFlag = 'gaussian'
