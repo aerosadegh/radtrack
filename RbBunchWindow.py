@@ -267,6 +267,24 @@ class RbBunchWindow(QtGui.QWidget):
         # instantiate an object for doing statistics
         self.myStat = stat.RbStatistics6D()
 
+        # interaction with top-level widget
+        self.closedTabs = []
+        self.globalHasChanged = False
+
+    # return True or False to indicate whether tab's data has changed and needs to be saved
+    def hasChanged(self):
+        if self.globalHasChanged:
+            return True
+
+        for widget in [getRealWidget(self.tabWidget.widget(i)) for i in range(self.tabWidget.count())]:
+            try:
+                if widget.hasChanged():
+                    return True
+            except AttributeError:
+                print('*** ' + type(widget).__name__ + " has no hasChanged() method")
+
+        return False
+
     def radtrackGaussian(self):
         self.distributionFlag = 'gaussian'
         self.generateBunchRT()
@@ -459,6 +477,9 @@ class RbBunchWindow(QtGui.QWidget):
                      tmp6[5,:]/unitConversion[self.unitsAngle], 
                      self.ui.tpzPlot.canvas, nDivs, nLevels)
 
+        # indicate that tab data has changed
+        self.globalHasChanged = True
+
     def calculateLimits(self, _arr):
         # nothing to do, if beam hasn't been initialized
         if self.beamInitialized == False:
@@ -528,6 +549,9 @@ class RbBunchWindow(QtGui.QWidget):
             # sMin / sMax always have to be 'bunch centered'
             self.sMin  = (avgArray[4]-diffZero[4])/unitConversion[self.unitsPos]
             self.sMax  = (avgArray[4]+diffZero[4])/unitConversion[self.unitsPos]
+
+        # indicate that tab data has changed
+        self.globalHasChanged = True
 
     def plotXY(self, hData, vData, _canvas, nDivs, nLevels):
         _canvas.ax.clear()
@@ -777,6 +801,9 @@ class RbBunchWindow(QtGui.QWidget):
         # In the future, the 'Twiss Parameters' input box will
         #   be appropriately modified.
 
+        # indicate that tab data has changed
+        self.globalHasChanged = True
+
     def rmsGeometric(self):
         # specify the perpendicular Twiss conventions
 #        self.perpTwissFlag = 'rms-geometric'
@@ -803,6 +830,9 @@ class RbBunchWindow(QtGui.QWidget):
         #   and alternate choices haven't yet been implemented.
         # In the future, the 'Longitudinal phase space' input box will
         #   be appropriately modified.
+
+        # indicate that tab data has changed
+        self.globalHasChanged = True
 
     def couplingBctDp(self):
         # specify the longitudinal Twiss conventions
@@ -918,6 +948,9 @@ class RbBunchWindow(QtGui.QWidget):
         self.ui.numPtcls.setText("{:d}".format(numParticles))
         self.ui.designMomentum.setText("{:.0f}".format(self.designMomentumEV*1.e-6) + ' MeV')
         self.ui.totalCharge.setText("{:.0f}".format(self.totalCharge*1.e9) + ' nC')
+
+        # indicate that tab data has changed
+        self.globalHasChanged = True
 
     def readFromSDDS(self, fileName = None):
         # use Qt file dialog
