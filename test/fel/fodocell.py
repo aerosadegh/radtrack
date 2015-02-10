@@ -9,8 +9,7 @@ print 'drift length=', driftlength
 print 'focal length=', focallength
 print 'B =', 0.614/(focallength*5*0.0227*0.299)
 
-myfodocell = fodocell()
-myfodocell.make_fodo_cell(driftlength, focallength)
+myfodocell = fodocell(driftlength, focallength)
 myfodocell.get_twiss_parameters()
 avgbeta = myfodocell.compute_average_beta()
 print avgbeta

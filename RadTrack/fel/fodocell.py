@@ -3,14 +3,8 @@ __author__ = 'swebb'
 from matplotlib import pyplot as plt
 import numpy as np
 
-class fodocell:
-    def __init__(self):
-        self.quad_K = False
-        self.Lu = False
-        self.quad_l = False
-        self.transfer_matrix = np.matrix(np.zeros((4,4)))
-
-    def make_fodo_cell(self, Lu, l, K):
+class fodocell(self, Lu, l, K):
+    def __init__:
         self.Lu = Lu
         self.quad_K = K
         self.quad_l = l
@@ -46,19 +40,17 @@ class fodocell:
         drift[3,2] = 0.
         drift[3,3] = 1.
 
-        map = np.dot(quadD, drift)
-        map = np.dot(drift, map)
-        map = np.dot(quadF, map)
+        self.transfer_matrix = np.dot(quadD, drift)
+        self.transfer_matrix = np.dot(drift, self.transfer_matrix)
+        self.transfer_matrix = np.dot(quadF, self.transfer_matrix)
 
-        print 'FODO map =', map
-        stability = 0.5*(map[0,0]+map[1,1])
+        print 'FODO self.transfer_matrix =', self.transfer_matrix
+        stability = 0.5*(self.transfer_matrix[0,0]+self.transfer_matrix[1,1])
         if abs(stability) > 1.:
             print '!Warning -- FODO lattice may be unstable in the horizontal'
-        stability = 0.5*(map[2,2]+map[3,3])
+        stability = 0.5*(self.transfer_matrix[2,2]+self.transfer_matrix[3,3])
         if abs(stability) > 1.:
             print '!Warning -- FODO lattice may be unstable in the vertical'
-
-        self.transfer_matrix = map
 
         print self.transfer_matrix
 
@@ -70,50 +62,42 @@ class fodocell:
         return phix, phiy
 
     def compute_average_beta(self):
-        if self.quad_K and self.Lu and self.quad_l:
-            print self.transfer_matrix
-            phix, phiy = self.compute_phase_advance()
-            beta_average = (self.Lu+self.quad_l)/phix+(self.Lu+self.quad_l)/phiy
-            return beta_average
-        else:
-            print 'FODO cell not specified'
-            return
+        print self.transfer_matrix
+        phix, phiy = self.compute_phase_advance()
+        beta_average = (self.Lu+self.quad_l)/phix+(self.Lu+self.quad_l)/phiy
+        return beta_average
 
     def get_transfer_map(self):
         return self.transfer_matrix
 
     def get_twiss_parameters(self):
-        if self.quad_K and self.Lu and self.quad_l:
-            phix, phiy = self.compute_phase_advance()
-            sinphix = np.sin(phix)
-            sinphiy = np.sin(phiy)
-            betay  = self.transfer_matrix[0,1]/sinphiy
-            gammay = -self.transfer_matrix[1,0]/sinphiy
-            alphay = (self.transfer_matrix[0,0]-
-                      self.transfer_matrix[1,1])/(2.*sinphiy)
+        phix, phiy = self.compute_phase_advance()
+        sinphix = np.sin(phix)
+        sinphiy = np.sin(phiy)
+        betay  = self.transfer_matrix[0,1]/sinphiy
+        gammay = -self.transfer_matrix[1,0]/sinphiy
+        alphay = (self.transfer_matrix[0,0]-
+                  self.transfer_matrix[1,1])/(2.*sinphiy)
 
-            betax  = self.transfer_matrix[2,3]/sinphix
-            gammax = -self.transfer_matrix[3,2]/sinphix
-            alphax = (self.transfer_matrix[2,2]-
-                      self.transfer_matrix[3,3])/(2.*sinphix)
+        betax  = self.transfer_matrix[2,3]/sinphix
+        gammax = -self.transfer_matrix[3,2]/sinphix
+        alphax = (self.transfer_matrix[2,2]-
+                  self.transfer_matrix[3,3])/(2.*sinphix)
 
-            print 'X beta, gamma, alpha =', betax, gammax, alphax
-            print 'Y beta, gamma, alpha =', betay, gammay, alphay
+        print 'X beta, gamma, alpha =', betax, gammax, alphax
+        print 'Y beta, gamma, alpha =', betay, gammay, alphay
 
-            # Check Twiss parameters for consistency
-            xcheck = (betax*gammax - alphax**2 - 1)
-            print 'xcheck =', xcheck
-            ycheck = (betay*gammay - alphay**2 - 1)
-            print 'ycheck =', ycheck
+        # Check Twiss parameters for consistency
+        xcheck = (betax*gammax - alphax**2 - 1)
+        print 'xcheck =', xcheck
+        ycheck = (betay*gammay - alphay**2 - 1)
+        print 'ycheck =', ycheck
 
-            if abs(xcheck)>1.e-8 or abs(ycheck)>1.e-8:
-                msg = 'Transfer matrix for FODO cell is not valid'
-                raise Exception(msg)
+        if abs(xcheck)>1.e-8 or abs(ycheck)>1.e-8:
+            msg = 'Transfer matrix for FODO cell is not valid'
+            raise Exception(msg)
 
-            return betax, gammax, alphax, betay, gammay, alphay
-        else:
-            print 'Transfer matrix not specified'
-            return
+        return betax, gammax, alphax, betay, gammay, alphay
 
     def plot_beta_function(self):
         betax, gammax, alphax, betay, gammay, alphay = \
