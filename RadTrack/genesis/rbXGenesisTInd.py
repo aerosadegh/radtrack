@@ -8,7 +8,7 @@ __author__ = 'swebb'
 import numpy as np
 from matplotlib import pyplot as plt
 
-class RbXGenesis:
+class RbXGenesisTInd:
 
     def __init__(self):
         self.file_open = False

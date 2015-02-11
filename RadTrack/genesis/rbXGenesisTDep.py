@@ -140,13 +140,13 @@ class RbXGenesisTDep:
             Exception(msg)
 
         # Compute a spline function for the interpolation
-        print self.data_set[y_axis]
+        print 'y =', np.shape(self.data_set[y_axis])
+        print 's =', np.shape(self.data_set['s'])
+        print 'z =', np.shape(self.data_set['z'])
         self.yaxis_function = interp.interp2d(self.data_set['s'],
                                               self.data_set['z'],
-                                              self.data_set[y_axis])
-
-        print 'y(0,0) =', self.yaxis_function(self.data_set['s'][0],
-                                              self.data_set['z'][0])
+                                              self.data_set[y_axis].T,
+                                              kind='cubic')
 
         self.fig, self.ax = plt.subplots()
 
@@ -161,7 +161,6 @@ class RbXGenesisTDep:
                                                    self.data_set['z'][0])
 
             self.this_plot, = plt.plot(self.data_set['s'], initial_function)
-
 
         if x_axis == 'z':
             self.x_axis = 'z'
