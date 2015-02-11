@@ -8,8 +8,7 @@ __author__ = 'swebb'
 import numpy as np
 from matplotlib import pyplot as plt
 import scipy.interpolate as interp
-from matplotlib.widgets import Slider, Button, RadioButtons
-
+from matplotlib.widgets import Slider
 
 class RbXGenesisTDep:
 
@@ -30,27 +29,27 @@ class RbXGenesisTDep:
         self.data_set['p_mid'] = -1
         self.data_label['p_mid'] = '???'
         self.data_set['Phase'] = -1
-        self.data_label['Phase'] = 'Phase [rad]'
+        self.data_label['Phase'] = u'\u03A6 [rad]'
         self.data_set['Rad. Size'] = -1
         self.data_label['Rad. Size'] = 'RMS radiation width [m]'
         self.data_set['Far Field'] = -1
-        self.data_label['Far Field'] = 'dP/dW [W/rad^2]'
+        self.data_label['Far Field'] = u'dP/d\u03A9 [W/rad^2]'
         self.data_set['Energy'] = -1
-        self.data_label['Energy'] = '(E - E_0)/mc^2'
+        self.data_label['Energy'] = u'(\u03B3 - \u03B3\u2080)/mc^2'
         self.data_set['Energy Spread'] = -1
-        self.data_label['Energy Spread'] = 'RMS Gamma'
+        self.data_label['Energy Spread'] = u'\u03C3\u2091 [keV]'
         self.data_set['X Beam Size'] = -1
-        self.data_label['X Beam Size'] = 'RMS x size [m]'
+        self.data_label['X Beam Size'] = u'\u03C3_x [m]'
         self.data_set['Y Beam Size'] = -1
-        self.data_label['Y Beam Size'] =  'RMS y size [m]'
+        self.data_label['Y Beam Size'] =  u'\u03C3_y [m]'
         self.data_set['X Centroid'] = -1
         self.data_label['X Centroid'] = '<x> [m]'
         self.data_set['Y Centroid'] = -1
         self.data_label['Y Centroid'] = '<y> [m]'
         self.data_set['Bunching'] = -1
-        self.data_label['Bunching'] = '|< e^(i theta)>|'
+        self.data_label['Bunching'] = u'|<exp(i \u03B8)>|'
         self.data_set['Error'] = -1
-        self.data_label['Error'] = 'Delta P/P$ [%]'
+        self.data_label['Error'] = u'\u0394P/P [%]'
 
         self.data_set['s'] = -1
         self.data_label['s'] = 's [m]'
@@ -106,7 +105,7 @@ class RbXGenesisTDep:
         for lineIdx in range(0, num_steps-1):
             line = genesis_file.readline()
             for idx in range(0, len(first_three_keys)-1):
-                self.data_set[first_three_keys[idx],lineIdx] = \
+                self.data_set[first_three_keys[idx]][lineIdx] = \
                     float(line.split()[idx])
 
         # Iterate over slices
@@ -140,53 +139,63 @@ class RbXGenesisTDep:
             Exception(msg)
 
         # Compute a spline function for the interpolation
-        print 'y =', np.shape(self.data_set[y_axis])
-        print 's =', np.shape(self.data_set['s'])
-        print 'z =', np.shape(self.data_set['z'])
         self.yaxis_function = interp.interp2d(self.data_set['s'],
                                               self.data_set['z'],
                                               self.data_set[y_axis].T,
-                                              kind='cubic')
+                                              kind='linear')
 
         self.fig, self.ax = plt.subplots()
 
-        slider_axis = plt.axes([0.25, 0.1, 0.65, 0.03])
+        plt.subplots_adjust(bottom=0.25)
+        slider_axis = plt.axes([0.2, 0.1, 0.65, 0.03])
 
         if x_axis == 's':
             self.x_axis = 's'
-            self.sliderVar = Slider(slider_axis, 'z [m]',
-                               self.data_set['z'][0], self.data_set['z'][-1])
-
-            initial_function = self.yaxis_function(self.data_set['s'],
-                                                   self.data_set['z'][0])
-
+            numpoints = np.shape(self.data_set['s'])[0]
+            initial_function = \
+                np.reshape(self.yaxis_function(self.data_set['s'],
+                                               self.data_set['z'][0]),
+                           numpoints)
             self.this_plot, = plt.plot(self.data_set['s'], initial_function)
+            self.sliderVar = Slider(slider_axis, 'z [m]',
+                               self.data_set['z'][0], self.data_set['z'][-1],
+                               valinit=self.data_set['z'][0])
 
         if x_axis == 'z':
             self.x_axis = 'z'
-            self.sliderVar = Slider(slider_axis, 's [m]',
-                               self.data_set['s'][0], self.data_set['s'][-1])
-
-            initial_function = self.yaxis_function(self.data_set['s'][0],
-                                                   self.data_set['z'])
-
+            numpoints = np.shape(self.data_set['z'])[0]
+            initial_function = \
+                np.reshape(self.yaxis_function(self.data_set['s'][0],
+                                               self.data_set['z']),
+                           numpoints)
             self.this_plot, = plt.plot(self.data_set['z'], initial_function)
+            self.sliderVar = Slider(slider_axis, 's [m]',
+                               self.data_set['s'][0], self.data_set['s'][-1],
+                               valinit=self.data_set['s'][0])
+
+        self.ax.set_ylabel(self.data_label[y_axis])
+        self.ax.set_xlabel(self.data_label[x_axis])
 
         self.sliderVar.on_changed(self.update_plot)
 
-        #plt.xlabel(self.data_label[x_axis])
-        #plt.ylabel(self.data_label[y_axis])
-        plt.tight_layout()
         plt.show()
 
-    def update_plot(self, newValue):
+    def update_plot(self, new_value):
 
         if self.x_axis == 'z':
-            self.this_plot.set_ydata(
-                self.yaxis_function(self.data_set['z'],newValue))
+            numpoints = np.shape(self.data_set['z'])[0]
+            new_function = \
+                np.reshape(self.yaxis_function(new_value,self.data_set['z']),
+                           numpoints)
 
         if self.x_axis == 's':
-            self.this_plot.set_ydata(
-                self.yaxis_function(newValue,self.data_set['s']))
+            numpoints = np.shape(self.data_set['s'])[0]
+            new_function = \
+                np.reshape(self.yaxis_function(self.data_set['s'],new_value),
+                           numpoints)
+
+        print 'function shape =', np.shape(new_function)
+
+        self.this_plot.set_ydata(new_function)
 
         self.fig.canvas.draw_idle()

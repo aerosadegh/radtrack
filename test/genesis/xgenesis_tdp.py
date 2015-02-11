@@ -10,6 +10,6 @@ test_plotter.parse_output('xgenesis_testdata_tdep.out')
 
 print 'data parsed'
 
-test_plotter.plot_data('z', 'Far Field')
+test_plotter.plot_data('s', 'Power')
 
 print 'data plotted'

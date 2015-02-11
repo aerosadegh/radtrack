@@ -71,7 +71,6 @@ class fodocell:
 
     def compute_average_beta(self):
         if self.quad_K and self.Lu and self.quad_l:
-            print self.transfer_matrix
             phix, phiy = self.compute_phase_advance()
             beta_average = (self.Lu+self.quad_l)/phix+(self.Lu+self.quad_l)/phiy
             return beta_average
