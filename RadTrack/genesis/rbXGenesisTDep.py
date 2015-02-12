@@ -156,10 +156,12 @@ class RbXGenesisTDep:
                 np.reshape(self.yaxis_function(self.data_set['s'],
                                                self.data_set['z'][0]),
                            numpoints)
-            self.this_plot, = plt.plot(self.data_set['s'], initial_function)
             self.sliderVar = Slider(slider_axis, 'z [m]',
-                               self.data_set['z'][0], self.data_set['z'][-1],
-                               valinit=self.data_set['z'][0])
+                                    self.data_set['z'][0],
+                                    self.data_set['z'][-1],
+                                    valinit=self.data_set['z'][0])
+            self.this_plot, = plt.plot(self.data_set['s'], initial_function)
+
 
         if x_axis == 'z':
             self.x_axis = 'z'
@@ -168,10 +170,12 @@ class RbXGenesisTDep:
                 np.reshape(self.yaxis_function(self.data_set['s'][0],
                                                self.data_set['z']),
                            numpoints)
-            self.this_plot, = plt.plot(self.data_set['z'], initial_function)
             self.sliderVar = Slider(slider_axis, 's [m]',
-                               self.data_set['s'][0], self.data_set['s'][-1],
-                               valinit=self.data_set['s'][0])
+                                    self.data_set['s'][0],
+                                    self.data_set['s'][-1],
+                                    valinit=self.data_set['s'][0])
+            self.this_plot, = plt.plot(self.data_set['z'], initial_function)
+
 
         self.ax.set_ylabel(self.data_label[y_axis])
         self.ax.set_xlabel(self.data_label[x_axis])
@@ -180,21 +184,21 @@ class RbXGenesisTDep:
 
         plt.show()
 
-    def update_plot(self, new_value):
+    def update_plot(self, val):
 
         if self.x_axis == 'z':
+            s = self.sliderVar.val
             numpoints = np.shape(self.data_set['z'])[0]
             new_function = \
-                np.reshape(self.yaxis_function(new_value,self.data_set['z']),
+                np.reshape(self.yaxis_function(s,self.data_set['z']),
                            numpoints)
 
         if self.x_axis == 's':
+            z = self.sliderVar.val
             numpoints = np.shape(self.data_set['s'])[0]
             new_function = \
-                np.reshape(self.yaxis_function(self.data_set['s'],new_value),
+                np.reshape(self.yaxis_function(self.data_set['s'],z),
                            numpoints)
-
-        print 'function shape =', np.shape(new_function)
 
         self.this_plot.set_ydata(new_function)
 
