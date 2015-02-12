@@ -147,7 +147,7 @@ class RbXGenesisTDep:
         self.fig, self.ax = plt.subplots()
 
         plt.subplots_adjust(bottom=0.25)
-        slider_axis = plt.axes([0.2, 0.1, 0.65, 0.03])
+
 
         if x_axis == 's':
             self.x_axis = 's'
@@ -156,12 +156,12 @@ class RbXGenesisTDep:
                 np.reshape(self.yaxis_function(self.data_set['s'],
                                                self.data_set['z'][0]),
                            numpoints)
+            self.this_plot, = plt.plot(self.data_set['s'], initial_function)
+            slider_axis = plt.axes([0.2, 0.1, 0.65, 0.03])
             self.sliderVar = Slider(slider_axis, 'z [m]',
                                     self.data_set['z'][0],
                                     self.data_set['z'][-1],
                                     valinit=self.data_set['z'][0])
-            self.this_plot, = plt.plot(self.data_set['s'], initial_function)
-
 
         if x_axis == 'z':
             self.x_axis = 'z'
@@ -170,19 +170,25 @@ class RbXGenesisTDep:
                 np.reshape(self.yaxis_function(self.data_set['s'][0],
                                                self.data_set['z']),
                            numpoints)
+            self.this_plot, = plt.plot(self.data_set['z'], initial_function)
+            slider_axis = plt.axes([0.2, 0.1, 0.65, 0.03])
             self.sliderVar = Slider(slider_axis, 's [m]',
                                     self.data_set['s'][0],
                                     self.data_set['s'][-1],
                                     valinit=self.data_set['s'][0])
-            self.this_plot, = plt.plot(self.data_set['z'], initial_function)
 
 
         self.ax.set_ylabel(self.data_label[y_axis])
         self.ax.set_xlabel(self.data_label[x_axis])
 
+        self.ax.set_ylim([0.9*initial_function.min(),
+                          1.1*initial_function.max()])
+
+
         self.sliderVar.on_changed(self.update_plot)
 
         plt.show()
+
 
     def update_plot(self, val):
 
@@ -201,5 +207,6 @@ class RbXGenesisTDep:
                            numpoints)
 
         self.this_plot.set_ydata(new_function)
+        self.ax.set_ylim([0.9*new_function.min(), 1.1*new_function.max()])
 
         self.fig.canvas.draw_idle()
