@@ -76,14 +76,14 @@
     <item row="4" column="1">
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="iallharm">
         <property name="text">
          <string>All Harmonics</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="iallharm"/>
+       <widget class="QLineEdit" name="nharm"/>
       </item>
      </layout>
     </item>

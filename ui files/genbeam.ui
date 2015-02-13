@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>323</width>
-    <height>343</height>
+    <height>389</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <x>30</x>
      <y>30</y>
      <width>261</width>
-     <height>281</height>
+     <height>334</height>
     </rect>
    </property>
    <layout class="QFormLayout" name="formLayout">
@@ -74,14 +74,14 @@
     <item row="6" column="0">
      <widget class="QLabel" name="label_7">
       <property name="text">
-       <string>Transverse - x:</string>
+       <string>x:</string>
       </property>
      </widget>
     </item>
     <item row="7" column="0">
      <widget class="QLabel" name="label_8">
       <property name="text">
-       <string>Transverse - y:</string>
+       <string>y:</string>
       </property>
      </widget>
     </item>
@@ -103,15 +103,55 @@
     <item row="7" column="1">
      <widget class="QLineEdit" name="ybeam"/>
     </item>
-    <item row="8" column="0">
+    <item row="12" column="0">
      <widget class="QLabel" name="label_9">
       <property name="text">
        <string>Peak current:</string>
       </property>
      </widget>
     </item>
-    <item row="8" column="1">
+    <item row="12" column="1">
      <widget class="QLineEdit" name="curpeak"/>
+    </item>
+    <item row="10" column="0">
+     <widget class="QLabel" name="label_10">
+      <property name="text">
+       <string>x rms spatial distribution:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="1">
+     <widget class="QLineEdit" name="rxbeam"/>
+    </item>
+    <item row="11" column="0">
+     <widget class="QLabel" name="label_11">
+      <property name="text">
+       <string>y rms spatial distribution:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="11" column="1">
+     <widget class="QLineEdit" name="rybeam"/>
+    </item>
+    <item row="8" column="0">
+     <widget class="QLabel" name="label_12">
+      <property name="text">
+       <string>x':</string>
+      </property>
+     </widget>
+    </item>
+    <item row="9" column="0">
+     <widget class="QLabel" name="label_13">
+      <property name="text">
+       <string>y':</string>
+      </property>
+     </widget>
+    </item>
+    <item row="8" column="1">
+     <widget class="QLineEdit" name="pxbeam"/>
+    </item>
+    <item row="9" column="1">
+     <widget class="QLineEdit" name="pybeam"/>
     </item>
    </layout>
   </widget>

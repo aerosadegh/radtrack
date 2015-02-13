@@ -163,14 +163,24 @@
     <rect>
      <x>70</x>
      <y>310</y>
-     <width>701</width>
+     <width>561</width>
      <height>192</height>
     </rect>
    </property>
   </widget>
-  <zorder>gridLayoutWidget</zorder>
-  <zorder>mesh</zorder>
-  <zorder>graphicsView</zorder>
+  <widget class="QPushButton" name="cute">
+   <property name="geometry">
+    <rect>
+     <x>640</x>
+     <y>310</y>
+     <width>131</width>
+     <height>91</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Execute</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

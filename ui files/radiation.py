@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'radiation.ui'
 #
-# Created: Tue Jan 13 16:14:17 2015
+# Created: Wed Feb 04 09:40:01 2015
 #      by: pyside-uic 0.2.14 running on PySide 1.1.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -49,12 +49,12 @@ class Ui_radiation(object):
         self.formLayout.setWidget(4, QtGui.QFormLayout.LabelRole, self.label_5)
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.pushButton = QtGui.QPushButton(self.formLayoutWidget)
-        self.pushButton.setObjectName("pushButton")
-        self.horizontalLayout_2.addWidget(self.pushButton)
-        self.iallharm = QtGui.QLineEdit(self.formLayoutWidget)
+        self.iallharm = QtGui.QPushButton(self.formLayoutWidget)
         self.iallharm.setObjectName("iallharm")
         self.horizontalLayout_2.addWidget(self.iallharm)
+        self.nharm = QtGui.QLineEdit(self.formLayoutWidget)
+        self.nharm.setObjectName("nharm")
+        self.horizontalLayout_2.addWidget(self.nharm)
         self.formLayout.setLayout(4, QtGui.QFormLayout.FieldRole, self.horizontalLayout_2)
         self.label_6 = QtGui.QLabel(self.formLayoutWidget)
         self.label_6.setObjectName("label_6")
@@ -79,7 +79,7 @@ class Ui_radiation(object):
         self.label_3.setText(QtGui.QApplication.translate("radiation", "Rayleigh length:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_4.setText(QtGui.QApplication.translate("radiation", "Position of Input Radiation Waist:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_5.setText(QtGui.QApplication.translate("radiation", "Harmonics:", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton.setText(QtGui.QApplication.translate("radiation", "All Harmonics", None, QtGui.QApplication.UnicodeUTF8))
+        self.iallharm.setText(QtGui.QApplication.translate("radiation", "All Harmonics", None, QtGui.QApplication.UnicodeUTF8))
         self.label_6.setText(QtGui.QApplication.translate("radiation", "Include Feedback on beam:", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButton_2.setText(QtGui.QApplication.translate("radiation", "Yes/No", None, QtGui.QApplication.UnicodeUTF8))
         self.label_7.setText(QtGui.QApplication.translate("radiation", "Harmonic Radiation Power:", None, QtGui.QApplication.UnicodeUTF8))

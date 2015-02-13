@@ -18,12 +18,33 @@ class RbGenesis2(QtGui.QWidget):
         self.ui.simulation.clicked.connect(self.simpopup)
         self.ui.scan.clicked.connect(self.scanpopup)
         self.ui.io.clicked.connect(self.iopopup)
-        
+        self.all_parameters = []
+
+
+    def makeinfile(self):
+        outputFileName, _ = QFileDialog.getSaveFileName(self,'Save As',os.path.expanduser('~'), '*'+'in')
+        with open(outputFileName, 'w') as outputFile:
+            outputFile.write('$NEWRUN \n')
+            #stuuuufffffff
+            outputFile.write('$end')
+                             
 
     def undpopup(self):
         dialog = undulator_dialog()
         if dialog.exec_():
-            pass
+            self.all_parameters.append(['AW0',dialog.ui.aw0.text()])
+            self.all_parameters.append(['IWITYP',str(int(dialog.ui.iwityp.isChecked()))])
+            self.all_parameters.append(['XKX','0'])
+            self.all_parameters.append(['XKY','1'])
+            self.all_parameters.append(['XLAMD',dialog.ui.xlamd.text()])
+            self.all_parameters.append(['NWIG',dialog.ui.nwig.text()])
+            self.all_parameters.append(['NSEC',dialog.ui.nsec.text()])
+            self.all_parameters.append(['DELAW',dialog.ui.delaw.text()])
+            self.all_parameters.append(['AWX',dialog.ui.awx.text()])
+            self.all_parameters.append(['AWY',dialog.ui.awy.text()])
+            self.all_parameters.append(['SEED',dialog.ui.seed.text()])
+            self.all_parameters.append(['IERTYP',str(dialog.ui.iertyp.value())])
+            
                                       
     def fodopopup(self):
         dialog = fodo_dialog()
@@ -81,6 +102,8 @@ class undulator_dialog(QtGui.QDialog):
         mainlayout.addWidget(buttonBox,1,0)
         buttonBox.accepted.connect(self.accept)
         buttonBox.rejected.connect(self.reject)
+        
+        
 
 class fodo_dialog(QtGui.QDialog):
     def __init__(self):
@@ -129,6 +152,7 @@ class ploading_dialog(QtGui.QDialog):
         mainlayout.addWidget(buttonBox,1,0)
         buttonBox.accepted.connect(self.accept)
         buttonBox.rejected.connect(self.reject)
+        
 class mesh_dialog(QtGui.QDialog):
     def __init__(self):
         QtGui.QDialog.__init__(self)

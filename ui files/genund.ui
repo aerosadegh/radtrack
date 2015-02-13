@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>300</width>
-    <height>384</height>
+    <height>350</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <x>30</x>
      <y>30</y>
      <width>241</width>
-     <height>301</height>
+     <height>271</height>
     </rect>
    </property>
    <layout class="QFormLayout" name="formLayout">
@@ -70,6 +70,16 @@
     <item row="3" column="1">
      <widget class="QLineEdit" name="nwig"/>
     </item>
+    <item row="4" column="0">
+     <widget class="QLabel" name="label_8">
+      <property name="text">
+       <string>Sections:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="1">
+     <widget class="QLineEdit" name="nsec"/>
+    </item>
     <item row="5" column="0">
      <widget class="QLabel" name="label_5">
       <property name="text">
@@ -84,6 +94,9 @@
       </property>
      </widget>
     </item>
+    <item row="6" column="1">
+     <widget class="QLineEdit" name="awx"/>
+    </item>
     <item row="7" column="0">
      <widget class="QLabel" name="label_7">
       <property name="text">
@@ -91,24 +104,28 @@
       </property>
      </widget>
     </item>
-    <item row="5" column="1">
-     <widget class="QLineEdit" name="delaw"/>
-    </item>
-    <item row="6" column="1">
-     <widget class="QLineEdit" name="awx"/>
-    </item>
     <item row="7" column="1">
      <widget class="QLineEdit" name="awy"/>
     </item>
-    <item row="4" column="0">
-     <widget class="QLabel" name="label_8">
+    <item row="5" column="1">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QLineEdit" name="delaw"/>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="iertyp"/>
+      </item>
+     </layout>
+    </item>
+    <item row="8" column="1">
+     <widget class="QLineEdit" name="seed"/>
+    </item>
+    <item row="8" column="0">
+     <widget class="QLabel" name="label_9">
       <property name="text">
-       <string>Sections:</string>
+       <string>seed:</string>
       </property>
      </widget>
-    </item>
-    <item row="4" column="1">
-     <widget class="QLineEdit" name="nsec"/>
     </item>
    </layout>
   </widget>
