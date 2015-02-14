@@ -597,8 +597,8 @@ class RbCbt(QtGui.QWidget):
 def populateTreeItem(item, element):
     item.setText(0, element.name)
     item.setText(1, element.displayLine())
-    item.setText(2, displayWithUnitsNumber(roundSigFig(element.getLength()), 'm'))
-    item.setText(3, str(roundSigFig(convertUnitsNumber(element.getAngle(), 'rad', 'deg')))+' deg')
+    item.setText(2, displayWithUnitsNumber(roundSigFig(element.getLength(), 4), 'm'))
+    item.setText(3, str(roundSigFig(convertUnitsNumber(element.getAngle(), 'rad', 'deg'), 4))+' deg')
     item.setText(4, str(element.getNumberOfElements()) if element.isBeamline() else '')
 
 def itemsInGroup(group):

@@ -218,7 +218,7 @@ addMetricUnit('W')
 
 
 # Round number x to sig significant figures
-def roundSigFig(x, sig = 4):
+def roundSigFig(x, sig):
     try:
         # find a, b such that x = a*10^b (1 <= a < 10)
         b = floor(log10(abs(x)))

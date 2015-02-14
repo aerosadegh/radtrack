@@ -414,7 +414,7 @@ class RbFEL(QtGui.QWidget):
     def setResultBox(self, textBox, value, writeToTextBox):
         self.valueFromTextBox[textBox] = value
         if writeToTextBox:
-            textBox.setText(displayWithUnitsNumber(roundSigFig(value), textBox.unit))
+            textBox.setText(displayWithUnitsNumber(roundSigFig(value, 5), textBox.unit))
             textBox.setCursorPosition(0)
 
     def hasChanged(self):
@@ -575,7 +575,7 @@ class RbFEL(QtGui.QWidget):
             self.ui.lineEdit_4.setToolTip('Could not find a solution. Try adjusting\n' + \
                                           'the variable parameter to a different value.')
 
-        variableTextBox.setText(displayWithUnitsNumber(roundSigFig(value), variableTextBox.unit))
+        variableTextBox.setText(displayWithUnitsNumber(roundSigFig(value, 5), variableTextBox.unit))
         variableTextBox.setCursorPosition(0)
         self.calculate(True)
 
