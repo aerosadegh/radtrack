@@ -98,14 +98,9 @@ class beamGraphicsWindow(QtGui.QGraphicsView):
 class Ui_tree(QtCore.QObject):
     contextMenuClicked = QtCore.pyqtSignal(str,str,QtCore.QPoint)
 
-    def __init__(self, tree, particle_laser):
+    def __init__(self, tree, module):
         super(Ui_tree, self).__init__()
-        if particle_laser == 'particle':
-            module = __import__('RadTrack.beamlines.RbElegantElements', fromlist='.')
-        elif particle_laser == 'laser':
-            module = __import__('RadTrack.beamlines.RbOpticalElements', fromlist='.')
-        else:
-            raise NotImplementedError("Unknown beam type: " + particle_laser)
+
         self.names = module.names
         self.advancedNames = module.advancedNames
         self.nameMangler = module.nameMangler

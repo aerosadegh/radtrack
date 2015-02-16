@@ -3,7 +3,8 @@ from PyQt4 import QtGui, QtCore
 
 class RbLaserTransport(rbcbt.RbCbt):
     def __init__(self, parent = None):
-        rbcbt.RbCbt.__init__(self, 'laser', parent)
+        module = __import__('RadTrack.beamlines.RbOpticalElements', fromlist='.')
+        rbcbt.RbCbt.__init__(self, module, parent)
 
 
 def main():

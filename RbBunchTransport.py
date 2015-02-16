@@ -3,7 +3,8 @@ from PyQt4 import QtGui, QtCore
 
 class RbBunchTransport(rbcbt.RbCbt):
     def __init__(self, parent = None):
-        rbcbt.RbCbt.__init__(self, 'particle', parent)
+        module = __import__('RadTrack.beamlines.RbElegantElements', fromlist='.')
+        rbcbt.RbCbt.__init__(self, module, parent)
 
 
 def main():

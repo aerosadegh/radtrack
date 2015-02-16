@@ -1,10 +1,7 @@
 import os.path
 from collections import OrderedDict
 import sip
-try:
-    sip.setapi('QString', 2)
-except ValueError:
-    pass
+sip.setapi('QString', 2)
 from PyQt4 import QtGui, QtCore
 
 from RadTrack.beamlines.cbt import Ui_tree, genDialog, advDialog
@@ -14,17 +11,9 @@ from RbUtility import displayWithUnitsNumber, \
 
 
 class RbCbt(QtGui.QWidget):
-    def __init__(self, particle_laser, parent = None):
+    def __init__(self, module, parent = None):
         QtGui.QWidget.__init__(self)
-        #determine type of window (particle/laser) beam transport
-        if particle_laser == 'particle':
-            importName = 'RbElegantElements'
-        elif particle_laser == 'laser':
-            importName = 'RbOpticalElements'
-        else:
-            raise Exception('Unrecognized particle_laser argument: ' + particle_laser)
-
-        module = __import__('RadTrack.beamlines.' + importName, fromlist='.')
+        
         self.beamlineType = module.beamlineType
         self.classDictionary = module.classDictionary
         self.acceptsFileTypes = [module.fileExtension]
@@ -35,7 +24,7 @@ class RbCbt(QtGui.QWidget):
         self.resolution = self.classDictionary.values()[0]().getResolution()
         self.defaultBeamline = ''
         #set layout
-        self.ui = Ui_tree(self, particle_laser)
+        self.ui = Ui_tree(self, module)
         self.verticalLayout = QtGui.QVBoxLayout(self)
         self.verticalLayout.addWidget(self.ui.horizontalLayoutWidget)
         self.verticalLayout.addWidget(self.ui.treeWidget)
