@@ -101,8 +101,8 @@ class Ui_tree(QtCore.QObject):
     def __init__(self, tree, module):
         super(Ui_tree, self).__init__()
 
-        self.names = module.names
-        self.advancedNames = module.advancedNames
+        self.names = sorted(module.classDictionary.keys())
+        self.advancedNames = sorted(module.advancedNames)
         self.nameMangler = module.nameMangler
         self.fileType = module.fileExtension.lstrip('.').upper()
 

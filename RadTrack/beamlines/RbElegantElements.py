@@ -157,7 +157,7 @@ def parseLine(line, importDictionary, classDictionary, nameMangler):
     importDictionary[newElement.name] = newElement
 
 
-def exportToFile(outputFileName, elementDictionary, defaultBeamline):
+def exportToFile(outputFileName, elementDictionary, defaultBeamline = ''):
     with open(outputFileName, 'w') as outputFile:
         outputFile.write('! This Elegant file was created by RadTrack\n')
         outputFile.write('! RadTrack (c) 2013, RadiaSoft, LLC\n\n')
@@ -1118,7 +1118,6 @@ class ZTRANSVERSE(elegantElement, zeroLengthPic):
     parameterDescription = ['beam charge (or use CHARGE element)', 'broad-band impedance?', 'shunt impedance (Ra=2*Rs)', 'cavity Q', 'frequency (BROAD_BAND=1)', 'name of file giving impedance (BROAD_BAND=0)', 'column in INPUTFILE containing frequency', 'column in INPUTFILE containing real impedance for x plane', 'column in INPUTFILE containing imaginary impedance for x plane', 'column in INPUTFILE containing real impedance for y plane', 'column in INPUTFILE containing imaginary impedance for y plane', 'bin size for current histogram (use 0 for autosize)', 'interpolate wake?', 'number of bins for current histogram', 'Maximum number of bins for current histogram', 'Use Savitzky-Golay filter to smooth current histogram?', 'Savitzky-Golay filter order for smoothing', 'Savitzky-Golay filter halfwidth for smoothing', 'misalignment', 'misalignment', 'Factor by which to multiply x and y impedances.', 'Factor by which to multiply x impedance.', 'Factor by which to multiply y impedance.', 'filename for output of wake', 'interval in passes at which to output wake', 'pass at which to start to output wake', 'pass at which to stop to output wake', 'The pass on which the impedance effects start.', 'Number of passes over which to linearly ramp up the impedance to full strength.', 'Frequency at which smoothing filter begins. If not positive, no frequency filter smoothing is done. Frequency is in units of Nyquist (0.5/binsize).', 'Frequency at which smoothing filter is 0. If not given, defaults to HIGH_FREQUENCY_CUTOFF0.', 'Exponent applied to x coordinates of drive particles', 'Exponent applied to y coordinates of drive particles', 'Exponent applied to x coordinates of probe particles', 'Exponent applied to y coordinates of probe particles', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
 
 
-names = []
 def nameMangler(name):
     # Elegant ignores all letters following an initial set of letters
     # that uniquely (and case-insensitively) identifies an element class:
@@ -1135,9 +1134,8 @@ def nameMangler(name):
 classDictionary = dict()
 for key in list(globals()):
     if hasattr(globals()[key], 'elementDescription'):
-        names.append(key)
         classDictionary[key] = globals()[key]
-names.sort()
+
 advancedNames = sorted(['ALPH', 'BMAPXY', 'BUMPER', 'CENTER', 'CEPL',
     'CHARGE', 'CLEAN', 'CORGPIPE', 'CWIGGLER', 'DSCATTER', 'EDRIFT', 'ELSE',
     'EMATRIX', 'EMITTANCE', 'ENERGY', 'FLOOR', 'FMULT', 'FRFMODE', 'FTABLE',

@@ -109,13 +109,10 @@ class WATCH_POINT(opticalElement, watchPic):
 def nameMangler(name):
     return name
 
-names = []
 classDictionary = dict()
 for key in list(globals()):
     if hasattr(globals()[key], 'elementDescription'):
-        names.append(key)
         classDictionary[key] = globals()[key]
-names.sort()
 advancedNames = []
 
 fileImporter = lambda fileName, importDictionary = None : \
