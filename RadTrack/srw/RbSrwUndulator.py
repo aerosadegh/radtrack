@@ -6,7 +6,9 @@
 import numpy as np
 from srwlib import *
 import sys, os
-from PySide import QtGui, QtCore
+import sip
+sip.setapi('QString', 2)
+from PyQt4 import QtGui, QtCore
 from undulator import ui_form
 from uti_plot import *
 from AnalyticCalc import *
