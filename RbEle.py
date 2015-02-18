@@ -97,13 +97,19 @@ class RbEle(QWidget):
                 self.loaderCache.append(loaders[0])
             else:
                 loaders = [self.loaderCache[self.ui.latticeChoice.currentIndex()-3]]
+            loaderNames = []
 
 
         allBeamLines = []
         for loaderIndex in range(len(loaders)):
             for element in loaders[loaderIndex].elementDictionary.values():
                 if element.isBeamline() and not element.name.startswith('-'):
-                    allBeamLines.append(loaderNames[loaderIndex] + " - " + element.name)
+                    if loaderNames:
+                        allBeamLines.append(
+                                loaderNames[loaderIndex] + " - " + element.name)
+                    else:
+                        allBeamLines.append(element.name)
+
 
         # Reset available beamlines
         self.ui.beamlineDropDown.addItems(allBeamLines)
