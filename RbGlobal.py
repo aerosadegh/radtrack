@@ -14,12 +14,12 @@ from RbLaserWindow import RbLaserWindow
 from rbdcp import RbDcp
 from RbBunchTransport import RbBunchTransport
 from RbLaserTransport import RbLaserTransport
+from RbGenesisTransport import RbGenesisTransport
 from RbBunchWindow import RbBunchWindow
 from RbEle import RbEle
 from RbFEL import RbFEL
 from RbSimulations import RbSimulations
 from RadTrack.srw.RbSrwUndulator import srwund
-from RadTrack.genesis.rbgenesis import RbGenesis
 from RadTrack.genesis.rbgenesis2 import RbGenesis2
 
 class RbGlobal(QtGui.QMainWindow):
@@ -62,9 +62,11 @@ class RbGlobal(QtGui.QMainWindow):
         scrollArea3.setWidget(srwund(self))
         self.tabWidget.addTab(scrollArea3,self.tr('SRW'))
 
-        newscrollarea = QtGui.QScrollArea(self)
-        newscrollarea.setWidget(RbGenesis2(self))
-        self.tabWidget.addTab(newscrollarea, self.tr('Genesis'))
+        scrollArea = QtGui.QScrollArea(self)
+        scrollArea.setWidget(RbGenesis2(self))
+        self.tabWidget.addTab(scrollArea, self.tr('Genesis'))
+        
+        self.tabWidget.addTab(RbGenesisTransport(self), self.tr('Genesis Transport'))
         
 
         # Information for making new tabs and importing files
