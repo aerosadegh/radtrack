@@ -11,7 +11,7 @@ import tempfile
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from RadTrack.interactions.rbele import *
-from rbcbt import RbCbt
+from RbBunchTransport import RbBunchTransport
 from RbUtility import stripComments
 
 class RbEle(QWidget):
@@ -59,8 +59,15 @@ class RbEle(QWidget):
 
         if self.ui.latticeChoice.currentText() == self.ui.noneBeamChoice:
             return
+
         elif self.ui.latticeChoice.currentText() == self.ui.tabBeamChoice:
-            loader = self.parent.chargedBeamTransportTab
+            loaders = [] 
+            loaderNames = []
+            for tabIndex in range(self.parent.tabWidget.count()):
+                if type(self.parent.tabWidget.widget(tabIndex)) == RbBunchTransport:
+                    loaders.append(self.parent.tabWidget.widget(tabIndex))
+                    loaderNames.append(self.parent.tabWidget.tabText(tabIndex))
+
         elif self.ui.latticeChoice.currentText() == self.ui.fileBeamChoice:
             fileName = QtGui.QFileDialog.getOpenFileName(self, 'Open',
                     self.parent.lastUsedDirectory, '*.lte')
@@ -85,20 +92,22 @@ class RbEle(QWidget):
             # are offset by three in the dropdown list compared to the 
             # loaderCache.
             if len(self.loaderCache) <= self.ui.latticeChoice.currentIndex()-3:
-                loader = RbCbt('particle', parent=None)
-                loader.importLattice(self.ui.latticeChoice.currentText())
-                self.loaderCache.append(loader)
+                loaders = [RbBunchWindow()]
+                loaders[0].importLattice(self.ui.latticeChoice.currentText())
+                self.loaderCache.append(loaders[0])
             else:
-                loader = self.loaderCache[self.ui.latticeChoice.currentIndex()-3]
+                loaders = [self.loaderCache[self.ui.latticeChoice.currentIndex()-3]]
 
 
-        allBeamLines = \
-                [bl.name for bl in loader.elementDictionary.values() \
-                if bl.isBeamline() and not bl.name.startswith('-')]
+        allBeamLines = []
+        for loaderIndex in range(len(loaders)):
+            for element in loaders[loaderIndex].elementDictionary.values():
+                if element.isBeamline() and not element.name.startswith('-'):
+                    allBeamLines.append(loaderNames[loaderIndex] + " - " + element.name)
 
         # Reset available beamlines
         self.ui.beamlineDropDown.addItems(allBeamLines)
-        self.ui.beamlineDropDown.setCurrentIndex(self.ui.beamlineDropDown.findText(loader.defaultBeamline))
+        self.ui.beamlineDropDown.setCurrentIndex(self.ui.beamlineDropDown.findText(loaders[0].defaultBeamline))
         
     
     def simulate(self):
@@ -109,11 +118,19 @@ class RbEle(QWidget):
         # Get beamline file
         if self.ui.latticeChoice.currentText() == self.ui.noneBeamChoice:
             errMsg += '  - No beamline lattice specified.\n'
+
         elif self.ui.latticeChoice.currentText() == self.ui.tabBeamChoice:
             fileHandle, latticeFileName = tempfile.mkstemp('.lte')
             os.close(fileHandle)
-            self.parent.chargedBeamTransportTab.outBeam(latticeFileName)
+            tabName, beamlineName = self.ui.beamlineDropDown.currentText().split(' - ')
+            for tabIndex in range(self.parent.tabWidget.count()):
+                if tabName == self.parent.tabWidget.tabText(tabIndex):
+                    self.parent.tabWidget.widget(tabIndex).exportToFile(latticeFileName)
+                    break
+            else:
+                errMsg += "  - Could not find tab with name: " + tabName
             deleteLatticeFile = True
+
         else:
             latticeFileName = self.ui.latticeChoice.currentText()
             deleteLatticeFile = False
@@ -163,7 +180,7 @@ class RbEle(QWidget):
             s = '    '
             outputFile.write('&run_setup\n')
             outputFile.write(s+'lattice = "'+latticeFileName+'",'+'\n')
-            outputFile.write(s+'use_beamline = '+self.ui.beamlineDropDown.currentText()+','+'\n')
+            outputFile.write(s+'use_beamline = '+beamlineName+','+'\n')
             outputFile.write(s+'default_order = '+self.ui.orderLineEdit.text()+','+'\n')
             outputFile.write(s+'p_central = '+self.ui.momentumLineEdit.text()+','+'\n')
             outputFile.write(s+'output = %s.out, \n')
