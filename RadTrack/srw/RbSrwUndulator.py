@@ -81,7 +81,7 @@ class srwund(QtGui.QWidget):
         self.ui.nptraj.setText('20000') #Number of points for trajectory calculation
         self.ui.usetermin.setCurrentIndex(1) #Use "terminating terms" (i.e. asymptotic expansions at zStartInteg and zEndInteg) or not (1 or 0 respectively)
         self.ui.sampfactnxnyprop.setText('0') #sampling factor for adjusting nx, ny (effective if > 0)
-        self.ui.tableWidget.setItem(0,0,QtGui.QTableWidgetItem('10000'))
+        self.ui.tableWidget.setItem(0,0,QtGui.QTableWidgetItem('5000'))
         self.ui.tableWidget.setItem(1,0,QtGui.QTableWidgetItem('1'))
         self.ui.tableWidget.setItem(2,0,QtGui.QTableWidgetItem('1'))
         self.ui.tableWidget.setItem(3,0,QtGui.QTableWidgetItem('20'))
@@ -206,26 +206,27 @@ class srwund(QtGui.QWidget):
         wfrE = SRWLWfr()
         self.WfrSetUpE(wfrE)
         wfrE.partBeam = elecBeam
+        wfrXY = SRWLWfr()
+        self.WfrSetUpE(wfrXY)
+        wfrXY.partBeam = elecBeam        
         
-        stkF = SRWLStokes()
+        stkF = SRWLStokes() #for spectrum
         self.WfrSetUpE(stkF)
+        stkP = SRWLStokes() #for power density
+        self.WfrSetUpE(stkP)
 #        print stkF.mesh.zStart
 #        print stkF.mesh.eStart
 #        print stkF.mesh.eFin
 #        stkF.mesh.ne
 #        print arPrecF
-
-        wfrXY = SRWLWfr()
-        self.WfrSetUpE(wfrXY)
-        wfrXY.partBeam = elecBeam
-        
-        mesh=deepcopy(wfrE.mesh)
-        wfrIn=deepcopy(wfrE)
+        #mesh=deepcopy(wfrE.mesh)
+        #wfrIn=deepcopy(wfrE)
 
         Polar = self.ui.polar.currentIndex()
         Intens = self.ui.intensity.currentIndex()
         DependArg = self.ui.deparg.currentIndex()
         print (Polar, Intens, DependArg)
+        
         Thin_Or_Thick=1
       
         if DependArg == 0:
@@ -259,7 +260,13 @@ class srwund(QtGui.QWidget):
             if Thin_Or_Thick == 0:
                 srwl.CalcElecFieldSR(wfrXY, 0, magFldCnt, arPrecPar)
             elif Thin_Or_Thick == 1:
-                srwl.CalcStokesUR(stkF, elecBeam, und, arPrecF) #####
+                print DependArg
+                print(stkP)
+                print(elecBeam)
+                print(und)
+                print(arPrecF)
+                srwl.CalcStokesUR(stkP, elecBeam, und, arPrecF) #####
+                print 'yes'
                 
             str2='* Extracting Intensity from calculated Electric Field ... \n \n '
             self.ui.status.setText(str1+str2)
@@ -274,7 +281,14 @@ class srwund(QtGui.QWidget):
             if Thin_Or_Thick == 0:
                 uti_plot1d(arI1, [wfrXY.mesh.xStart, wfrXY.mesh.xFin, wfrXY.mesh.nx],['label','label','label'])
             elif Thin_Or_Thick == 1:
-                uti_plot1d(stkF.arS, [stkF.mesh.xStart, stkF.mesh.xFin, stkF.mesh.nx], ['label [eV]', 'Flux [ph/s/.1%bw]', 'Flux through Finite Aperture'])
+                plotMeshX = [1000*stkP.mesh.xStart, 1000*stkP.mesh.xFin, stkP.mesh.nx]
+#                plotMeshY = [1000*stkP.mesh.yStart, 1000*stkP.mesh.yFin, stkP.mesh.ny]
+#                uti_plot2d(stkP.arS, plotMeshX, plotMeshY, ['Horizontal Position [mm]', 'Vertical Position [mm]', 'Power Density'])
+#                uti_plot1d(stkP.arS, [stkP.mesh.xStart, stkP.mesh.xFin, stkP.mesh.nx], ['label [eV]', 'Flux [ph/s/.1%bw]', 'Flux through Finite Aperture'])
+                powDenVsX = array('f', [0]*stkP.mesh.nx)
+                for i in range(stkP.mesh.nx): powDenVsX[i] = stkP.arS[stkP.mesh.nx*int(stkP.mesh.ny*0.5) + i]
+                uti_plot1d(powDenVsX, plotMeshX, ['Horizontal Position [mm]', 'Power Density [W/mm^2]', 'Power Density\n(horizontal cut at y = 0)'])
+
 
         elif DependArg == 2:
             str1='* Performing Electric Field (intensity vs y-coordinate) calculation ... \n \n'
