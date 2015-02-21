@@ -1,7 +1,7 @@
 *.pyc
 RadTrack/dcp/sddsdata.pyd
 RadTrack/srw/srwlpy.pyd
-RadTrack/dcp/sddsdata.pyd
-RadTrack/srw/srwlpy.pyd
 .idea/
 *.swp
+test/laserHeater/BorisVayTrajectory.png
+test/laserHeater/EXB_trajectory.png
