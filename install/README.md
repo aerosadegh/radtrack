@@ -1,4 +1,4 @@
-### 
+###
 
 Each subdirectory is used to build a single application in its own container.
 The code has been tested with Docker, but we can add a Vagrant version if so
@@ -45,3 +45,13 @@ sh install-centos-docker.sh
 ```
 
 This will download the latest docker and start the docker daemon.
+
+#### Windows build
+
+* Install Anaconda 2.x
+* conda install pip
+* pip install cx_freeze
+* install elegant
+* install sdds
+* install MikTeX
+```

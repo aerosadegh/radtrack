@@ -4,23 +4,20 @@ Created on Fri Nov 08 22:09:04 2013
 
 @author: Steven Wu
 """
-import  subprocess
 import os
+import os.path
+import subprocess
 print '==============================================================='
 print '========     navigate to where                ================'
 print '=========    ElegantExampleProgram is located ============='
-# navigate to working directory
-location = 'c:\Users\Intern\Desktop\python\lsd\python\\'
+# navigate to this directory
 
-
-exampleProgram = 'testRunElegantScript'
-path = ''.join( [ location, exampleProgram ] )
-os.chdir( path )
+os.chdir( os.path.dirname(__file__) + '/betaMatching' )
 
 #############################################
 # Possible way to define where to go on all computers
-# calling os.getcwd(ARG) navigates to 
-# the  Current Working Directory in in my Spyder IDE 
+# calling os.getcwd(ARG) navigates to
+# the  Current Working Directory in in my Spyder IDE
 #-------------------------------------------
 #print 'pathlocation= ', dfdf
 #print type( dfdf)
@@ -32,19 +29,19 @@ os.chdir( path )
 #Do something with the config file. store to LSD?
 
 ########################################################
-# --- run Elegant Simulation with specified .ele file 
+# --- run Elegant Simulation with specified .ele file
 simulationPackage = 'Elegant'
-configFile        = 'two.lte' 
+configFile        = 'two.lte'
 runFile           = 'two.ele'
 runSimulation     = [ simulationPackage, runFile ]
 
 print '********************************************************'
 print '========================================================'
 print '======    Calling Elegant from Python Environment ======'
-print '======    running file ' + runFile 
+print '======    running file ' + runFile
 print '========================================================'
 
-print 'BELOW IS OUTPUT FROM RUNNING ELEGANT SIMULATION:' + '\n' 
+print 'BELOW IS OUTPUT FROM RUNNING ELEGANT SIMULATION:' + '\n'
 subprocess.call( runSimulation )
 
 print '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'
@@ -64,8 +61,8 @@ plotFile          = 'two.twi'
 
 # Twiss Parameters: 6D phase space
 parameters = ['nux', 'nuy', 'alphac']
-columns    = [ 's',     'ElementName', 'ElementType', 
-               'betax', 'bety',        'psix', 
+columns    = [ 's',     'ElementName', 'ElementType',
+               'betax', 'bety',        'psix',
                'psiy',  'etax',        'etay'    ]
 
 #CHOOSE which axes to acquire data for (refer to columns (above)):
@@ -97,12 +94,12 @@ print '############################################'
 ####  into Python environment for plotting            ###################
 #########################################################################
 
- 
+
 #POPEN: acquire data into Python from SDDS
-sddsCall     = 'sddsprintout'   
-xAxisInfo = ['-column=', columns[i] ] 
-yAxisInfo = ['-column=', columns[j] ] 
-zAxisInfo = ['-column=', columns[2] ] 
+sddsCall     = 'sddsprintout'
+xAxisInfo = ['-column=', columns[i] ]
+yAxisInfo = ['-column=', columns[j] ]
+zAxisInfo = ['-column=', columns[2] ]
 #zAxisInfo is for hardcoding (explicitly define which columns to display)
 
 sddsAcquire1 = [sddsCall, plotFile, xAxisInfo]
@@ -120,16 +117,16 @@ print '#############################################################'
 cmd1 = subprocess.Popen( sddsAcquire1, stderr=subprocess.STDOUT, stdout=subprocess.PIPE )
 cmd2 = subprocess.Popen( sddsAcquire2, stderr=subprocess.STDOUT, stdout=subprocess.PIPE )
 cmd3 = subprocess.Popen( sddsAcquire3, stderr=subprocess.STDOUT, stdout=subprocess.PIPE )
-#print 'cmd1len', len(cmd1),'\n', 'cmd2len', len(cmd2),'\n','cmd3len', len(cmd3),'\n',  
+#print 'cmd1len', len(cmd1),'\n', 'cmd2len', len(cmd2),'\n','cmd3len', len(cmd3),'\n',
 axis1=[]; axis2=[]; axis3 = []
 #*.strip() removes irrelevant whitespace and spacing (e.g. '\r\n')
 for line in cmd1.stdout.readlines():
-    axis1.append( line.strip() )    
+    axis1.append( line.strip() )
 for line in cmd2.stdout.readlines():
     axis2.append( line.strip() )
 for line in cmd3.stdout.readlines():
     axis3.append( line.strip() )
-    
+
     #CANT GET LIST COMPREHENSION TO WORK?????????
 #a1 = [ line.strip() for line in cmd1.stdout.readlines() ]
 #print 'a1:', '\n', a1
@@ -147,8 +144,8 @@ print xLabel, yLabel
 x = [float( x ) for x in axis1[ 5: ] ]
 y = [float( y ) for y in axis2[ 5: ] ]
 #figure()
-plot( x,y )
-xlabel( xLabel + '(' + xUnits + ')' )
-ylabel( yLabel + '(' + yUnits + ')' )
+#plot( x,y )
+#xlabel( xLabel + '(' + xUnits + ')' )
+#ylabel( yLabel + '(' + yUnits + ')' )
 #plt.plot(x,y)
 #plt.show()
