@@ -2,13 +2,12 @@
 #steven seung
 #1/23/15
 # The following classes are used throughout SRW: UP, elecBeam, RAD
+#C:\d from old\RadiaBeam\RadSoft\python\radtrack-master\RadTrack\srw
 
 import numpy as np
 from srwlib import *
 import sys, os
-import sip
-sip.setapi('QString', 2)
-from PyQt4 import QtGui, QtCore
+from PySide import QtGui, QtCore
 from undulator import ui_form
 from uti_plot import *
 from AnalyticCalc import *
@@ -52,7 +51,7 @@ class srwund(QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
         self.ui = ui_form()
         self.ui.setupUi(self)
-        self.ui.pushButton.clicked.connect(self.srwbuttonTB)
+        self.ui.pushButton.clicked.connect(self.srwbuttonThick)
 
         #default values
         self.ui.numper.setText('40.5')  #Number of ID Periods (without accounting for terminations)
@@ -81,16 +80,16 @@ class srwund(QtGui.QWidget):
         self.ui.nptraj.setText('20000') #Number of points for trajectory calculation
         self.ui.usetermin.setCurrentIndex(1) #Use "terminating terms" (i.e. asymptotic expansions at zStartInteg and zEndInteg) or not (1 or 0 respectively)
         self.ui.sampfactnxnyprop.setText('0') #sampling factor for adjusting nx, ny (effective if > 0)
-        self.ui.tableWidget.setItem(0,0,QtGui.QTableWidgetItem('5000'))
-        self.ui.tableWidget.setItem(1,0,QtGui.QTableWidgetItem('1'))
-        self.ui.tableWidget.setItem(2,0,QtGui.QTableWidgetItem('1'))
-        self.ui.tableWidget.setItem(3,0,QtGui.QTableWidgetItem('20'))
+        self.ui.tableWidget.setItem(0,0,QtGui.QTableWidgetItem('1'))
+        self.ui.tableWidget.setItem(1,0,QtGui.QTableWidgetItem('100'))
+        self.ui.tableWidget.setItem(2,0,QtGui.QTableWidgetItem('100'))
+        self.ui.tableWidget.setItem(3,0,QtGui.QTableWidgetItem('30'))
         self.ui.tableWidget.setItem(4,0,QtGui.QTableWidgetItem('10'))
         self.ui.tableWidget.setItem(5,0,QtGui.QTableWidgetItem('3000'))
-        self.ui.tableWidget.setItem(6,0,QtGui.QTableWidgetItem('-0.002'))
-        self.ui.tableWidget.setItem(7,0,QtGui.QTableWidgetItem('-0.002'))
-        self.ui.tableWidget.setItem(8,0,QtGui.QTableWidgetItem('0.002'))
-        self.ui.tableWidget.setItem(9,0,QtGui.QTableWidgetItem('0.002'))
+        self.ui.tableWidget.setItem(6,0,QtGui.QTableWidgetItem('-0.02'))
+        self.ui.tableWidget.setItem(7,0,QtGui.QTableWidgetItem('-0.02'))
+        self.ui.tableWidget.setItem(8,0,QtGui.QTableWidgetItem('0.02'))
+        self.ui.tableWidget.setItem(9,0,QtGui.QTableWidgetItem('0.02'))
         
 ##         self.ui.tableWidget.setItem(0,0,QtGui.QTableWidgetItem('3'))
 ##         self.ui.tableWidget.setItem(1,0,QtGui.QTableWidgetItem('30'))
@@ -131,11 +130,11 @@ class srwund(QtGui.QWidget):
         elecBeam.partStatMom1.xp = float(self.ui.partstatmom1xp.text())
         elecBeam.partStatMom1.yp = float(self.ui.partstatmom1yp.text()) 
         elecBeam.partStatMom1.gamma = float(self.ui.partstatmom1gamma.text())
-        sigEperE = 0.89E-2 #relative RMS energy spread
-        sigX = 33.33e-04 #horizontal RMS size of e-beam [m]
-        sigXp = 16.5e-09 #horizontal RMS angular divergence [rad]
-        sigY = 2.912e-09 #vertical RMS size of e-beam [m]
-        sigYp = 2.7472e-09 #vertical RMS angular divergence [rad]
+        sigEperE = 0.00089 #relative RMS energy spread
+        sigX = 33.33e-06 #horizontal RMS size of e-beam [m]
+        sigXp = 16.5e-06 #horizontal RMS angular divergence [rad]
+        sigY = 2.912e-06 #vertical RMS size of e-beam [m]
+        sigYp = 2.7472e-06 #vertical RMS angular divergence [rad]
         #2nd order stat. moments:
         elecBeam.arStatMom2[0] = sigX*sigX #<(x-<x>)^2> 
         elecBeam.arStatMom2[1] = 0 #<(x-<x>)(x'-<x'>)>
@@ -159,7 +158,18 @@ class srwund(QtGui.QWidget):
         wfrE.mesh.yStart = float(self.ui.tableWidget.item(7,0).text())
         wfrE.mesh.yFin = float(self.ui.tableWidget.item(9,0).text())
         #return(wfrE)
-    
+     
+    def UndParamsThick(self):
+        harmB = SRWLMagFldH() #magnetic field harmonic
+        harmB.n = 1 #harmonic number
+        harmB.h_or_v = 'v' #magnetic field plane: horzontal ('h') or vertical ('v')
+        harmB.B = 1. #magnetic field amplitude [T]
+        und = SRWLMagFldU([harmB])
+        und.per = 0.02 #period length [m]
+        und.nPer = 150 #number of periods (will be rounded to integer)
+        magFldCnt = SRWLMagFldC([und], array('d', [0]), array('d', [0]), array('d', [0])) #Container of all magnetic field elements
+        return (und, magFldCnt) 
+
     def Precision(self):
         Precis.meth = self.ui.meth.currentIndex()
         Precis.relPrec = float(self.ui.relprec.text())
@@ -169,199 +179,163 @@ class srwund(QtGui.QWidget):
         Precis.useTermin = float(self.ui.usetermin.currentIndex())
         Precis.sampFactNxNyForProp = float(self.ui.sampfactnxnyprop.text())
         return(Precis)
-    
-    def UndParamsStokes(self):
-        harmB = SRWLMagFldH() #magnetic field harmonic
-        harmB.n = 1 #harmonic number
-        harmB.h_or_v = 'v' #magnetic field plane: horzontal ('h') or vertical ('v')
-        harmB.B = 1. #magnetic field amplitude [T]
-        und = SRWLMagFldU([harmB])
-        und.per = 0.02 #period length [m]
-        und.nPer = 150 #number of periods (will be rounded to integer)
-        magFldCnt = SRWLMagFldC([und], array('d', [0]), array('d', [0]), array('d', [0])) #Container of all magnetic field elements
-        return (und) #, magFldCnt)
         
-    def PrecisionStokes(self):
+    def PrecisionThick(self):
         arPrecF = [0]*5 #for spectral flux vs photon energy
         arPrecF[0] = 1 #initial UR harmonic to take into account
         arPrecF[1] = 11 #final UR harmonic to take into account
         arPrecF[2] = 1.5 #longitudinal integration precision parameter
         arPrecF[3] = 1.5 #azimuthal integration precision parameter
         arPrecF[4] = 1 #calculate flux (1) or flux per unit surface (2)
-        return (arPrecF)
-
-    def srwbuttonTB(self):
-        arPrecF=self.PrecisionStokes()
         
-        UP = self.UndParams()
-        und = SRWLMagFldU([SRWLMagFldH(1, 'v', UP.By, UP.phBy, UP.sBy, 1), SRWLMagFldH(1, 'h', UP.Bx, UP.phBx, UP.sBx, 1)], UP.undPer, UP.numPer)
-        magFldCnt = SRWLMagFldC([und], array('d', [UP.xcID]), array('d', [UP.ycID]), array('d', [UP.zcID]))
+        arPrecP = [0]*5 #for power density
+        arPrecP[0] = 1.5 #precision factor
+        arPrecP[1] = 1 #power density computation method (1- "near field", 2- "far field")
+        arPrecP[2] = 0 #initial longitudinal position (effective if arPrecP[2] < arPrecP[3])
+        arPrecP[3] = 0 #final longitudinal position (effective if arPrecP[2] < arPrecP[3])
+        arPrecP[4] = 20000 #number of points for (intermediate) trajectory calculation
+        return (arPrecF, arPrecP)
+
+    def srwbuttonThick(self):     
+        if 'srwl' not in globals():
+            msg = ' !Warning --'
+            msg += 'SRW not installed on this system.'
+            self.ui.status.setText(msg)
+            raise Exception(msg)
+
+        (und,magFldCnt)=self.UndParamsThick()
+        
         elecBeam = SRWLPartBeam()
         self.BeamParams(elecBeam)
 
-        self.AnalyticA(elecBeam)
+#        self.AnalyticA(elecBeam)
 
-        Precis = self.Precision() # these 5 lines are needed for "thin" beam calculations through CalcElecFieldSR
-        arPrecPar = [Precis.meth, Precis.relPrec, Precis.zStartInteg, Precis.zEndInteg, Precis.npTraj, Precis.useTermin, Precis.sampFactNxNyForProp]
-        wfrE = SRWLWfr()
-        self.WfrSetUpE(wfrE)
-        wfrE.partBeam = elecBeam
-        wfrXY = SRWLWfr()
-        self.WfrSetUpE(wfrXY)
-        wfrXY.partBeam = elecBeam        
+        (arPrecF, arPrecP)=self.PrecisionThick()     
         
         stkF = SRWLStokes() #for spectrum
         self.WfrSetUpE(stkF)
         stkP = SRWLStokes() #for power density
         self.WfrSetUpE(stkP)
-#        print stkF.mesh.zStart
-#        print stkF.mesh.eStart
-#        print stkF.mesh.eFin
-#        stkF.mesh.ne
-#        print arPrecF
-        #mesh=deepcopy(wfrE.mesh)
-        #wfrIn=deepcopy(wfrE)
-
+        
         Polar = self.ui.polar.currentIndex()
         Intens = self.ui.intensity.currentIndex()
         DependArg = self.ui.deparg.currentIndex()
         print (Polar, Intens, DependArg)
-        
-        Thin_Or_Thick=1
-      
+         
         if DependArg == 0:
             #after setting the text call self.ui.status.repaint() to have it immediately show otherwise it will wait till it exits the block to draw
             str1='* Performing Electric Field (spectrum vs photon energy) calculation ... \n \n'
             self.ui.status.setText(str1)
             self.ui.status.repaint()
-            if Thin_Or_Thick == 0:
-                srwl.CalcElecFieldSR(wfrE, 0, magFldCnt, arPrecPar)
-            elif Thin_Or_Thick == 1:
-                srwl.CalcStokesUR(stkF, elecBeam, und, arPrecF) #####
+            srwl.CalcStokesUR(stkF, elecBeam, und, arPrecF) #####
             
             str2='* Extracting Intensity from calculated Electric Field ... \n \n'
             self.ui.status.setText(str1+str2)
             self.ui.status.repaint()
-            if Thin_Or_Thick == 0:
-                arI1 = array('f',[0]*wfrE.mesh.ne)
-                srwl.CalcIntFromElecField(arI1, wfrE, Polar, Intens, DependArg, wfrE.mesh.eStart, 0, 0)
 
             str3='* Plotting the results ...\n'
             self.ui.status.setText(str1+str2+str3)
             self.ui.status.repaint()
-            if Thin_Or_Thick == 0:
-                uti_plot1d(arI1, [wfrE.mesh.eStart, wfrE.mesh.eFin, wfrE.mesh.ne],['label','label','label'])
-            elif Thin_Or_Thick == 1:
-                uti_plot1d(stkF.arS, [stkF.mesh.eStart, stkF.mesh.eFin, stkF.mesh.ne], ['Photon Energy [eV]', 'Flux [ph/s/.1%bw]', 'Flux through Finite Aperture'])
+            uti_plot1d(stkF.arS, [stkF.mesh.eStart, stkF.mesh.eFin, stkF.mesh.ne], ['Photon Energy [eV]', 'Flux [ph/s/.1%bw]', 'Flux through Finite Aperture'])
 
-        elif DependArg == 1: #### Need to creat stkXY
-            str1='* Performing Electric Field (intensity vs x-coordinate) calculation ... \n \n'
+        elif DependArg == 1: 
+            str1='* Performing Power Density calculation (from field) vs x-coordinate calculation ... \n \n'
             self.ui.status.setText(str1)
-            if Thin_Or_Thick == 0:
-                srwl.CalcElecFieldSR(wfrXY, 0, magFldCnt, arPrecPar)
-            elif Thin_Or_Thick == 1:
-                print DependArg
-                print(stkP)
-                print(elecBeam)
-                print(und)
-                print(arPrecF)
-                srwl.CalcStokesUR(stkP, elecBeam, und, arPrecF) #####
-                print 'yes'
+            print DependArg
+            print(stkP)
+            print(elecBeam)
+            print(und)
+            print(arPrecP)
+            srwl.CalcPowDenSR(stkP, elecBeam, 0, magFldCnt, arPrecP)
+            print 'yes'
                 
             str2='* Extracting Intensity from calculated Electric Field ... \n \n '
             self.ui.status.setText(str1+str2)
             self.ui.status.repaint()
-            if Thin_Or_Thick == 0:
-                arI1 = array('f',[0]*wfrXY.mesh.nx)
-                srwl.CalcIntFromElecField(arI1, wfrXY, Polar, Intens, DependArg, 0, wfrXY.mesh.xStart, 0)
             
             str3='* Plotting the results ...\n'
             self.ui.status.setText(str1+str2+str3)
             self.ui.status.repaint()
-            if Thin_Or_Thick == 0:
-                uti_plot1d(arI1, [wfrXY.mesh.xStart, wfrXY.mesh.xFin, wfrXY.mesh.nx],['label','label','label'])
-            elif Thin_Or_Thick == 1:
-                plotMeshX = [1000*stkP.mesh.xStart, 1000*stkP.mesh.xFin, stkP.mesh.nx]
-#                plotMeshY = [1000*stkP.mesh.yStart, 1000*stkP.mesh.yFin, stkP.mesh.ny]
-#                uti_plot2d(stkP.arS, plotMeshX, plotMeshY, ['Horizontal Position [mm]', 'Vertical Position [mm]', 'Power Density'])
-#                uti_plot1d(stkP.arS, [stkP.mesh.xStart, stkP.mesh.xFin, stkP.mesh.nx], ['label [eV]', 'Flux [ph/s/.1%bw]', 'Flux through Finite Aperture'])
-                powDenVsX = array('f', [0]*stkP.mesh.nx)
-                for i in range(stkP.mesh.nx): powDenVsX[i] = stkP.arS[stkP.mesh.nx*int(stkP.mesh.ny*0.5) + i]
-                uti_plot1d(powDenVsX, plotMeshX, ['Horizontal Position [mm]', 'Power Density [W/mm^2]', 'Power Density\n(horizontal cut at y = 0)'])
+            plotMeshX = [1000*stkP.mesh.xStart, 1000*stkP.mesh.xFin, stkP.mesh.nx]
+            powDenVsX = array('f', [0]*stkP.mesh.nx)
+            for i in range(stkP.mesh.nx): powDenVsX[i] = stkP.arS[stkP.mesh.nx*int(stkP.mesh.ny*0.5) + i]
+            print plotMeshX
+            uti_plot1d(powDenVsX, plotMeshX, ['Horizontal Position [mm]', 'Power Density [W/mm^2]', 'Power Density\n(horizontal cut at y = 0)'])
 
 
         elif DependArg == 2:
-            str1='* Performing Electric Field (intensity vs y-coordinate) calculation ... \n \n'
+            str1='* Performing Power Density calculation (from field) vs x-coordinate calculation ... \n \n'
             self.ui.status.setText(str1)
             self.ui.status.repaint()
-            srwl.CalcElecFieldSR(wfrXY, 0, magFldCnt, arPrecPar)
+            print DependArg
+            print(stkP)
+            print(elecBeam)
+            print(und)
+            print(arPrecP)
+            srwl.CalcPowDenSR(stkP, elecBeam, 0, magFldCnt, arPrecP)
+            print 'yes'
+                
             str2='* Extracting Intensity from calculated Electric Field ... \n \n '
             self.ui.status.setText(str1+str2)
             self.ui.status.repaint()
-            arI1 = array('f',[0]*wfrXY.mesh.ny)
-            srwl.CalcIntFromElecField(arI1, wfrXY, Polar, Intens, DependArg, 0, wfrXY.mesh.yStart, 0)
+            
             str3='* Plotting the results ...\n'
             self.ui.status.setText(str1+str2+str3)
             self.ui.status.repaint()
-            uti_plot1d(arI1, [wfrXY.mesh.yStart, wfrXY.mesh.yFin, wfrXY.mesh.ny],['label','label','label'])
-       
+            plotMeshY = [1000*stkP.mesh.yStart, 1000*stkP.mesh.yFin, stkP.mesh.ny]
+            powDenVsY = array('f', [0]*stkP.mesh.ny)
+            for i in range(stkP.mesh.ny): powDenVsY[i] = stkP.arS[int(stkP.mesh.nx*0.5) + i*stkP.mesh.ny]
+            uti_plot1d(powDenVsY, plotMeshY, ['Vertical Position [mm]', 'Power Density [W/mm^2]', 'Power Density\n(vertical cut at x = 0)'])
+
         elif DependArg == 3:
             str1='* Performing Electric Field (intensity vs x- and y-coordinate) calculation ... \n \n'
             self.ui.status.setText(str1)
             self.ui.status.repaint()
-            srwl.CalcElecFieldSR(wfrXY, 0, magFldCnt, arPrecPar)
+            srwl.CalcPowDenSR(stkP, elecBeam, 0, magFldCnt, arPrecP)
+
             str2='* Extracting Intensity from calculated Electric Field ... \n \n '
             self.ui.status.setText(str1+str2)
             self.ui.status.repaint()
-            arI1 = array('f', [0]*wfrXY.mesh.nx*wfrXY.mesh.ny)
-            srwl.CalcIntFromElecField(arI1, wfrXY, Polar, Intens, DependArg, wfrXY.mesh.eStart, wfrXY.mesh.xStart, wfrXY.mesh.yStart)
+
             str3='* Plotting the results ...\n'
             self.ui.status.setText(str1+str2+str3)
             self.ui.status.repaint()
-            uti_plot2d(arI1, [1000*wfrXY.mesh.xStart, 1000*wfrXY.mesh.xFin, wfrXY.mesh.nx], 
-            [1000*wfrXY.mesh.yStart, 1000*wfrXY.mesh.yFin, wfrXY.mesh.ny], 
-            ['Horizontal Position [mm]', 'Vertical Position [mm]', 'Intensity at ' + str(wfrXY.mesh.eStart) + ' eV'])
+            plotMeshX = [1000*stkP.mesh.xStart, 1000*stkP.mesh.xFin, stkP.mesh.nx]
+            plotMeshY = [1000*stkP.mesh.yStart, 1000*stkP.mesh.yFin, stkP.mesh.ny]
+            uti_plot2d(stkP.arS, plotMeshX, plotMeshY, ['Horizontal Position [mm]', 'Vertical Position [mm]', 'Power Density'])
 
         elif DependArg == 4:
             str1='* Performing Electric Field (intensity vs energy- and x-coordinate) calculation ... \n \n '
             self.ui.status.setText(str1)
             self.ui.status.repaint()
-            srwl.CalcElecFieldSR(wfrXY, 0, magFldCnt, arPrecPar)
-            str2='* Extracting Intensity from calculated Electric Field ... \n \n '
+
+            str2='* Un der construction ... \n \n '
             self.ui.status.setText(str1+str2)
             self.ui.status.repaint()
-            arI1 = array('f', [0]*wfrXY.mesh.ne*wfrXY.mesh.nx)
-            srwl.CalcIntFromElecField(arI1, wfrXY, Polar, Intens, DependArg, wfrXY.mesh.eStart, wfrXY.mesh.xStart, wfrXY.mesh.yStart)
+
             str3='* Plotting the results ...\n'
             self.ui.status.setText(str1+str2+str3)
             self.ui.status.repaint()
-            uti_plot2d(arI1, [1000*wfrXY.mesh.eStart, 1000*wfrXY.mesh.eFin, wfrXY.mesh.ne], 
-            [1000*wfrXY.mesh.xStart, 1000*wfrXY.mesh.xFin, wfrXY.mesh.nx], 
-            ['Energy [eV]', 'Horizontal Position [mm]', 'Intensity at ' + str(wfrXY.mesh.eStart) + ' eV'])
 
         elif DependArg == 5:
             str1='* Performing Electric Field (intensity vs energy- and y-coordinate) calculation ... \n \n'
             self.ui.status.setText(str1)
             self.ui.status.repaint()
-            srwl.CalcElecFieldSR(wfrXY, 0, magFldCnt, arPrecPar)
-            str2='* Extracting Intensity from calculated Electric Field ... \n \n '
+            
+            str2='* Un der construction ... \n \n '
             self.ui.status.setText(str1+str2)
             self.ui.status.repaint()
-            arI1 = array('f', [0]*wfrXY.mesh.ne*wfrXY.mesh.ny)
-            srwl.CalcIntFromElecField(arI1, wfrXY, Polar, Intens, DependArg, wfrXY.mesh.eStart, wfrXY.mesh.xStart, wfrXY.mesh.yStart)
+ 
             str3='* Plotting the results ...\n'
             self.ui.status.setText(str1+str2+str3)
             self.ui.status.repaint()
-            uti_plot2d(arI1, [1000*wfrXY.mesh.eStart, 1000*wfrXY.mesh.eFin, wfrXY.mesh.ne], 
-            [1000*wfrXY.mesh.yStart, 1000*wfrXY.mesh.yFin, wfrXY.mesh.ny], 
-            ['Energy [eV]', 'Vertical Position [mm]', 'Intensity at ' + str(wfrXY.mesh.eStart) + ' eV'])
 
         else:
             print 'Error'
     
         uti_plot_show()
         
-    def srwbutton(self):
+    def srwbuttonThin(self):
         if 'srwl' not in globals():
             msg = ' !Warning --'
             msg += 'SRW not installed on this system.'
