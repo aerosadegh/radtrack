@@ -1,4 +1,4 @@
-#Library for SRW-Radtrack interface
+# Library for SRW-Radtrack interface
 #steven seung
 #1/23/15
 # The following classes are used throughout SRW: UP, elecBeam, RAD
