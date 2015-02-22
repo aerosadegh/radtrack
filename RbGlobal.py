@@ -31,6 +31,7 @@ class RbGlobal(QtGui.QMainWindow):
 
         self.lastUsedDirectory = os.path.expanduser('~')
         self.fileExtension = '.radtrack'
+        self.recentfile = None
 
         self.ui = Ui_globalgu()
         self.ui.setupUi(self)
@@ -106,6 +107,13 @@ class RbGlobal(QtGui.QMainWindow):
 
         self.populateNewTabMenu()
         self.checkMenus()
+        
+    def populateRecentFile(self):
+        action = QtGui.QAction(self)
+        action.setObjectName(self.recentfile)
+        action.setText(self.recentfile)
+        self.ui.menurecent.addAction(action)
+        #action.triggered.connect(self.importFile(action.text()))
 
     def populateNewTabMenu(self):
         for i in range(self.tabWidget.count()):
@@ -311,6 +319,7 @@ class RbGlobal(QtGui.QMainWindow):
 
     def exportCurrentTab(self):
         getRealWidget(self.tabWidget.currentWidget()).exportToFile()
+        self.populateRecentFile()
 
     def checkMenus(self):
         menuMap = dict()

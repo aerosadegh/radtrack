@@ -575,6 +575,8 @@ class RbCbt(QtGui.QWidget):
                 'Export Charged Beam Transport',
                 self.parent.lastUsedDirectory,
                 '*.' + self.acceptsFileTypes[0])
+                
+            self.parent.recentfile = outputFileName
         else:
             # Exporting a single tab doesn't count towards hasChanged()
             # Only saving to a project file provides this function with a name

@@ -49,6 +49,8 @@ class Ui_globalgu(object):
         self.actionRedo.setObjectName("actionRedo")
         self.menuNewTab = QtGui.QMenu(globalgu)
         self.menuNewTab.setObjectName("menuNewTab")
+        self.menurecent = QtGui.QMenu(globalgu)
+        self.menurecent.setObjectName("menurecent")
         self.actionDupeTab = QtGui.QAction(globalgu)
         self.actionDupeTab.setObjectName("actionDupeTab")
         self.actionCloseTab = QtGui.QAction(globalgu)
@@ -57,11 +59,13 @@ class Ui_globalgu(object):
         self.actionUndoCloseTab.setObjectName("actionUndoCloseTab")
         self.actionRenameTab = QtGui.QAction(globalgu)
         self.actionRenameTab.setObjectName("actionRenameTab")
+        
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionSave)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionImport)
         self.menuFile.addAction(self.actionExport)
+        self.menuFile.addMenu(self.menurecent)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionExit)
 
@@ -104,3 +108,4 @@ class Ui_globalgu(object):
         self.actionCloseTab.setText(QtGui.QApplication.translate("globalgu", "Close Current Tab", None, QtGui.QApplication.UnicodeUTF8))
         self.actionUndoCloseTab.setText(QtGui.QApplication.translate("globalgu", "Reopen Closed Tab", None, QtGui.QApplication.UnicodeUTF8))
         self.actionRenameTab.setText(QtGui.QApplication.translate("globalgu", "Rename Current Tab", None, QtGui.QApplication.UnicodeUTF8))
+        self.menurecent.setTitle(QtGui.QApplication.translate("globalgu", "Recent Files", None, QtGui.QApplication.UnicodeUTF8))
