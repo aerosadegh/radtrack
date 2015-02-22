@@ -29,8 +29,6 @@ try:
     from mpl_toolkits.mplot3d import Axes3D
     import scipy.stats as stats
     import scipy.special
-
-    mpl.rc('font',**{'family':'serif','serif':['Palatino']})
     mpl.rc('text', usetex=True)
 
     tol = 1.e-8

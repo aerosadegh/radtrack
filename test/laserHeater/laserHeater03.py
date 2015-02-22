@@ -25,8 +25,6 @@ try:
     from matplotlib import pyplot as plt
     import matplotlib as mpl
     from mpl_toolkits.mplot3d import Axes3D
-
-    mpl.rc('font',**{'family':'serif','serif':['Palatino']})
     mpl.rc('text', usetex=True)
 
     tol = 1.e-8
