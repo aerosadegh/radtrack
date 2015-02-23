@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>745</width>
-    <height>557</height>
+    <width>812</width>
+    <height>605</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,24 +18,11 @@
     <rect>
      <x>40</x>
      <y>20</y>
-     <width>659</width>
+     <width>739</width>
      <height>121</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
-     <widget class="QPushButton" name="pushButton">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="text">
-       <string>Undulator</string>
-      </property>
-     </widget>
-    </item>
     <item row="0" column="2">
      <widget class="QPushButton" name="pushButton_3">
       <property name="sizePolicy">
@@ -72,6 +59,19 @@
       </property>
       <property name="text">
        <string>Simulate</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="QPushButton" name="pushButton">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>Undulator</string>
       </property>
      </widget>
     </item>
@@ -236,8 +236,8 @@
   <widget class="QTableWidget" name="tableWidget">
    <property name="geometry">
     <rect>
-     <x>430</x>
-     <y>160</y>
+     <x>50</x>
+     <y>250</y>
      <width>271</width>
      <height>321</height>
     </rect>
@@ -301,19 +301,59 @@
   <widget class="QGraphicsView" name="graphicsView">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>270</y>
-     <width>291</width>
+     <x>360</x>
+     <y>360</y>
+     <width>421</width>
      <height>192</height>
     </rect>
    </property>
   </widget>
-  <zorder>gridLayoutWidget</zorder>
-  <zorder>pushButton</zorder>
-  <zorder>pushButton_2</zorder>
-  <zorder>formLayoutWidget_4</zorder>
-  <zorder>tableWidget</zorder>
-  <zorder>graphicsView</zorder>
+  <widget class="QTextEdit" name="textEdit">
+   <property name="geometry">
+    <rect>
+     <x>360</x>
+     <y>170</y>
+     <width>181</width>
+     <height>181</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QTextEdit" name="textEdit_2">
+   <property name="geometry">
+    <rect>
+     <x>570</x>
+     <y>170</y>
+     <width>211</width>
+     <height>181</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>430</x>
+     <y>150</y>
+     <width>71</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Status</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>620</x>
+     <y>150</y>
+     <width>161</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Analytic Calculations</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>
