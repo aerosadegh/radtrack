@@ -7,7 +7,12 @@
 import numpy as np
 from srwlib import *
 import sys, os
-from PySide import QtGui, QtCore
+
+# next line is for PySide (no longer valid)
+# from PySide import QtGui, QtCore
+# PyQt4 imports
+from PyQt4 import QtCore, QtGui
+
 from undulator import ui_form
 from uti_plot import *
 from AnalyticCalc import *
