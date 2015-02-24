@@ -9,25 +9,10 @@ import msilib
 # Using the same upgrade code enforces uninstalling previous version
 UPGRADE_CODE = '{4F4F1C8E-BB7E-11E4-8C00-080027D2CC95}'
 
-include_files = list(glob.glob('*.py'))
-include_files.extend(list(glob.glob(r'install\*win32.py')))
-include_files.append(('RadTrack', 'RadTrack'))
-tex_exe = 'tex.exe'
-exe_to_dst = {
-    'sddsplot.exe': r'APS\SDDS Plot',
-    'elegant.exe': r'APS\Elegant',
-    tex_exe: 'tex',
-    'python.exe': 'Anaconda',
-}
-for exe, dst in exe_to_dst.iteritems():
-    for p in os.getenv('PATH').split(os.pathsep):
-        abs_exe = os.path.abspath(os.path.join(p, exe))
-        if os.path.exists(abs_exe):
-            src = os.path.dirname(abs_exe)
-            if exe == tex_exe:
-                src = os.path.dirname(os.path.dirname(src))
-            include_files.append((src, dst))
-            break
+include_files = glob.glob('*.py') + glob.glob(r'install\*win32.py') + [
+    ('RadTrack', 'RadTrack'),
+    (r'..\foss-mirror\radtrack_pkg', 'radtrack_pkg')
+]
 
 build_exe_options = dict(
     packages = [], excludes = [], includes=[], include_files=include_files,
@@ -36,7 +21,7 @@ build_exe_options = dict(
 bdist_msi_options = dict(
     upgrade_code=UPGRADE_CODE)
 
-base = 'Win32GUI'
+base = None
 
 executables = [
     cx_Freeze.Executable(r'install\radtrack_start_win32.py', base=base, shortcutName='RadTrack', shortcutDir='DesktopFolder')
