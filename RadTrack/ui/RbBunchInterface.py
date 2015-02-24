@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'RbBunchInterface.ui'
 #
-# Created: Mon Feb 23 11:19:28 2015
+# Created: Tue Feb 24 11:58:23 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,9 +26,9 @@ except AttributeError:
 class Ui_bunchInterface(object):
     def setupUi(self, bunchInterface):
         bunchInterface.setObjectName(_fromUtf8("bunchInterface"))
-        bunchInterface.resize(1260, 830)
+        bunchInterface.resize(1260, 687)
         self.formLayoutWidget = QtGui.QWidget(bunchInterface)
-        self.formLayoutWidget.setGeometry(QtCore.QRect(10, 160, 231, 74))
+        self.formLayoutWidget.setGeometry(QtCore.QRect(10, 160, 231, 85))
         self.formLayoutWidget.setObjectName(_fromUtf8("formLayoutWidget"))
         self.formLayout = QtGui.QFormLayout(self.formLayoutWidget)
         self.formLayout.setFieldGrowthPolicy(QtGui.QFormLayout.AllNonFixedFieldsGrow)
@@ -70,16 +70,16 @@ class Ui_bunchInterface(object):
         item = QtGui.QTableWidgetItem()
         self.twissTable.setItem(0, 0, item)
         self.perpTwissLabel = QtGui.QLabel(bunchInterface)
-        self.perpTwissLabel.setGeometry(QtCore.QRect(10, 270, 181, 20))
+        self.perpTwissLabel.setGeometry(QtCore.QRect(10, 270, 221, 20))
         self.perpTwissLabel.setObjectName(_fromUtf8("perpTwissLabel"))
         self.highLevelInputsLabel = QtGui.QLabel(bunchInterface)
-        self.highLevelInputsLabel.setGeometry(QtCore.QRect(10, 140, 91, 16))
+        self.highLevelInputsLabel.setGeometry(QtCore.QRect(10, 140, 131, 16))
         self.highLevelInputsLabel.setObjectName(_fromUtf8("highLevelInputsLabel"))
         self.offsetLabel = QtGui.QLabel(bunchInterface)
-        self.offsetLabel.setGeometry(QtCore.QRect(10, 510, 71, 20))
+        self.offsetLabel.setGeometry(QtCore.QRect(10, 520, 101, 20))
         self.offsetLabel.setObjectName(_fromUtf8("offsetLabel"))
         self.offsetTable = QtGui.QTableWidget(bunchInterface)
-        self.offsetTable.setGeometry(QtCore.QRect(10, 530, 241, 121))
+        self.offsetTable.setGeometry(QtCore.QRect(10, 540, 241, 121))
         self.offsetTable.setObjectName(_fromUtf8("offsetTable"))
         self.offsetTable.setColumnCount(2)
         self.offsetTable.setRowCount(3)
@@ -115,7 +115,7 @@ class Ui_bunchInterface(object):
         self.unitsLabel.setGeometry(QtCore.QRect(280, 140, 81, 16))
         self.unitsLabel.setObjectName(_fromUtf8("unitsLabel"))
         self.formLayoutWidget_2 = QtGui.QWidget(bunchInterface)
-        self.formLayoutWidget_2.setGeometry(QtCore.QRect(280, 160, 101, 74))
+        self.formLayoutWidget_2.setGeometry(QtCore.QRect(270, 160, 111, 85))
         self.formLayoutWidget_2.setObjectName(_fromUtf8("formLayoutWidget_2"))
         self.units = QtGui.QFormLayout(self.formLayoutWidget_2)
         self.units.setFieldGrowthPolicy(QtGui.QFormLayout.AllNonFixedFieldsGrow)
@@ -144,13 +144,13 @@ class Ui_bunchInterface(object):
         self.importFile.setGeometry(QtCore.QRect(130, 80, 81, 23))
         self.importFile.setObjectName(_fromUtf8("importFile"))
         self.calculateTwiss = QtGui.QPushButton(bunchInterface)
-        self.calculateTwiss.setGeometry(QtCore.QRect(10, 80, 101, 23))
+        self.calculateTwiss.setGeometry(QtCore.QRect(5, 80, 115, 23))
         self.calculateTwiss.setObjectName(_fromUtf8("calculateTwiss"))
         self.longTwissLabel = QtGui.QLabel(bunchInterface)
-        self.longTwissLabel.setGeometry(QtCore.QRect(10, 410, 161, 20))
+        self.longTwissLabel.setGeometry(QtCore.QRect(10, 410, 191, 20))
         self.longTwissLabel.setObjectName(_fromUtf8("longTwissLabel"))
         self.twissTableZ = QtGui.QTableWidget(bunchInterface)
-        self.twissTableZ.setGeometry(QtCore.QRect(10, 430, 341, 61))
+        self.twissTableZ.setGeometry(QtCore.QRect(10, 430, 341, 71))
         self.twissTableZ.setObjectName(_fromUtf8("twissTableZ"))
         self.twissTableZ.setColumnCount(3)
         self.twissTableZ.setRowCount(1)
@@ -166,10 +166,10 @@ class Ui_bunchInterface(object):
         self.plotType.setGeometry(QtCore.QRect(280, 50, 71, 21))
         self.plotType.setObjectName(_fromUtf8("plotType"))
         self.longTwissSpec = QtGui.QToolButton(bunchInterface)
-        self.longTwissSpec.setGeometry(QtCore.QRect(300, 400, 41, 20))
+        self.longTwissSpec.setGeometry(QtCore.QRect(290, 400, 51, 20))
         self.longTwissSpec.setObjectName(_fromUtf8("longTwissSpec"))
         self.perpTwissSpec = QtGui.QToolButton(bunchInterface)
-        self.perpTwissSpec.setGeometry(QtCore.QRect(300, 260, 41, 20))
+        self.perpTwissSpec.setGeometry(QtCore.QRect(290, 260, 51, 20))
         self.perpTwissSpec.setObjectName(_fromUtf8("perpTwissSpec"))
         self.axisType = QtGui.QToolButton(bunchInterface)
         self.axisType.setGeometry(QtCore.QRect(280, 80, 71, 21))
@@ -183,7 +183,7 @@ class Ui_bunchInterface(object):
         self.noTitles.setPopupMode(QtGui.QToolButton.InstantPopup)
         self.noTitles.setObjectName(_fromUtf8("noTitles"))
         self.noTitles_2 = QtGui.QToolButton(bunchInterface)
-        self.noTitles_2.setGeometry(QtCore.QRect(310, 510, 31, 21))
+        self.noTitles_2.setGeometry(QtCore.QRect(310, 520, 31, 21))
         self.noTitles_2.setPopupMode(QtGui.QToolButton.InstantPopup)
         self.noTitles_2.setObjectName(_fromUtf8("noTitles_2"))
         self.toggleToolTips = QtGui.QToolButton(bunchInterface)
@@ -317,4 +317,43 @@ class Ui_bunchInterface(object):
 "Default units for the emittance [m-rad] can also be overridden:\n"
 "    microns (implies microns-rad, equivalent to mm-mrad), etc.\n"
 "Do not specify units for alpha, which is dimensionless.\n"
-"
+"\n"
+"    s = ct\n"
+"    bct = beta0*s  (beta0 is relativistic factor; not Twiss beta)\n"
+"    dp = relative momentum spread with respect to design momentum\n"
+"            units (rad, mrad, etc.) represent the fractional value\n"
+"            e.g. 1 mrad = 0.001 rad = 0.1%   (but don\'t use % symbol)", None))
+        item = self.twissTableZ.verticalHeaderItem(0)
+        item.setText(_translate("bunchInterface", "s-dp", None))
+        item = self.twissTableZ.horizontalHeaderItem(0)
+        item.setText(_translate("bunchInterface", "alpha", None))
+        item = self.twissTableZ.horizontalHeaderItem(1)
+        item.setText(_translate("bunchInterface", "bct [m]", None))
+        item = self.twissTableZ.horizontalHeaderItem(2)
+        item.setText(_translate("bunchInterface", "dp/p [rad]", None))
+        self.plotType.setToolTip(_translate("bunchInterface", "Choose how particle data should be plotted.", None))
+        self.plotType.setText(_translate("bunchInterface", "Plot Type", None))
+        self.longTwissSpec.setToolTip(_translate("bunchInterface", "Choose how longitudinal Twiss parameters are to be specified.", None))
+        self.longTwissSpec.setText(_translate("bunchInterface", "Spec", None))
+        self.perpTwissSpec.setToolTip(_translate("bunchInterface", "Choose how transverse Twiss parameters are to be specified.", None))
+        self.perpTwissSpec.setText(_translate("bunchInterface", "Spec", None))
+        self.axisType.setToolTip(_translate("bunchInterface", "Choose a convention for the axis limits.", None))
+        self.axisType.setText(_translate("bunchInterface", "Axis Type", None))
+        self.aspectRatio.setToolTip(_translate("bunchInterface", "Toggle the aspect ratio of the x-y plot.", None))
+        self.aspectRatio.setText(_translate("bunchInterface", "AR", None))
+        self.noTitles.setToolTip(_translate("bunchInterface", "Toggle plot titles on/off.", None))
+        self.noTitles.setStatusTip(_translate("bunchInterface", "Toggle plot titles on/off.", None))
+        self.noTitles.setText(_translate("bunchInterface", "NT", None))
+        self.noTitles_2.setToolTip(_translate("bunchInterface", "Toggle plot titles on/off.", None))
+        self.noTitles_2.setStatusTip(_translate("bunchInterface", "Toggle plot titles on/off.", None))
+        self.noTitles_2.setText(_translate("bunchInterface", "NT", None))
+        self.toggleToolTips.setToolTip(_translate("bunchInterface", "Toggle plot titles on/off.", None))
+        self.toggleToolTips.setStatusTip(_translate("bunchInterface", "Toggle plot titles on/off.", None))
+        self.toggleToolTips.setText(_translate("bunchInterface", "Tool Tips", None))
+        self.overview.setHtml(_translate("bunchInterface", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:\'.Helvetica Neue DeskInterface\'; font-size:13pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt;\">The bunch tab is used to create a 3D charged particle distribution.</span></p></body></html>", None))
+
+from RadTrack.gui.matplotlibwidget import matplotlibWidget

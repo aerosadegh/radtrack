@@ -31,7 +31,7 @@ from PyQt4 import QtCore, QtGui
 # RadTrack imports
 import RadTrack.bunch.RbParticleBeam6D as beam
 import RadTrack.statistics.RbStatistics6D as stat
-from RadTrack.gui.RbBunchInterface import *
+from RadTrack.ui.RbBunchInterface import *
 from RbUtility import parseUnits, unitConversion
 
 import RadTrack.dcp.sdds as sdds
