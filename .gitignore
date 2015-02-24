@@ -5,3 +5,4 @@ RadTrack/srw/srwlpy.pyd
 *.swp
 test/laserHeater/BorisVayTrajectory.png
 test/laserHeater/EXB_trajectory.png
+build/
