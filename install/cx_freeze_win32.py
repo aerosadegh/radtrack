@@ -39,7 +39,7 @@ bdist_msi_options = dict(
 base = 'Win32GUI'
 
 executables = [
-    cx_Freeze.Executable(r'install\radtrack_start_win32.py', base=base)
+    cx_Freeze.Executable(r'install\radtrack_start_win32.py', base=base, shortcutName='RadTrack', shortcutDir='DesktopFolder')
 ]
 
 class local_bdist_msi(cx_Freeze.bdist_msi):
@@ -62,7 +62,7 @@ class local_bdist_msi(cx_Freeze.bdist_msi):
         cx_Freeze.bdist_msi.add_config(self, fullname)
 
 cx_Freeze.setup(
-    cmdclass={'bdist_msi': local_bdist_msi},
+    # cmdclass={'bdist_msi': local_bdist_msi},
     name='RadTrack',
     version = '1.0',
     description = 'RadTrack is an open source framework for working with codes that model particle dynamics and electromagnetic radiation',
