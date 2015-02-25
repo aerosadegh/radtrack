@@ -3,12 +3,12 @@ Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 
 """
 
-import sys
+import sys, os
 from PyQt4 import QtGui, QtCore
-from newsrw import Ui_Form as Ui_newsrw
-from undulatorforsrw import Ui_Dialog as und_dlg
-from beamforsrw import Ui_Dialog as beam_dlg
-from precisionofsrw import Ui_Dialog as prec_dlg
+from RadTrack.ui.newsrw import Ui_Form as Ui_newsrw
+from RadTrack.ui.undulatorforsrw import Ui_Dialog as und_dlg
+from RadTrack.ui.beamforsrw import Ui_Dialog as beam_dlg
+from RadTrack.ui.precisionofsrw import Ui_Dialog as prec_dlg
 
 class rbsrw(QtGui.QWidget):
     def __init__(self, parent = None):
@@ -28,7 +28,7 @@ class rbsrw(QtGui.QWidget):
         self.ui.undulator.clicked.connect(self.makeund)
         self.ui.beam.clicked.connect(self.makebeam)
         self.ui.precision.clicked.connect(self.setprec)
-        self.ui.deparg.currentIndexChanged.connect(self.thin)
+        self.ui.deparg.currentIndexChanged.connect(self.thick)
         
     def set_und_values(self):
         for i in range(self.dialogu.ui.formLayout.rowCount()):
