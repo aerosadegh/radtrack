@@ -29,7 +29,7 @@ build_exe_options = dict(
 bdist_msi_options = dict(
     upgrade_code=UPGRADE_CODE)
 
-base = None
+base = 'Win32GUI'
 
 executables = [
     cx_Freeze.Executable(r'install\radtrack_start_win32.py', base=base, shortcutName='RadTrack', shortcutDir='DesktopFolder')
