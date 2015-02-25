@@ -7,7 +7,8 @@ import shutil
 import sys
 import time
 import traceback
-import win32com.shell.shell as shell
+import win32com.shell.shell
+import win32com.shell.shellcon
 import win32event
 import zipfile
 
@@ -17,21 +18,20 @@ AS_ADMIN = 'as_admin'
 SRC_DIR = 'radtrack_pkg'
 DST_DIRS = ['APS', 'Anaconda', 'tex']
 SUFFIX = '.zip'
-UNINSTALL_SENTINEL = 'uninstalled'
+INSTALL_SENTINEL = 'install-sentinel'
 
 def uninstall_check():
     """Remove old install directories, because cx_freeze does not have an
     uninstaller script
     """
-    if os.path.exists(UNINSTALL_SENTINEL):
+    if not os.path.exists(INSTALL_SENTINEL):
         return
     print('Cleaning up previous installation')
     for d in DST_DIRS:
         if os.path.exists(d):
             print('Removing: ' + d)
             shutil.rmtree(d)
-    with open(UNINSTALL_SENTINEL) as f:
-        f.write(str(datetime.datetime.now()))
+    os.remove(INSTALL_SENTINEL)
 
 def unzip_all():
     """Unzip all the files in DIR and remove zip files (re-entrant)"""
@@ -44,18 +44,26 @@ def unzip_all():
         if script:
             script = os.path.abspath(script)
         params = '"' + '" "'.join([script] + sys.argv[1:] + [AS_ADMIN]) + '"'
-        p = shell.ShellExecuteEx(
-            lpVerb='runas',
-            lpFile=sys.executable,
-            nShow=5,
-            lpParameters=params)
-        win32event.WaitForSingleObject(p['hProcess'], -1)
-        return True
+        try:
+            p = win32com.shell.shell.ShellExecuteEx(
+                lpVerb='runas',
+                lpFile=sys.executable,
+                lpParameters=params,
+                nShow=5,
+                fMask=win32com.shell.shellcon.SEE_MASK_NOCLOSEPROCESS)
+            win32event.WaitForSingleObject(p['hProcess'], win32event.INFINITE)
+            return True
+        except:
+            traceback.print_exc()
+        finally:
+            time.sleep(5)
+        return False
 
     # There should be a stdout here
-    print('Post install: unzipping support packages')
+    print('One time setup; please be patient')
     try:
         uninstall_check()
+        print('Unzipping support packages:')
         for zip_name in zip_names:
             print(zip_name)
             with zipfile.ZipFile(zip_name, 'r') as z:

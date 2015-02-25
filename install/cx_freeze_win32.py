@@ -1,21 +1,29 @@
 #!/usr/bin/env python
+import datetime
 import glob
 import os
 import os.path
 
 import cx_Freeze
 import msilib
+import radtrack_pkg_win32
 
 # Using the same upgrade code enforces uninstalling previous version
 UPGRADE_CODE = '{4F4F1C8E-BB7E-11E4-8C00-080027D2CC95}'
 
+INSTALL_SENTINEL = radtrack_pkg_win32.INSTALL_SENTINEL
+with open(INSTALL_SENTINEL, 'w') as f:
+    f.write(str(datetime.datetime.now()))
+
 include_files = glob.glob('*.py') + glob.glob(r'install\*win32.py') + [
     ('RadTrack', 'RadTrack'),
+    INSTALL_SENTINEL,
     (r'..\foss-mirror\radtrack_pkg', 'radtrack_pkg')
 ]
 
+includes = []
 build_exe_options = dict(
-    packages = [], excludes = [], includes=[], include_files=include_files,
+    packages = [], excludes = [], includes=includes, include_files=include_files,
     silent=True
 )
 bdist_msi_options = dict(
