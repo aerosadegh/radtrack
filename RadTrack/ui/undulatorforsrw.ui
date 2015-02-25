@@ -33,7 +33,7 @@
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>30</y>
+     <y>20</y>
      <width>321</width>
      <height>333</height>
     </rect>
@@ -50,7 +50,7 @@
      </widget>
     </item>
     <item row="0" column="1">
-     <widget class="QLineEdit" name="lineEdit"/>
+     <widget class="QLineEdit" name="numper"/>
     </item>
     <item row="1" column="0">
      <widget class="QLabel" name="label_2">
@@ -118,39 +118,39 @@
     <item row="10" column="0">
      <widget class="QLabel" name="label_11">
       <property name="text">
-       <string>Longitufinal Coordinate of Undulator Center</string>
+       <string>Longitudinal Coordinate of Undulator Center</string>
       </property>
      </widget>
     </item>
     <item row="1" column="1">
-     <widget class="QLineEdit" name="lineEdit_2"/>
+     <widget class="QLineEdit" name="undper"/>
     </item>
     <item row="2" column="1">
-     <widget class="QLineEdit" name="lineEdit_3"/>
+     <widget class="QLineEdit" name="by"/>
     </item>
     <item row="3" column="1">
-     <widget class="QLineEdit" name="lineEdit_4"/>
+     <widget class="QLineEdit" name="bx"/>
     </item>
     <item row="4" column="1">
-     <widget class="QLineEdit" name="lineEdit_5"/>
+     <widget class="QLineEdit" name="phbx"/>
     </item>
     <item row="5" column="1">
-     <widget class="QLineEdit" name="lineEdit_6"/>
+     <widget class="QLineEdit" name="phby"/>
     </item>
     <item row="6" column="1">
-     <widget class="QLineEdit" name="lineEdit_7"/>
+     <widget class="QLineEdit" name="sbx"/>
     </item>
     <item row="7" column="1">
-     <widget class="QLineEdit" name="lineEdit_8"/>
+     <widget class="QLineEdit" name="sby"/>
     </item>
     <item row="8" column="1">
-     <widget class="QLineEdit" name="lineEdit_9"/>
+     <widget class="QLineEdit" name="xcid"/>
     </item>
     <item row="9" column="1">
-     <widget class="QLineEdit" name="lineEdit_10"/>
+     <widget class="QLineEdit" name="ycid"/>
     </item>
     <item row="10" column="1">
-     <widget class="QLineEdit" name="lineEdit_11"/>
+     <widget class="QLineEdit" name="zcid"/>
     </item>
    </layout>
   </widget>

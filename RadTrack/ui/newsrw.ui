@@ -23,34 +23,8 @@
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="2">
-     <widget class="QPushButton" name="pushButton_3">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="text">
-       <string>Precision</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="1">
-     <widget class="QPushButton" name="pushButton_2">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="text">
-       <string>Beam</string>
-      </property>
-     </widget>
-    </item>
     <item row="0" column="3">
-     <widget class="QPushButton" name="pushButton_4">
+     <widget class="QPushButton" name="sim">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
         <horstretch>0</horstretch>
@@ -62,8 +36,21 @@
       </property>
      </widget>
     </item>
+    <item row="0" column="1">
+     <widget class="QPushButton" name="beam">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>Beam</string>
+      </property>
+     </widget>
+    </item>
     <item row="0" column="0">
-     <widget class="QPushButton" name="pushButton">
+     <widget class="QPushButton" name="undulator">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
         <horstretch>0</horstretch>
@@ -72,6 +59,32 @@
       </property>
       <property name="text">
        <string>Undulator</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="2">
+     <widget class="QPushButton" name="precision">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>Precision</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="4">
+     <widget class="QPushButton" name="plot">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>Plot</string>
       </property>
      </widget>
     </item>
@@ -108,7 +121,7 @@
      </widget>
     </item>
     <item row="1" column="1">
-     <widget class="QComboBox" name="comboBox_3">
+     <widget class="QComboBox" name="intesity">
       <item>
        <property name="text">
         <string>Single Electron Intensity</string>
@@ -121,12 +134,12 @@
       </item>
       <item>
        <property name="text">
-        <string>Single Electron FLux</string>
+        <string>Single Electron Flux</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>Multi Electron FLux</string>
+        <string>Multi Electron Flux</string>
        </property>
       </item>
       <item>
@@ -154,7 +167,7 @@
      </widget>
     </item>
     <item row="2" column="1">
-     <widget class="QComboBox" name="comboBox_4">
+     <widget class="QComboBox" name="deparg">
       <item>
        <property name="text">
         <string>e (energy)</string>
@@ -193,7 +206,7 @@
      </widget>
     </item>
     <item row="0" column="1">
-     <widget class="QComboBox" name="comboBox_5">
+     <widget class="QComboBox" name="polar">
       <item>
        <property name="text">
         <string>Linear Horizontal</string>
@@ -244,12 +257,12 @@
    </property>
    <row>
     <property name="text">
-     <string>Number of points along Enrgy</string>
+     <string>Number of points along Energy</string>
     </property>
    </row>
    <row>
     <property name="text">
-     <string>Number of Points along X</string>
+     <string>Number of points along X</string>
     </property>
    </row>
    <row>
@@ -302,13 +315,13 @@
    <property name="geometry">
     <rect>
      <x>360</x>
-     <y>360</y>
+     <y>370</y>
      <width>421</width>
      <height>192</height>
     </rect>
    </property>
   </widget>
-  <widget class="QTextEdit" name="textEdit">
+  <widget class="QTextEdit" name="status">
    <property name="geometry">
     <rect>
      <x>360</x>
@@ -318,7 +331,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QTextEdit" name="textEdit_2">
+  <widget class="QTextEdit" name="calculations">
    <property name="geometry">
     <rect>
      <x>570</x>

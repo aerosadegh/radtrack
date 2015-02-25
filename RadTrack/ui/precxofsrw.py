@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'precisionofsrw.ui'
 #
-# Created: Mon Feb 23 01:46:03 2015
+# Created: Tue Feb 24 15:23:51 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -105,4 +105,14 @@ class Ui_Dialog(object):
         self.comboBox_2.setItemText(0, _translate("Dialog", "No", None))
         self.comboBox_2.setItemText(1, _translate("Dialog", "Yes", None))
         self.label_25.setText(_translate("Dialog", "Sampling factor (nx,ny)", None))
+
+
+if __name__ == "__main__":
+    import sys
+    app = QtGui.QApplication(sys.argv)
+    Dialog = QtGui.QDialog()
+    ui = Ui_Dialog()
+    ui.setupUi(Dialog)
+    Dialog.show()
+    sys.exit(app.exec_())
 

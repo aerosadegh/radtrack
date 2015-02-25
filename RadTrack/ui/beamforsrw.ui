@@ -38,11 +38,11 @@
      <height>221</height>
     </rect>
    </property>
-   <layout class="QFormLayout" name="formLayout_2">
+   <layout class="QFormLayout" name="formLayout">
     <item row="0" column="0">
      <widget class="QLabel" name="label_12">
       <property name="text">
-       <string>Avergae Current</string>
+       <string>Average Current</string>
       </property>
      </widget>
     </item>
@@ -84,30 +84,30 @@
     <item row="6" column="0">
      <widget class="QLabel" name="label_18">
       <property name="text">
-       <string>Relative Energy</string>
+       <string>Relativistic Energy(gamma)</string>
       </property>
      </widget>
     </item>
     <item row="0" column="1">
-     <widget class="QLineEdit" name="lineEdit_12"/>
+     <widget class="QLineEdit" name="iavg"/>
     </item>
     <item row="1" column="1">
-     <widget class="QLineEdit" name="lineEdit_13"/>
+     <widget class="QLineEdit" name="partstatmom1x"/>
     </item>
     <item row="2" column="1">
-     <widget class="QLineEdit" name="lineEdit_14"/>
+     <widget class="QLineEdit" name="partstatmom1y"/>
     </item>
     <item row="3" column="1">
-     <widget class="QLineEdit" name="lineEdit_15"/>
+     <widget class="QLineEdit" name="partstatmom1z"/>
     </item>
     <item row="4" column="1">
-     <widget class="QLineEdit" name="lineEdit_16"/>
+     <widget class="QLineEdit" name="partstatmom1xp"/>
     </item>
     <item row="5" column="1">
-     <widget class="QLineEdit" name="lineEdit_17"/>
+     <widget class="QLineEdit" name="partstatmom1yp"/>
     </item>
     <item row="6" column="1">
-     <widget class="QLineEdit" name="lineEdit_18"/>
+     <widget class="QLineEdit" name="partstatmom1gamma"/>
     </item>
    </layout>
   </widget>
