@@ -7,7 +7,7 @@ import string
 # convertUnitsString("5 km", "m") returns "5000 m"
 # convertUnitsNumberToString(5, "km", "m") returns "5000 m"
 # convertUnitsStringToNumber("5 km", "m") returns 5000
-# displayWithUnitsNumber(5, "m") returns "5 km"
+# displayWithUnitsNumber(5000, "m") returns "5 km"
 # displayWithUnitsString("5000 m") returns "5 km"
 #
 # Leaving the new unit argument blank in the
@@ -101,7 +101,7 @@ def displayWithUnitsNumber(value, currentUnit):
     if currentUnit is None:
         return str(value)
     if value == 0:
-        return str(value) + currentUnit
+        return str(value) + ' ' + currentUnit
 
     # Separate compound units
     # 'ft/sec' -> 'ft' '/sec'
