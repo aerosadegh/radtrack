@@ -8,7 +8,7 @@
 # WARNING! All changes made in this file will be lost!
 
 import sip
-sip.setapi('QString', 2)
+#sip.setapi('QString', 2)
 from PyQt4 import QtCore, QtGui
 
 class ui_form(object):

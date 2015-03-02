@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'newsrw.ui'
 #
-# Created: Wed Feb 25 03:50:39 2015
+# Created: Thu Feb 26 11:32:51 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -153,9 +153,9 @@ class Ui_Form(object):
         self.status = QtGui.QTextEdit(Form)
         self.status.setGeometry(QtCore.QRect(360, 170, 181, 181))
         self.status.setObjectName(_fromUtf8("status"))
-        self.calculations = QtGui.QTextEdit(Form)
-        self.calculations.setGeometry(QtCore.QRect(570, 170, 211, 181))
-        self.calculations.setObjectName(_fromUtf8("calculations"))
+        self.analytic = QtGui.QTextEdit(Form)
+        self.analytic.setGeometry(QtCore.QRect(570, 170, 211, 181))
+        self.analytic.setObjectName(_fromUtf8("analytic"))
         self.label = QtGui.QLabel(Form)
         self.label.setGeometry(QtCore.QRect(430, 150, 71, 16))
         self.label.setObjectName(_fromUtf8("label"))

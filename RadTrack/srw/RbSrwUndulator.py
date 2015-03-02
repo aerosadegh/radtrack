@@ -124,7 +124,7 @@ class srwund(QtGui.QWidget):
         UP.xcID = float(self.ui.xcid.text())
         UP.ycID = float(self.ui.ycid.text())
         UP.zcID = float(self.ui.zcid.text())
-        return (UP)
+        #return (UP)
 
     def BeamParams(self,elecBeam):
         #this is the elecBeam class

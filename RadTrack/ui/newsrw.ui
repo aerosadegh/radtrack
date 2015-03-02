@@ -331,7 +331,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QTextEdit" name="calculations">
+  <widget class="QTextEdit" name="analytic">
    <property name="geometry">
     <rect>
      <x>570</x>
