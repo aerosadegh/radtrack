@@ -149,3 +149,13 @@ class RbXGenesisTInd:
         plt.ylabel(self.data_label[y_axis])
         plt.tight_layout()
         plt.show()
+
+
+    def compute_saturation(self):
+
+        place_max = np.argmax(self.data_set['Power'])
+
+        saturation_power  = self.data_set['Power'][place_max]
+        saturation_length = self.data_set['z'][place_max]
+
+        return saturation_power, saturation_length

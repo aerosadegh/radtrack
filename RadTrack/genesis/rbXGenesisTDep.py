@@ -54,6 +54,19 @@ class RbXGenesisTDep:
         self.data_set['s'] = -1
         self.data_label['s'] = 's [m]'
 
+        self.avgOs = False
+
+
+    def average_over_s(self):
+        """
+        Average over the bunch
+        :return:
+        """
+        if self.avgOs == False:
+            self.avgOs = True
+        else:
+            self.avgOs = False
+
 
     def parse_output(self, filename):
         """
@@ -138,56 +151,79 @@ class RbXGenesisTDep:
             msg = 'Data type', y_axis, 'not recognized'
             Exception(msg)
 
-        # Compute a spline function for the interpolation
-        self.yaxis_function = interp.interp2d(self.data_set['s'],
-                                              self.data_set['z'],
-                                              self.data_set[y_axis].T,
-                                              kind='linear')
-
-        self.fig, self.ax = plt.subplots()
-
-        plt.subplots_adjust(bottom=0.25)
 
 
-        if x_axis == 's':
-            self.x_axis = 's'
-            numpoints = np.shape(self.data_set['s'])[0]
-            initial_function = \
-                np.reshape(self.yaxis_function(self.data_set['s'],
-                                               self.data_set['z'][0]),
-                           numpoints)
-            self.this_plot, = plt.plot(self.data_set['s'], initial_function)
-            slider_axis = plt.axes([0.2, 0.1, 0.65, 0.03])
-            self.sliderVar = Slider(slider_axis, 'z [m]',
-                                    self.data_set['z'][0],
-                                    self.data_set['z'][-1],
-                                    valinit=self.data_set['z'][0])
+        if not self.avgOs:
 
-        if x_axis == 'z':
-            self.x_axis = 'z'
-            numpoints = np.shape(self.data_set['z'])[0]
-            initial_function = \
-                np.reshape(self.yaxis_function(self.data_set['s'][0],
-                                               self.data_set['z']),
-                           numpoints)
-            self.this_plot, = plt.plot(self.data_set['z'], initial_function)
-            slider_axis = plt.axes([0.2, 0.1, 0.65, 0.03])
-            self.sliderVar = Slider(slider_axis, 's [m]',
-                                    self.data_set['s'][0],
-                                    self.data_set['s'][-1],
-                                    valinit=self.data_set['s'][0])
+            # Compute a spline function for the interpolation
+            self.yaxis_function = interp.interp2d(self.data_set['s'],
+                                                self.data_set['z'],
+                                                self.data_set[y_axis].T,
+                                                kind='linear')
+
+            self.fig, self.ax = plt.subplots()
+
+            plt.subplots_adjust(bottom=0.25)
 
 
-        self.ax.set_ylabel(self.data_label[y_axis])
-        self.ax.set_xlabel(self.data_label[x_axis])
+            if x_axis == 's':
+                self.x_axis = 's'
+                numpoints = np.shape(self.data_set['s'])[0]
+                initial_function = \
+                    np.reshape(self.yaxis_function(self.data_set['s'],
+                                                   self.data_set['z'][0]),
+                               numpoints)
+                self.this_plot, = plt.plot(self.data_set['s'], initial_function)
+                slider_axis = plt.axes([0.2, 0.1, 0.65, 0.03])
+                self.sliderVar = Slider(slider_axis, 'z [m]',
+                                        self.data_set['z'][0],
+                                        self.data_set['z'][-1],
+                                        valinit=self.data_set['z'][0])
 
-        self.ax.set_ylim([0.9*initial_function.min(),
-                          1.1*initial_function.max()])
+            if x_axis == 'z':
+                self.x_axis = 'z'
+                numpoints = np.shape(self.data_set['z'])[0]
+                initial_function = \
+                    np.reshape(self.yaxis_function(self.data_set['s'][0],
+                                                   self.data_set['z']),
+                               numpoints)
+                self.this_plot, = plt.plot(self.data_set['z'], initial_function)
+                slider_axis = plt.axes([0.2, 0.1, 0.65, 0.03])
+                self.sliderVar = Slider(slider_axis, 's [m]',
+                                        self.data_set['s'][0],
+                                        self.data_set['s'][-1],
+                                        valinit=self.data_set['s'][0])
 
 
-        self.sliderVar.on_changed(self.update_plot)
+            self.ax.set_ylabel(self.data_label[y_axis])
+            self.ax.set_xlabel(self.data_label[x_axis])
 
-        plt.show()
+            self.ax.set_ylim([0.9*initial_function.min(),
+                              1.1*initial_function.max()])
+
+
+            self.sliderVar.on_changed(self.update_plot)
+
+            plt.show()
+
+        else:
+
+            y_array = np.zeros(np.shape(self.data_set[y_axis])[1])
+            for idx in range(np.shape(self.data_set[y_axis])[1]):
+                y_array[idx] = np.mean(self.data_set[y_axis][:,idx])
+
+
+            print np.shape(self.data_set[y_axis])
+            print np.shape(self.data_set['z'])
+            print np.shape(y_array)
+
+            plt.plot(self.data_set['z'], y_array)
+
+            plt.xlabel(self.data_label[x_axis])
+            ylabel = '<'+self.data_label[y_axis]+'>'
+            plt.ylabel(ylabel)
+            plt.tight_layout()
+            plt.show()
 
 
     def update_plot(self, val):

@@ -44,15 +44,13 @@ class fodocell(object):
         self.transfer_matrix = np.dot(drift, self.transfer_matrix)
         self.transfer_matrix = np.dot(quadF, self.transfer_matrix)
 
-        print 'FODO self.transfer_matrix =', self.transfer_matrix
+        #print 'FODO self.transfer_matrix =', self.transfer_matrix
         stability = 0.5*(self.transfer_matrix[0,0]+self.transfer_matrix[1,1])
         if abs(stability) > 1.:
             print '!Warning -- FODO lattice may be unstable in the horizontal'
         stability = 0.5*(self.transfer_matrix[2,2]+self.transfer_matrix[3,3])
         if abs(stability) > 1.:
             print '!Warning -- FODO lattice may be unstable in the vertical'
-
-        print self.transfer_matrix
 
     def compute_phase_advance(self):
         phix = np.arccos(0.5*self.transfer_matrix[2,2]+
@@ -84,14 +82,9 @@ class fodocell(object):
         alphax = (self.transfer_matrix[2,2]-
                   self.transfer_matrix[3,3])/(2.*sinphix)
 
-        print 'X beta, gamma, alpha =', betax, gammax, alphax
-        print 'Y beta, gamma, alpha =', betay, gammay, alphay
-
         # Check Twiss parameters for consistency
         xcheck = (betax*gammax - alphax**2 - 1)
-        print 'xcheck =', xcheck
         ycheck = (betay*gammay - alphay**2 - 1)
-        print 'ycheck =', ycheck
 
         if abs(xcheck)>1.e-8 or abs(ycheck)>1.e-8:
             msg = 'Transfer matrix for FODO cell is not valid'
