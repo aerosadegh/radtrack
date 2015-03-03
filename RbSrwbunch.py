@@ -36,10 +36,7 @@ class rbsrw(QtGui.QWidget):
             
     def set_beam_values(self):
         for i in range(self.dialogb.ui.formLayout.rowCount()):
-            try:
-                self.srwdictionary[self.dialogb.ui.formLayout.itemAt(i,0).widget().text()]=float(self.dialogb.ui.formLayout.itemAt(i,1).widget().text())
-            except ValueError:
-                pass
+            self.srwdictionary[self.dialogb.ui.formLayout.itemAt(i,0).widget().text()]=float(self.dialogb.ui.formLayout.itemAt(i,1).widget().text())
             
     def set_prec_values(self):
         for i in range(self.dialogp.ui.formLayout.rowCount()):
@@ -123,13 +120,18 @@ class DialogB(QtGui.QDialog):
         QtGui.QDialog.__init__(self,parent)
         self.ui = beam_dlg()
         self.ui.setupUi(self)
-        self.ui.iavg.setText('0.5')     #Above is the UP class, this is elecBeam.iavg
-        self.ui.partstatmom1x.setText('0')  #elecBeam.partStatMom1.x, initial x-offset    
-        self.ui.partstatmom1y.setText('0')  #elecBeam.partStatMom1.y, initial y-offset
-        self.ui.partstatmom1z.setText('0.0') #elecBeam.partStatMom1.z, initial z-offset
-        self.ui.partstatmom1xp.setText('0') #elecBeam.partStatMom1.xp, initial x angle offset
-        self.ui.partstatmom1yp.setText('0') #elecBeam.partStatMom1.yp, initial y angle offset
+        self.ui.iavg.setText('0.5')     #Above is the UP class, this is self.beam.iavg
+        self.ui.partstatmom1x.setText('0')  #self.beam.partStatMom1.x, initial x-offset    
+        self.ui.partstatmom1y.setText('0')  #self.beam.partStatMom1.y, initial y-offset
+        self.ui.partstatmom1z.setText('0.0') #self.beam.partStatMom1.z, initial z-offset
+        self.ui.partstatmom1xp.setText('0') #self.beam.partStatMom1.xp, initial x angle offset
+        self.ui.partstatmom1yp.setText('0') #self.beam.partStatMom1.yp, initial y angle offset
         self.ui.partstatmom1gamma.setText('5870.925') # electron beam relative energy, gamma
+        self.ui.sige.setText('0.00089')
+        self.ui.sigx.setText('33.33e-06')
+        self.ui.sigy.setText('2.912e-06')
+        self.ui.sigxp.setText('16.5e-06')
+        self.ui.sigyp.setText('2.7472e-06')
         
 class DialogP(QtGui.QDialog):
     def __init__(self, parent=None):

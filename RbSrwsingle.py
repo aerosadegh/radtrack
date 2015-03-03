@@ -27,7 +27,7 @@ class rbsrw(QtGui.QWidget):
         #dialog boxes
         #self.dialogb = DialogB()
         #self.dialogp = DialogP()
-        #set srw initial values in a dictionary
+        #set srw initial values 
         self.GetUndParams(DialogU())
         self.GetBeamParams(DialogB())
         self.GetPrecision(DialogP())
