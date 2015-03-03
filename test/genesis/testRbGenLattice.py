@@ -40,12 +40,8 @@ print 'transfer map =\n', transfermap
 
 betax, betay, s = my_lattice.compute_beta_func()
 
-print u'\u03B2_x =', betax
-print u'\u03B2_y =', betay
-print 's =', s
-
 plt.plot(s, betax, c='r', label=u'\u03B2_x')
 plt.plot(s, betay, c='g', label=u'\u03B2_y')
 plt.legend()
 plt.tight_layout()
-#plt.show()
+plt.show()
