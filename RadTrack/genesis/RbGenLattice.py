@@ -192,4 +192,4 @@ class GenLattice:
                     betay_array.append(twissy[0])
                     s_position.append(element['pos']+my_position)
 
-        return betay_array, betay_array, s_position
+        return betax_array, betay_array, s_position
