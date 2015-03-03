@@ -7,12 +7,12 @@ from matplotlib import pyplot as plt
 
 my_lattice = GenLattice()
 
-f = 3 #meters
+f = 1. #meters
 
 lquad = 0.05
 kq = 1/(f*lquad)
-ldrift1 = 1.
-ldrift2 = 1.2
+ldrift1 = 0.1
+ldrift2 = 2.
 
 pos = 0.
 my_lattice.add_quadrupole(kq, pos, lquad)

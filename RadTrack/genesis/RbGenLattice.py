@@ -178,13 +178,12 @@ class GenLattice:
 
             # will need to add special behavior for undulator here
             else:
-                ds = 0.01*element['length']
+                ds = 0.001*element['length']
                 my_position = 0.
                 Mtwiss = np.identity(3)
                 Mtwiss[0,1] = -2.*ds
                 Mtwiss[0,2] = ds**2
                 Mtwiss[1,2] = -ds
-                print Mtwiss
                 while my_position < element['length']:
                     twissx = np.dot(Mtwiss, twissx)
                     twissy = np.dot(Mtwiss, twissy)
