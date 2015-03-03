@@ -95,11 +95,31 @@ class RbGlobal(QtGui.QMainWindow):
             self.usesScrollArea[type(realWidget)] = (widget != realWidget)
             self.widgetChoices.append(type(realWidget))
 
+            # populate New Tab Menu
+            actionNewTab = QtGui.QAction(self)
+            actionNewTab.setObjectName('new ' + originalTitle)
+            actionNewTab.setText(originalTitle)
+            
+            # The next line has some weirdness that needs explaining:
+            #  1. "ignore" is a variable that receives the boolean returned
+            #     from QAction.triggered(). This variable is not used, hence
+            #     the name. This goes for all "lambda ignore" below.
+            #  2. "t = widgetType" sets t to the current widgetType if the 
+            #     QAction.triggered() doesn't supply it (which it doesn't).
+            #     This localizes widgetType to the lambda in this loop iteration.
+            #     Just using self.newTab(widgetType) would have the argument
+            #     replaced every iteration, so that every selection in the
+            #     Tabs->New Tab menu would result in a new copy of the last
+            #     tab added.
+            actionNewTab.triggered.connect(lambda ignore, t = widgetType : self.newTab(t))
+
+            self.ui.menuNewTab.addAction(actionNewTab)
+
         self.ui.verticalLayout.addWidget(self.tabWidget)
         self.setLayout(self.ui.verticalLayout)
-        self.ui.actionOpen.triggered.connect(self.openProjectFile)
+        self.ui.actionOpen.triggered.connect(lambda ignore : self.openProjectFile())
         self.ui.actionSave.triggered.connect(self.saveProjectFile)
-        self.ui.actionImport.triggered.connect(self.importFile)
+        self.ui.actionImport.triggered.connect(lambda ignore : self.importFile)
         self.ui.actionExport.triggered.connect(self.exportCurrentTab)
         self.ui.actionExit.triggered.connect(self.close)
         self.ui.actionUndo.triggered.connect(self.undo)
@@ -115,7 +135,6 @@ class RbGlobal(QtGui.QMainWindow):
         self.closedTabs = []
         self.globalHasChanged = False
 
-        self.populateNewTabMenu()
         self.checkMenus()
         
     def populateRecentFile(self):
@@ -125,23 +144,16 @@ class RbGlobal(QtGui.QMainWindow):
         self.ui.menurecent.addAction(action)
         #action.triggered.connect(self.importFile(action.text()))
 
-    def populateNewTabMenu(self):
-        for i in range(self.tabWidget.count()):
-            actionNewTab = QtGui.QAction(self)
-            actionNewTab.setObjectName('new' + self.tabWidget.tabText(i))
-            actionNewTab.setText(self.tabWidget.tabText(i))
-            self.ui.menuNewTab.addAction(actionNewTab)
-            tabType = type(getRealWidget(self.tabWidget.widget(i)))
-            actionNewTab.triggered.connect(lambda tabType = tabType : self.newTab(tabType))
-
     def newTab(self, newTabType):
+        newTitle = self.uniqueTabTitle(self.tabTypeToOriginalName[newTabType])
         if self.usesScrollArea[newTabType]:
             scrollArea = QtGui.QScrollArea(self)
-            scrollArea.setWidget(newTabType())
-            self.tabWidget.addTab(scrollArea, self.uniqueTabTitle(self.tabTypeToOriginalName[newTabType]))
+            scrollArea.setWidget(newTabType(self))
+            self.tabWidget.addTab(scrollArea, newTitle)
         else:
-            self.tabWidget.addTab(newTabType(), self.uniqueTabTitle(self.tabTypeToOriginalName[newTabType]))
+            self.tabWidget.addTab(newTabType(self), newTitle)
         self.tabWidget.setCurrentIndex(self.tabWidget.count()-1)
+        self.checkMenus()
         self.globalHasChanged = True
 
     def uniqueTabTitle(self, title, ignoreIndex = -1):
@@ -168,6 +180,7 @@ class RbGlobal(QtGui.QMainWindow):
         self.checkMenus()
         self.tabWidget.setCurrentIndex(index)
         self.globalHasChanged = True
+        self.checkMenus()
 
     def renameTab(self):
         index = self.tabWidget.currentIndex()
@@ -176,6 +189,7 @@ class RbGlobal(QtGui.QMainWindow):
         if ok and newName:
             self.tabWidget.setTabText(index, self.uniqueTabTitle(newName, index))
             self.globalHasChanged = True
+            self.checkMenus()
 
 
     def importFile(self, openFile = None):
@@ -239,7 +253,6 @@ class RbGlobal(QtGui.QMainWindow):
 
 
     def openProjectFile(self, fileName = None):
-        print "Opening: ", fileName
         if fileName is None or fileName == '':
             fileName = QtGui.QFileDialog.getOpenFileName(self, 
                     'Open file', 
@@ -248,10 +261,13 @@ class RbGlobal(QtGui.QMainWindow):
             if fileName == '':
                 return
 
+        print "Opening: ", fileName
+
         # Open a new window if user has worked in the current one
         if self.hasChanged():
             dest = RbGlobal()
             dest.show()
+            print 'new window'
         else:
             dest = self
 
@@ -259,13 +275,12 @@ class RbGlobal(QtGui.QMainWindow):
 
         with ZipFile(fileName, 'r') as zf:
             for i, subFileName in enumerate(zf.namelist()):
+                print subFileName
                 zf.extract(subFileName)
                 _, originalTitle, tabName = os.path.basename(subFileName).split('_')
-                tabName = os.path.basename(subFileName).split("_", 1)[1].rsplit(".", 1)[0]
+                tabName = tabName.rsplit(".", 1)[0]
                 dest.newTab(self.originalNameToTabType[originalTitle])
                 getRealWidget(dest.tabWidget.widget(i)).importFile(subFileName)
-                dest.tabWidget.setTabText(i, tabName)
-                tabName = os.path.basename(subFileName).split('_', 1)[1].rsplit('.', 1)[0]
                 dest.tabWidget.setTabText(i, tabName)
                 os.remove(subFileName)
         dest.lastUsedDirectory = os.path.dirname(fileName)
@@ -331,6 +346,9 @@ class RbGlobal(QtGui.QMainWindow):
         getRealWidget(self.tabWidget.currentWidget()).exportToFile()
         self.populateRecentFile()
 
+    def allWidgets(self):
+        return [getRealWidget(self.tabWidget.widget(i)) for i in range(self.tabWidget.count())]
+
     def checkMenus(self):
         menuMap = dict()
         menuMap['exportToFile'] = self.ui.actionExport
@@ -340,11 +358,30 @@ class RbGlobal(QtGui.QMainWindow):
             menuMap[function].setEnabled(hasattr(getRealWidget(self.tabWidget.currentWidget()), function))
         self.ui.actionUndoCloseTab.setEnabled(len(self.closedTabs) > 0)
 
+        # Configure Elegant tab to use tabs for simulation input
+        for widget in self.allWidgets():
+            if type(widget) == RbEle:
+                widget.ui.bunchChoice.clear()
+                widget.ui.latticeChoice.clear()
+
+                widget.ui.bunchChoice.addItem(widget.ui.noneBunchChoice)
+                widget.ui.latticeChoice.addItem(widget.ui.noneBeamChoice)
+
+                for index in range(self.tabWidget.count()):
+                    if type(getRealWidget(self.tabWidget.widget(index))) == RbBunchWindow:
+                        widget.ui.bunchChoice.addItem(self.tabWidget.tabText(index))
+                    elif type(getRealWidget(self.tabWidget.widget(index))) == RbBunchTransport:
+                        widget.ui.latticeChoice.addItem(self.tabWidget.tabText(index))
+
+                widget.ui.bunchChoice.addItem(widget.ui.fileBunchChoice)
+                widget.ui.latticeChoice.addItem(widget.ui.fileBeamChoice)
+
+
     def hasChanged(self):
         if self.globalHasChanged:
             return True
 
-        for widget in [getRealWidget(self.tabWidget.widget(i)) for i in range(self.tabWidget.count())]:
+        for widget in self.allWidgets():
             try:
                 if widget.hasChanged():
                     return True

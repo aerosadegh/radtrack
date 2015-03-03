@@ -67,7 +67,7 @@ for key in list(globals()):
 
 advancedNames = []
 
-def fileImporter(fileName, importDictionary, classDictionary, nameMangler):
+def fileImporter(fileName):
     pass
 
 

@@ -562,12 +562,15 @@ class RbCbt(QtGui.QWidget):
         return [self.ui.workingBeamline.item(i).text() for i in range(self.ui.workingBeamline.count())]
 
     def importFile(self, fileName):
-        newElements, defaultBeamline = self.importer(fileName)
-        if newElements is not None:
-            undoAction = commandLoadElements(self, newElements.values())
-            self.undoStack.push(undoAction)
-        if defaultBeamline is not None:
-            self.defaultBeamline = defaultBeamline
+        importedData = self.importer(fileName)
+        if importedData is not None:
+            newElements, defaultBeamline = importedData
+
+            if newElements is not None:
+                undoAction = commandLoadElements(self, newElements.values())
+                self.undoStack.push(undoAction)
+            if defaultBeamline is not None:
+                self.defaultBeamline = defaultBeamline
 
     def exportToFile(self, outputFileName = None):
         if not outputFileName:
