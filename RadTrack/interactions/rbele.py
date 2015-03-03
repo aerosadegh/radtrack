@@ -22,19 +22,15 @@ class Ui_ELE(object):
         self.formLayout.setObjectName("formLayout")
         self.latticeChoice = QtGui.QComboBox(self.formLayoutWidget)
         self.noneBeamChoice = 'Select beamline source ...'
-        self.tabBeamChoice = 'Use Charged Beam Transport Tab'
         self.fileBeamChoice = 'Use another file ...'
         self.latticeChoice.addItem(self.noneBeamChoice)
-        self.latticeChoice.addItem(self.tabBeamChoice)
         self.latticeChoice.addItem(self.fileBeamChoice)
         self.latticeChoice.setObjectName("latticeChoice")
         self.formLayout.setWidget(0, QtGui.QFormLayout.FieldRole, self.latticeChoice)
         self.bunchChoice = QtGui.QComboBox(self.formLayoutWidget)
         self.noneBunchChoice = 'Select beam bunch source ...'
-        self.tabBunchChoice = 'Use Charged Beam Tab'
         self.fileBunchChoice = 'Use another file ...'
         self.bunchChoice.addItem(self.noneBunchChoice)
-        self.bunchChoice.addItem(self.tabBunchChoice)
         self.bunchChoice.addItem(self.fileBunchChoice)
         self.bunchChoice.setObjectName("bunchChoice")
         self.formLayout.setWidget(1, QtGui.QFormLayout.FieldRole, self.bunchChoice)

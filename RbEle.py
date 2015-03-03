@@ -12,6 +12,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from RadTrack.interactions.rbele import *
 from RbBunchTransport import RbBunchTransport
+from RbBunchWindow import RbBunchWindow
 from RbUtility import stripComments
 
 class RbEle(QWidget):
@@ -36,6 +37,9 @@ class RbEle(QWidget):
                               # the user chooses that file
         
     def getBUN(self):
+        if self.ui.bunchChoice.currentText() == self.ui.noneBunchChoice:
+            return
+
         if self.ui.bunchChoice.currentText() == self.ui.fileBunchChoice:
             sddsfileName = QtGui.QFileDialog.getOpenFileName(self, 'Open',
                     self.parent.lastUsedDirectory, '*.sdds')
@@ -49,24 +53,18 @@ class RbEle(QWidget):
             else:
                 self.ui.bunchChoice.addItem(sddsfileName)
                 self.ui.bunchChoice.setCurrentIndex(self.ui.bunchChoice.count()-1)
-
-        elif self.ui.bunchChoice.currentIndex() == 1:
-            print 'Feature Coming Soon'
 		
         
     def getLTE(self):
         self.ui.beamlineDropDown.clear()
 
-        if self.ui.latticeChoice.currentText() == self.ui.noneBeamChoice:
+        if self.ui.latticeChoice.currentText() in [self.ui.noneBeamChoice, '']:
             return
 
-        elif self.ui.latticeChoice.currentText() == self.ui.tabBeamChoice:
-            loaders = [] 
-            loaderNames = []
+        elif self.ui.latticeChoice.currentText() in self.tabTitles():
             for tabIndex in range(self.parent.tabWidget.count()):
-                if type(self.parent.tabWidget.widget(tabIndex)) == RbBunchTransport:
-                    loaders.append(self.parent.tabWidget.widget(tabIndex))
-                    loaderNames.append(self.parent.tabWidget.tabText(tabIndex))
+                if self.parent.tabWidget.tabText(tabIndex) == self.ui.latticeChoice.currentText():
+                    loader = self.parent.tabWidget.widget(tabIndex)
 
         elif self.ui.latticeChoice.currentText() == self.ui.fileBeamChoice:
             fileName = QtGui.QFileDialog.getOpenFileName(self, 'Open',
@@ -87,34 +85,29 @@ class RbEle(QWidget):
 
         else: # previously loaded file
 
-            # There are three choices in the lattice dropdown menu before
+            # There are two or more choices in the lattice dropdown menu before
             # any files are selected, hence the loaders created from files
-            # are offset by three in the dropdown list compared to the 
-            # loaderCache.
-            if len(self.loaderCache) <= self.ui.latticeChoice.currentIndex()-3:
-                loaders = [RbBunchWindow()]
-                loaders[0].importLattice(self.ui.latticeChoice.currentText())
-                self.loaderCache.append(loaders[0])
+            # are offset in the dropdown list compared to the loaderCache.
+            fileIndex = self.ui.latticeChoice.currentIndex() - (2 + len(self.tabTitles()))
+            print fileIndex
+            if fileIndex < 0:
+                loader = RbBunchTransport()
+                loader.importFile(self.ui.latticeChoice.currentText())
+                self.loaderCache.append(loader)
             else:
-                loaders = [self.loaderCache[self.ui.latticeChoice.currentIndex()-3]]
-            loaderNames = []
-
+                loader = self.loaderCache[fileIndex]
 
         allBeamLines = []
-        for loaderIndex in range(len(loaders)):
-            for element in loaders[loaderIndex].elementDictionary.values():
-                if element.isBeamline() and not element.name.startswith('-'):
-                    if loaderNames:
-                        allBeamLines.append(
-                                loaderNames[loaderIndex] + " - " + element.name)
-                    else:
-                        allBeamLines.append(element.name)
-
+        for element in loader.elementDictionary.values():
+            if element.isBeamline() and not element.name.startswith('-'):
+                allBeamLines.append(element.name)
 
         # Reset available beamlines
         self.ui.beamlineDropDown.addItems(allBeamLines)
-        self.ui.beamlineDropDown.setCurrentIndex(self.ui.beamlineDropDown.findText(loaders[0].defaultBeamline))
+        self.ui.beamlineDropDown.setCurrentIndex(self.ui.beamlineDropDown.findText(loader.defaultBeamline))
         
+    def tabTitles(self):
+        return [self.parent.tabWidget.tabText(i) for i in range(self.parent.tabWidget.count())]
     
     def simulate(self):
         # Define start of error message
@@ -125,16 +118,16 @@ class RbEle(QWidget):
         if self.ui.latticeChoice.currentText() == self.ui.noneBeamChoice:
             errMsg += '  - No beamline lattice specified.\n'
 
-        elif self.ui.latticeChoice.currentText() == self.ui.tabBeamChoice:
+        elif self.ui.latticeChoice.currentText() in self.tabTitles():
             fileHandle, latticeFileName = tempfile.mkstemp('.lte')
             os.close(fileHandle)
-            tabName, beamlineName = self.ui.beamlineDropDown.currentText().split(' - ')
+            beamlineName = self.ui.beamlineDropDown.currentText()
             for tabIndex in range(self.parent.tabWidget.count()):
-                if tabName == self.parent.tabWidget.tabText(tabIndex):
+                if self.ui.latticeChoice.currentText() == self.parent.tabWidget.tabText(tabIndex):
                     self.parent.tabWidget.widget(tabIndex).exportToFile(latticeFileName)
                     break
             else:
-                errMsg += "  - Could not find tab with name: " + tabName
+                errMsg += "  - Could not find tab with name: " + self.ui.latticeChoice.currentText()
             deleteLatticeFile = True
 
         else:
@@ -144,11 +137,14 @@ class RbEle(QWidget):
         # Get bunch file
         if self.ui.bunchChoice.currentText() == self.ui.noneBunchChoice:
             errMsg += '  - No bunch file specified.\n'
-        elif self.ui.bunchChoice.currentText() == self.ui.tabBunchChoice:
+        elif self.ui.bunchChoice.currentText() in self.tabTitles():
             fileHandle, bunchFileName = tempfile.mkstemp('.sdds')
             os.close(fileHandle)
-            self.parent.bunchTab.saveToSDDS(bunchFileName)
-            deleteBunchFile = True
+            for index in range(self.parent.tabWidget.count()):
+                if self.parent.tabWidget.tabText(index) == self.ui.bunchChoice.currentText():
+                    self.parent.tabWidget.widget(index).widget().saveToSDDS(bunchFileName)
+                    deleteBunchFile = True
+                    break
         else:
             bunchFileName = self.ui.bunchChoice.currentText()
             deleteBunchFile = False
@@ -186,7 +182,8 @@ class RbEle(QWidget):
             s = '    '
             outputFile.write('&run_setup\n')
             outputFile.write(s+'lattice = "'+latticeFileName+'",'+'\n')
-            outputFile.write(s+'use_beamline = '+beamlineName+','+'\n')
+            if beamlineName:
+                outputFile.write(s+'use_beamline = '+beamlineName+','+'\n')
             outputFile.write(s+'default_order = '+self.ui.orderLineEdit.text()+','+'\n')
             outputFile.write(s+'p_central = '+self.ui.momentumLineEdit.text()+','+'\n')
             outputFile.write(s+'output = %s.out, \n')

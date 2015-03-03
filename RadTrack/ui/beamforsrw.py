@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'beamforsrw.ui'
 #
-# Created: Tue Feb 24 18:10:40 2015
+# Created: Sat Feb 28 18:03:08 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,14 +26,14 @@ except AttributeError:
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName(_fromUtf8("Dialog"))
-        Dialog.resize(342, 306)
+        Dialog.resize(342, 456)
         self.buttonBox = QtGui.QDialogButtonBox(Dialog)
-        self.buttonBox.setGeometry(QtCore.QRect(40, 260, 271, 32))
+        self.buttonBox.setGeometry(QtCore.QRect(40, 410, 271, 32))
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
         self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName(_fromUtf8("buttonBox"))
         self.formLayoutWidget_2 = QtGui.QWidget(Dialog)
-        self.formLayoutWidget_2.setGeometry(QtCore.QRect(40, 30, 261, 221))
+        self.formLayoutWidget_2.setGeometry(QtCore.QRect(40, 30, 261, 364))
         self.formLayoutWidget_2.setObjectName(_fromUtf8("formLayoutWidget_2"))
         self.formLayout = QtGui.QFormLayout(self.formLayoutWidget_2)
         self.formLayout.setMargin(0)
@@ -80,6 +80,36 @@ class Ui_Dialog(object):
         self.partstatmom1gamma = QtGui.QLineEdit(self.formLayoutWidget_2)
         self.partstatmom1gamma.setObjectName(_fromUtf8("partstatmom1gamma"))
         self.formLayout.setWidget(6, QtGui.QFormLayout.FieldRole, self.partstatmom1gamma)
+        self.label = QtGui.QLabel(self.formLayoutWidget_2)
+        self.label.setObjectName(_fromUtf8("label"))
+        self.formLayout.setWidget(7, QtGui.QFormLayout.LabelRole, self.label)
+        self.sige = QtGui.QLineEdit(self.formLayoutWidget_2)
+        self.sige.setObjectName(_fromUtf8("sige"))
+        self.formLayout.setWidget(7, QtGui.QFormLayout.FieldRole, self.sige)
+        self.label_2 = QtGui.QLabel(self.formLayoutWidget_2)
+        self.label_2.setObjectName(_fromUtf8("label_2"))
+        self.formLayout.setWidget(8, QtGui.QFormLayout.LabelRole, self.label_2)
+        self.label_3 = QtGui.QLabel(self.formLayoutWidget_2)
+        self.label_3.setObjectName(_fromUtf8("label_3"))
+        self.formLayout.setWidget(9, QtGui.QFormLayout.LabelRole, self.label_3)
+        self.label_4 = QtGui.QLabel(self.formLayoutWidget_2)
+        self.label_4.setObjectName(_fromUtf8("label_4"))
+        self.formLayout.setWidget(10, QtGui.QFormLayout.LabelRole, self.label_4)
+        self.label_5 = QtGui.QLabel(self.formLayoutWidget_2)
+        self.label_5.setObjectName(_fromUtf8("label_5"))
+        self.formLayout.setWidget(11, QtGui.QFormLayout.LabelRole, self.label_5)
+        self.sigx = QtGui.QLineEdit(self.formLayoutWidget_2)
+        self.sigx.setObjectName(_fromUtf8("sigx"))
+        self.formLayout.setWidget(8, QtGui.QFormLayout.FieldRole, self.sigx)
+        self.sigy = QtGui.QLineEdit(self.formLayoutWidget_2)
+        self.sigy.setObjectName(_fromUtf8("sigy"))
+        self.formLayout.setWidget(9, QtGui.QFormLayout.FieldRole, self.sigy)
+        self.sigxp = QtGui.QLineEdit(self.formLayoutWidget_2)
+        self.sigxp.setObjectName(_fromUtf8("sigxp"))
+        self.formLayout.setWidget(10, QtGui.QFormLayout.FieldRole, self.sigxp)
+        self.sigyp = QtGui.QLineEdit(self.formLayoutWidget_2)
+        self.sigyp.setObjectName(_fromUtf8("sigyp"))
+        self.formLayout.setWidget(11, QtGui.QFormLayout.FieldRole, self.sigyp)
 
         self.retranslateUi(Dialog)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("accepted()")), Dialog.accept)
@@ -95,4 +125,9 @@ class Ui_Dialog(object):
         self.label_16.setText(_translate("Dialog", "Initial Relative Horizontal Velocity", None))
         self.label_17.setText(_translate("Dialog", "Initial Relative Vertical Velocity", None))
         self.label_18.setText(_translate("Dialog", "Relativistic Energy(gamma)", None))
+        self.label.setText(_translate("Dialog", "RMS Energy Spread", None))
+        self.label_2.setText(_translate("Dialog", "RMS Horizontal Width", None))
+        self.label_3.setText(_translate("Dialog", "RMS Vertical Width", None))
+        self.label_4.setText(_translate("Dialog", "RMS Horizontal Divergence", None))
+        self.label_5.setText(_translate("Dialog", "RMS Vertical Divergence", None))
 

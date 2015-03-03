@@ -36,7 +36,10 @@ class rbsrw(QtGui.QWidget):
             
     def set_beam_values(self):
         for i in range(self.dialogb.ui.formLayout.rowCount()):
-            self.srwdictionary[self.dialogb.ui.formLayout.itemAt(i,0).widget().text()]=float(self.dialogb.ui.formLayout.itemAt(i,1).widget().text())
+            try:
+                self.srwdictionary[self.dialogb.ui.formLayout.itemAt(i,0).widget().text()]=float(self.dialogb.ui.formLayout.itemAt(i,1).widget().text())
+            except ValueError:
+                pass
             
     def set_prec_values(self):
         for i in range(self.dialogp.ui.formLayout.rowCount()):
