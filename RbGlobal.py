@@ -116,7 +116,6 @@ class RbGlobal(QtGui.QMainWindow):
             self.ui.menuNewTab.addAction(actionNewTab)
 
         self.ui.verticalLayout.addWidget(self.tabWidget)
-        self.setLayout(self.ui.verticalLayout)
         self.ui.actionOpen.triggered.connect(lambda ignore : self.openProjectFile())
         self.ui.actionSave.triggered.connect(self.saveProjectFile)
         self.ui.actionImport.triggered.connect(lambda ignore : self.importFile)
