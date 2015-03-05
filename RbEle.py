@@ -32,9 +32,9 @@ class RbEle(QWidget):
             self.parent = self
             self.parent.lastUsedDirectory = os.path.expanduser('~')
 
-        self.loaderCache = [] # saves the elements from beamline files chosen
-                              # so they don't have to be reloaded every time
-                              # the user chooses that file
+        self.loaderCache = dict() # saves the elements from beamline files chosen
+                                  # so they don't have to be reloaded every time
+                                  # the user chooses that file
         
     def getBUN(self):
         if self.ui.bunchChoice.currentText() == self.ui.noneBunchChoice:
@@ -73,12 +73,13 @@ class RbEle(QWidget):
                 return
             self.parent.lastUsedDirectory = os.path.dirname(fileName)
             # Check if user already selected a file previously
-            index = self.ui.latticeChoice.findText(fileName)
-            if index != -1:
-                self.ui.latticeChoice.setCurrentIndex(index)
-            else:
+            if fileName not in self.loaderCache:
+                loader = RbBunchTransport()
+                loader.importFile(fileName)
+                self.loaderCache[fileName] = loader
                 self.ui.latticeChoice.addItem(fileName)
-                self.ui.latticeChoice.setCurrentIndex(self.ui.latticeChoice.count()-1)
+            self.ui.latticeChoice.setCurrentIndex(self.ui.latticeChoice.findText(fileName))
+
             return
             # Setting the currentIndex triggers another signal that runs
             # the else clause below 
@@ -88,14 +89,7 @@ class RbEle(QWidget):
             # There are two or more choices in the lattice dropdown menu before
             # any files are selected, hence the loaders created from files
             # are offset in the dropdown list compared to the loaderCache.
-            fileIndex = self.ui.latticeChoice.currentIndex() - (2 + len(self.tabTitles()))
-            print fileIndex
-            if fileIndex < 0:
-                loader = RbBunchTransport()
-                loader.importFile(self.ui.latticeChoice.currentText())
-                self.loaderCache.append(loader)
-            else:
-                loader = self.loaderCache[fileIndex]
+            loader = self.loaderCache[self.ui.latticeChoice.currentText()]
 
         allBeamLines = []
         for element in loader.elementDictionary.values():
@@ -110,10 +104,7 @@ class RbEle(QWidget):
         return [self.parent.tabWidget.tabText(i) for i in range(self.parent.tabWidget.count())]
     
     def simulate(self):
-        # Define start of error message
-        errMsg = 'Cannot start simulation due to:\n'
-        errStartLength = len(errMsg)
-
+        errMsg = ''
         # Get beamline file
         if self.ui.latticeChoice.currentText() == self.ui.noneBeamChoice:
             errMsg += '  - No beamline lattice specified.\n'
@@ -121,18 +112,21 @@ class RbEle(QWidget):
         elif self.ui.latticeChoice.currentText() in self.tabTitles():
             fileHandle, latticeFileName = tempfile.mkstemp('.lte')
             os.close(fileHandle)
-            beamlineName = self.ui.beamlineDropDown.currentText()
             for tabIndex in range(self.parent.tabWidget.count()):
                 if self.ui.latticeChoice.currentText() == self.parent.tabWidget.tabText(tabIndex):
                     self.parent.tabWidget.widget(tabIndex).exportToFile(latticeFileName)
                     break
             else:
-                errMsg += "  - Could not find tab with name: " + self.ui.latticeChoice.currentText()
+                errMsg += "  - Could not find tab with name: " + self.ui.latticeChoice.currentText() + '\n'
             deleteLatticeFile = True
 
-        else:
+        else: # Separate file chosen
             latticeFileName = self.ui.latticeChoice.currentText()
             deleteLatticeFile = False
+
+        beamlineName = self.ui.beamlineDropDown.currentText()
+        if not beamlineName:
+            errMsg += "  - Not beamline selected.\n"
 
         # Get bunch file
         if self.ui.bunchChoice.currentText() == self.ui.noneBunchChoice:
@@ -158,7 +152,8 @@ class RbEle(QWidget):
         if self.ui.stepsLineEdit.text() == '':
             errMsg += '  - No step number specified.\n'
 
-        if len(errMsg) > errStartLength:
+        if errMsg:
+            errMsg = 'Cannot start simulation due to:\n' + errMsg
             msgBox = QMessageBox(QMessageBox.Warning, 'RadTrack', errMsg)
             msgBox.exec_()
             return
