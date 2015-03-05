@@ -939,7 +939,7 @@ class RbLaserWindow(QWidget):
 
     def readFromCSV(self, fileName = None):
         if fileName is None or fileName == '':
-            fileName, _ = QtGui.QFileDialog.getOpenFileName(self, "Import RadTrack particle file -- ",
+            fileName = QtGui.QFileDialog.getOpenFileName(self, "Import RadTrack particle file -- ",
                                                       self.parent.lastUsedDirectory, "*.csv")
             if fileName == '':
                 return
@@ -1047,7 +1047,7 @@ class RbLaserWindow(QWidget):
 
     def saveToCSV(self, fileName = None):
         if fileName is None or fileName == '':
-            fileName, _ = QtGui.QFileDialog.getSaveFileName(self, 'Save distribution to RadTrack file ...',
+            fileName = QtGui.QFileDialog.getSaveFileName(self, 'Save distribution to RadTrack file ...',
                              self.parent.lastUsedDirectory, "*.csv")
             if fileName == '':
                 return
@@ -1102,7 +1102,7 @@ class RbLaserWindow(QWidget):
 
     def saveToSDDS(self, sddsFileName = None):
         if sddsFileName is None or sddsFileName == '':
-            sddsFileName, _ = QtGui.QFileDialog.getSaveFileName(self, 'Save distribution to Elegant/SDDS file ...',
+            sddsFileName = QtGui.QFileDialog.getSaveFileName(self, 'Save distribution to Elegant/SDDS file ...',
                               self.parent.lastUsedDirectory, "*.sdds")
             if sddsFileName == '':
                 return
