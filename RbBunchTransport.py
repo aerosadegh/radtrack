@@ -1,9 +1,9 @@
 import rbcbt, sys
 from PyQt4 import QtGui, QtCore
+import RadTrack.beamlines.RbElegantElements as module
 
 class RbBunchTransport(rbcbt.RbCbt):
     def __init__(self, parent = None):
-        module = __import__('RadTrack.beamlines.RbElegantElements', fromlist='.')
         rbcbt.RbCbt.__init__(self, module, parent)
 
 

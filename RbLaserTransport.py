@@ -1,9 +1,9 @@
 import rbcbt, sys
 from PyQt4 import QtGui, QtCore
+import RadTrack.beamlines.RbOpticalElements as module
 
 class RbLaserTransport(rbcbt.RbCbt):
     def __init__(self, parent = None):
-        module = __import__('RadTrack.beamlines.RbOpticalElements', fromlist='.')
         rbcbt.RbCbt.__init__(self, module, parent)
 
 

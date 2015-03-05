@@ -1,9 +1,9 @@
 import rbcbt, sys
 from PyQt4 import QtGui, QtCore
+import RadTrack.beamlines.RbGenesisElements as module
 
 class RbGenesisTransport(rbcbt.RbCbt):
     def __init__(self, parent = None):
-        module = __import__('RadTrack.beamlines.RbGenesisElements', fromlist='.')
         rbcbt.RbCbt.__init__(self, module, parent)
 
 
