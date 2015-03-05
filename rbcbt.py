@@ -489,29 +489,34 @@ class RbCbt(QtGui.QWidget):
                 self.parent.lastUsedDirectory, ';;'.join(['*' + suffix for suffix in imageSuffixes]))
         if fileName == '':
             return
-        fileExtension = fileExtension.lstrip("*")
-        if not fileName.endswith(fileExtension):
-            fileName = fileName + fileExtension
+        fileExtension = os.path.splitext(fileName)[1]
         self.parent.lastUsedDirectory = os.path.dirname(fileName)
 
-        self.removeLengthScale()
         view = self.ui.graphicsView
+        questionBox = QtGui.QMessageBox(QtGui.QMessageBox.Question, 'RadTrack', 'Render entire beamline or just the viewable portion?')
+        responses = [questionBox.addButton(text , QtGui.QMessageBox.ActionRole) for text in ['Entire Beamline', 'Viewable Portion']]
+        questionBox.exec_()
+
+        if questionBox.clickedButton() == responses[0]:
+            boundingRectangle = view.scene().itemsBoundingRect()
+        else:
+            boundingRectangle = self.visibleSceneRect()
+
+        # reduce image size if either dimension is larger than maxImageDimension
+        maxImageDimension = 2**14 - 1
+        sceneSize = max([boundingRectangle.width(),
+                         boundingRectangle.height()])*self.zoomScale
+        scale = min([1.0, maxImageDimension/sceneSize])
+        self.zoomScale = self.zoomScale*scale
+        view.setTransformationAnchor(QtGui.QGraphicsView.AnchorViewCenter)
+        view.scale(scale, scale)
+        view.setTransformationAnchor(QtGui.QGraphicsView.NoAnchor)
 
         try:
-            # reduce image size if either dimension is larger than maxImageDimension
-            maxImageDimension = 2**14 - 1
-            sceneSize = max([view.scene().itemsBoundingRect().width(),
-                             view.scene().itemsBoundingRect().height()])*self.zoomScale
-            scale = min([1.0, maxImageDimension/sceneSize])
-            self.zoomScale = self.zoomScale*scale
-            view.setTransformationAnchor(QtGui.QGraphicsView.AnchorViewCenter)
-            view.scale(scale, scale)
-            view.setTransformationAnchor(QtGui.QGraphicsView.NoAnchor)
-
             progress = QtGui.QProgressDialog('Creating Image ...', 'Cancel', 0, 6, self)
             progress.setMinimumDuration(0)
             progress.setValue(0)
-            image = QtGui.QImage((view.scene().itemsBoundingRect().size()*self.zoomScale).toSize(),
+            image = QtGui.QImage((boundingRectangle.size()*self.zoomScale).toSize(),
                     QtGui.QImage.Format_ARGB32_Premultiplied)
             if progress.wasCanceled():
                 return
@@ -532,22 +537,25 @@ class RbCbt(QtGui.QWidget):
 
             progress.setValue(3)
             progress.setLabelText('Rendering Image ...')
-            view.scene().render(painter)
+            view.scene().render(painter, QtCore.QRectF(), boundingRectangle)
             if progress.wasCanceled():
                 return
 
             progress.setValue(4)
             progress.setLabelText('Saving Image ...')
             if not image.save(fileName):
-                print "Image (" + fileName + ") was not saved."
+                QtGui.QMessageBox(QtGui.QMessageBox.Warning,
+                                 'RadTrack', "Image (" + fileName + ") was not saved.").exec_()
                 progress.reset()
                 return
 
+        finally:
             progress.setLabelText('Deleting Painter ...')
             progress.setValue(5)
-
-        finally:
-            del painter
+            try:
+                del painter
+            except:
+                pass
             progress.setValue(6)
             self.drawLengthScale()
 
