@@ -89,6 +89,7 @@ class rbsrw(QtGui.QWidget):
         self.up.xcID = float(dialog.ui.xcid.text())
         self.up.ycID = float(dialog.ui.ycid.text())
         self.up.zcID = float(dialog.ui.zcid.text())
+        self.up.n = int(dialog.ui.n.text())
         
     def ShowUndParams(self, dialog):
         dialog.ui.numper.setText(str(self.up.numPer))
@@ -102,6 +103,7 @@ class rbsrw(QtGui.QWidget):
         dialog.ui.xcid.setText(str(self.up.xcID))
         dialog.ui.ycid.setText(str(self.up.ycID))
         dialog.ui.zcid.setText(str(self.up.zcID))
+        dialog.ui.n.setText(str(self.up.n))
         
         
     def GetBeamParams(self,dialog):
@@ -362,6 +364,7 @@ class UP:
          UP.xcID = [] 
          UP.ycID = [] 
          UP.zcID = []
+         UP.n = []
 
 class Precis:
      def __init__(self):
@@ -389,6 +392,7 @@ class DialogU(QtGui.QDialog):
         self.ui.xcid.setText('0')       #Misaligment. Horizontal Coordinate of Undulator Center 
         self.ui.ycid.setText('0')       #Misaligment. Vertical Coordinate of Undulator Center 
         self.ui.zcid.setText('0')       #Misaligment. Longitudinal Coordinate of Undulator Center
+        self.ui.n.setText('1')
                 
 class DialogB(QtGui.QDialog):
     def __init__(self, parent=None):

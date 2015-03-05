@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'undulatorforsrw.ui'
 #
-# Created: Tue Feb 24 15:07:32 2015
+# Created: Wed Mar  4 10:28:21 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,14 +26,14 @@ except AttributeError:
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName(_fromUtf8("Dialog"))
-        Dialog.resize(382, 421)
+        Dialog.resize(382, 445)
         self.buttonBox = QtGui.QDialogButtonBox(Dialog)
-        self.buttonBox.setGeometry(QtCore.QRect(10, 370, 341, 32))
+        self.buttonBox.setGeometry(QtCore.QRect(20, 400, 341, 32))
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
         self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName(_fromUtf8("buttonBox"))
         self.formLayoutWidget = QtGui.QWidget(Dialog)
-        self.formLayoutWidget.setGeometry(QtCore.QRect(30, 20, 321, 333))
+        self.formLayoutWidget.setGeometry(QtCore.QRect(30, 20, 321, 371))
         self.formLayoutWidget.setObjectName(_fromUtf8("formLayoutWidget"))
         self.formLayout = QtGui.QFormLayout(self.formLayoutWidget)
         self.formLayout.setFieldGrowthPolicy(QtGui.QFormLayout.AllNonFixedFieldsGrow)
@@ -105,6 +105,12 @@ class Ui_Dialog(object):
         self.zcid = QtGui.QLineEdit(self.formLayoutWidget)
         self.zcid.setObjectName(_fromUtf8("zcid"))
         self.formLayout.setWidget(10, QtGui.QFormLayout.FieldRole, self.zcid)
+        self.label_12 = QtGui.QLabel(self.formLayoutWidget)
+        self.label_12.setObjectName(_fromUtf8("label_12"))
+        self.formLayout.setWidget(11, QtGui.QFormLayout.LabelRole, self.label_12)
+        self.n = QtGui.QLineEdit(self.formLayoutWidget)
+        self.n.setObjectName(_fromUtf8("n"))
+        self.formLayout.setWidget(11, QtGui.QFormLayout.FieldRole, self.n)
 
         self.retranslateUi(Dialog)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("accepted()")), Dialog.accept)
@@ -124,4 +130,5 @@ class Ui_Dialog(object):
         self.label_9.setText(_translate("Dialog", "Horizontal Coordinate of Undulator Center ", None))
         self.label_10.setText(_translate("Dialog", "Vertical Coordinate of Undulator Center", None))
         self.label_11.setText(_translate("Dialog", "Longitudinal Coordinate of Undulator Center", None))
+        self.label_12.setText(_translate("Dialog", "Harmonic Number", None))
 
