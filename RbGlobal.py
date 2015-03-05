@@ -118,7 +118,7 @@ class RbGlobal(QtGui.QMainWindow):
         self.ui.verticalLayout.addWidget(self.tabWidget)
         self.ui.actionOpen.triggered.connect(lambda ignore : self.openProjectFile())
         self.ui.actionSave.triggered.connect(self.saveProjectFile)
-        self.ui.actionImport.triggered.connect(lambda ignore : self.importFile)
+        self.ui.actionImport.triggered.connect(lambda ignore : self.importFile())
         self.ui.actionExport.triggered.connect(self.exportCurrentTab)
         self.ui.actionExit.triggered.connect(self.close)
         self.ui.actionUndo.triggered.connect(self.undo)
