@@ -1,5 +1,5 @@
 import rbcbt, sys
-from PyQt4 import QtGui, QtCore
+from PyQt4 import QtGui
 import RadTrack.beamlines.RbGenesisElements as module
 
 class RbGenesisTransport(rbcbt.RbCbt):

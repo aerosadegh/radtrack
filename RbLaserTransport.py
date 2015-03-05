@@ -1,5 +1,5 @@
 import rbcbt, sys
-from PyQt4 import QtGui, QtCore
+from PyQt4 import QtGui
 import RadTrack.beamlines.RbOpticalElements as module
 
 class RbLaserTransport(rbcbt.RbCbt):
