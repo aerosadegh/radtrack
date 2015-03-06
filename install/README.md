@@ -55,3 +55,39 @@ This will download the latest docker and start the docker daemon.
 * install sdds
 * install MikTeX
 ```
+
+#### Doc
+
+Need to make a docs directory. Using
+[Google style guide](https://google-styleguide.googlecode.com/svn/trunk/pyguide.html)
+and [example](http://sphinxcontrib-napoleon.readthedocs.org/en/latest/example_google.html)
+
+[See why Sphinx Napoleon](http://sphinxcontrib-napoleon.readthedocs.org/en/latest/) is
+better way to generate API docs.
+
+Install sphinx:
+
+```bash
+pip install sphinx sphinxcontrib-napoleon
+mkdir docs
+sphinx-quickstart
+# docs is subdirectory, use source/build
+```
+
+* Add `'sphinxcontrib.napoleon'` to `extensions = []`.
+* Add `modules` (output of napoleon) to `source/index.rst` after `toctree`:
+
+```rst
+.. toctree::
+   :maxdepth: 2
+   modules
+```
+
+This part should be in a bash script which is called by `travis.yml`. Whole thing
+probably should be automated in a project setup (TODO(nagler): look around for this)
+
+```bash
+sphinx-apidoc -f -o docs/source radtrack
+cd docs
+make html
+```
