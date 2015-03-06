@@ -4,12 +4,11 @@ Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 """
 
 import sys, os
-from numpy import sqrt
 from PyQt4 import QtGui, QtCore
 from RadTrack.ui.newsrw import Ui_Form as Ui_newsrw
 from RadTrack.ui.undulatorforsrw import Ui_Dialog as und_dlg
 from RadTrack.ui.beamforsrw import Ui_Dialog as beam_dlg
-from RadTrack.ui.precisionofsrw import Ui_Dialog as prec_dlg
+from RadTrack.ui.precisionthicksrw import Ui_Dialog as prec_dlg
 from RadTrack.srw.uti_plot import *
 from RadTrack.srw.AnalyticCalc import *
 from RadTrack.srw.srwlib import *
@@ -19,15 +18,14 @@ class rbsrw(QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
         self.ui = Ui_newsrw()
         self.ui.setupUi(self)
-        #self.srwdictionary = dict()
         self.up = UP()
         self.beam = SRWLPartBeam()
-        self.precis = Precis()
-        self.thin(self.ui.deparg.currentIndex())
-        #dialog boxes
-        #self.dialogb = DialogB()
-        #self.dialogp = DialogP()
-        #set srw initial values 
+        #self.precis = Precis()
+        self.arPrecF = [0]*5
+        self.arPrecP = [0]*5 
+        self.thick(self.ui.deparg.currentIndex())
+
+        #set srw initial values
         self.GetUndParams(DialogU())
         self.GetBeamParams(DialogB())
         self.GetPrecision(DialogP())
@@ -36,13 +34,12 @@ class rbsrw(QtGui.QWidget):
         self.ui.undulator.clicked.connect(self.makeund)
         self.ui.beam.clicked.connect(self.makebeam)
         self.ui.precision.clicked.connect(self.setprec)
-        self.ui.deparg.currentIndexChanged.connect(self.thin)
-        self.ui.sim.clicked.connect(self.srwbuttonThin)
-        #self.ui.plot.clicked.connect(self.check)
+        self.ui.deparg.currentIndexChanged.connect(self.thick)
+        self.ui.sim.clicked.connect(self.srwbuttonThick)
+        self.ui.plot.clicked.connect(self.check)
         #indicators
         self.ui.status.setText('Initiated')
         self.ui.analytic.setText('No calculations performed...Yet')
-        
         
     def AnalyticA(self):
         n_har=1 #harmB.n harmonic number from SRWTestCases(2)\UndC
@@ -77,6 +74,25 @@ class rbsrw(QtGui.QWidget):
         
         self.ui.analytic.setText(strc)
         
+    def UndParamsThick(self):
+        #vertical harmonic magnetic field
+        harmB = SRWLMagFldH() #magnetic field harmonic
+        harmB.n = self.up.n #harmonic number
+        harmB.h_or_v = 'v' #magnetic field plane: horzontal ('h') or vertical ('v')
+        harmB.B = self.up.By #magnetic field amplitude [T]
+        
+        #horizontal harmonic magnetic field
+        harmA = SRWLMagFldH() #magnetic field harmonic
+        harmA.n = self.up.n #harmonic number
+        harmA.h_or_v = 'h' #magnetic field plane: horzontal ('h') or vertical ('v')
+        harmA.B = self.up.Bx #magnetic field amplitude [T]
+        
+        und = SRWLMagFldU([harmB])
+        und.per = self.up.undPer #period length [m]
+        und.nPer = self.up.numPer #number of periods (will be rounded to integer)
+        magFldCnt = SRWLMagFldC([und], array('d', [0]), array('d', [0]), array('d', [0])) #Container of all magnetic field elements
+        return (und, magFldCnt) 
+        
     def GetUndParams(self, dialog):
         self.up.numPer = float(dialog.ui.numper.text())
         self.up.undPer = float(dialog.ui.undper.text())
@@ -103,11 +119,10 @@ class rbsrw(QtGui.QWidget):
         dialog.ui.xcid.setText(str(self.up.xcID))
         dialog.ui.ycid.setText(str(self.up.ycID))
         dialog.ui.zcid.setText(str(self.up.zcID))
-        dialog.ui.n.setText(str(self.up.n))
-        
+        dialog.ui.n.setText(str(self.up.n))    
         
     def GetBeamParams(self,dialog):
-        #this is the self.beam class
+        #this is the beam class
         self.beam.Iavg = float(dialog.ui.iavg.text())
         self.beam.partStatMom1.x = float(dialog.ui.partstatmom1x.text())
         self.beam.partStatMom1.y = float(dialog.ui.partstatmom1y.text())
@@ -162,173 +177,36 @@ class rbsrw(QtGui.QWidget):
         wfrE.mesh.xStart = float(self.ui.tableWidget.item(6,0).text())
         wfrE.mesh.xFin = float(self.ui.tableWidget.item(8,0).text())
         wfrE.mesh.yStart = float(self.ui.tableWidget.item(7,0).text())
-        wfrE.mesh.yFin = float(self.ui.tableWidget.item(9,0).text())
+        wfrE.mesh.yFin = float(self.ui.tableWidget.item(9,0).text())   
         
     def GetPrecision(self,dialog):
-        self.precis.meth = dialog.ui.meth.currentIndex()
-        self.precis.relPrec = float(dialog.ui.relprec.text())
-        self.precis.zStartInteg = float(dialog.ui.zstartint.text())
-        self.precis.zEndInteg = float(dialog.ui.zendint.text())
-        self.precis.npTraj = float(dialog.ui.nptraj.text())
-        self.precis.useTermin = dialog.ui.usetermin.currentIndex()
-        self.precis.sampFactNxNyForProp = float(dialog.ui.sampfactnxny.text())
+        #for spectral flux vs photon energy
+        self.arPrecF[0] = float(dialog.ui.harma.text()) #initial UR harmonic to take into account
+        self.arPrecF[1] = float(dialog.ui.harmb.text()) #final UR harmonic to take into account
+        self.arPrecF[2] = float(dialog.ui.lip.text()) #longitudinal integration precision parameter
+        self.arPrecF[3] = float(dialog.ui.aip.text()) #azimuthal integration precision parameter
+        self.arPrecF[4] = dialog.ui.flux.currentIndex()+1 #calculate flux (1) or flux per unit surface (2)
+        
+        #for power density
+        self.arPrecP[0] = float(dialog.ui.prefact.text()) #precision factor
+        self.arPrecP[1] = dialog.ui.field.currentIndex()+1 #power density computation method (1- "near field", 2- "far field")
+        self.arPrecP[2] = float(dialog.ui.ilp.text()) #initial longitudinal position (effective if arPrecP[2] < arPrecP[3])
+        self.arPrecP[3] = float(dialog.ui.flp.text()) #final longitudinal position (effective if arPrecP[2] < arPrecP[3])
+        self.arPrecP[4] = int(dialog.ui.np.text()) #number of points for (intermediate) trajectory calculation
+        #return (arPrecF, arPrecP)
         
     def ShowPrecision(self,dialog):
-        dialog.ui.meth.setCurrentIndex(self.precis.meth)
-        dialog.ui.relprec.setText(str(self.precis.relPrec))
-        dialog.ui.zstartint.setText(str(self.precis.zStartInteg))
-        dialog.ui.zendint.setText(str(self.precis.zEndInteg))
-        dialog.ui.nptraj.setText(str(self.precis.npTraj))
-        dialog.ui.usetermin.setCurrentIndex(self.precis.useTermin)
-        dialog.ui.sampfactnxny.setText(str(self.precis.sampFactNxNyForProp))
-    
-         
-    def srwbuttonThin(self):
-        if 'srwl' not in globals():
-            msg = ' !Warning --'
-            msg += 'SRW not installed on this system.'
-            self.ui.status.setText(msg)
-            raise Exception(msg)
-        #UP = self.UndParams()
-        und = SRWLMagFldU([SRWLMagFldH(1, 'v', self.up.By, self.up.phBy, self.up.sBy, 1), SRWLMagFldH(1, 'h', self.up.Bx, self.up.phBx, self.up.sBx, 1)], self.up.undPer, self.up.numPer)
-        magFldCnt = SRWLMagFldC([und], array('d', [self.up.xcID]), array('d', [self.up.ycID]), array('d', [self.up.zcID]))
-        #elecBeam = SRWLPartBeam()
-        #self.BeamParams(elecBeam)
-
-        self.AnalyticA()
-
-        #precis = self.Precision()
-        arPrecPar = [self.precis.meth, self.precis.relPrec, self.precis.zStartInteg, self.precis.zEndInteg, self.precis.npTraj, self.precis.useTermin, self.precis.sampFactNxNyForProp]
-
-        wfrE = SRWLWfr()
-        self.WfrSetUpE(wfrE)
-        wfrE.partBeam = self.beam
-
-        wfrXY = SRWLWfr()
-        self.WfrSetUpE(wfrXY)
-        wfrXY.partBeam = self.beam
+        dialog.ui.harma.setText(str(self.arPrecF[0]))
+        dialog.ui.harmb.setText(str(self.arPrecF[1]))
+        dialog.ui.lip.setText(str(self.arPrecF[2]))
+        dialog.ui.aip.setText(str(self.arPrecF[3]))
+        dialog.ui.flux.setCurrentIndex(self.arPrecF[4])
         
-        mesh=deepcopy(wfrE.mesh)
-        wfrIn=deepcopy(wfrE)
-
-        Polar = self.ui.polar.currentIndex()
-        Intens = self.ui.intensity.currentIndex()
-        DependArg = self.ui.deparg.currentIndex()
-#       print (Polar, Intens, DependArg)
-      
-        if DependArg == 0:
-            #after setting the text call self.ui.status.repaint() to have it immediately show otherwise it will wait till it exits the block to draw
-            str1='* Performing Electric Field (spectrum vs photon energy) calculation ... \n \n'
-            self.ui.status.setText(str1)
-            self.ui.status.repaint()
-            srwl.CalcElecFieldSR(wfrE, 0, magFldCnt, arPrecPar)
-            str2='* Extracting Intensity from calculated Electric Field ... \n \n'
-            self.ui.status.setText(str1+str2)
-            self.ui.status.repaint()
-            arI1 = array('f',[0]*wfrE.mesh.ne)
-            srwl.CalcIntFromElecField(arI1, wfrE, Polar, Intens, DependArg, wfrE.mesh.eStart, 0, 0)
-            str3='* Plotting the results ...\n'
-            self.ui.status.setText(str1+str2+str3)
-            #time.sleep(1)
-            self.ui.status.repaint()
-            uti_plot1d(arI1, [wfrE.mesh.eStart, wfrE.mesh.eFin, wfrE.mesh.ne],['label','label','label'])
-
-        elif DependArg == 1:
-            str1='* Performing Electric Field (intensity vs x-coordinate) calculation ... \n \n'
-            self.ui.status.setText(str1)
-            srwl.CalcElecFieldSR(wfrXY, 0, magFldCnt, arPrecPar)
-            str2='* Extracting Intensity from calculated Electric Field ... \n \n '
-            self.ui.status.setText(str1+str2)
-            self.ui.status.repaint()
-            arI1 = array('f',[0]*wfrXY.mesh.nx)
-            srwl.CalcIntFromElecField(arI1, wfrXY, Polar, Intens, DependArg, 0, wfrXY.mesh.xStart, 0)
-            str3='* Plotting the results ...\n'
-            self.ui.status.setText(str1+str2+str3)
-            self.ui.status.repaint()
-            uti_plot1d(arI1, [wfrXY.mesh.xStart, wfrXY.mesh.xFin, wfrXY.mesh.nx],['label','label','label'])
-
-        elif DependArg == 2:
-            str1='* Performing Electric Field (intensity vs y-coordinate) calculation ... \n \n'
-            self.ui.status.setText(str1)
-            self.ui.status.repaint()
-            srwl.CalcElecFieldSR(wfrXY, 0, magFldCnt, arPrecPar)
-            str2='* Extracting Intensity from calculated Electric Field ... \n \n '
-            self.ui.status.setText(str1+str2)
-            self.ui.status.repaint()
-            arI1 = array('f',[0]*wfrXY.mesh.ny)
-            srwl.CalcIntFromElecField(arI1, wfrXY, Polar, Intens, DependArg, 0, wfrXY.mesh.yStart, 0)
-            str3='* Plotting the results ...\n'
-            self.ui.status.setText(str1+str2+str3)
-            self.ui.status.repaint()
-            uti_plot1d(arI1, [wfrXY.mesh.yStart, wfrXY.mesh.yFin, wfrXY.mesh.ny],['label','label','label'])
-       
-        elif DependArg == 3:
-            str1='* Performing Electric Field (intensity vs x- and y-coordinate) calculation ... \n \n'
-            self.ui.status.setText(str1)
-            self.ui.status.repaint()
-            srwl.CalcElecFieldSR(wfrXY, 0, magFldCnt, arPrecPar)
-            str2='* Extracting Intensity from calculated Electric Field ... \n \n '
-            self.ui.status.setText(str1+str2)
-            self.ui.status.repaint()
-            arI1 = array('f', [0]*wfrXY.mesh.nx*wfrXY.mesh.ny)
-            srwl.CalcIntFromElecField(arI1, wfrXY, Polar, Intens, DependArg, wfrXY.mesh.eStart, wfrXY.mesh.xStart, wfrXY.mesh.yStart)
-            str3='* Plotting the results ...\n'
-            self.ui.status.setText(str1+str2+str3)
-            self.ui.status.repaint()
-            uti_plot2d(arI1, [1000*wfrXY.mesh.xStart, 1000*wfrXY.mesh.xFin, wfrXY.mesh.nx], 
-            [1000*wfrXY.mesh.yStart, 1000*wfrXY.mesh.yFin, wfrXY.mesh.ny], 
-            ['Horizontal Position [mm]', 'Vertical Position [mm]', 'Intensity at ' + str(wfrXY.mesh.eStart) + ' eV'])
-
-        elif DependArg == 4:
-            str1='* Performing Electric Field (intensity vs energy- and x-coordinate) calculation ... \n \n '
-            self.ui.status.setText(str1)
-            self.ui.status.repaint()
-            srwl.CalcElecFieldSR(wfrXY, 0, magFldCnt, arPrecPar)
-            str2='* Extracting Intensity from calculated Electric Field ... \n \n '
-            self.ui.status.setText(str1+str2)
-            self.ui.status.repaint()
-            arI1 = array('f', [0]*wfrXY.mesh.ne*wfrXY.mesh.nx)
-            srwl.CalcIntFromElecField(arI1, wfrXY, Polar, Intens, DependArg, wfrXY.mesh.eStart, wfrXY.mesh.xStart, wfrXY.mesh.yStart)
-            str3='* Plotting the results ...\n'
-            self.ui.status.setText(str1+str2+str3)
-            self.ui.status.repaint()
-            uti_plot2d(arI1, [1000*wfrXY.mesh.eStart, 1000*wfrXY.mesh.eFin, wfrXY.mesh.ne], 
-            [1000*wfrXY.mesh.xStart, 1000*wfrXY.mesh.xFin, wfrXY.mesh.nx], 
-            ['Energy [eV]', 'Horizontal Position [mm]', 'Intensity at ' + str(wfrXY.mesh.eStart) + ' eV'])
-
-        elif DependArg == 5:
-            str1='* Performing Electric Field (intensity vs energy- and y-coordinate) calculation ... \n \n'
-            self.ui.status.setText(str1)
-            self.ui.status.repaint()
-            srwl.CalcElecFieldSR(wfrXY, 0, magFldCnt, arPrecPar)
-            str2='* Extracting Intensity from calculated Electric Field ... \n \n '
-            self.ui.status.setText(str1+str2)
-            self.ui.status.repaint()
-            arI1 = array('f', [0]*wfrXY.mesh.ne*wfrXY.mesh.ny)
-            srwl.CalcIntFromElecField(arI1, wfrXY, Polar, Intens, DependArg, wfrXY.mesh.eStart, wfrXY.mesh.xStart, wfrXY.mesh.yStart)
-            str3='* Plotting the results ...\n'
-            self.ui.status.setText(str1+str2+str3)
-            self.ui.status.repaint()
-            uti_plot2d(arI1, [1000*wfrXY.mesh.eStart, 1000*wfrXY.mesh.eFin, wfrXY.mesh.ne], 
-            [1000*wfrXY.mesh.yStart, 1000*wfrXY.mesh.yFin, wfrXY.mesh.ny], 
-            ['Energy [eV]', 'Vertical Position [mm]', 'Intensity at ' + str(wfrXY.mesh.eStart) + ' eV'])
-
-        else:
-            print 'Error'
-    
-        uti_plot_show()
-          
-    def thin(self,i):
-        thintable = [[10000,1,1,20,10,3000,0,0,0,0],
-                     [1,100,3,20,685,685,0,0,0,0],
-                     [1,3,100,20,685,685,0,0,0,0],
-                     [1,100,100,20,685,685,0,0,0,0],
-                     [1000,100,3,20,10,3000,0,0,0,0],
-                     [1000,3,100,20,10,3000,0,0,0,0],
-                     [1000,30,30,20,10,3000,0,0,0,0]]
-                     
-        for n,x in enumerate(thintable[i]):
-            self.ui.tableWidget.setItem(n,0,QtGui.QTableWidgetItem(str(x)))
+        dialog.ui.prefact.setText(str(self.arPrecP[0]))
+        dialog.ui.field.setCurrentIndex(self.arPrecP[1]-1)
+        dialog.ui.ilp.setText(str(self.arPrecP[2]))
+        dialog.ui.flp.setText(str(self.arPrecP[3]))
+        dialog.ui.np.setText(str(self.arPrecP[4]))
         
     def makeund(self):
         dialog = DialogU()
@@ -348,30 +226,179 @@ class rbsrw(QtGui.QWidget):
         if dialog.exec_():
             self.GetPrecision(dialog)
         
-class UP:
-     def __init__(self): 
-         UP.numPer = [] 
-         UP.undPer = [] 
-         UP.Bx = [] 
-         UP.By = [] 
-         UP.phBx = [] 
-         UP.phBy = [] 
-         UP.sBx = [] 
-         UP.sBy = [] 
-         UP.xcID = [] 
-         UP.ycID = [] 
-         UP.zcID = []
-         UP.n = []
+    def srwbuttonThick(self):     
+        if 'srwl' not in globals():
+            msg = ' !Warning --'
+            msg += 'SRW not installed on this system.'
+            self.ui.status.setText(msg)
+            raise Exception(msg)
 
-class Precis:
-     def __init__(self):
-        Precis.meth = [] 
-        Precis.relPrec = [] 
-        Precis.zStartInteg = [] 
-        Precis.zEndInteg = [] 
-        Precis.npTraj = [] 
-        Precis.useTermin = [] 
-        Precis.sampFactNxNyForProp = []
+        (und,magFldCnt)=self.UndParamsThick()
+        
+        #self.beam = SRWLPartBeam()
+        #self.BeamParams(self.beam)
+
+        #self.AnalyticA(self.beam)
+
+        (arPrecF, arPrecP)=self.PrecisionThick()     
+        
+        stkF = SRWLStokes() #for spectrum
+        self.WfrSetUpE(stkF)
+        stkP = SRWLStokes() #for power density
+        self.WfrSetUpE(stkP)
+        
+        Polar = self.ui.polar.currentIndex()
+        Intens = self.ui.intensity.currentIndex()
+        DependArg = self.ui.deparg.currentIndex()
+        print (Polar, Intens, DependArg)
+         
+        if DependArg == 0:
+            #after setting the text call self.ui.status.repaint() to have it immediately show otherwise it will wait till it exits the block to draw
+            str1='* Performing Electric Field (spectrum vs photon energy) calculation ... \n \n'
+            self.ui.status.setText(str1)
+            self.ui.status.repaint()
+            srwl.CalcStokesUR(stkF, self.beam, und, arPrecF) #####
+            
+            str2='* Extracting Intensity from calculated Electric Field ... \n \n'
+            self.ui.status.setText(str1+str2)
+            self.ui.status.repaint()
+
+            str3='* Plotting the results ...\n'
+            self.ui.status.setText(str1+str2+str3)
+            self.ui.status.repaint()
+            uti_plot1d(stkF.arS, [stkF.mesh.eStart, stkF.mesh.eFin, stkF.mesh.ne], ['Photon Energy [eV]', 'Flux [ph/s/.1%bw]', 'Flux through Finite Aperture'])
+
+        elif DependArg == 1: 
+            str1='* Performing Power Density calculation (from field) vs x-coordinate calculation ... \n \n'
+            self.ui.status.setText(str1)
+            print DependArg
+            print(stkP)
+            print(self.beam)
+            print(und)
+            print(arPrecP)
+            srwl.CalcPowDenSR(stkP, self.beam, 0, magFldCnt, arPrecP)
+            print 'yes'
+                
+            str2='* Extracting Intensity from calculated Electric Field ... \n \n '
+            self.ui.status.setText(str1+str2)
+            self.ui.status.repaint()
+            
+            str3='* Plotting the results ...\n'
+            self.ui.status.setText(str1+str2+str3)
+            self.ui.status.repaint()
+            plotMeshX = [1000*stkP.mesh.xStart, 1000*stkP.mesh.xFin, stkP.mesh.nx]
+            powDenVsX = array('f', [0]*stkP.mesh.nx)
+            for i in range(stkP.mesh.nx): powDenVsX[i] = stkP.arS[stkP.mesh.nx*int(stkP.mesh.ny*0.5) + i]
+            print plotMeshX
+            uti_plot1d(powDenVsX, plotMeshX, ['Horizontal Position [mm]', 'Power Density [W/mm^2]', 'Power Density\n(horizontal cut at y = 0)'])
+
+
+        elif DependArg == 2:
+            str1='* Performing Power Density calculation (from field) vs x-coordinate calculation ... \n \n'
+            self.ui.status.setText(str1)
+            self.ui.status.repaint()
+            print DependArg
+            print(stkP)
+            print(self.beam)
+            print(und)
+            print(arPrecP)
+            srwl.CalcPowDenSR(stkP, self.beam, 0, magFldCnt, arPrecP)
+            print 'yes'
+                
+            str2='* Extracting Intensity from calculated Electric Field ... \n \n '
+            self.ui.status.setText(str1+str2)
+            self.ui.status.repaint()
+            
+            str3='* Plotting the results ...\n'
+            self.ui.status.setText(str1+str2+str3)
+            self.ui.status.repaint()
+            plotMeshY = [1000*stkP.mesh.yStart, 1000*stkP.mesh.yFin, stkP.mesh.ny]
+            powDenVsY = array('f', [0]*stkP.mesh.ny)
+            for i in range(stkP.mesh.ny): powDenVsY[i] = stkP.arS[int(stkP.mesh.nx*0.5) + i*stkP.mesh.ny]
+            uti_plot1d(powDenVsY, plotMeshY, ['Vertical Position [mm]', 'Power Density [W/mm^2]', 'Power Density\n(vertical cut at x = 0)'])
+
+        elif DependArg == 3:
+            str1='* Performing Electric Field (intensity vs x- and y-coordinate) calculation ... \n \n'
+            self.ui.status.setText(str1)
+            self.ui.status.repaint()
+            srwl.CalcPowDenSR(stkP, self.beam, 0, magFldCnt, arPrecP)
+
+            str2='* Extracting Intensity from calculated Electric Field ... \n \n '
+            self.ui.status.setText(str1+str2)
+            self.ui.status.repaint()
+
+            str3='* Plotting the results ...\n'
+            self.ui.status.setText(str1+str2+str3)
+            self.ui.status.repaint()
+            plotMeshX = [1000*stkP.mesh.xStart, 1000*stkP.mesh.xFin, stkP.mesh.nx]
+            plotMeshY = [1000*stkP.mesh.yStart, 1000*stkP.mesh.yFin, stkP.mesh.ny]
+            uti_plot2d(stkP.arS, plotMeshX, plotMeshY, ['Horizontal Position [mm]', 'Vertical Position [mm]', 'Power Density'])
+
+        elif DependArg == 4:
+            str1='* Performing Electric Field (intensity vs energy- and x-coordinate) calculation ... \n \n '
+            self.ui.status.setText(str1)
+            self.ui.status.repaint()
+
+            str2='* Un der construction ... \n \n '
+            self.ui.status.setText(str1+str2)
+            self.ui.status.repaint()
+
+            str3='* Plotting the results ...\n'
+            self.ui.status.setText(str1+str2+str3)
+            self.ui.status.repaint()
+
+        elif DependArg == 5:
+            str1='* Performing Electric Field (intensity vs energy- and y-coordinate) calculation ... \n \n'
+            self.ui.status.setText(str1)
+            self.ui.status.repaint()
+            
+            str2='* Un der construction ... \n \n '
+            self.ui.status.setText(str1+str2)
+            self.ui.status.repaint()
+ 
+            str3='* Plotting the results ...\n'
+            self.ui.status.setText(str1+str2+str3)
+            self.ui.status.repaint()
+
+        else:
+            print 'Error'
+    
+        uti_plot_show()
+
+                     
+    def thick(self,i):
+        thicktable = [[10000,1,1,20,10,3000,-0.002,-0.002,0.002,0.002],
+                     [1,100,3,20,685,685,-0.002,-0.002,0.002,0.002],
+                     [1,3,100,20,685,685,-0.002,-0.002,0.002,0.002],
+                     [1,100,100,20,685,685,-0.002,-0.002,0.002,0.002],
+                     [1000,100,3,20,10,3000,-0.002,-0.002,0.002,0.002],
+                     [1000,3,100,20,10,3000,-0.002,-0.002,0.002,0.002],
+                     [1000,30,30,20,10,3000,-0.002,-0.002,0.002,0.002]]
+                     
+        for n,x in enumerate(thicktable[i]):
+            self.ui.tableWidget.setItem(n,0,QtGui.QTableWidgetItem(str(x)))
+        
+    def makeund(self):
+        dialog = DialogU()
+        self.ShowUndParams(dialog)
+        if dialog.exec_():
+            self.GetUndParams(dialog)
+            
+    def makebeam(self):
+        dialog = DialogB()
+        self.ShowBeamParams(dialog)
+        if dialog.exec_():
+            self.GetBeamParams(dialog)
+            
+    def setprec(self):
+        dialog = DialogP()
+        self.ShowPrecision(dialog)
+        if dialog.exec_():
+            self.GetPrecision(dialog)
+            
+    def check(self):
+        print self.arPrecF
+        
         
 class DialogU(QtGui.QDialog):
     def __init__(self, parent=None):
@@ -414,13 +441,43 @@ class DialogP(QtGui.QDialog):
         QtGui.QDialog.__init__(self,parent)
         self.ui = prec_dlg()
         self.ui.setupUi(self)
-        self.ui.meth.setCurrentIndex(1) #SR calculation method: 0- "manual", 1- "auto-undulator", 2- "auto-wiggler"
-        self.ui.relprec.setText('0.01') #relative precision
-        self.ui.zstartint.setText('0') #longitudinal position to start integration (effective if < zEndInteg)
-        self.ui.zendint.setText('0') #longitudinal position to finish integration (effective if > zStartInteg)
-        self.ui.nptraj.setText('20000') #Number of points for trajectory calculation
-        self.ui.usetermin.setCurrentIndex(1) #Use "terminating terms" (i.e. asymptotic expansions at zStartInteg and zEndInteg) or not (1 or 0 respectively)
-        self.ui.sampfactnxny.setText('0') #sampling factor for adjusting nx, ny (effective if > 0)
+        self.ui.harma.setText('1')
+        self.ui.harmb.setText('11')
+        self.ui.lip.setText('1.5')
+        self.ui.aip.setText('1.5')
+        self.ui.flux.setCurrentIndex(0)
+        
+        self.ui.prefact.setText('1.5')
+        self.ui.field.setCurrentIndex(0)
+        self.ui.ilp.setText('0')
+        self.ui.flp.setText('0')
+        self.ui.np.setText('20000')
+        
+class UP:
+     def __init__(self): 
+         UP.numPer = [] 
+         UP.undPer = [] 
+         UP.Bx = [] 
+         UP.By = [] 
+         UP.phBx = [] 
+         UP.phBy = [] 
+         UP.sBx = [] 
+         UP.sBy = [] 
+         UP.xcID = [] 
+         UP.ycID = [] 
+         UP.zcID = []
+         UP.n = []
+
+class Precis:
+     def __init__(self):
+        Precis.meth = [] 
+        Precis.relPrec = [] 
+        Precis.zStartInteg = [] 
+        Precis.zEndInteg = [] 
+        Precis.npTraj = [] 
+        Precis.useTermin = [] 
+        Precis.sampFactNxNyForProp = []
+        
         
                 
 def main():

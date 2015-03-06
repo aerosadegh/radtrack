@@ -22,7 +22,7 @@ from RbSimulations import RbSimulations
 from RadTrack.srw.RbSrwUndulator import srwund
 from RadTrack.genesis.rbgenesis2 import RbGenesis2
 from RbSrwsingle import rbsrw as rbsrwsingle
-from RbSrwbunch import rbsrw as rbsrwbunch
+from RbSrwmulti import rbsrw as rbsrwmulti
 
 class RbGlobal(QtGui.QMainWindow):
     #Constructor
@@ -74,8 +74,8 @@ class RbGlobal(QtGui.QMainWindow):
         self.tabWidget.addTab(scrollArea, self.tr('SRW-single-electron'))
         
         scrollArea = QtGui.QScrollArea(self)
-        scrollArea.setWidget(rbsrwbunch(self))
-        self.tabWidget.addTab(scrollArea, self.tr('SRW-Bunch'))
+        scrollArea.setWidget(rbsrwmulti(self))
+        self.tabWidget.addTab(scrollArea, self.tr('SRW-Multi-electron'))
         
         self.tabWidget.addTab(RbGenesisTransport(self), self.tr('Genesis Transport'))
         
