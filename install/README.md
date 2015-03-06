@@ -71,10 +71,15 @@ Install sphinx:
 pip install sphinx sphinxcontrib-napoleon
 mkdir docs
 sphinx-quickstart
-# docs is subdirectory, use source/build
+# docs is subdirectory, use source & build
 ```
 
-* Add `'sphinxcontrib.napoleon'` to `extensions = []`.
+* Add `'sphinxcontrib.napoleon'` to `extensions = []` to `source/conf.py`
+* Add these lines to `source/conf.py`:
+```python
+napoleon_include_special_with_doc = True
+napoleon_include_private_with_doc = True
+```
 * Add `modules` (output of napoleon) to `source/index.rst` after `toctree`:
 
 ```rst
@@ -90,4 +95,19 @@ probably should be automated in a project setup (TODO(nagler): look around for t
 sphinx-apidoc -f -o docs/source radtrack
 cd docs
 make html
+```
+
+Some rules:
+
+* `__init__` methods should not be documented. Use class level docstring. Napoleon is
+hardwired to not include `__init__`.
+* Use docstrings for attributes in __init__ like this:
+```python
+self.param1 = arg1
+"""some description of param1"""
+```
+* Use `#:` for class and module attribute doc:
+```python
+#: some docstring for the attr
+the_attr = 33
 ```
