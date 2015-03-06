@@ -21,8 +21,8 @@ class rbsrw(QtGui.QWidget):
         self.up = UP()
         self.beam = SRWLPartBeam()
         #self.precis = Precis()
-        self.arPrecF = [0]*5
-        self.arPrecP = [0]*5 
+        self.self.arPrecF = [0]*5
+        self.self.arPrecP = [0]*5 
         self.thick(self.ui.deparg.currentIndex())
 
         #set srw initial values
@@ -181,32 +181,32 @@ class rbsrw(QtGui.QWidget):
         
     def GetPrecision(self,dialog):
         #for spectral flux vs photon energy
-        self.arPrecF[0] = float(dialog.ui.harma.text()) #initial UR harmonic to take into account
-        self.arPrecF[1] = float(dialog.ui.harmb.text()) #final UR harmonic to take into account
-        self.arPrecF[2] = float(dialog.ui.lip.text()) #longitudinal integration precision parameter
-        self.arPrecF[3] = float(dialog.ui.aip.text()) #azimuthal integration precision parameter
-        self.arPrecF[4] = dialog.ui.flux.currentIndex()+1 #calculate flux (1) or flux per unit surface (2)
+        self.self.arPrecF[0] = float(dialog.ui.harma.text()) #initial UR harmonic to take into account
+        self.self.arPrecF[1] = float(dialog.ui.harmb.text()) #final UR harmonic to take into account
+        self.self.arPrecF[2] = float(dialog.ui.lip.text()) #longitudinal integration precision parameter
+        self.self.arPrecF[3] = float(dialog.ui.aip.text()) #azimuthal integration precision parameter
+        self.self.arPrecF[4] = dialog.ui.flux.currentIndex()+1 #calculate flux (1) or flux per unit surface (2)
         
         #for power density
-        self.arPrecP[0] = float(dialog.ui.prefact.text()) #precision factor
-        self.arPrecP[1] = dialog.ui.field.currentIndex()+1 #power density computation method (1- "near field", 2- "far field")
-        self.arPrecP[2] = float(dialog.ui.ilp.text()) #initial longitudinal position (effective if arPrecP[2] < arPrecP[3])
-        self.arPrecP[3] = float(dialog.ui.flp.text()) #final longitudinal position (effective if arPrecP[2] < arPrecP[3])
-        self.arPrecP[4] = int(dialog.ui.np.text()) #number of points for (intermediate) trajectory calculation
-        #return (arPrecF, arPrecP)
+        self.self.arPrecP[0] = float(dialog.ui.prefact.text()) #precision factor
+        self.self.arPrecP[1] = dialog.ui.field.currentIndex()+1 #power density computation method (1- "near field", 2- "far field")
+        self.self.arPrecP[2] = float(dialog.ui.ilp.text()) #initial longitudinal position (effective if self.arPrecP[2] < self.arPrecP[3])
+        self.self.arPrecP[3] = float(dialog.ui.flp.text()) #final longitudinal position (effective if self.arPrecP[2] < self.arPrecP[3])
+        self.self.arPrecP[4] = int(dialog.ui.np.text()) #number of points for (intermediate) trajectory calculation
+        #return (self.arPrecF, self.arPrecP)
         
     def ShowPrecision(self,dialog):
-        dialog.ui.harma.setText(str(self.arPrecF[0]))
-        dialog.ui.harmb.setText(str(self.arPrecF[1]))
-        dialog.ui.lip.setText(str(self.arPrecF[2]))
-        dialog.ui.aip.setText(str(self.arPrecF[3]))
-        dialog.ui.flux.setCurrentIndex(self.arPrecF[4])
+        dialog.ui.harma.setText(str(self.self.arPrecF[0]))
+        dialog.ui.harmb.setText(str(self.self.arPrecF[1]))
+        dialog.ui.lip.setText(str(self.self.arPrecF[2]))
+        dialog.ui.aip.setText(str(self.self.arPrecF[3]))
+        dialog.ui.flux.setCurrentIndex(self.self.arPrecF[4])
         
-        dialog.ui.prefact.setText(str(self.arPrecP[0]))
-        dialog.ui.field.setCurrentIndex(self.arPrecP[1]-1)
-        dialog.ui.ilp.setText(str(self.arPrecP[2]))
-        dialog.ui.flp.setText(str(self.arPrecP[3]))
-        dialog.ui.np.setText(str(self.arPrecP[4]))
+        dialog.ui.prefact.setText(str(self.self.arPrecP[0]))
+        dialog.ui.field.setCurrentIndex(self.self.arPrecP[1]-1)
+        dialog.ui.ilp.setText(str(self.self.arPrecP[2]))
+        dialog.ui.flp.setText(str(self.self.arPrecP[3]))
+        dialog.ui.np.setText(str(self.self.arPrecP[4]))
         
     def makeund(self):
         dialog = DialogU()
@@ -240,7 +240,7 @@ class rbsrw(QtGui.QWidget):
 
         #self.AnalyticA(self.beam)
 
-        (arPrecF, arPrecP)=self.PrecisionThick()     
+        #(self.arPrecF, self.arPrecP)=self.PrecisionThick()     
         
         stkF = SRWLStokes() #for spectrum
         self.WfrSetUpE(stkF)
@@ -257,7 +257,7 @@ class rbsrw(QtGui.QWidget):
             str1='* Performing Electric Field (spectrum vs photon energy) calculation ... \n \n'
             self.ui.status.setText(str1)
             self.ui.status.repaint()
-            srwl.CalcStokesUR(stkF, self.beam, und, arPrecF) #####
+            srwl.CalcStokesUR(stkF, self.beam, und, self.arPrecF) #####
             
             str2='* Extracting Intensity from calculated Electric Field ... \n \n'
             self.ui.status.setText(str1+str2)
@@ -275,8 +275,8 @@ class rbsrw(QtGui.QWidget):
             print(stkP)
             print(self.beam)
             print(und)
-            print(arPrecP)
-            srwl.CalcPowDenSR(stkP, self.beam, 0, magFldCnt, arPrecP)
+            print(self.arPrecP)
+            srwl.CalcPowDenSR(stkP, self.beam, 0, magFldCnt, self.arPrecP)
             print 'yes'
                 
             str2='* Extracting Intensity from calculated Electric Field ... \n \n '
@@ -301,8 +301,8 @@ class rbsrw(QtGui.QWidget):
             print(stkP)
             print(self.beam)
             print(und)
-            print(arPrecP)
-            srwl.CalcPowDenSR(stkP, self.beam, 0, magFldCnt, arPrecP)
+            print(self.arPrecP)
+            srwl.CalcPowDenSR(stkP, self.beam, 0, magFldCnt, self.arPrecP)
             print 'yes'
                 
             str2='* Extracting Intensity from calculated Electric Field ... \n \n '
@@ -321,7 +321,7 @@ class rbsrw(QtGui.QWidget):
             str1='* Performing Electric Field (intensity vs x- and y-coordinate) calculation ... \n \n'
             self.ui.status.setText(str1)
             self.ui.status.repaint()
-            srwl.CalcPowDenSR(stkP, self.beam, 0, magFldCnt, arPrecP)
+            srwl.CalcPowDenSR(stkP, self.beam, 0, magFldCnt, self.arPrecP)
 
             str2='* Extracting Intensity from calculated Electric Field ... \n \n '
             self.ui.status.setText(str1+str2)
@@ -397,7 +397,7 @@ class rbsrw(QtGui.QWidget):
             self.GetPrecision(dialog)
             
     def check(self):
-        print self.arPrecF
+        print self.self.arPrecF
         
         
 class DialogU(QtGui.QDialog):
