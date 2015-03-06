@@ -200,7 +200,7 @@ class rbsrw(QtGui.QWidget):
         dialog.ui.harmb.setText(str(self.arPrecF[1]))
         dialog.ui.lip.setText(str(self.arPrecF[2]))
         dialog.ui.aip.setText(str(self.arPrecF[3]))
-        dialog.ui.flux.setCurrentIndex(self.arPrecF[4])
+        dialog.ui.flux.setCurrentIndex(self.arPrecF[4]-1)
         
         dialog.ui.prefact.setText(str(self.arPrecP[0]))
         dialog.ui.field.setCurrentIndex(self.arPrecP[1]-1)
