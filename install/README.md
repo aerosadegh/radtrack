@@ -126,18 +126,28 @@ $ tar xzf sip*tar.gz
 $ rm sip*tar.gz
 $ cd sip-*
 $ python configure.py --incdir=${VIRTUAL_ENV}/include
-$ make
-$ http://download.qt.io/official_releases/qt
-$ http://download.qt.io/official_releases/qt/4.8/4.8.6/qt-everywhere-opensource-src-4.8.6.tar.gz
 $ make install
 $ cd ..
+$ make
 $ rm -rf sip*[0-9]
-: brows to
+
+: Qt
+$ http://download.qt.io/official_releases/qt
+$ http://download.qt.io/official_releases/qt/4.8/4.8.6/qt-everywhere-opensource-src-4.8.6.tar.gz
+$ tar xzf qt-everywhere-opensource-src-4.8.6.tar.gz
+$ rm qt-everywhere-opensource-src-4.8.6.tar.gz
+$ cd qt-everywhere-opensource-src-4.8.6
+$ ./configure -opensource -confirm-license -prefix "$VIRTUAL_ENV" -prefix-install -nomake 'tests examples demos docs translations' -no-multimedia -no-webkit -no-javascript-jit -no-phonon -no-xmlpatterns -system-sqlite -no-script -no-svg -no-scripttools -no-qt3support
+$ gmake
+$ gmake install
+$ cd ..
 
 : browse to http://www.riverbankcomputing.com/software/pyqt/download
 $ tar xzf PyQt-x11*tar.gz
 $ rm PyQt-x11*tar.gz
 $ cd PyQt-x11-*
 $ python configure.py -g -q /usr/bin/qmake-qt4
+$ make
+$ make install
 
 ```
