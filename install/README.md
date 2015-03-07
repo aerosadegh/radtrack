@@ -111,3 +111,33 @@ self.param1 = arg1
 #: some docstring for the attr
 the_attr = 33
 ```
+
+#### Linux Build
+
+[Build PyQt4 into your virtualenv](http://www.expobrain.net/2013/01/23/build-pyqt4-into-your-virtualenv/)
+
+
+```bash
+# yum install libpng-devel freetype-devel qt-devel
+: browse to http://www.riverbankcomputing.com/software/sip/download
+: in your virtual env
+$ cd ~/tmp
+$ tar xzf sip*tar.gz
+$ rm sip*tar.gz
+$ cd sip-*
+$ python configure.py --incdir=${VIRTUAL_ENV}/include
+$ make
+$ http://download.qt.io/official_releases/qt
+$ http://download.qt.io/official_releases/qt/4.8/4.8.6/qt-everywhere-opensource-src-4.8.6.tar.gz
+$ make install
+$ cd ..
+$ rm -rf sip*[0-9]
+: brows to
+
+: browse to http://www.riverbankcomputing.com/software/pyqt/download
+$ tar xzf PyQt-x11*tar.gz
+$ rm PyQt-x11*tar.gz
+$ cd PyQt-x11-*
+$ python configure.py -g -q /usr/bin/qmake-qt4
+
+```
