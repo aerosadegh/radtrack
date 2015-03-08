@@ -7,8 +7,8 @@
 import scipy as sp
 
 # RadiaBeam imports
-import RadTrack.statistics.RbStatistics6D as st6d
-import RadTrack.bunch.RbPhaseSpace6D as ps6d
+import radtrack.statistics.RbStatistics6D as st6d
+import radtrack.bunch.RbPhaseSpace6D as ps6d
 
 # Exercise some of the class methods
 myPS6D = ps6d.RbPhaseSpace6D(27)

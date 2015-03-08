@@ -4,7 +4,7 @@
 # Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 #
 # RadiaBeam imports
-import RadTrack.bunch.RbParticleBeam6D as beam
+import radtrack.bunch.RbParticleBeam6D as beam
 
 # Specify the desired number of particles
 numpoints = 4000

@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 from scipy.optimize import leastsq
 
 # RadiaBeam imports
-import RadTrack.fields.RbGaussHermiteMN as hermite
+import radtrack.fields.RbGaussHermiteMN as hermite
 
 # ---------------------------------------------------------
 # Make sure the residual() method has access to necessary

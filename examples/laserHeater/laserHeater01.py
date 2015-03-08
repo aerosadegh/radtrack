@@ -8,8 +8,8 @@ import numpy as np
 from scipy.integrate import odeint
 
 # RadiaBeam imports
-import RadTrack.bunch.RbParticleBeam6D as beam
-import RadTrack.plot.RbPlotPhaseSpace6D as plotps
+import radtrack.bunch.RbParticleBeam6D as beam
+import radtrack.plot.RbPlotPhaseSpace6D as plotps
 
 # Calculate time-derivatives for a beam in free space
 def laserGradient(ptcl_data, t_data):

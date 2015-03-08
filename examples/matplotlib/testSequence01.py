@@ -1,4 +1,4 @@
-import RadTrack.plot.RbPlotImageSequence as imageseq
+import radtrack.plot.RbPlotImageSequence as imageseq
 import numpy as np
 
 def main():

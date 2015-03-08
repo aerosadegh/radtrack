@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # RadiaBeam imports
-import RadTrack.spacecharge.RbGaussBunchSpaceCharge as spacecharge
+import radtrack.spacecharge.RbGaussBunchSpaceCharge as spacecharge
 
 # Specify the beam parameters
 # rmsPerp = 25.e-06                      # [m], transverse beam size (rms)

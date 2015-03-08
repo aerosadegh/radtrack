@@ -16,8 +16,8 @@ failed = False
 
 try:
     print 'testing particle motion in an ideal undulator field... '
-    from RadTrack.ptclmovers.RbBorisVay import RbBorisVay
-    from RadTrack.fields.RbIdealPlanarUndulator \
+    from radtrack.ptclmovers.RbBorisVay import RbBorisVay
+    from radtrack.fields.RbIdealPlanarUndulator \
         import RbIdealPlanarUndulator as planarUndulator
     import numpy as np
     import scipy.constants as consts

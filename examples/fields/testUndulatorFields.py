@@ -17,7 +17,7 @@ failed = False
 try:
 
     print 'testing undulator fields... '
-    from RadTrack.fields.RbIdealPlanarUndulator \
+    from radtrack.fields.RbIdealPlanarUndulator \
         import RbIdealPlanarUndulator as planarUndulator
     import numpy as np
 

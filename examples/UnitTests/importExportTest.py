@@ -1,6 +1,8 @@
 print 'Import/Export test ...'
 
-import os, glob, rbcbt, sys
+import os, glob, sys
+import radtrack.rbcbt as rbcbt
+
 
 currentDirectory = os.getcwd()
 os.chdir('external\\elegant')
@@ -52,4 +54,3 @@ try:
     print "Passed."
 finally:
     os.chdir(currentDirectory)
-

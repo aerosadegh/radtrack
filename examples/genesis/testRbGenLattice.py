@@ -1,6 +1,6 @@
 __author__ = 'swebb'
 
-from RadTrack.genesis.RbGenLattice import GenLattice
+from radtrack.genesis.RbGenLattice import GenLattice
 from matplotlib import pyplot as plt
 
 # A simple FODO cell

@@ -16,7 +16,7 @@ for test in testList:
     c = rpn(a)
     if c != b:
         print a, '=', b, 'not', c
-        raise Exception 
+        raise Exception
 
 # These tests should fail
 try:
@@ -28,7 +28,8 @@ else:
     raise Exception("Invalid RPN Expression \"" + exp + "\"did not cause error.")
 
 # Find RPN expressions in files that can't be processed
-import rbcbt, glob, sys, os
+import glob, sys, os
+import radtrack.rbcbt as rbcbt
 
 currentDirectory = os.getcwd()
 os.chdir('external\\elegant\\beamlines')

@@ -1,4 +1,4 @@
-from RadTrack.beamlines.RbElegantElements import expandBeamline, collapseBeamline
+from radtrack.beamlines.RbElegantElements import expandBeamline, collapseBeamline
 
 print "Elegant Expand/Collapse Beamline Test ..."
 testCases = [

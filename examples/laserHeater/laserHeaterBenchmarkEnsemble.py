@@ -19,11 +19,11 @@ t0 = time.time()
 
 print 'testing laser heater system... '
 
-from RadTrack.ptclmovers.RbLaserHeaterIntegrator\
+from radtrack.ptclmovers.RbLaserHeaterIntegrator\
     import RbLaserHeaterIntegrator as integrator
-from RadTrack.fields.RbIdealPlanarUndulator\
+from radtrack.fields.RbIdealPlanarUndulator\
     import RbIdealPlanarUndulator as undulator
-from RadTrack.fields.RbGaussHermiteMN2\
+from radtrack.fields.RbGaussHermiteMN2\
     import RbGaussHermiteMN as laser
 
 import random

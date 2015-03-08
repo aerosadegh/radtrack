@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 from scipy.integrate import odeint
 
 # RadiaBeam imports
-import RadTrack.bunch.RbParticleBeam6D as beam
+import radtrack.bunch.RbParticleBeam6D as beam
 
 # Calculate time-derivatives for a beam in free space
 def driftingBeamGradient(ptcl_data, t_data):

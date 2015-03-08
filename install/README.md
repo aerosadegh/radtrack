@@ -116,20 +116,16 @@ the_attr = 33
 
 [Build PyQt4 into your virtualenv](http://www.expobrain.net/2013/01/23/build-pyqt4-into-your-virtualenv/)
 
+NOTE: You must install tk-devel before installing python with pyenv
+
 
 ```bash
-# yum install libpng-devel freetype-devel qt-devel
+# yum install tk-devel
+
+# yum install libpng-devel freetype-devel qt-devel atlas atlas-devel lapack-devel blas-devel
 : browse to http://www.riverbankcomputing.com/software/sip/download
 : in your virtual env
 $ cd ~/tmp
-$ tar xzf sip*tar.gz
-$ rm sip*tar.gz
-$ cd sip-*
-$ python configure.py --incdir=${VIRTUAL_ENV}/include
-$ make install
-$ cd ..
-$ make
-$ rm -rf sip*[0-9]
 
 : Qt
 $ http://download.qt.io/official_releases/qt
@@ -142,12 +138,26 @@ $ gmake
 $ gmake install
 $ cd ..
 
+: browse to http://www.riverbankcomputing.com/software/sip/download
+: in your virtual env
+$ tar xzf sip*tar.gz
+$ rm sip*tar.gz
+$ cd sip-*
+$ python configure.py --confirm-license --incdir="${VIRTUAL_ENV}/include"
+$ make install
+$ cd ..
+$ make
+$ rm -rf sip*[0-9]
+
 : browse to http://www.riverbankcomputing.com/software/pyqt/download
 $ tar xzf PyQt-x11*tar.gz
 $ rm PyQt-x11*tar.gz
 $ cd PyQt-x11-*
-$ python configure.py -g -q /usr/bin/qmake-qt4
+$ python configure.py --confirm-license -q "$VIRTUAL_ENV/bin/qmake"
 $ make
 $ make install
+
+$ pip install matplotlib
+$ pip install scipy
 
 ```

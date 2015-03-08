@@ -7,9 +7,9 @@
 #sys.path.append("..")
 
 # RadiaBeam imports
-import RadTrack.bunch.RbPhaseSpace6D as ps6d
-import RadTrack.bunch.RbDistribution6D as dist6d
-import RadTrack.statistics.RbStatistics6D as st6d
+import radtrack.bunch.RbPhaseSpace6D as ps6d
+import radtrack.bunch.RbDistribution6D as dist6d
+import radtrack.statistics.RbStatistics6D as st6d
 
 # Specify the desired number of particles
 numpoints = 50

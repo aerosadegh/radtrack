@@ -9,8 +9,8 @@ import sys
 sys.path.append("..")
 
 # RadiaBeam imports
-import RadTrack.bunch.RbParticleBeam6D as beam
-#from RadTrack.bunch import RbParticleBeam6D as beam
+import radtrack.bunch.RbParticleBeam6D as beam
+#from radtrack.bunch import RbParticleBeam6D as beam
 # Exercise some of the class methods
 print ' '
 print ' About to instantiate a particle beam --'

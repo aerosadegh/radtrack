@@ -1,6 +1,6 @@
 __author__ = 'swebb'
 
-from RadTrack.genesis.rbXGenesisTInd import RbXGenesisTInd
+from radtrack.genesis.rbXGenesisTInd import RbXGenesisTInd
 
 test_plotter = RbXGenesisTInd()
 

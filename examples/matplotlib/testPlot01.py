@@ -10,7 +10,7 @@ import math
 import matplotlib.pyplot as plt
 
 # RadiaBeam imports
-import RadTrack.bunch.RbParticleBeam6D as beam
+import radtrack.bunch.RbParticleBeam6D as beam
 
 # class PlotPhaseSpace6D:
 #     def __init__(self, phaseSpace6D):

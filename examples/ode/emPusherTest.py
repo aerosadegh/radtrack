@@ -31,7 +31,7 @@ try:
 
     print 'Testing Lorentz force pushers... '
 
-    from RadTrack.ptclmovers.RbBorisVay import RbBorisVay
+    from radtrack.ptclmovers.RbBorisVay import RbBorisVay
     from PtclTests import PtclTests
     pusher = RbBorisVay(consts.e, consts.m_e, 1.e-8)
     ptclGamma = 101.  # make a particle with gamma = 101. v in y direction

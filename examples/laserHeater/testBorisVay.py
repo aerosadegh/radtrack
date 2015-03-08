@@ -5,7 +5,7 @@ import matplotlib as mpl
 from mpl_toolkits.mplot3d import Axes3D
 
 mpl.rc('text', usetex=True)
-from RadTrack.ptclmovers.RbBorisVay import RbBorisVay
+from radtrack.ptclmovers.RbBorisVay import RbBorisVay
 import scipy.constants as consts
 import numpy as np
 

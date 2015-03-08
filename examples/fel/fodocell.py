@@ -1,6 +1,6 @@
 __author__ = 'swebb'
 
-from RadTrack.fel.fodocell import fodocell
+from radtrack.fel.fodocell import fodocell
 
 driftlength = 0.0227*27
 focallength = driftlength/0.26

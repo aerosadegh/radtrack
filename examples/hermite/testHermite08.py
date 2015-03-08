@@ -14,9 +14,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # RadiaBeam imports
-import RadTrack.fields.RbGaussHermiteMN as hermite
-import RadTrack.plot.RbPlotUtils as plotutils
-import RadTrack.plot.RbPlotImageSequence as imageseq
+import radtrack.fields.RbGaussHermiteMN as hermite
+import radtrack.plot.RbPlotUtils as plotutils
+import radtrack.plot.RbPlotImageSequence as imageseq
 
 # instance of the plot utility class
 myPlotUtils = plotutils.RbPlotUtils()

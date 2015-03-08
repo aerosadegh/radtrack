@@ -17,10 +17,10 @@ failed = False
 
 try:
     print 'testing particle motion in the laser heater... '
-    from RadTrack.ptclmovers.RbBorisVay import RbBorisVay
-    from RadTrack.fields.RbGaussHermiteMN2 \
+    from radtrack.ptclmovers.RbBorisVay import RbBorisVay
+    from radtrack.fields.RbGaussHermiteMN2 \
         import RbGaussHermiteMN as laserField
-    from RadTrack.fields.RbIdealPlanarUndulator \
+    from radtrack.fields.RbIdealPlanarUndulator \
         import RbIdealPlanarUndulator as planarUndulator
     import numpy as np
     import scipy.constants as consts
