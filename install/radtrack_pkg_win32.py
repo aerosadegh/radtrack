@@ -53,13 +53,15 @@ def unzip_all():
                 fMask=win32com.shell.shellcon.SEE_MASK_NOCLOSEPROCESS)
             win32event.WaitForSingleObject(p['hProcess'], win32event.INFINITE)
             return True
-        except:
+        except Exception:
             traceback.print_exc()
         finally:
+            # Pause to allow user to see the console output (possible error)
+            # before the window disappears
             time.sleep(5)
         return False
 
-    # There should be a stdout here
+    # There should be a stdout at this point
     print('One time setup; please be patient')
     try:
         uninstall_check()
@@ -73,9 +75,11 @@ def unzip_all():
                     z.extract(m)
             os.remove(zip_name)
         os.rmdir(SRC_DIR)
-    except:
+    except Exception:
         traceback.print_exc()
     finally:
+        # Pause to allow user to see the console output (possible error)
+        # before the window disappears
         time.sleep(5)
     return False
 
