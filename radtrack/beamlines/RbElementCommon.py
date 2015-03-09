@@ -15,7 +15,7 @@ from math import sin, cos, tan, pi, sqrt
 def cot(angle):
     return 1/tan(angle)
 
-from RbUtility import convertUnitsStringToNumber, rpn
+from radtrack.RbUtility import convertUnitsStringToNumber, rpn
 
 
 # Creates a QTransform object that rotates and places a QGraphicsItem
@@ -44,7 +44,7 @@ def drawPath(element, x, y, pen, transform, scene):
                     pycore.QLineF(segmentStart, segmentEnd))
         segment.setPen(pen)
         segment.setToolTip(element.toolTip())
-        scene.addItem(segment)            
+        scene.addItem(segment)
 
 
 # Common properties to all elements (particle beamlines and laser beamlines)
@@ -119,7 +119,7 @@ class elementCommon(object):
 
     def getRadius(self):
         return self.findParameter(['R', 'SIZE_X', 'XSIZE', 'RX', 'X_MAX'])
-    
+
     def findParameter(self, labelList):
         for label in labelList:
             if label in self.parameterNames:
@@ -145,14 +145,14 @@ class elementCommon(object):
 # xPic classes are for drawing a beamline preview
 class alphaPic:
     def picture(self, scene, pos = pycore.QPointF(0,0), angle = 0):
-        length = self.getLength()*self.getResolution()        
+        length = self.getLength()*self.getResolution()
         if length == 0:
             length = .5*self.getResolution()
         height = length
         alphaAngle = 40.71*pi/180
 
         exitAngle = angle + (pi - 2*alphaAngle)
-        
+
         alphBox = [pycore.QPointF(-.5*length, 0),
                    pycore.QPointF(-.5*length, -height),
                    pycore.QPointF( .5*length, -height),
@@ -160,7 +160,7 @@ class alphaPic:
         transform = pygui.QTransform().rotateRadians((pi/2)-alphaAngle)*\
                 placement(pos,angle)
 
-        
+
         item = pygui.QGraphicsPolygonItem(pygui.QPolygonF(alphBox))
         item.setToolTip(self.toolTip())
         item.setTransform(transform)
@@ -180,7 +180,7 @@ class alphaPic:
 
 class bendPic:
     def picture(self, scene, pos = pycore.QPointF(0,0), angle = 0):
-        xSize = self.getLength()*self.getResolution() 
+        xSize = self.getLength()*self.getResolution()
         if xSize == 0:
             xSize = .1*self.getResolution()
         bendAngle = self.getAngle()
@@ -205,18 +205,18 @@ class bendPic:
                      pycore.QPointF( xSlant1,          ySize/2)]
 
         transform = pygui.QTransform().rotateRadians(.5*bendAngle)*placement(pos,angle)
-            
+
         pic = pygui.QGraphicsPolygonItem(pygui.QPolygonF(trapezoid))
         pic.setTransform(transform)
         pic.setBrush(pygui.QBrush(pycore.Qt.blue))
         pic.setToolTip(self.toolTip())
         scene.addItem(pic)
-        
+
         exitPoint = transform.map(pycore.QPointF(xSize, 0))
         angleNew = angle + bendAngle
         return exitPoint, angleNew
-        
-        
+
+
 class driftPic:
     def getNumberOfElements(self):
         return 0
@@ -224,7 +224,7 @@ class driftPic:
     def picture(self, scene, pos = pycore.QPointF(0,0), angle = 0):
         length = self.getLength() * self.getResolution()
         exitPoint = placement(pos,angle).map(pycore.QPointF(length, 0))
-        
+
         pen = pygui.QPen()
         pen.setBrush(self.beamColor)
         pen.setWidth(self.beamWidth*self.getResolution())
@@ -240,7 +240,7 @@ class driftPic:
 
 class aperturePic(driftPic):
     def picture(self, scene, pos = pycore.QPointF(0,0), angle = 0):
-        length = self.getLength() * self.getResolution()        
+        length = self.getLength() * self.getResolution()
         if length == 0:
             length = .01*self.getResolution()
 
@@ -253,7 +253,7 @@ class aperturePic(driftPic):
         lower = [pycore.QPointF(0,      -opening),
                  pycore.QPointF(0,      -height),
                  pycore.QPointF(length, -height),
-                 pycore.QPointF(length, -opening)]        
+                 pycore.QPointF(length, -opening)]
 
         itemLower = pygui.QGraphicsPolygonItem(pygui.QPolygonF(lower))
         itemUpper = pygui.QGraphicsPolygonItem(pygui.QPolygonF(lower))
@@ -270,7 +270,7 @@ class aperturePic(driftPic):
             item.setBrush(pygui.QBrush(pycore.Qt.black))
             item.setToolTip(self.toolTip())
             scene.addItem(item)
-        
+
         # draw line for drift
         return driftPic.picture(self, scene, pos, angle)
 
@@ -286,7 +286,7 @@ def curvedSurface(sign, height, position):
             drawRadius*sin(drawAngle)))
 
     return surface, 2*drawRadius*(1-cos(totalAngle/2))
- 
+
 
 class reflectiveGratingPic:
     def picture(self, scene, pos = pycore.QPointF(0,0), angle = 0):
@@ -380,15 +380,15 @@ class lensPic:
 
 class magnetPic:
     def picture(self, scene, pos = pycore.QPointF(0,0), angle = 0):
-        length = self.getLength()*self.getResolution()        
+        length = self.getLength()*self.getResolution()
         height = 0.5*self.getResolution()
 
         exitPoint = placement(pos, angle).map(pycore.QPointF(length, 0))
-        
+
         quad = [pycore.QPointF(0,      -0.5*height),
                 pycore.QPointF(0,       0.5*height),
                 pycore.QPointF(length,  0.5*height),
-                pycore.QPointF(length, -0.5*height)]        
+                pycore.QPointF(length, -0.5*height)]
         item = pygui.QGraphicsPolygonItem(pygui.QPolygonF(quad))
 
         item.setToolTip(self.toolTip())
@@ -399,7 +399,7 @@ class magnetPic:
         item.setBrush(pygui.QBrush(self.color))
 
         scene.addItem(item)
-        
+
         return exitPoint, angle
 
 
@@ -474,18 +474,18 @@ class recircPic:
 
 class solenoidPic:
     def picture(self, scene, pos = pycore.QPointF(0,0), angle = 0):
-        length = self.getLength()*self.getResolution()        
+        length = self.getLength()*self.getResolution()
         if length == 0:
             length = .3*self.getResolution()
         height = length
 
         exitPoint = placement(pos, angle).map(pycore.QPointF(length, 0))
-        
+
         solenoidBox = [pycore.QPointF(0,       height/2),
                        pycore.QPointF(0,      -height/2),
                        pycore.QPointF(length, -height/2),
                        pycore.QPointF(length,  height/2)]
-        
+
         item = pygui.QGraphicsPolygonItem(pygui.QPolygonF(solenoidBox))
         item.setToolTip(self.toolTip())
         item.setTransform(placement(pos,angle))
@@ -499,20 +499,20 @@ class solenoidPic:
         fraction = [float(i)/steps for i in range(steps)]
         x = [length*(1.0/(1+2*ratio))*(t + ratio*(1-cos((loops+.5)*(2*pi)*t))) for t in fraction]
         y = [.4*height*sin((loops+.5)*(2*pi)*t) for t in fraction]
-        
+
         pen = pygui.QPen(pycore.Qt.black)
         drawPath(self, x, y, pen, placement(pos, angle), scene)
 
         return exitPoint, angle
 
 
-class undulatorPic:    
+class undulatorPic:
     def picture(self, scene, pos = pycore.QPointF(0,0), angle = 0):
         length  = self.getLength()*self.getResolution()
         periods = int(self.getPeriods())
         longBoxSize = length/(2*periods)
         tranBoxSize = 0.25*self.getResolution()
-        
+
         exitPoint = placement(pos, angle).map(pycore.QPointF(length, 0))
 
         for j in range(2*periods):
@@ -547,7 +547,7 @@ class undulatorPic:
             itemUpper.setToolTip(self.toolTip())
             scene.addItem(itemLower)
             scene.addItem(itemUpper)
-                    
+
         sample = 100 # points to draw per undulator period
         points = periods*sample
         tRange = [float(i)/points for i in range(points+1)]
@@ -566,7 +566,7 @@ class undulatorPic:
             laser.setToolTip(self.toolTip())
             laser.setPen(pen)
             scene.addItem(laser)
-                    
+
         return exitPoint, angle
 
 
@@ -575,16 +575,16 @@ class watchPic:
         flagSizePix = self.flagSize*self.getResolution()
 
         flag = [pycore.QPointF(0, 0),
-                pycore.QPointF(0, -4*flagSizePix), 
+                pycore.QPointF(0, -4*flagSizePix),
                 pycore.QPointF(2*flagSizePix, -3*flagSizePix),
-                pycore.QPointF(0, -2*flagSizePix), 
+                pycore.QPointF(0, -2*flagSizePix),
                 pycore.QPointF(0, 0)]
-                 
+
         flagItem = pygui.QGraphicsPolygonItem(pygui.QPolygonF(flag))
         flagItem.setTransform(placement(pos, angle))
         flagItem.setBrush(pygui.QBrush(pycore.Qt.green))
         flagItem.setToolTip(self.toolTip())
-        
+
         scene.addItem(flagItem)
 
         return pos, angle
@@ -599,13 +599,13 @@ class zeroLengthPic:
         pen.setBrush(pycore.Qt.black)
         pen.setWidth(10)
         pen.setCapStyle(pycore.Qt.FlatCap)
-        
+
         screen.setTransform(placement(pos, angle))
         screen.setPen(pen)
         screen.setToolTip(self.toolTip())
 
         scene.addItem(screen)
-        
+
         return pos, angle
 
 
