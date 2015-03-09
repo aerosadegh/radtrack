@@ -7,11 +7,14 @@ classes for genesis propagation
 __author__ = 'swebb'
 
 import numpy as np
+from RadTrack.genesis.rbGenLatFile import GenLatFile
+from scipy import constants as consts
 
 class GenLattice:
 
-    def __init__(self):
+    def __init__(self, latticename='genesis_lattice'):
         self.list = []
+        self.latticename = latticename
 
 
     def add_quadrupole(self, Kq, pos, length):
@@ -125,8 +128,8 @@ class GenLattice:
         print 'phi_x =', phi_x
         print 'phi_y =', phi_y
 
-        betax = transfermap[0,1]/np.sin(phi_x)
-        betay = transfermap[2,3]/np.sin(phi_y)
+        betax = abs(transfermap[0,1]/np.sin(phi_x))
+        betay = abs(transfermap[2,3]/np.sin(phi_y))
         alphax = 0.5*(transfermap[0,0]-transfermap[1,1])/np.sin(phi_x)
         alphay = 0.5*(transfermap[2,2]-transfermap[3,3])/np.sin(phi_y)
 
@@ -152,7 +155,7 @@ class GenLattice:
                 Mtwiss[0,1] = -2.*map[0,0]*map[0,1]
                 Mtwiss[0,2] = (map[0,1])**2
                 Mtwiss[1,0] = -map[0,0]*map[1,0]
-                Mtwiss[1,1] = map[0,0]*map[1,1]
+                Mtwiss[1,1] = map[0,0]*map[1,1]+map[0,1]*map[1,0]
                 Mtwiss[1,2] = -map[0,1]*map[1,1]
                 Mtwiss[2,0] = map[1,0]**2
                 Mtwiss[2,1] = -2.*map[1,1]*map[1,0]
@@ -165,7 +168,7 @@ class GenLattice:
                 Mtwiss[0,1] = -2.*map[2,2]*map[2,3]
                 Mtwiss[0,2] = (map[2,3])**2
                 Mtwiss[1,0] = -map[2,2]*map[3,2]
-                Mtwiss[1,1] = map[2,2]*map[3,3]
+                Mtwiss[1,1] = map[2,2]*map[3,3]+map[2,3]*map[3,2]
                 Mtwiss[1,2] = -map[2,3]*map[3,3]
                 Mtwiss[2,0] = map[3,2]**2
                 Mtwiss[2,1] = -2.*map[3,3]*map[3,2]
@@ -191,5 +194,44 @@ class GenLattice:
                     betax_array.append(twissx[0])
                     betay_array.append(twissy[0])
                     s_position.append(element['pos']+my_position)
-
         return betax_array, betay_array, s_position
+
+
+    def export_genesis_lattice(self, unit_length, gamma):
+        """
+        Generate a Genesis .lat file from the current lattice being stored
+
+        Note that I expect unit_length and gamma to disappear when a Genesis
+        class that holds general simulation data gets created.
+
+        :return:
+        """
+
+        elems_dict = {}
+        # Populate each element with sequential three-arrays
+        elems_dict['QF'] = []
+        elems_dict['AW'] = []
+        quad_pos = 0.
+        undulator_pos = 0.
+        for element in self.list:
+            if element['type'] == 'quadrupole':
+                # compute dB/dx from Kq
+                dBdx = element['Kq']*gamma*consts.m_e*consts.c\
+                         /consts.elementary_charge
+                length = element['length']
+                distance = element['pos'] - quad_pos
+                quad_pos = element['pos'] + element['length']
+                length = round(length/unit_length, 0)
+                distance = round(distance/unit_length, 0)
+                elems_dict['QF'].append(np.array([dBdx, length, distance]))
+            elif element['type'] == 'undulator':
+                aw = element['aw']
+                length = element['length']
+                distance = element['pos'] - undulator_pos
+                undulator_pos = element['pos'] + element['length']
+                length = round(length/unit_length, 0)
+                distance = round(distance/unit_length, 0)
+                elems_dict['AW'].append(np.array([aw, length, distance]))
+
+        lattice_file = GenLatFile(self.latticename, elems_dict, unit_length)
+        lattice_file.write_lat_file()
