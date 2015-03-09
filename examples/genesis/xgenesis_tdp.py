@@ -1,6 +1,6 @@
 __author__ = 'swebb'
 
-from RadTrack.genesis.rbXGenesisTDep import RbXGenesisTDep
+from radtrack.genesis.rbXGenesisTDep import RbXGenesisTDep
 
 test_plotter = RbXGenesisTDep()
 test_plotter.parse_output('xgenesis_testdata_tdep.out')

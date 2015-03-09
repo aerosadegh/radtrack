@@ -1,6 +1,6 @@
 __author__ = 'swebb'
 
-from RadTrack.genesis.RbGenLattice import GenLattice
+from radtrack.genesis.RbGenLattice import GenLattice
 from matplotlib import pyplot as plt
 import matplotlib as mpl
 mpl.rc('text', usetex=True)
