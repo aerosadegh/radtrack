@@ -10,6 +10,7 @@ numpy>=1.9
 openpyxl>=2.1
 pockets>=0.2
 py>=1.4
+pybivio>=0.1
 Pygments>=2
 pyparsing>=2
 pytest>=2.6
