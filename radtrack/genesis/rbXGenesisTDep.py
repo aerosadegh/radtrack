@@ -221,7 +221,7 @@ class RbXGenesisTDep:
             plt.plot(self.data_set['z'], y_array)
 
             plt.xlabel(self.data_label[x_axis])
-            ylabel = '<'+self.data_label[y_axis]+'>'
+            ylabel = r'$\langle$'+self.data_label[y_axis]+r'$\rangle$'
             plt.ylabel(ylabel)
             plt.tight_layout()
             plt.show()

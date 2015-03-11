@@ -7,7 +7,7 @@ classes for genesis propagation
 __author__ = 'swebb'
 
 import numpy as np
-from RadTrack.genesis.rbGenLatFile import GenLatFile
+from radtrack.genesis.rbGenLatFile import GenLatFile
 from scipy import constants as consts
 
 class GenLattice:
