@@ -14,7 +14,12 @@ mpl.rc('text', usetex=True)
 mpl.rc('font', size=14)
 
 
-class RbXGenesisTDep:
+class RbXGenesisTDep(object):
+    """
+    Parser class for Genesis time-dependent simulations. Plots the key bulk
+    properties such as power, bunching, decrement... as well as either
+    averaging over the bunch slices or with a slider for s or z.
+    """
 
     def __init__(self):
         self.file_open = False
@@ -244,3 +249,26 @@ class RbXGenesisTDep:
         self.ax.set_ylim([0.9*new_function.min(), 1.1*new_function.max()])
 
         self.fig.canvas.draw_idle()
+
+
+    def compute_saturation(self):
+        """
+        Computes the saturation power and length by searching for the
+        maximum power in a time-dependent Genesis simulation averaged over
+        the longitudinal position of the bunch
+
+        Returns:
+        saturation_power
+        saturation_length
+        """
+
+        avg_power = np.zeros(np.shape(self.data_set['Power'])[1])
+        for idx in range(np.shape(self.data_set['Power'])[1]):
+            avg_power[idx] = np.mean(self.data_set['Power'][:,idx])
+
+        place_max = np.argmax(avg_power)
+
+        saturation_power  = avg_power[place_max]
+        saturation_length = self.data_set['z'][place_max]
+
+        return saturation_power, saturation_length

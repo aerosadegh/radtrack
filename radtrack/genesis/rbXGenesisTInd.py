@@ -12,7 +12,11 @@ mpl.rc('text', usetex=True)
 mpl.rc('font', size=14)
 
 
-class RbXGenesisTInd:
+class RbXGenesisTInd(object):
+    """
+    Parser class for time-independent Genesis simulations. Plots the key bulk
+    properties such as power, bunching, decrement...
+    """
 
     def __init__(self):
         self.file_open = False
@@ -158,6 +162,14 @@ class RbXGenesisTInd:
 
 
     def compute_saturation(self):
+        """
+        Computes the saturation power and length by searching for the
+        maximum power in a Genesis simulation
+
+        Returns:
+        saturation_power
+        saturation_length
+        """
 
         place_max = np.argmax(self.data_set['Power'])
 

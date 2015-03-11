@@ -10,7 +10,11 @@ __version__= '1.0'
 
 import os
 
-class GenLatFile:
+class GenLatFile(object):
+    """
+    Class for generating a properly formatted Genesis1.3 .lat file.
+    """
+
     def __init__(self, filename, elems_dict, unit_length):
         """
 

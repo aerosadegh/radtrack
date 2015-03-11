@@ -10,7 +10,14 @@ import numpy as np
 from radtrack.genesis.rbGenLatFile import GenLatFile
 from scipy import constants as consts
 
-class GenLattice:
+class GenLattice(object):
+    """
+    This class takes a list of elements recongized by Genesis -- undulators,
+    quadrupoles, and drifts -- and plots the beta function across these
+    elements. This is to be used to aid lattice design for FELs. It also can
+    use the rbGenLatFile to generate a .lat file from the lattice
+    it is storing.
+    """
 
     def __init__(self, latticename='genesis_lattice'):
         self.list = []
