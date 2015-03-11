@@ -131,7 +131,8 @@ class RbXGenesisTInd(object):
         """Plot data from the keys given as arguments
 
         Args:
-            x_axis (string): The
+            x_axis (string): The x-axis data
+            y_axis (string): The y-axis data
         """
         if not x_axis in self.data_set.keys():
             msg = 'Data type', x_axis, 'not recognized'

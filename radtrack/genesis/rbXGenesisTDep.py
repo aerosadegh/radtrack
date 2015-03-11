@@ -15,8 +15,7 @@ mpl.rc('font', size=14)
 
 
 class RbXGenesisTDep(object):
-    """
-    Parser class for Genesis time-dependent simulations. Plots the key bulk
+    """Parser class for Genesis time-dependent simulations. Plots the key bulk
     properties such as power, bunching, decrement... as well as either
     averaging over the bunch slices or with a slider for s or z.
     """
@@ -79,10 +78,10 @@ class RbXGenesisTDep(object):
 
 
     def parse_output(self, filename):
-        """
-        Parse a GENESIS .out file
-        :param filename:
-        :return:
+        """Parse a Genesis .out file
+
+        Args:
+            filename (string): the name of the Genesis .out file
         """
 
         genesis_file = open(filename, 'r')
@@ -147,11 +146,11 @@ class RbXGenesisTDep(object):
 
 
     def plot_data(self, x_axis, y_axis):
-        """
-        Plot data from the keys given as arguments
-        :param x_axis:
-        :param y_axis:
-        :return: plot
+        """Plot data from the keys given as arguments
+
+        Args:
+            x_axis (string): the x-axis key
+            y_axis (string): the y-axis key
         """
         if not x_axis =='z' or not x_axis == 's':
             msg = 'For time-dependent GENESIS simulations, the x-axis must ' \
@@ -230,6 +229,8 @@ class RbXGenesisTDep(object):
 
 
     def update_plot(self, val):
+        """Called to give updated plotting data with the slider
+        """
 
         if self.x_axis == 'z':
             s = self.sliderVar.val
@@ -252,14 +253,13 @@ class RbXGenesisTDep(object):
 
 
     def compute_saturation(self):
-        """
-        Computes the saturation power and length by searching for the
-        maximum power in a time-dependent Genesis simulation averaged over
-        the longitudinal position of the bunch
+        """Computes the saturation power and length by searching for the
+        maximum power in a Genesis simulation. For time-dependent
+        simulations, this assumes an average over the bunch.
 
         Returns:
-        saturation_power
-        saturation_length
+            saturation_power (float)
+            saturation_length (float)
         """
 
         avg_power = np.zeros(np.shape(self.data_set['Power'])[1])

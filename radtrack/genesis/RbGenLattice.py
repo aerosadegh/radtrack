@@ -129,7 +129,6 @@ class GenLattice(object):
         beamline.
 
         Returns:
-
             beta_x (float): Matched beta in x direction
             beta_y (float): Matched beta in y direction
             alpha_x (float): Matched alpha in x direction
@@ -161,7 +160,6 @@ class GenLattice(object):
         class, assuming that this represents a unit cell of a lattice.
 
          Returns:
-
             betax_array (list): List of values of beta_x
             betay_array (list): List of values of beta_y
             s_array (list): The s coordinates corresponding to the beta
