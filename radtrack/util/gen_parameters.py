@@ -9,7 +9,7 @@ How to import::
     import util.parameters as params
 
 :copyright: Copyright (c) 2015 RadiaBeam Technologies LLC.  All Rights Reserved.
-:license: Apache, see license.md for more details.
+:license: Apache, see LICENSE for more details.
 """
 
 from __future__ import print_function
@@ -22,6 +22,7 @@ import sys
 import argh
 import openpyxl
 
+#:
 HEADINGS = [
     'py_name', 'display_name', 'py_type', 'default', 'units', 'is_primary', 'description']
 VALID_TYPES = dict([(t, getattr(__builtin__, t)) for t in ['int', 'str', 'float', 'bool']])
@@ -29,13 +30,27 @@ NUMERIC_TYPES = [int, float]
 #TODO(robnagler): these should be types or instances
 VALID_UNITS = ['m', 'um', 'in']
 
-def parse_and_write(parameters_xlsx, parameters_py='parameters.py'):
-    """Parse parameters_xlsx and generate parameters.py in same dir as
-    this file. (parameters_py is used for testing.)
+def parse_and_write(parameters_xlsx, parameters_py=None):
+    """Parse parameters_xlsx and generate parameters_py
+
+    Args:
+        parameters_xlsx (str): Excel file to parse. Must match ``HEADINGS``
+
+            py_name,display_name,py_type,default
+
+
+
+    Returns:
+        str: absolute path for parameters_py
+
+    (parameters_py is used for testing.)
     """
     parsed = _parse(parameters_xlsx)
-    out_filename = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), parameters_py)
+    out_filename = parameters_py
+    if not os.path.isabs(out_filename):
+        out_filename = os.path.join(
+            os.path.dirname(os.path.abspath(parameters_py)),
+        parameters_py)
     with open(out_filename, 'w') as out:
         template = '''
 # -*- coding: utf-8 -*-
