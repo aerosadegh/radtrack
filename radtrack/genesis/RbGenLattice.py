@@ -9,6 +9,7 @@ __author__ = 'swebb'
 import numpy as np
 from radtrack.genesis.rbGenLatFile import GenLatFile
 from scipy import constants as consts
+import operator
 
 class GenLattice(object):
     """
@@ -20,17 +21,19 @@ class GenLattice(object):
     """
 
     def __init__(self, latticename='genesis_lattice'):
+
         self.list = []
         self.latticename = latticename
 
 
     def add_quadrupole(self, Kq, pos, length):
         """
-        Add a quadrupole
-        :param Kq:
-        :param pos:
-        :param length:
-        :return:
+        Adds a quadrupole to the lattice
+
+        Args:
+            Kq (float): Quadrupole strength in m^-2
+            pos (float): Beginning position of the quadrupole
+            length (float): The length of the quadrupole
         """
         # Add the quad to the list
 
@@ -73,11 +76,12 @@ class GenLattice(object):
 
     def add_undulator(self, aw, pos, length):
         """
-        Add an undulator
-        :param aw:
-        :param pos:
-        :param length:
-        :return:
+        Adds an undulator to the lattice
+
+        Args:
+            aw (float): RMS undulator strength
+            pos (float): Beginning position of the undulator
+            length (float): The length of the undulator section
         """
 
         # Add the undulator to the list
@@ -99,10 +103,11 @@ class GenLattice(object):
 
     def add_drift(self, pos, length):
         """
-        Add a drift
-        :param pos:
-        :param length:
-        :return:
+        Adds a drift section to the lattice
+
+        Args:
+            pos (float): Starting position of the drift
+            length (float): The length of the drift
         """
 
         driftDict = {}
@@ -120,9 +125,19 @@ class GenLattice(object):
 
     def compute_beamline(self):
         """
-        Compute the transfer matrix and Twiss parameters
-        :return:
+        Compute the transfer matrix and Twiss parameters for the stored
+        beamline.
+
+        Returns:
+
+            beta_x (float): Matched beta in x direction
+            beta_y (float): Matched beta in y direction
+            alpha_x (float): Matched alpha in x direction
+            alpha_y (float): Matched alpha in y direction
+            transfermap (array): 4x4 transfer matrix for the beamline
         """
+
+        self.list.sort(key=operator.itemgetter('pos'))
 
         transfermap = np.identity(4)
 
@@ -131,9 +146,6 @@ class GenLattice(object):
 
         phi_x = np.arccos(0.5*(transfermap[0,0] + transfermap[1,1]))
         phi_y = np.arccos(0.5*(transfermap[2,2] + transfermap[3,3]))
-
-        print 'phi_x =', phi_x
-        print 'phi_y =', phi_y
 
         betax = abs(transfermap[0,1]/np.sin(phi_x))
         betay = abs(transfermap[2,3]/np.sin(phi_y))
@@ -144,6 +156,19 @@ class GenLattice(object):
 
 
     def compute_beta_func(self):
+        """
+        Computes the beta function along the lattice currently stored by the
+        class, assuming that this represents a unit cell of a lattice.
+
+         Returns:
+
+            betax_array (list): List of values of beta_x
+            betay_array (list): List of values of beta_y
+            s_array (list): The s coordinates corresponding to the beta
+            function arrays
+        """
+
+        self.list.sort(key=operator.itemgetter('pos'))
 
         betax, alphax, betay, alphay, transfermap = self.compute_beamline()
         gammax = (1.+alphax**2)/betax
@@ -206,12 +231,16 @@ class GenLattice(object):
 
     def export_genesis_lattice(self, unit_length, gamma):
         """
-        Generate a Genesis .lat file from the current lattice being stored
+        Generate a Genesis .lat file from the current lattice being stored.
+        This is output to a text file Genesis can read.
 
         Note that I expect unit_length and gamma to disappear when a Genesis
         class that holds general simulation data gets created.
 
-        :return:
+        Args:
+            unit_length (float): The unit_length for Genesis, typically the
+            wiggler period
+            gamma (float): Relativistic gamma
         """
 
         elems_dict = {}

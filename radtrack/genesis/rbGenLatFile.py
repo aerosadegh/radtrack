@@ -17,11 +17,16 @@ class GenLatFile(object):
 
     def __init__(self, filename, elems_dict, unit_length):
         """
+        Class constructor
 
-        :param filename:
-        :param elems_dict:
-        :param unit_length:
-        :return:
+        Args:
+
+            filename (string): the name of the file the lattice is to be
+            exported as
+            elems_dict (string): a dictionary of the elements for the
+            genesis lattice
+            unit_length (float): the unit length for genesis, usually the
+            undulator period
         """
 
         self.elems_dict = elems_dict
@@ -29,6 +34,9 @@ class GenLatFile(object):
         self.filename = filename
 
     def write_lat_file(self):
+        """
+        Writes the lattice file specified in the constructor
+        """
 
         # If the lattice file exists, remove it and start over
         if os.path.isfile(self.filename):

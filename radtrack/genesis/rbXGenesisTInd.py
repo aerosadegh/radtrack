@@ -13,12 +13,12 @@ mpl.rc('font', size=14)
 
 
 class RbXGenesisTInd(object):
-    """
-    Parser class for time-independent Genesis simulations. Plots the key bulk
+    """Parser class for time-independent Genesis simulations. Plots the key bulk
     properties such as power, bunching, decrement...
     """
 
     def __init__(self):
+
         self.file_open = False
         self.data_set = {}
         self.data_label = {}
@@ -64,10 +64,10 @@ class RbXGenesisTInd(object):
 
 
     def parse_output(self, filename):
-        """
-        Parse a GENESIS .out file
-        :param filename:
-        :return:
+        """Parse a Genesis .out file
+
+        Args:
+            filename (string): The name of the Genesis .out file
         """
 
         genesis_file = open(filename, 'r')
@@ -110,9 +110,7 @@ class RbXGenesisTInd(object):
 
 
     def set_semilog(self):
-        """
-        Make the y-axis logarithmic for plotting
-        :return:
+        """Make the y-axis logarithmic for plotting
         """
         if self.semilog == False:
             self.semilog = True
@@ -121,9 +119,7 @@ class RbXGenesisTInd(object):
 
 
     def set_ploterrors(self):
-        """
-        Plot error bars on the power
-        :return:
+        """Plot error bars on the power
         """
         if self.perrorbars == False:
             self.perrorbars = True
@@ -132,11 +128,10 @@ class RbXGenesisTInd(object):
 
 
     def plot_data(self, x_axis, y_axis):
-        """
-        Plot data from the keys given as arguments
-        :param x_axis:
-        :param y_axis:
-        :return: plot
+        """Plot data from the keys given as arguments
+
+        Args:
+            x_axis (string): The
         """
         if not x_axis in self.data_set.keys():
             msg = 'Data type', x_axis, 'not recognized'
@@ -162,13 +157,12 @@ class RbXGenesisTInd(object):
 
 
     def compute_saturation(self):
-        """
-        Computes the saturation power and length by searching for the
+        """Computes the saturation power and length by searching for the
         maximum power in a Genesis simulation
 
         Returns:
-        saturation_power
-        saturation_length
+            saturation_power (float)
+            saturation_length (float)
         """
 
         place_max = np.argmax(self.data_set['Power'])
