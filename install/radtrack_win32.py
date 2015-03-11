@@ -25,5 +25,5 @@ for p in os.getenv('PATH').split(os.pathsep):
 
 os.environ['PATH'] = os.pathsep.join(new_path)
 
-import RbGlobal
-RbGlobal.main(sys.argv)
+import radtrack.RbGlobal
+radtrack.RbGlobal.main(sys.argv)

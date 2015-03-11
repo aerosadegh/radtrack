@@ -55,3 +55,109 @@ This will download the latest docker and start the docker daemon.
 * install sdds
 * install MikTeX
 ```
+
+#### Doc
+
+Need to make a docs directory. Using
+[Google style guide](https://google-styleguide.googlecode.com/svn/trunk/pyguide.html)
+and [example](http://sphinxcontrib-napoleon.readthedocs.org/en/latest/example_google.html)
+
+[See why Sphinx Napoleon](http://sphinxcontrib-napoleon.readthedocs.org/en/latest/) is
+better way to generate API docs.
+
+Install sphinx:
+
+```bash
+pip install sphinx sphinxcontrib-napoleon
+mkdir docs
+sphinx-quickstart
+# docs is subdirectory, use source & build
+```
+
+* Add `'sphinxcontrib.napoleon'` to `extensions = []` to `source/conf.py`
+* Add these lines to `source/conf.py`:
+```python
+napoleon_include_special_with_doc = True
+napoleon_include_private_with_doc = True
+```
+* Add `modules` (output of napoleon) to `source/index.rst` after `toctree`:
+
+```rst
+.. toctree::
+   :maxdepth: 2
+   modules
+```
+
+This part should be in a bash script which is called by `travis.yml`. Whole thing
+probably should be automated in a project setup (TODO(nagler): look around for this)
+
+```bash
+sphinx-apidoc -f -o docs/source radtrack
+cd docs
+make html
+```
+
+Some rules:
+
+* `__init__` methods should not be documented. Use class level docstring. Napoleon is
+hardwired to not include `__init__`.
+* Use docstrings for attributes in __init__ like this:
+```python
+self.param1 = arg1
+"""some description of param1"""
+```
+* Use `#:` for class and module attribute doc:
+```python
+#: some docstring for the attr
+the_attr = 33
+```
+
+#### Linux Build
+
+[Build PyQt4 into your virtualenv](http://www.expobrain.net/2013/01/23/build-pyqt4-into-your-virtualenv/)
+
+NOTE: You must install tk-devel before installing python with pyenv
+
+
+```bash
+# yum install tk-devel
+
+# yum install libpng-devel freetype-devel qt-devel atlas atlas-devel lapack-devel blas-devel
+: browse to http://www.riverbankcomputing.com/software/sip/download
+: in your virtual env
+$ cd ~/tmp
+
+: Qt
+$ http://download.qt.io/official_releases/qt
+$ http://download.qt.io/official_releases/qt/4.8/4.8.6/qt-everywhere-opensource-src-4.8.6.tar.gz
+$ tar xzf qt-everywhere-opensource-src-4.8.6.tar.gz
+$ rm qt-everywhere-opensource-src-4.8.6.tar.gz
+$ cd qt-everywhere-opensource-src-4.8.6
+$ ./configure -opensource -confirm-license -prefix "$VIRTUAL_ENV" -prefix-install -nomake 'tests examples demos docs translations' -no-multimedia -no-webkit -no-javascript-jit -no-phonon -no-xmlpatterns -system-sqlite -no-script -no-svg -no-scripttools -no-qt3support
+$ gmake
+$ gmake install
+$ cd ..
+
+: browse to http://www.riverbankcomputing.com/software/sip/download
+: in your virtual env
+$ tar xzf sip*tar.gz
+$ rm sip*tar.gz
+$ cd sip-*
+$ python configure.py --confirm-license --incdir="${VIRTUAL_ENV}/include"
+$ make install
+$ cd ..
+$ make
+$ rm -rf sip*[0-9]
+
+: browse to http://www.riverbankcomputing.com/software/pyqt/download
+$ tar xzf PyQt-x11*tar.gz
+$ rm PyQt-x11*tar.gz
+$ cd PyQt-x11-*
+$ python configure.py --confirm-license -q "$VIRTUAL_ENV/bin/qmake"
+$ make
+$ make install
+
+$ pip install matplotlib
+$ pip install scipy
+
+```
