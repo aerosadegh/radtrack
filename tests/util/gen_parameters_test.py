@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-""" pytest for :mod:util.parameters
+""" pytest for `radtrack.util.gen_parameters`
 
     :copyright: Copyright (c) 2015 RadiaBeam Technologies, LLC.  All Rights Reserved.
     :license: Apache, see license.md for more details.
@@ -11,7 +11,7 @@ import os.path
 
 import pytest
 
-import gen_parameters
+import radtrack.util.gen_parameters as gen_parameters
 
 def setup_module():
     """chdir to where the test spreadsheets are"""
@@ -25,6 +25,6 @@ def test_deviance():
 
 def test_conformance():
     """Read sample files, and verify the output is done correctly"""
-    out_py = gen_parameters.parse_and_write('metadata1.xlsx', 'metadata1_out.py')
+    out_py = gen_parameters.parse_and_write('conformance/metadata1.xlsx', 'conformance/metadata1_out.py')
     with open(out_py, 'r') as f:
         pass
