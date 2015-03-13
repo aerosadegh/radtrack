@@ -146,10 +146,13 @@ class GenLattice(object):
         phi_x = np.arccos(0.5*(transfermap[0,0] + transfermap[1,1]))
         phi_y = np.arccos(0.5*(transfermap[2,2] + transfermap[3,3]))
 
-        betax = abs(transfermap[0,1]/np.sin(phi_x))
-        betay = abs(transfermap[2,3]/np.sin(phi_y))
-        alphax = 0.5*(transfermap[0,0]-transfermap[1,1])/np.sin(phi_x)
-        alphay = 0.5*(transfermap[2,2]-transfermap[3,3])/np.sin(phi_y)
+        print 'phi_x =', phi_x
+        print 'phi_y =', phi_y
+
+        betax = (transfermap[0,1]/np.sin(phi_x))
+        betay = (transfermap[2,3]/np.sin(phi_y))
+        alphax = -0.5*(transfermap[0,0]-transfermap[1,1])/np.sin(phi_x)
+        alphay = -0.5*(transfermap[2,2]-transfermap[3,3])/np.sin(phi_y)
 
         return betax, alphax, betay, alphay, transfermap
 
