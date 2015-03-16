@@ -229,19 +229,21 @@ def _write_class(name, attrs, out):
     """Write the class header then params"""
     template = '''
 
-class {}(object):
-    """{}
+class {py_name}(_Section):
+    """{description}
     """
+
+    #: Return the meta data for this section"""
+    _meta = META.{py_name}
 
     def __init__(
         self,
 '''
-    out.write(template.format(name, attrs['description']))
+    out.write(template.format(**attrs))
     for param, param_attrs in _viewitems_sorted(attrs['attrs']):
         _write_class_init_arg(param, param_attrs, out)
     template = '''
-    ):
-'''
+    ):'''
     out.write(template)
     for param, param_attrs in _viewitems_sorted(attrs['attrs']):
         _write_class_init_attr(param, param_attrs, out)
@@ -253,11 +255,9 @@ def _write_class_init_arg(name, attrs, out):
 
 
 def _write_class_init_attr(name, attrs, out):
-    """Ouptut a single assignment to self from an arg"""
-    out.write(
-        '        #: {}\n        self.{} = {},\n'.format(
-            attrs['description'], name, name),
-    )
+    """Output a single assignment to self from an arg"""
+    template = '        #: {description}\n        self.{py_name} = {py_name}\n'
+    out.write(template.format(**attrs))
 
 
 def _write_header(parameters_xlsx, out):
@@ -279,6 +279,22 @@ from collections import namedtuple
 def _n(name, attrs):
     """Create namedtuple instance from dict"""
     return namedtuple('_class_' + name, sorted(attrs.keys()))(**attrs)
+
+
+class _Section(object):
+    """Common operations for sections."""
+
+    def __setattr__(self, name, value):
+        """Verify type of the value before passing to super"""
+        if value is not None:
+            t = getattr(self._meta.attrs, name).py_type
+            if t == str:
+                #TODO(robnagler) PY2: Need a better conditional
+                assert type(value) in (str, unicode)
+            else:
+                value = t(value)
+        super(_Section, self).__setattr__(name, value)
+
 
 #: Meta data for all the classes and parameters as namedtuples.
 META = '''
