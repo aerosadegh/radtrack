@@ -26,4 +26,4 @@ for p in os.getenv('PATH').split(os.pathsep):
 os.environ['PATH'] = os.pathsep.join(new_path)
 
 import radtrack.RbGlobal
-radtrack.RbGlobal.main(beta_test=True)
+radtrack.RbGlobal.main(project_file=None, beta_test=True)
