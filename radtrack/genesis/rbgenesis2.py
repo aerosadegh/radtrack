@@ -91,7 +91,7 @@ class RbGenesis2(QtGui.QWidget):
         if dialog.exec_():
             pass
 
-class undulator_dialog(QtGui.QDialog):
+'''class undulator_dialog(QtGui.QDialog):
     def __init__(self):
         QtGui.QDialog.__init__(self)
         mainlayout = QtGui.QGridLayout(self)
@@ -211,7 +211,7 @@ class io_dialog(QtGui.QDialog):
         buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
         mainlayout.addWidget(buttonBox,1,0)
         buttonBox.accepted.connect(self.accept)
-        buttonBox.rejected.connect(self.reject)
+        buttonBox.rejected.connect(self.reject)'''
         
 def main():
 
