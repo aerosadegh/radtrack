@@ -66,13 +66,6 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="1">
-     <widget class="QPushButton" name="iorb">
-      <property name="text">
-       <string>Yes/No</string>
-      </property>
-     </widget>
-    </item>
     <item row="3" column="0">
      <widget class="QLabel" name="label_4">
       <property name="text">
@@ -81,25 +74,11 @@ energy loss:</string>
       </property>
      </widget>
     </item>
-    <item row="3" column="1">
-     <widget class="QPushButton" name="isravg">
-      <property name="text">
-       <string>Yes/No</string>
-      </property>
-     </widget>
-    </item>
     <item row="4" column="0">
      <widget class="QLabel" name="label_5">
       <property name="text">
        <string>Include energy spread from 
 quantum fluctuations</string>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="1">
-     <widget class="QPushButton" name="isrsig">
-      <property name="text">
-       <string>Yes/No</string>
       </property>
      </widget>
     </item>
@@ -112,6 +91,27 @@ quantum fluctuations</string>
     </item>
     <item row="5" column="1">
      <widget class="QLineEdit" name="eloss"/>
+    </item>
+    <item row="2" column="1">
+     <widget class="QCheckBox" name="iorb">
+      <property name="text">
+       <string>yes/no</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="1">
+     <widget class="QCheckBox" name="isravg">
+      <property name="text">
+       <string>yes/no</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="1">
+     <widget class="QCheckBox" name="isrsig">
+      <property name="text">
+       <string>yes/no</string>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>

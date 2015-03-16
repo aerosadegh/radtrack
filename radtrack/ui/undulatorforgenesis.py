@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'undulatorforgenesis.ui'
 #
-# Created: Mon Mar 16 01:59:55 2015
+# Created: Mon Mar 16 15:14:26 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -96,9 +96,9 @@ class Ui_Dialog(object):
         self.label = QtGui.QLabel(self.formLayoutWidget)
         self.label.setObjectName(_fromUtf8("label"))
         self.formLayout.setWidget(1, QtGui.QFormLayout.LabelRole, self.label)
-        self.checkBox = QtGui.QCheckBox(self.formLayoutWidget)
-        self.checkBox.setObjectName(_fromUtf8("checkBox"))
-        self.formLayout.setWidget(1, QtGui.QFormLayout.FieldRole, self.checkBox)
+        self.iwityp = QtGui.QCheckBox(self.formLayoutWidget)
+        self.iwityp.setObjectName(_fromUtf8("iwityp"))
+        self.formLayout.setWidget(1, QtGui.QFormLayout.FieldRole, self.iwityp)
 
         self.retranslateUi(Dialog)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("accepted()")), Dialog.accept)
@@ -116,5 +116,5 @@ class Ui_Dialog(object):
         self.label_7.setText(_translate("Dialog", "Offset - y:", None))
         self.label_9.setText(_translate("Dialog", "seed:", None))
         self.label.setText(_translate("Dialog", "Undulator Type:", None))
-        self.checkBox.setText(_translate("Dialog", "Planar/Helical", None))
+        self.iwityp.setText(_translate("Dialog", "Planar/Helical", None))
 

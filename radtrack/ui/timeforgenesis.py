@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'timeforgenesis.ui'
 #
-# Created: Mon Mar 16 01:55:43 2015
+# Created: Mon Mar 16 15:36:27 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -75,12 +75,12 @@ class Ui_Dialog(object):
         self.label = QtGui.QLabel(self.formLayoutWidget)
         self.label.setObjectName(_fromUtf8("label"))
         self.formLayout.setWidget(5, QtGui.QFormLayout.LabelRole, self.label)
-        self.checkBox = QtGui.QCheckBox(self.formLayoutWidget)
-        self.checkBox.setObjectName(_fromUtf8("checkBox"))
-        self.formLayout.setWidget(5, QtGui.QFormLayout.FieldRole, self.checkBox)
-        self.checkBox_2 = QtGui.QCheckBox(self.formLayoutWidget)
-        self.checkBox_2.setObjectName(_fromUtf8("checkBox_2"))
-        self.formLayout.setWidget(6, QtGui.QFormLayout.FieldRole, self.checkBox_2)
+        self.itdp = QtGui.QCheckBox(self.formLayoutWidget)
+        self.itdp.setObjectName(_fromUtf8("itdp"))
+        self.formLayout.setWidget(5, QtGui.QFormLayout.FieldRole, self.itdp)
+        self.isntyp = QtGui.QCheckBox(self.formLayoutWidget)
+        self.isntyp.setObjectName(_fromUtf8("isntyp"))
+        self.formLayout.setWidget(6, QtGui.QFormLayout.FieldRole, self.isntyp)
 
         self.retranslateUi(Dialog)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("accepted()")), Dialog.accept)
@@ -96,6 +96,6 @@ class Ui_Dialog(object):
         self.label_6.setText(_translate("Dialog", "Shotnoise:", None))
         self.label_7.setText(_translate("Dialog", "ISNTYP:", None))
         self.label.setText(_translate("Dialog", "Time Dependence:", None))
-        self.checkBox.setText(_translate("Dialog", "Yes/No", None))
-        self.checkBox_2.setText(_translate("Dialog", "Fawley", None))
+        self.itdp.setText(_translate("Dialog", "Yes/No", None))
+        self.isntyp.setText(_translate("Dialog", "Fawley", None))
 

@@ -120,7 +120,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QSpinBox" name="nharm_2"/>
+       <widget class="QSpinBox" name="nharm"/>
       </item>
      </layout>
     </item>

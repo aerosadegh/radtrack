@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'meshforgenesis.ui'
 #
-# Created: Sun Mar 15 02:09:52 2015
+# Created: Mon Mar 16 15:23:22 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -86,12 +86,12 @@ class Ui_Dialog(object):
         self.label_9 = QtGui.QLabel(self.formLayoutWidget)
         self.label_9.setObjectName(_fromUtf8("label_9"))
         self.formLayout.setWidget(8, QtGui.QFormLayout.LabelRole, self.label_9)
-        self.checkBox = QtGui.QCheckBox(self.formLayoutWidget)
-        self.checkBox.setObjectName(_fromUtf8("checkBox"))
-        self.formLayout.setWidget(1, QtGui.QFormLayout.FieldRole, self.checkBox)
-        self.checkBox_2 = QtGui.QCheckBox(self.formLayoutWidget)
-        self.checkBox_2.setObjectName(_fromUtf8("checkBox_2"))
-        self.formLayout.setWidget(8, QtGui.QFormLayout.FieldRole, self.checkBox_2)
+        self.lbc = QtGui.QCheckBox(self.formLayoutWidget)
+        self.lbc.setObjectName(_fromUtf8("lbc"))
+        self.formLayout.setWidget(1, QtGui.QFormLayout.FieldRole, self.lbc)
+        self.iscrkup = QtGui.QCheckBox(self.formLayoutWidget)
+        self.iscrkup.setObjectName(_fromUtf8("iscrkup"))
+        self.formLayout.setWidget(8, QtGui.QFormLayout.FieldRole, self.iscrkup)
 
         self.retranslateUi(Dialog)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("accepted()")), Dialog.accept)
@@ -109,6 +109,6 @@ class Ui_Dialog(object):
         self.label_7.setText(_translate("Dialog", "Number of Radial Grid Points:", None))
         self.label_8.setText(_translate("Dialog", "RMAX0SC:", None))
         self.label_9.setText(_translate("Dialog", "Runge-Kutta:", None))
-        self.checkBox.setText(_translate("Dialog", "Neumann", None))
-        self.checkBox_2.setText(_translate("Dialog", "Yes/No", None))
+        self.lbc.setText(_translate("Dialog", "Neumann", None))
+        self.iscrkup.setText(_translate("Dialog", "Yes/No", None))
 

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'radforgenesis.ui'
 #
-# Created: Sun Mar 15 02:10:59 2015
+# Created: Mon Mar 16 15:16:54 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -88,9 +88,9 @@ class Ui_Dialog(object):
         self.iallharm = QtGui.QPushButton(self.formLayoutWidget)
         self.iallharm.setObjectName(_fromUtf8("iallharm"))
         self.horizontalLayout_2.addWidget(self.iallharm)
-        self.nharm_2 = QtGui.QSpinBox(self.formLayoutWidget)
-        self.nharm_2.setObjectName(_fromUtf8("nharm_2"))
-        self.horizontalLayout_2.addWidget(self.nharm_2)
+        self.nharm = QtGui.QSpinBox(self.formLayoutWidget)
+        self.nharm.setObjectName(_fromUtf8("nharm"))
+        self.horizontalLayout_2.addWidget(self.nharm)
         self.formLayout.setLayout(4, QtGui.QFormLayout.FieldRole, self.horizontalLayout_2)
         self.label_6 = QtGui.QLabel(self.formLayoutWidget)
         self.label_6.setObjectName(_fromUtf8("label_6"))

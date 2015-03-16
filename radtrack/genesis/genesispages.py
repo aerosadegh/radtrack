@@ -20,8 +20,8 @@ class undulator_dialog(QtGui.QDialog):
         self.ui = Ui_genund()
         self.ui.setupUi(self)
         self.ui.aw0.setText('2.4749')
-        self.ui.iwityp.setCheckable(True)
-        self.ui.iwityp.setChecked(False)
+        #self.ui.iwityp.setCheckable(True)
+        #self.ui.iwityp.setChecked(False)
         #self.ui.xkx.setText('0')
         #self.ui.xky.setText('1')
         self.ui.xlamd.setText('0.03')
@@ -82,9 +82,9 @@ class radiation_dialog(QtGui.QDialog):
         self.ui.zwaist.setText('0')
         self.ui.iallharm.setCheckable(True)
         self.ui.iallharm.setChecked(False)
-        self.ui.nharm.setText('1')
-        self.ui.iharmsc.setCheckable(True)
-        self.ui.iharmsc.setChecked(False)
+        self.ui.nharm.setValue(1)
+        #self.ui.iharmsc.setCheckable(True)
+        #self.ui.iharmsc.setChecked(False)
         self.ui.pradh0.setText('0')   
         
 
@@ -112,16 +112,16 @@ class mesh_dialog(QtGui.QDialog):
         self.ui = Ui_Mesh()
         self.ui.setupUi(self)
         self.ui.ncar.setText('139')
-        self.ui.lbc.setCheckable(True)
-        self.ui.lbc.setChecked(False)
+        #self.ui.lbc.setCheckable(True)
+        #self.ui.lbc.setChecked(False)
         self.ui.rmax0.setText('11')
         self.ui.dgrid.setText('0')
         #self.ui.nscz.setRange(0,10)
         self.ui.nscr.setText('1')
         self.ui.nptr.setText('40')
         self.ui.rmax0sc.setText('0')
-        self.ui.iscrkup.setCheckable(True)
-        self.ui.iscrkup.setChecked(False)
+        #self.ui.iscrkup.setCheckable(True)
+        #self.ui.iscrkup.setChecked(False)
         
 
 class time_dialog(QtGui.QDialog):
@@ -129,8 +129,8 @@ class time_dialog(QtGui.QDialog):
         QtGui.QDialog.__init__(self)
         self.ui = Ui_timeparams()
         self.ui.setupUi(self)
-        self.ui.itdp.setCheckable(True)
-        self.ui.itdp.setChecked(False)
+        #self.ui.itdp.setCheckable(True)
+        #self.ui.itdp.setChecked(False)
         self.ui.curlen.setText('1.0e-3')
         self.ui.zsep.setText('32')
         self.ui.nslice.setText('13302')
@@ -147,12 +147,12 @@ class sim_dialog(QtGui.QDialog):
         self.ui.setupUi(self)
         self.ui.delz.setText('8')
         self.ui.zstop.setText('132')
-        self.ui.iorb.setCheckable(True)
+        '''self.ui.iorb.setCheckable(True)
         self.ui.isravg.setCheckable(True)
         self.ui.isrsig.setCheckable(True)
         self.ui.iorb.setChecked(False)
         self.ui.isravg.setChecked(False)
-        self.ui.isrsig.setChecked(True)
+        self.ui.isrsig.setChecked(True)'''
         self.ui.eloss.setText('0')
 
 class scan_dialog(QtGui.QDialog):
@@ -169,7 +169,7 @@ class io_dialog(QtGui.QDialog):
         QtGui.QDialog.__init__(self)
         self.ui = Ui_io()
         self.ui.setupUi(self)
-        self.ui.iphsty.setCheckable(True)
+        '''self.ui.iphsty.setCheckable(True)
         self.ui.ishsty.setCheckable(True)
         self.ui.ippart.setCheckable(True)
         self.ui.ispart.setCheckable(True)
@@ -190,7 +190,7 @@ class io_dialog(QtGui.QDialog):
         self.ui.ndcut.setChecked(False)
         self.ui.aligngradf.setChecked(False)
         self.ui.ilog.setChecked(False)
-        self.ui.trama.setChecked(False)
+        self.ui.trama.setChecked(False)'''
 
         #outputfile = 'lcls.out'
         #maginfile = 'lcls.lat'
@@ -204,7 +204,7 @@ class io_dialog(QtGui.QDialog):
         self.ui.imagl.setText('0')
         self.ui.idril.setText('0')
         #LOUT=1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 0 0 0 0 1 0 0
-        self.ui.ffspec.setText('0')
+        self.ui.ffspec.setCurrentIndex(0)
         
 
         
