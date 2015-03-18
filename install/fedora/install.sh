@@ -10,5 +10,5 @@ curl -s -L https://depot.radiasoft.org/foss/install-as-root.sh | bash
 sh /cfg/install-root.sh
 
 exec_user=vagrant
-useradd --create-home $exec_user
+id -u $exec_user &>/dev/null || useradd --create-home $exec_user
 su --login $exec_user --command="sh /cfg/install-exec-user.sh"
