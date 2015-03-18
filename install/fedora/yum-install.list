@@ -1,25 +1,24 @@
-PyQt4-devel
+qt-config
 atlas-devel
 blas-devel
 git
+hostname
 lapack-devel
-qt4-devel
 textlive
-gtk3-devel
 yum-utils
-
 bzip2-devel
 emacs-nox
 gcc
 gcc-c++
 ghostscript
-
 libpng-devel
 openssl-devel
+openmpi-devel
+qt-devel
 patch
 pkgconfig
-qt-devel
 readline-devel
+make
 rpm-build
 sqlite-devel
 wget
@@ -55,6 +54,3 @@ texlive-xetex
 tk-devel
 xpdf
 zlib-devel
-
-glib-2.0
-2.12.0    pango >= 1.36.7    cairo >= 1.12.0    cairo-gobject >= 1.12.0    gdk-pixbuf-2.0 >= 2.30.0) were not met:
