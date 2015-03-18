@@ -19,7 +19,7 @@ pytz>=2014
 requests>=2.5
 scipy>=0.14
 six>=1.9
-Sphinx>=1.2
+Sphinx==1.2
 sphinxcontrib-napoleon>=0.3
 tox>=1.8
 pybivio>=0.1
