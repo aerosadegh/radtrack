@@ -114,6 +114,8 @@ the_attr = 33
 
 #### Linux Build
 
+How to install qt. Note that you need tk-devel installed
+
 ```bash
 : Qt
 $ http://download.qt.io/official_releases/qt
