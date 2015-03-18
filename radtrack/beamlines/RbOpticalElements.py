@@ -5,7 +5,7 @@ from PyQt4.QtCore import Qt
 from RbElementCommon import *
 from RbElegantElements import importFile, exportToFile
 from RbBeamlines import BeamlineCommon
-from RbUtility import convertUnitsStringToNumber, parseUnits
+from radtrack.RbUtility import convertUnitsStringToNumber, parseUnits
 
 
 class opticalElement(elementCommon):

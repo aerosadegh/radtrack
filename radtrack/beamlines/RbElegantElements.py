@@ -14,7 +14,7 @@ from collections import OrderedDict
 import os
 from RbElementCommon import *
 from RbBeamlines import BeamlineCommon
-from RbUtility import wordwrap, convertUnitsStringToNumber, parseUnits, \
+from radtrack.RbUtility import wordwrap, convertUnitsStringToNumber, parseUnits, \
                       FileParseException, stripComments
 
 
@@ -58,14 +58,14 @@ def importFile(fileName, importDictionary, classDictionary, nameMangler):
                 QMessageBox(QMessageBox.Warning, 'RadTrack',\
                         'In file: ' + fileName + '\n' +
                         'File import stopped because line ' +
-                        str(lineNumber+1) + ' produced errors:\n\n' + 
+                        str(lineNumber+1) + ' produced errors:\n\n' +
                         line + '\n\n' + str(error) + text + ' defined.').exec_()
                 return
             except FileParseException as error:
                 QMessageBox(QMessageBox.Warning, 'RadTrack',\
                         'In file: ' + fileName + '\n' +
                         'File import stopped because line ' +
-                        str(lineNumber+1) + ' produced errors:\n\n' + 
+                        str(lineNumber+1) + ' produced errors:\n\n' +
                         str(error.message)).exec_()
                 return
             except IncludeException as include:
@@ -242,7 +242,7 @@ def checkParentheses(lineString):
     return depth == 0
 
 # Checks if string is of form "N*(...)"
-def isSingleGroup(lineString):    
+def isSingleGroup(lineString):
     depth = 0
     for char in lineString:
         if char == '(':
@@ -330,7 +330,7 @@ class ALPH(elegantElement, alphaPic):
     units = ['M', 'M', 'M', ' ', ' ', 'M', 'M', 'M', 'M', 'M', ' ', ' ', ' ', ' ']
     dataType = ['double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'long', 'long', 'string']
     parameterDescription = ['size of alpha', 'inner scraper position relative to XMAX', 'outer scraper position relative to XMAX', 'inner scraper fractional momentum deviation', 'outer scraper fractional momentum deviation', 'position of scraper puck', 'size of scraper puck', 'misalignment', 'misalignment', 'misalignment', 'rotation about incoming longitudinal axis', '0=full, 1=first half, 2=second half', 'matrix order [1,3]', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
-        
+
 
 class BMAPXY(elegantElement, magnetPic):
     elementDescription = 'A map of Bx and By vs x and y.'

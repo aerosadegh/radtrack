@@ -5,6 +5,7 @@ Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 import sys, os, tempfile, shutil
 from zipfile import ZipFile
 
+import argh
 import sip
 sip.setapi('QString', 2)
 from PyQt4 import QtGui
@@ -26,7 +27,8 @@ from  radtrack.RbSrwmulti import rbsrw as rbsrwmulti
 
 class RbGlobal(QtGui.QMainWindow):
     #Constructor
-    def __init__(self):
+    def __init__(self, beta_test=False):
+        self.beta_test=beta_test
         QtGui.QMainWindow.__init__(self)
         self.ui = Ui_globalgu()
         self.ui.setupUi(self)
@@ -41,11 +43,12 @@ class RbGlobal(QtGui.QMainWindow):
 
         self.tabWidget = QtGui.QTabWidget()
 
-        scrollArea = QtGui.QScrollArea(self)
-        scrollArea.setWidget(RbLaserWindow(self))
-        self.tabWidget.addTab(scrollArea, self.tr('Laser'))
+        if not beta_test:
+            scrollArea = QtGui.QScrollArea(self)
+            scrollArea.setWidget(RbLaserWindow(self))
+            self.tabWidget.addTab(scrollArea, self.tr('Laser'))
 
-        self.tabWidget.addTab(RbLaserTransport(self), self.tr('Laser Transport'))
+            self.tabWidget.addTab(RbLaserTransport(self), self.tr('Laser Transport'))
 
         scrollArea = QtGui.QScrollArea(self)
         scrollArea.setWidget(RbBunchWindow(self))
@@ -56,29 +59,31 @@ class RbGlobal(QtGui.QMainWindow):
         scrollArea = QtGui.QScrollArea(self)
         scrollArea.setWidget(RbSimulations(self))
         self.tabWidget.addTab(scrollArea,self.tr('Interactions'))
-        
+
         self.tabWidget.addTab(RbEle(self), self.tr('Elegant'))
-        self.tabWidget.addTab(RbDcp(self), self.tr('Data Visualization'))
-        self.tabWidget.addTab(RbFEL(self), self.tr('FEL'))
 
-        scrollArea3 = QtGui.QScrollArea(self)
-        scrollArea3.setWidget(srwund(self))
-        self.tabWidget.addTab(scrollArea3,self.tr('SRW'))
+        if not beta_test:
+            self.tabWidget.addTab(RbDcp(self), self.tr('Data Visualization'))
+            self.tabWidget.addTab(RbFEL(self), self.tr('FEL'))
 
-        scrollArea = QtGui.QScrollArea(self)
-        scrollArea.setWidget(RbGenesis2(self))
-        self.tabWidget.addTab(scrollArea, self.tr('Genesis'))
-        
-        scrollArea = QtGui.QScrollArea(self)
-        scrollArea.setWidget(rbsrwsingle(self))
-        self.tabWidget.addTab(scrollArea, self.tr('SRW-single-electron'))
-        
-        scrollArea = QtGui.QScrollArea(self)
-        scrollArea.setWidget(rbsrwmulti(self))
-        self.tabWidget.addTab(scrollArea, self.tr('SRW-Multi-electron'))
-        
-        self.tabWidget.addTab(RbGenesisTransport(self), self.tr('Genesis Transport'))
-        
+            scrollArea3 = QtGui.QScrollArea(self)
+            scrollArea3.setWidget(srwund(self))
+            self.tabWidget.addTab(scrollArea3,self.tr('SRW'))
+
+            scrollArea = QtGui.QScrollArea(self)
+            scrollArea.setWidget(RbGenesis2(self))
+            self.tabWidget.addTab(scrollArea, self.tr('Genesis'))
+
+            scrollArea = QtGui.QScrollArea(self)
+            scrollArea.setWidget(rbsrwsingle(self))
+            self.tabWidget.addTab(scrollArea, self.tr('SRW-single-electron'))
+
+            scrollArea = QtGui.QScrollArea(self)
+            scrollArea.setWidget(rbsrwmulti(self))
+            self.tabWidget.addTab(scrollArea, self.tr('SRW-Multi-electron'))
+
+            self.tabWidget.addTab(RbGenesisTransport(self), self.tr('Genesis Transport'))
+
 
         # Information for making new tabs and importing files
         self.originalNameToTabType = dict()
@@ -99,12 +104,12 @@ class RbGlobal(QtGui.QMainWindow):
             actionNewTab = QtGui.QAction(self)
             actionNewTab.setObjectName('new ' + originalTitle)
             actionNewTab.setText(originalTitle)
-            
+
             # The next line has some weirdness that needs explaining:
             #  1. "ignore" is a variable that receives the boolean returned
             #     from QAction.triggered(). This variable is not used, hence
             #     the name. This goes for all "lambda ignore" below.
-            #  2. "t = widgetType" sets t to the current widgetType if the 
+            #  2. "t = widgetType" sets t to the current widgetType if the
             #     QAction.triggered() doesn't supply it (which it doesn't).
             #     This localizes widgetType to the lambda in this loop iteration.
             #     Just using self.newTab(widgetType) would have the argument
@@ -135,7 +140,7 @@ class RbGlobal(QtGui.QMainWindow):
         self.globalHasChanged = False
 
         self.checkMenus()
-        
+
     def populateRecentFile(self):
         action = QtGui.QAction(self)
         action.setObjectName(self.recentfile)
@@ -253,9 +258,9 @@ class RbGlobal(QtGui.QMainWindow):
 
     def openProjectFile(self, fileName = None):
         if fileName is None or fileName == '':
-            fileName = QtGui.QFileDialog.getOpenFileName(self, 
-                    'Open file', 
-                    self.lastUsedDirectory, 
+            fileName = QtGui.QFileDialog.getOpenFileName(self,
+                    'Open file',
+                    self.lastUsedDirectory,
                     '*' + self.fileExtension)
             if fileName == '':
                 return
@@ -293,7 +298,7 @@ class RbGlobal(QtGui.QMainWindow):
             return
         if not fileName.endswith(self.fileExtension):
             fileName = fileName + self.fileExtension
- 
+
         tempFileName = fileName + '.partial'
         with ZipFile(tempFileName, 'w') as zf:
             saveProgress = QtGui.QProgressDialog('Saving as ' + fileName + ' ...',
@@ -388,7 +393,7 @@ class RbGlobal(QtGui.QMainWindow):
                 print('*** ' + type(widget).__name__ + " has no hasChanged() method")
         return False
 
-    
+
     def undo(self):
         getRealWidget(self.tabWidget.currentWidget()).undo()
         self.globalHasChanged = True
@@ -402,7 +407,7 @@ class RbGlobal(QtGui.QMainWindow):
             saveBox = QtGui.QMessageBox(QtGui.QMessageBox.Question,
                     'RadTrack',
                     'Do you want to save the current project?',
-                    QtGui.QMessageBox.Save | QtGui.QMessageBox.Discard | 
+                    QtGui.QMessageBox.Save | QtGui.QMessageBox.Discard |
                     QtGui.QMessageBox.Cancel)
             answer = saveBox.exec_()
 
@@ -414,6 +419,7 @@ class RbGlobal(QtGui.QMainWindow):
         event.accept()
         QtGui.QMainWindow.closeEvent(self, event)
 
+
 def getRealWidget(widget):
     try:
         return getRealWidget(widget.widget())
@@ -421,14 +427,29 @@ def getRealWidget(widget):
         return widget
 
 
+@argh.arg('project_file', nargs='?', default=None, help='project file to open at startup')
+def main(project_file, beta_test=False):
+    """Entry point into RadTrack Application
 
-def main(argv):
-    app = QtGui.QApplication(argv)
-    myapp = RbGlobal()
-    if len(argv) > 1:
-        myapp.openProjectFile(argv[1])
+    Args:
+        project_file (str, optional): Name of the project file to open at startup
+        beta_test (bool, False): Open only those tabs consider to be Beta ready
+
+    Raises:
+        SystemExit: When Qt exits, calls `sys.exit`.
+    """
+    # We handle arguments with argh so only pass program to Qt
+    app = QtGui.QApplication([sys.argv[0]])
+    myapp = RbGlobal(beta_test=beta_test)
+    if project_file:
+        myapp.openProjectFile(project_file)
     myapp.show()
     sys.exit(app.exec_())
 
+def call_main():
+    p = argh.ArghParser()
+    argh.set_default_command(p, main)
+    argh.dispatch(p)
+
 if __name__ == '__main__':
-    main(sys.argv)
+    call_main()

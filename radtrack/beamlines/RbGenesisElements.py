@@ -8,13 +8,13 @@ from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QProgressDialog
 from RbElementCommon import *
 from RbBeamlines import BeamlineCommon
-from RbUtility import convertUnitsStringToNumber, parseUnits
+from radtrack.RbUtility import convertUnitsStringToNumber, parseUnits
 
 class genesisElement(elementCommon):
     def componentLine(self):
         sentence = [(param, parseUnits(datum)) for param, datum in \
                 zip(self.parameterNames, self.data) if datum != '']
-                
+
         sentence = '   '.join(self.data)
         #sentence = ', '.join(['='.join(phrase) for phrase in sentence])
 
@@ -24,8 +24,8 @@ class genesisElement(elementCommon):
 class GenesisBeamline(BeamlineCommon):
     def componentLine(self):
         return self.name + ':    ' + self.displayLine()
-        
-beamlineType = GenesisBeamline    
+
+beamlineType = GenesisBeamline
 fileExtension = 'lat'
 
 class QF(genesisElement, magnetPic):
@@ -35,30 +35,30 @@ class QF(genesisElement, magnetPic):
     dataType = ['double', 'double', 'double']
     parameterDescription = ['Field Gradient', 'Length','Spacing']
     color = Qt.red
-    
+
 class AW(genesisElement, undulatorPic):
     elementDescription = 'A wiggler or undulator for damping or excitation of the beam.'
     parameterNames = ['AW0', 'L','D']
     units = ['', 'M','M','M']
     dataType = ['double', 'double', 'double']
     parameterDescription = ['Dimensionless strength parameter', 'Length','Spacing']
-    
+
 class Unit_Length(genesisElement, driftPic):
     elementDescription = 'The length to which all Genesis elements are relative to'
     parameterNames = ['UNITLENGTH']
     units = ['M']
     dataType =['double']
     parameterDescription = ['length']
-    
+
     def componentLine(self):
         sentence = [(param, parseUnits(datum)) for param, datum in \
                 zip(self.parameterNames, self.data) if datum != '']
         sentence = ''.join(['='.join(phrase) for phrase in sentence])
         return '?'+sentence
-    
+
 def nameMangler(name):
     return name
-	
+
 classDictionary = dict()
 
 for key in list(globals()):
@@ -86,17 +86,17 @@ def fileExporter(outputFileName, elementDictionary, defaultBeamline):
              if element.isBeamline():
                  for part in element.data:
                      outputFile.write(part.componentLine()+'\n')
-            
-        
 
-'''   
+
+
+'''
 class DRIF(particleDrift, genesisElement):
     elementDescription = 'A drift space'
     parameterNames = ['L']
     units = ['M']
     dataType = ['double']
     parameterDescription = ['length']
-    
+
 class SOLE(elegantElement, solenoidPic):
     elementDescription = 'A solenoid.'
     parameterNames = ['L', 'KS', 'B', 'DX', 'DY', 'DZ']

@@ -9,61 +9,65 @@ import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib as mpl
 mpl.rc('text', usetex=True)
-mpl.rc('font', size=18)
+mpl.rc('font', size=14)
 
 
-class RbXGenesisTInd:
+class RbXGenesisTInd(object):
+    """Parser class for time-independent Genesis simulations. Plots the key bulk
+    properties such as power, bunching, decrement...
+    """
 
     def __init__(self):
+
         self.file_open = False
         self.data_set = {}
         self.data_label = {}
         self.data_set['z']     = -1
-        self.data_label['z'] = r'$z~[m]$'
+        self.data_label['z'] = r'$z~\textrm{[m]}$'
         self.data_set['aw']    = -1
         self.data_label['aw'] = r'$a_w$'
         self.data_set['QF']    = -1
-        self.data_label['QF'] = r'$\frac{dB}{dx}~[T/m]$'
+        self.data_label['QF'] = r'$\frac{dB}{dx}~\textrm{[T/m]}$'
         self.data_set['Power'] = -1
-        self.data_label['Power'] = r'$P~[W]$'
+        self.data_label['Power'] = r'$P~\textrm{[W]}$'
         self.data_set['Increment'] = -1
         self.data_label['Increment'] = \
-            r'$\frac{1}{P} \frac{dP}{dz}~[m^{-1}]$'
+            r'$\frac{1}{P} \frac{dP}{dz}~\textrm{[m^{-1}]}$'
         self.data_set['p_mid'] = -1
         self.data_label['p_mid'] = '???'
         self.data_set['Phase'] = -1
-        self.data_label['Phase'] = r'$\Phi~[rad]$'
+        self.data_label['Phase'] = r'$\Phi~\textrm{[rad]}$'
         self.data_set['Rad. Size'] = -1
-        self.data_label['Rad. Size'] = r'$\sigma_{\textrm{rad.}}~[m]$'
+        self.data_label['Rad. Size'] = r'$\sigma_{\textrm{rad.}}~\textrm{[m]}$'
         self.data_set['Far Field'] = -1
         self.data_label['Far Field'] =\
-            r'$\frac{dP}{d \Omega}~[W/rad^2]$'
+            r'$\frac{dP}{d \Omega}~\textrm{[W/rad^2]}$'
         self.data_set['Energy'] = -1
         self.data_label['Energy'] = r'$\gamma - \gamma_0$'
         self.data_set['Energy Spread'] = -1
-        self.data_label['Energy Spread'] = r'$\sigma_E~[keV]$'
+        self.data_label['Energy Spread'] = r'$\sigma_E~\textrm{[keV]}$'
         self.data_set['X Beam Size'] = -1
-        self.data_label['X Beam Size'] = r'$\sigma_x~ [m]$'
+        self.data_label['X Beam Size'] = r'$\sigma_x~\textrm{[m]}$'
         self.data_set['Y Beam Size'] = -1
-        self.data_label['Y Beam Size'] =  r'$\sigma_y~[m]$'
+        self.data_label['Y Beam Size'] =  r'$\sigma_y~\textrm{[m]}$'
         self.data_set['X Centroid'] = -1
-        self.data_label['X Centroid'] = r'$\langle x \rangle~ [m]$'
+        self.data_label['X Centroid'] = r'$\langle x \rangle~\textrm{[m]}$'
         self.data_set['Y Centroid'] = -1
-        self.data_label['Y Centroid'] = r'$\langle y \rangle [m]$'
+        self.data_label['Y Centroid'] = r'$\langle y \rangle~\textrm{[m]}$'
         self.data_set['Bunching'] = -1
         self.data_label['Bunching'] = r'$|\langle \exp(i \theta)\rangle|$'
         self.data_set['Error'] = -1
-        self.data_label['Error'] = r'$\frac{\Delta P}{P}~[%]$'
+        self.data_label['Error'] = r'$\frac{\Delta P}{P}~\textrm{[\%]}$'
 
         self.semilog = False
         self.perrorbars = False
 
 
     def parse_output(self, filename):
-        """
-        Parse a GENESIS .out file
-        :param filename:
-        :return:
+        """Parse a Genesis .out file
+
+        Args:
+            filename (string): The name of the Genesis .out file
         """
 
         genesis_file = open(filename, 'r')
@@ -106,9 +110,7 @@ class RbXGenesisTInd:
 
 
     def set_semilog(self):
-        """
-        Make the y-axis logarithmic for plotting
-        :return:
+        """Make the y-axis logarithmic for plotting
         """
         if self.semilog == False:
             self.semilog = True
@@ -117,9 +119,7 @@ class RbXGenesisTInd:
 
 
     def set_ploterrors(self):
-        """
-        Plot error bars on the power
-        :return:
+        """Plot error bars on the power
         """
         if self.perrorbars == False:
             self.perrorbars = True
@@ -128,11 +128,11 @@ class RbXGenesisTInd:
 
 
     def plot_data(self, x_axis, y_axis):
-        """
-        Plot data from the keys given as arguments
-        :param x_axis:
-        :param y_axis:
-        :return: plot
+        """Plot data from the keys given as arguments
+
+        Args:
+            x_axis (string): The x-axis data
+            y_axis (string): The y-axis data
         """
         if not x_axis in self.data_set.keys():
             msg = 'Data type', x_axis, 'not recognized'
@@ -158,6 +158,13 @@ class RbXGenesisTInd:
 
 
     def compute_saturation(self):
+        """Computes the saturation power and length by searching for the
+        maximum power in a Genesis simulation
+
+        Returns:
+            saturation_power (float)
+            saturation_length (float)
+        """
 
         place_max = np.argmax(self.data_set['Power'])
 
