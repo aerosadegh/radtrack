@@ -33,7 +33,7 @@ class RbDcp(QtGui.QWidget):
         if self.parent is None:
             self.parent = self
             self.parent.lastUsedDirectory = expanduser('~')
-        self.acceptsFileTypes = ['sdds', 'srw', 'ff']
+        self.acceptsFileTypes = ['sdds', 'srw', 'ff','out','mag','twi','fin']
         self.ui.widget.canvas.ax2.set_visible(False)
         self.ui.page.activated.connect(self.sddspreview)
         self.ui.pushButton.clicked.connect(self.graph)
@@ -57,6 +57,14 @@ class RbDcp(QtGui.QWidget):
     def importFile(self, fnfromglobal):
         filetype = IFileTypeCheck(fnfromglobal)
         if filetype == 'sdds':
+            self.showDCP_ele(fnfromglobal)
+        elif filetype == 'out':
+            self.showDCP_ele(fnfromglobal)
+        elif filetype == 'mag':
+            self.showDCP_ele(fnfromglobal)
+        elif filetype == 'twi':
+            self.showDCP_ele(fnfromglobal)
+        elif filetype == 'fin':
             self.showDCP_ele(fnfromglobal)
         elif filetype == 'srw':
             self.showDCP_srw(fnfromglobal)
