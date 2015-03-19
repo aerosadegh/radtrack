@@ -4,8 +4,7 @@ umask 022
 cfg=/cfg
 chmod -R a+rX /cfg
 
-/sbin/lsmod | grep -i -s -q vbox
-if [ $? == 0 -a ! -f /swap ]; then
+if /sbin/lsmod | grep -i -s -q vbox; then
     dd if=/dev/zero of=/swap bs=1M count=1024
     mkswap /swap
     chmod 600 /swap
