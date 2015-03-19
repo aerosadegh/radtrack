@@ -11,4 +11,4 @@ cd $HOME
 EOF
 fi
 
-curl –s -L https://raw.githubusercontent.com/biviosoftware/home-env/master/install.sh | bash
+curl -s -L https://raw.githubusercontent.com/biviosoftware/home-env/master/install.sh | bash
