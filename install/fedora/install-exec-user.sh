@@ -14,4 +14,7 @@ mkdir -p ~/src/radiasoft
 cd ~/src/radiasoft
 git clone -q https://github.com/radiasoft/radtrack
 cd radtrack
+# Need to do this first, or scipy complains with:
+#   ImportError: No module named numpy.distutils.core
+pip install numpy
 pip install -e .
