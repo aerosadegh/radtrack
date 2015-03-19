@@ -18,3 +18,6 @@ cd radtrack
 #   ImportError: No module named numpy.distutils.core
 pip install numpy
 pip install -e .
+cat > ~/.post.bashrc << 'EOF'
+py2
+EOF
