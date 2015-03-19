@@ -10,6 +10,8 @@ if /sbin/lsmod | grep -i -s -q vbox; then
     chmod 600 /swap
     swapon /swap
     echo '/swap none swap sw 0 0' >> /etc/fstab
+    perl -pi -e 's{^(X11Forwarding) no}{$1 yes}' /etc/ssh/sshd_config
+    systemctl restart sshd.service
 fi
 
 yum --quiet --assumeyes install $(cat /cfg/yum-install.list)
