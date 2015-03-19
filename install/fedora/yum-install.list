@@ -52,6 +52,7 @@ texlive-xetex
 textlive
 tk-devel
 wget
+xclock
 xpdf
 yum-utils
 zlib-devel
