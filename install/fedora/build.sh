@@ -1,4 +1,4 @@
 #!/bin/sh
-IMAGE=radiasoft/radtrack-py2
+IMAGE=radiasoft/radtrack
 docker rmi $IMAGE
 docker build --rm=true --tag=$IMAGE .
