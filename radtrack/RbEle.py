@@ -177,8 +177,7 @@ class RbEle(QWidget):
             s = '    '
             outputFile.write('&run_setup\n')
             outputFile.write(s+'lattice = "'+latticeFileName+'",'+'\n')
-            if beamlineName:
-                outputFile.write(s+'use_beamline = '+beamlineName+','+'\n')
+            outputFile.write(s+'use_beamline = '+beamlineName+','+'\n')
             outputFile.write(s+'default_order = '+self.ui.orderLineEdit.text()+','+'\n')
             outputFile.write(s+'p_central = '+self.ui.momentumLineEdit.text()+','+'\n')
             outputFile.write(s+'output = %s.out, \n')
