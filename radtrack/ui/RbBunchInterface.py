@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'RbBunchInterface.ui'
 #
-# Created: Tue Feb 24 11:58:23 2015
+# Created: Fri Mar 20 17:26:24 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_bunchInterface(object):
     def setupUi(self, bunchInterface):
         bunchInterface.setObjectName(_fromUtf8("bunchInterface"))
-        bunchInterface.resize(1260, 687)
+        bunchInterface.resize(1260, 791)
         self.formLayoutWidget = QtGui.QWidget(bunchInterface)
         self.formLayoutWidget.setGeometry(QtCore.QRect(10, 160, 231, 85))
         self.formLayoutWidget.setObjectName(_fromUtf8("formLayoutWidget"))
@@ -353,7 +353,7 @@ class Ui_bunchInterface(object):
         self.overview.setHtml(_translate("bunchInterface", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'.Helvetica Neue DeskInterface\'; font-size:13pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt;\">The bunch tab is used to create a 3D charged particle distribution.</span></p></body></html>", None))
+"</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt;\">The bunch tab is used to create a 3D charged particle distribution.</span></p></body></html>", None))
 
 from radtrack.gui.matplotlibwidget import matplotlibWidget
