@@ -1,19 +1,6 @@
 import time
 import sys
-if 'win32' in sys.platform or 'win64' in sys.platform:
-    import radtrack.dcp.sddsdata as sddsdata
-elif 'darwin' in sys.platform:
-    pass
-#    import radtrack.dcp.sddsdatamodule as sddsdata
-elif 'linux' in sys.platform:
-    pass
-    #import radtrack.dcp.sddsdatamodule as sddsdata
-else:
-    msg = '  !Warning -- /n'
-    msg += 'Operating system is not recognized. RadTrack recognizes win32, ' \
-           'win64, darwin, or linux operating systems./n'
-    msg += 'Contact customer support for further assistance.'
-    raise Exception(msg)
+import radtrack.dcp.sddsdatamodule as sddsdata
 
 class SDDS:
      """This class implements SDDS datasets."""
