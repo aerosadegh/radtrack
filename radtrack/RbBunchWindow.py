@@ -1332,7 +1332,7 @@ class RbBunchWindow(QtGui.QWidget):
        
     def saveToCSV(self, fileName = None):
         if fileName is None or fileName == '':
-            fileName = QFileDialog.getSaveFileName(self, 'Save distribution to RadTrack file ...',
+            fileName = QtGui.QFileDialog.getSaveFileName(self, 'Save distribution to RadTrack file ...',
                              self.parent.lastUsedDirectory, "*.csv")
             if fileName == '':
                 return
@@ -1416,16 +1416,16 @@ class RbBunchWindow(QtGui.QWidget):
         tmp6 = self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D()
 
         mySDDS = sdds.SDDS(0)
-        mySDDS.description[0] = "RadTrack"
+#        mySDDS.description[0] = "RadTrack"
         mySDDS.description[1] = "Copyright 2013-2014 by RadiaBeam Technologies. All rights reserved."
-        mySDDS.parameterName = ["designMomentumEV", "totalCharge", "eMassEV"]
-        mySDDS.parameterData = [[self.designMomentumEV],
-                                [self.totalCharge],
-                                [self.eMassEV]]
-        mySDDS.parameterDefinition = [["","","","",mySDDS.SDDS_DOUBLE,""],
-                                      ["","","","",mySDDS.SDDS_DOUBLE,""],
-                                      ["","","","",mySDDS.SDDS_DOUBLE,""]]
-        mySDDS.columnName = ["x", "xp", "y", "yp", "s", "dp"]
+#        mySDDS.parameterName = ["designMomentumEV", "totalCharge", "eMassEV"]
+#        mySDDS.parameterData = [[self.designMomentumEV],
+#                                [self.totalCharge],
+#                                [self.eMassEV]]
+#        mySDDS.parameterDefinition = [["","","","",mySDDS.SDDS_DOUBLE,""],
+#                                      ["","","","",mySDDS.SDDS_DOUBLE,""],
+#                                      ["","","","",mySDDS.SDDS_DOUBLE,""]]
+        mySDDS.columnName = ["x", "xp", "y", "yp", "t", "p"]
         mySDDS.columnData = [list(tmp6[0,:]), list(tmp6[1,:]), 
                              list(tmp6[2,:]), list(tmp6[3,:]), 
                              list(tmp6[4,:]), list(tmp6[5,:])]
@@ -1435,12 +1435,12 @@ class RbBunchWindow(QtGui.QWidget):
             print ' Here is mySDDS.columnData[:]:'
             print mySDDS.columnData
         
-        mySDDS.columnDefinition = [["","m",  "","",mySDDS.SDDS_DOUBLE,0],
-                                   ["","rad","","",mySDDS.SDDS_DOUBLE,0],
-                                   ["","m",  "","",mySDDS.SDDS_DOUBLE,0],
-                                   ["","rad","","",mySDDS.SDDS_DOUBLE,0],
-                                   ["","m",  "","",mySDDS.SDDS_DOUBLE,0],
-                                   ["","rad","","",mySDDS.SDDS_DOUBLE,0]]
+        mySDDS.columnDefinition = [["","m",  "","",mySDDS.SDDS_FLOAT,0],
+                                   ["","","","",mySDDS.SDDS_FLOAT,0],
+                                   ["","m",  "","",mySDDS.SDDS_FLOAT,0],
+                                   ["","","","",mySDDS.SDDS_FLOAT,0],
+                                   ["","s",  "","",mySDDS.SDDS_FLOAT,0],
+                                   ["","m_ec","","",mySDDS.SDDS_FLOAT,0]]
         mySDDS.save(sddsFileName)
        
     def convertToSDDS(self):

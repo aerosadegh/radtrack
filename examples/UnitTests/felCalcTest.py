@@ -13,9 +13,9 @@ try:
     a.ui.beta.setText('1.0 m')
     a.ui.radiatedwavelength.setText('13.5 nm')
 
-    expectedAveragePower = '39.79 W'
-    expectedSaturationLength = '12.02 m'
-    expectedUndulatorPeriod = '1.77 cm'
+    expectedAveragePower = '39.785 W'
+    expectedSaturationLength = '12.023 m'
+    expectedUndulatorPeriod = '1.7702 cm'
     failed = False
     if a.ui.averagepower.text() != expectedAveragePower:
         print 'Average Power Calculated:', a.ui.averagepower.text(), 'Expected:', expectedAveragePower

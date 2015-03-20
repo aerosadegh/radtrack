@@ -29,7 +29,7 @@ else:
 
 # Find RPN expressions in files that can't be processed
 import glob, sys, os
-import radtrack.rbcbt as rbcbt
+from radtrack import RbBunchTransport
 
 currentDirectory = os.getcwd()
 os.chdir('external\\elegant\\beamlines')
@@ -41,7 +41,7 @@ alreadySeen = []
 try:
     for fileName in fileList:
         # Test that files load without errors
-        loader = rbcbt.RbCbt('particle', None)
+        loader = RbBunchTransport.RbBunchTransport(None)
         loader.importFile(fileName)
 
         for element in loader.elementDictionary.values():
