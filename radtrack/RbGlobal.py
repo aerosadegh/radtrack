@@ -63,10 +63,11 @@ class RbGlobal(QtGui.QMainWindow):
 
         self.tabWidget.addTab(RbEle(self), self.tr('Elegant'))
 
-            self.tabWidget.addTab(RbDcp(self), self.tr('Data Visualization'))
-            self.tabWidget.addTab(RbFEL(self), self.tr('FEL'))
+        self.tabWidget.addTab(RbDcp(self), self.tr('Data Visualization'))
 
         if not beta_test:
+            self.tabWidget.addTab(RbFEL(self), self.tr('FEL'))
+
             scrollArea3 = QtGui.QScrollArea(self)
             scrollArea3.setWidget(srwund(self))
             self.tabWidget.addTab(scrollArea3,self.tr('SRW'))
