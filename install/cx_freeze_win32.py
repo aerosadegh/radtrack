@@ -16,7 +16,7 @@ with open(INSTALL_SENTINEL, 'w') as f:
     f.write(str(datetime.datetime.now()))
 
 include_files = glob.glob('*.py') + glob.glob(r'install\*win32.py') + [
-    ('RadTrack', 'RadTrack'),
+    ('radtrack', 'radtrack'),
     INSTALL_SENTINEL,
     (r'..\foss-mirror\radtrack_pkg', 'radtrack_pkg')
 ]
@@ -29,10 +29,11 @@ build_exe_options = dict(
 bdist_msi_options = dict(
     upgrade_code=UPGRADE_CODE)
 
-base = 'Win32GUI'
+#base = 'Win32GUI'
+base = None
 
 executables = [
-    cx_Freeze.Executable(r'install\radtrack_start_win32.py', base=base, shortcutName='RadTrack', shortcutDir='DesktopFolder')
+    cx_Freeze.Executable(r'install\radtrack_start_win32.py', base=base, shortcutName='radtrack', shortcutDir='DesktopFolder')
 ]
 
 class local_bdist_msi(cx_Freeze.bdist_msi):
@@ -56,7 +57,7 @@ class local_bdist_msi(cx_Freeze.bdist_msi):
 
 cx_Freeze.setup(
     # cmdclass={'bdist_msi': local_bdist_msi},
-    name='RadTrack',
+    name='radtrack',
     version = '1.0',
     description = 'RadTrack is an open source framework for working with codes that model particle dynamics and electromagnetic radiation',
     options = dict(
