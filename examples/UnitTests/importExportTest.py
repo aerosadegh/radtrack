@@ -1,7 +1,7 @@
 print 'Import/Export test ...'
 
 import os, glob, sys
-import radtrack.rbcbt as rbcbt
+from radtrack import RbBunchTransport, RbLaserTransport
 
 
 currentDirectory = os.getcwd()
@@ -20,19 +20,20 @@ else:
     opticalFileList = glob.glob('optics\\*.rad')
 
     fileLists = [particleFileList, opticalFileList]
-    styles = ['particle', 'laser']
+    transportTabs = [RbBunchTransport.RbBunchTransport,
+                     RbLaserTransport.RbLaserTransport]
 
 # Test that importing an .lte file and an exported version of that file
 # result in the same elements being created
 try:
-    for fileList, style in zip(fileLists, styles):
+    for fileList, transportTab in zip(fileLists, transportTabs):
         for fileName in fileList:
-            loader = rbcbt.RbCbt(style, None)
+            loader = transportTab(None)
             loader.importFile(fileName)
             exportFileName = os.path.splitext(fileName)[0] + exportEnd
             loader.exportToFile(exportFileName)
 
-            loader2 = rbcbt.RbCbt(style, None)
+            loader2 = transportTab(None)
             loader2.importFile(exportFileName)
 
             if len(loader.elementDictionary) != len(loader2.elementDictionary):
