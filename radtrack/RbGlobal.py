@@ -56,16 +56,17 @@ class RbGlobal(QtGui.QMainWindow):
 
         self.tabWidget.addTab(RbBunchTransport(self), self.tr('Bunch Transport'))
 
-        scrollArea = QtGui.QScrollArea(self)
-        scrollArea.setWidget(RbSimulations(self))
-        self.tabWidget.addTab(scrollArea,self.tr('Interactions'))
+        if not beta_test:
+            scrollArea = QtGui.QScrollArea(self)
+            scrollArea.setWidget(RbSimulations(self))
+            self.tabWidget.addTab(scrollArea,self.tr('Interactions'))
 
         self.tabWidget.addTab(RbEle(self), self.tr('Elegant'))
 
-        if not beta_test:
             self.tabWidget.addTab(RbDcp(self), self.tr('Data Visualization'))
             self.tabWidget.addTab(RbFEL(self), self.tr('FEL'))
 
+        if not beta_test:
             scrollArea3 = QtGui.QScrollArea(self)
             scrollArea3.setWidget(srwund(self))
             self.tabWidget.addTab(scrollArea3,self.tr('SRW'))
