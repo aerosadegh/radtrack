@@ -6,7 +6,7 @@ import sys
 app = QtGui.QApplication(sys.argv)
 
 try:
-    from test.UnitTests import \
+    from examples.UnitTests import \
             stripCommentsTest, \
             unitConversionTest, \
             expandCollapseBeamlineTest, \
