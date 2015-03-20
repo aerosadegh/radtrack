@@ -85,9 +85,11 @@ class RbBunchWindow(QtGui.QWidget):
         exportMenu.addAction(convertToSDDS)
         
         # associate these actions with class methods
-        saveToCSV.triggered.connect(self.saveToCSV)
-        saveToSDDS.triggered.connect(self.saveToSDDS)
-        convertToSDDS.triggered.connect(self.convertToSDDS)
+        # The ignore variable catches the bool returned from the PyQt signal
+        # and, as the name implies, ignores it.
+        saveToCSV.triggered.connect(lambda ignore : self.saveToCSV())
+        saveToSDDS.triggered.connect(lambda ignore : self.saveToSDDS())
+        convertToSDDS.triggered.connect(lambda ignore : self.convertToSDDS())
         
         # grab an existing button & insert the menu
         saveToFileButton = self.ui.saveToFile
@@ -104,8 +106,8 @@ class RbBunchWindow(QtGui.QWidget):
         self.acceptsFileTypes = ['sdds', 'csv']
         
         # associate these actions with class methods
-        readFromCSV.triggered.connect(self.readFromCSV)
-        readFromSDDS.triggered.connect(self.readFromSDDS)
+        readFromCSV.triggered.connect(lambda ignore : self.readFromCSV())
+        readFromSDDS.triggered.connect(lambda ignore : self.readFromSDDS())
         
         # grab an existing button & insert the menu
         importFileButton = self.ui.importFile
