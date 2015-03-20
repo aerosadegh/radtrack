@@ -99,7 +99,7 @@ class RbCbt(QtGui.QWidget):
 
     def postListDrop(self):
         self.fixWorkingBeamline()
-        self.postListSave = self.listItems()
+        self.postListSave = self.workingBeamlineElementNames()
         if self.preListSave == self.postListSave:
             return
         self.postListNameSave = self.workingBeamlineName
@@ -317,7 +317,7 @@ class RbCbt(QtGui.QWidget):
         if self.workingBeamlineName != '':
             beamline.name = self.workingBeamlineName
 
-        for name in self.listItems():
+        for name in self.workingBeamlineElementNames():
             beamline.addElement(self.elementDictionary[name])              
 
         dialog = genDialog(beamline)
@@ -355,7 +355,7 @@ class RbCbt(QtGui.QWidget):
 
         # Beamlines are constructed only from previously existing elements.
         # Beamlines cannot contain themselves.
-        items = [name for name in self.listItems() if name in self.elementDictionary \
+        items = [name for name in self.workingBeamlineElementNames() if name in self.elementDictionary \
                 and not self.elementDictionary[name].contains(beamline)]
         self.ui.workingBeamline.clear()
         self.ui.workingBeamline.addItems(items)
@@ -372,7 +372,7 @@ class RbCbt(QtGui.QWidget):
 
     def workingBeamlinePreview(self):
         bl = self.beamlineType()
-        for name in self.listItems():
+        for name in self.workingBeamlineElementNames():
             bl.addElement(self.elementDictionary[name])
         self.drawElement(bl)
 
@@ -566,7 +566,7 @@ class RbCbt(QtGui.QWidget):
     def topLevelTreeItems(self):
         return [self.ui.treeWidget.topLevelItem(i) for i in range(self.ui.treeWidget.topLevelItemCount())]
 
-    def listItems(self):
+    def workingBeamlineElementNames(self):
         return [self.ui.workingBeamline.item(i).text() for i in range(self.ui.workingBeamline.count())]
 
     def importFile(self, fileName):
@@ -628,19 +628,26 @@ class commandEditElement(QtGui.QUndoCommand):
             
     def replaceActive(self, source):
         oldName = self.activeElement.name
+
+        # Slot in data to element in elementDictionary
         self.activeElement.name = source.name
         self.activeElement.data = source.data
 
-        del self.widget.elementDictionary[oldName]
-        self.widget.elementDictionary[self.activeElement.name] = self.activeElement
+        # Change key in elementDictionary while preserving insertion order
+        newDict = OrderedDict()
+        for key, value in zip(self.widget.elementDictionary, self.widget.elementDictionary.values()):
+            if key == oldName:
+                newDict[self.activeElement.name] = self.activeElement
+            else:
+                newDict[key] = value
+        self.widget.elementDictionary = newDict
 
+        # Propagate name changes to tree and working beamline
         treeItem = self.widget.findElementInTreeByName(oldName)
         populateTreeItem(treeItem, source)
-
-        for i, name in enumerate(self.widget.listItems()):
+        for i, name in enumerate(self.widget.workingBeamlineElementNames()):
             if name == oldName:
                 self.widget.ui.workingBeamline.item(i).setText(source.name)
-
         self.widget.rewriteBeamlineTree()
         self.widget.elementPreview()
 
@@ -828,7 +835,7 @@ class commandDeleteElement(QtGui.QUndoCommand):
         self.parentIndex = self.widget.ui.treeWidget.indexOfTopLevelItem(self.parent)
         self.oldBeamlines = []
         self.oldBeamlineData = []
-        self.oldWorkingBeamline = self.widget.listItems()
+        self.oldWorkingBeamline = self.widget.workingBeamlineElementNames()
         for beamline in self.widget.elementDictionary.values():
             if beamline.isBeamline() and not beamline.name.startswith('-'):
                 self.oldBeamlines.append(beamline)
