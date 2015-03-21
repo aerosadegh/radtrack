@@ -3,10 +3,7 @@ Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 version 2
 """
 #base imports
-import sys
-import os
-import subprocess
-import tempfile
+import sys, os, subprocess, tempfile, glob
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -20,7 +17,7 @@ class RbEle(QWidget):
         QWidget.__init__(self)
         self.ui = Ui_ELE()
         self.ui.setupUi(self)
-        self.ui.sim.clicked.connect(self.execsim)
+        self.ui.sim.clicked.connect(self.simulate)
         self.ui.latticeChoice.currentIndexChanged.connect(self.getLTE)
         self.ui.bunchChoice.currentIndexChanged.connect(self.getBUN)
         self.ui.orderLineEdit.setText('2')
@@ -87,10 +84,6 @@ class RbEle(QWidget):
             # the else clause below 
 
         else: # previously loaded file
-
-            # There are two or more choices in the lattice dropdown menu before
-            # any files are selected, hence the loaders created from files
-            # are offset in the dropdown list compared to the loaderCache.
             loader = self.loaderCache[self.ui.latticeChoice.currentText()]
 
         allBeamLines = []
@@ -106,7 +99,10 @@ class RbEle(QWidget):
         return [self.parent.tabWidget.tabText(i) for i in range(self.parent.tabWidget.count())]
     
     def simulate(self):
+        self.ui.textEdit.append('Starting simulation ...')
+
         errMsg = ''
+
         # Get beamline file
         if self.ui.latticeChoice.currentText() == self.ui.noneBeamChoice:
             errMsg += '  - No beamline lattice specified.\n'
@@ -168,6 +164,7 @@ class RbEle(QWidget):
 
         self.parent.lastUsedDirectory = os.path.dirname(outputFileName)
                 
+        self.ui.textEdit.append('Writing .ele file ...')
         with open(outputFileName, 'w') as outputFile:
             # Copyright statement
             #outputFile.write('/*\n')
@@ -228,39 +225,16 @@ class RbEle(QWidget):
             outputFile.write('&stop \n')
             outputFile.write('&end \n\n')
                 
-        with open(outputFileName,'r') as f:
-            self.ui.textEdit.setText(f.read())
+        self.ui.textEdit.append('Running simulations ...')
 
-        
-        #run elegant simulation
-        simulationPackage = 'Elegant'
-        #configfile = self.ui.lineEdit.text()
-        #runfile = outputFileName
-        runsim = [simulationPackage, outputFileName]
+        subprocess.call(['Elegant', outputFileName])
 
-        #return(runsim)
-        return(outputFileName)
+        self.ui.textEdit.append('Simulation complete!\n')
 
-        #import tempfile    
-        #subprocess.call(runsim)
+        self.ui.textEdit.append('Generated files:')
+        for fileName in glob.glob(os.path.splitext(outputFileName)[0] + '*'):
+            self.ui.textEdit.append(fileName)
 
-    def execsim(self):
-        ofile = self.simulate()
-        subprocess.call(['Elegant',ofile])
-        
-
-        '''proc = subprocess.Popen(runsim, bufsize=1, stdout=subprocess.PIPE)
-        out, err = proc.communicate()
-        print 'output:/n', out
-
-
-        #with open(f, 'r') as F:
-            #self.ui.textEdit.setText(F.read())
-        if deleteLatticeFile:
-            os.remove(latticeFileName)
-        #if deleteBunchFile:
-        #    os.remove(bunchFileName)'''
-            
         
 def run():
 
