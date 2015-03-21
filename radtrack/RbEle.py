@@ -44,6 +44,7 @@ class RbEle(QWidget):
             sddsfileName = QtGui.QFileDialog.getOpenFileName(self, 'Open',
                     self.parent.lastUsedDirectory, '*.sdds')
             if sddsfileName == '':
+                self.ui.bunchChoice.setCurrentIndex(self.ui.bunchChoice.findText(self.ui.noneBunchChoice))
                 return
             self.parent.lastUsedDirectory = os.path.dirname(sddsfileName)
             # Check if file has already been selected
@@ -70,6 +71,7 @@ class RbEle(QWidget):
             fileName = QtGui.QFileDialog.getOpenFileName(self, 'Open',
                     self.parent.lastUsedDirectory, '*.lte')
             if fileName == '':
+                self.ui.latticeChoice.setCurrentIndex(self.ui.latticeChoice.findText(self.ui.noneLatticeChoice))
                 return
             self.parent.lastUsedDirectory = os.path.dirname(fileName)
             # Check if user already selected a file previously
@@ -126,7 +128,7 @@ class RbEle(QWidget):
 
         beamlineName = self.ui.beamlineDropDown.currentText()
         if not beamlineName:
-            errMsg += "  - Not beamline selected.\n"
+            errMsg += "  - No beamline selected.\n"
 
         # Get bunch file
         if self.ui.bunchChoice.currentText() == self.ui.noneBunchChoice:
@@ -143,8 +145,6 @@ class RbEle(QWidget):
             bunchFileName = self.ui.bunchChoice.currentText()
             deleteBunchFile = False
 
-        if self.ui.beamlineDropDown.currentText() == '':
-            errMsg += '  - No beamline specified.\n'
         if self.ui.orderLineEdit.text() == '':
             errMsg += '  - No default order specified.\n'
         if self.ui.momentumLineEdit.text() == '':

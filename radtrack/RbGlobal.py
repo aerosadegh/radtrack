@@ -360,14 +360,19 @@ class RbGlobal(QtGui.QMainWindow):
         menuMap['exportToFile'] = self.ui.actionExport
         menuMap['undo'] = self.ui.actionUndo
         menuMap['redo'] = self.ui.actionRedo
-        for function in menuMap.keys():
+        for function in menuMap:
             menuMap[function].setEnabled(hasattr(getRealWidget(self.tabWidget.currentWidget()), function))
         self.ui.actionUndoCloseTab.setEnabled(len(self.closedTabs) > 0)
 
         # Configure Elegant tab to use tabs for simulation input
         for widget in self.allWidgets():
             if type(widget) == RbEle:
+                oldBeamlineChoice = widget.ui.beamlineDropDown.currentText()
+
+                oldBunchChoice = widget.ui.bunchChoice.currentText()
                 widget.ui.bunchChoice.clear()
+
+                oldLatticeChoice = widget.ui.latticeChoice.currentText()
                 widget.ui.latticeChoice.clear()
 
                 widget.ui.bunchChoice.addItem(widget.ui.noneBunchChoice)
@@ -381,6 +386,11 @@ class RbGlobal(QtGui.QMainWindow):
 
                 widget.ui.bunchChoice.addItem(widget.ui.fileBunchChoice)
                 widget.ui.latticeChoice.addItem(widget.ui.fileBeamChoice)
+
+                # Reselect the previous user's choice
+                widget.ui.bunchChoice.setCurrentIndex(widget.ui.bunchChoice.findText(oldBunchChoice))
+                widget.ui.latticeChoice.setCurrentIndex(widget.ui.latticeChoice.findText(oldLatticeChoice))
+                widget.ui.beamlineDropDown.setCurrentIndex(widget.ui.beamlineDropDown.findText(oldBeamlineChoice))
 
 
     def hasChanged(self):
