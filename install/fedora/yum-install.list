@@ -10,8 +10,10 @@ git
 gsl-devel
 hostname
 lapack-devel
+libgd-devel
 libpng-devel
 make
+openmotif-devel
 openmpi-devel
 openssl-devel
 patch
