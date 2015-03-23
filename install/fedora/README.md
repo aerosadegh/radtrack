@@ -33,3 +33,34 @@ export DISPLAY=172.17.42.1:10.0
 ```
 
 Start the display.
+
+```
+vagrant package --output radtrack2.box
+```
+
+https://atlas.hashicorp.com/development
+
+click under BOXES biviosoftwaer/radtrack
+
+or create a vagrant box
+
+https://atlas.hashicorp.com/biviosoftware/boxes/radtrack
+
+create new version
+
+set provider to "virtualbox"
+
+Upload file
+
+Overview >
+
+click 'edit' next to the version v0.2. Then click release
+
+#### Boot radtrack from vagrant
+
+```bash
+vagrant init biviosoftware/radtrack
+perl -pi -e '/Vagrant.configure/ && ($_ .= "  config.ssh.forward_x11 = true\n")' Vagrantfile
+vagrant box update
+vagrant up
+```
