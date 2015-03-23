@@ -155,16 +155,8 @@ class RbEle(QWidget):
             return
 
         #generate ele file
-        outputFileName = QFileDialog.getSaveFileName(self, 'Save As',
-                self.parent.lastUsedDirectory, '*' + self.fileExtension)
-        if outputFileName == '':
-            return
-        if not outputFileName.endswith(self.fileExtension):
-            outputFileName = outputFileName + self.fileExtension
-
-        self.parent.lastUsedDirectory = os.path.dirname(outputFileName)
-                
         self.ui.textEdit.append('Writing .ele file ...')
+        outputFileName = os.path.join(self.parent.sessionDirectory, 'elegantFile.ele')
         with open(outputFileName, 'w') as outputFile:
             # Copyright statement
             #outputFile.write('/*\n')
