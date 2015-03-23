@@ -12,6 +12,7 @@ hostname
 lapack-devel
 libgd-devel
 libpng-devel
+lzma-devel
 make
 openmotif-devel
 openmpi-devel
