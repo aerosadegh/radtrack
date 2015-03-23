@@ -9,6 +9,7 @@ import argh
 import sip
 sip.setapi('QString', 2)
 from PyQt4 import QtGui
+from datetime import datetime
 
 from  radtrack.globalgu import Ui_globalgu
 from  radtrack.RbLaserWindow import RbLaserWindow
@@ -33,7 +34,11 @@ class RbGlobal(QtGui.QMainWindow):
         self.ui = Ui_globalgu()
         self.ui.setupUi(self)
 
-        self.lastUsedDirectory = os.path.expanduser('~')
+        self.lastUsedDirectory = os.path.expanduser('~').replace('\\', '/')
+        session = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        self.sessionDirectory = os.path.join(os.path.expanduser('~'), 'RadTrack', session).replace('\\', '/')
+        if not os.path.exists(self.sessionDirectory):
+            os.makedirs(self.sessionDirectory)
         self.fileExtension = '.radtrack'
         self.recentfile = None
 

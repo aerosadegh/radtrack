@@ -64,7 +64,10 @@ class RbCbt(QtGui.QWidget):
         
         #text
         self.beamlineTreeLabel = self.ui.translateUTF8('Beamlines')
-        self.beamlineListLabelDefault = self.ui.translateUTF8('Working Beamline: ')
+        self.beamlineListLabelDefault = self.ui.translateUTF8('New Beamline: ')
+        self.ui.label.setText(self.beamlineListLabelDefault)
+        self.emptyBeamlineMessage = self.ui.translateUTF8('Drag elements here to create a new beam line.')
+        self.emptyWorkingBeamlineCheck()
 
         #user interaction state
         if parent == None:
@@ -97,6 +100,14 @@ class RbCbt(QtGui.QWidget):
     def hasChanged(self):
         return not self.undoStack.isClean()
 
+    def emptyWorkingBeamlineCheck(self):
+        isEmpty = (self.ui.workingBeamline.count() == 0 or \
+                self.emptyBeamlineMessage in self.workingBeamlineElementNames())
+        if isEmpty:
+            self.ui.workingBeamline.clear()
+            self.ui.workingBeamline.addItem(self.emptyBeamlineMessage)
+        return isEmpty
+
     def postListDrop(self):
         self.fixWorkingBeamline()
         self.postListSave = self.workingBeamlineElementNames()
@@ -109,6 +120,7 @@ class RbCbt(QtGui.QWidget):
         self.preListSave = self.postListSave
         self.preListNameSave = self.postListNameSave
         self.preListLabelSave = self.postListLabelSave
+        self.emptyWorkingBeamlineCheck()
     
     def treeClick(self):
         # Draw element currently selected
@@ -213,7 +225,7 @@ class RbCbt(QtGui.QWidget):
         if selectedElement.isBeamline():
             # restore selected beamline to Working Beamline list for further editing
             self.workingBeamlineName = selectedElement.name
-            self.ui.label.setText(self.workingBeamlineName)
+            self.ui.label.setText('Editing element: ' + self.workingBeamlineName)
             self.ui.workingBeamline.clear()
             self.ui.workingBeamline.addItems([element.name for element in selectedElement.data])
             self.postListDrop()
@@ -313,6 +325,9 @@ class RbCbt(QtGui.QWidget):
         return name
 
     def addBeam(self):
+        if self.emptyWorkingBeamlineCheck():
+            return
+
         beamline = self.beamlineType()
         if self.workingBeamlineName != '':
             beamline.name = self.workingBeamlineName
@@ -349,6 +364,7 @@ class RbCbt(QtGui.QWidget):
         self.ui.label.setText(self.beamlineListLabelDefault)
         self.ui.workingBeamline.clear()
         self.postListDrop()
+        self.emptyWorkingBeamlineCheck()
 
     def fixWorkingBeamline(self):
         beamline = self.elementDictionary.get(self.workingBeamlineName)
@@ -373,6 +389,8 @@ class RbCbt(QtGui.QWidget):
     def workingBeamlinePreview(self):
         bl = self.beamlineType()
         for name in self.workingBeamlineElementNames():
+            if name == self.emptyBeamlineMessage:
+                return
             bl.addElement(self.elementDictionary[name])
         self.drawElement(bl)
 
@@ -765,10 +783,12 @@ class commandRemoveFromBeam(QtGui.QUndoCommand):
     def redo(self):
         self.widget.ui.workingBeamline.takeItem(self.row)
         self.widget.workingBeamlinePreview()       
+        self.widget.emptyWorkingBeamlineCheck()
         
     def undo(self):
         self.widget.ui.workingBeamline.insertItem(self.row, self.text)
         self.widget.workingBeamlinePreview()
+        self.widget.emptyWorkingBeamlineCheck()
         
         
 class commandundoAdd2Beam(QtGui.QUndoCommand):
@@ -791,6 +811,7 @@ class commandundoAdd2Beam(QtGui.QUndoCommand):
         self.widget.workingBeamlineName = self.previousListName
         self.widget.ui.label.setText(self.previousListLabel)
         self.widget.workingBeamlinePreview()
+        self.widget.emptyWorkingBeamlineCheck()
 
     def redo(self):
         self.widget.ui.workingBeamline.clear()
@@ -799,6 +820,7 @@ class commandundoAdd2Beam(QtGui.QUndoCommand):
         self.widget.workingBeamlineName = self.nextListName
         self.widget.ui.label.setText(self.nextListLabel)
         self.widget.workingBeamlinePreview()
+        self.widget.emptyWorkingBeamlineCheck()
 
 
 class commandReverse(QtGui.QUndoCommand):
@@ -857,8 +879,9 @@ class commandDeleteElement(QtGui.QUndoCommand):
                         if element is not self.element]
 
         # Delete from list
-        self.widget.rewriteBeamlineTree()
+        self.widget.rewriteBeamlineTree() # calls self.widget.fixWorkingBeamline()
         self.widget.ui.graphicsView.scene().clear()
+        self.widget.emptyWorkingBeamlineCheck()
 
     def undo(self):
         # Restore to dictionary
