@@ -49,7 +49,8 @@ def SDDSreshape(x,ColumnXAxis,ColumnPicked,NumPage):
         Xrvec=np.reshape(Xvec,-1,'C')
         Yrvec=np.reshape(Yvec,[len(ColumnPicked),NElemCol],'C')
     else:
-        sys.exit("Input parameter exceeds the number of columns or pages")           
+        #sys.exit("Input parameter exceeds the number of columns or pages")
+        raise Exception("Input parameter exceeds the number of columns or pages")           
     return (Xrvec,Yrvec,YLab,Npar,Ncol,NcolPicked,NElemCol,NPage)
     
 def SRWreshape(x,ColumnXAxis,ColumnPicked):
@@ -76,7 +77,8 @@ def SRWreshape(x,ColumnXAxis,ColumnPicked):
             Yvec.append(x.columnData[ColumnPicked[i]][:])
         print np.shape(Yvec)
     else:
-        sys.exit("Input parameter exceeds the number of columns")
+        #sys.exit("Input parameter exceeds the number of columns")
+        raise Exception("Input parameter exceeds the number of columns or pages")
     return (Xvec,Yvec,Npar,Ncol,NcolPicked,NElemCol)
     
 def FFreshape(x,ColumnXAxis,ColumnPicked):
@@ -101,7 +103,8 @@ def FFreshape(x,ColumnXAxis,ColumnPicked):
             Yvec.append(x.columnData[ColumnPicked[i]][:])
         print np.shape(Yvec)
     else:
-        sys.exit("Input parameter exceeds the number of columns")
+        #sys.exit("Input parameter exceeds the number of columns")
+        raise Exception("Input parameter exceeds the number of columns or pages")
     return (Xvec,Yvec,Ncol,NcolPicked,NElemCol)
 
 def column(matrix, i):  # separating column in a matrix
