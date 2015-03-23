@@ -19,7 +19,8 @@ def IFileTypeCheck(IFileName):
 def SDDSreshape(x,ColumnXAxis,ColumnPicked,NumPage):
     print np.shape(x.columnData)
     if len(np.shape(x.columnData)) < 3:
-        sys.exit("Empty SDDS File")
+        #sys.exit("Empty SDDS File")
+        raise Exception('Empty SDDS File') 
     Npar=np.shape(x.parameterData)[0]
     Ncol=np.shape(x.columnData)[0]
     NElemCol=np.shape(x.columnData)[2]
