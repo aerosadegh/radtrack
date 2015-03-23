@@ -2,7 +2,6 @@
 Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 version 2
 """
-#base imports
 import sys, os, subprocess, tempfile, glob
 
 from PyQt4.QtCore import *
@@ -158,11 +157,6 @@ class RbEle(QWidget):
         self.ui.textEdit.append('Writing .ele file ...')
         outputFileName = os.path.join(self.parent.sessionDirectory, 'elegantFile.ele')
         with open(outputFileName, 'w') as outputFile:
-            # Copyright statement
-            #outputFile.write('/*\n')
-            #outputFile.write('This Elegant file was created by RadTrack\n')
-            #outputFile.write('RadTrack (c) 2013, RadiaBeam Technologies, LLC\n')
-            #outputFile.write('*/\n\n\n')
             s = '    '
             outputFile.write('&run_setup\n')
             outputFile.write(s+'lattice = "'+latticeFileName+'",'+'\n')
@@ -191,7 +185,6 @@ class RbEle(QWidget):
             outputFile.write(s+'concat_order = 3, \n')
             outputFile.write(s+'beta_x=5, alpha_x=0, \n')
             outputFile.write(s+'beta_y=5, alpha_y=0, \n')
-            #outputFile.write(s+'eta_x=0, eta_y=0, etap_x=0, etap_y=0 \n')
             outputFile.write(s+'output_at_each_step=1, \n')
             outputFile.write(s+'statistics =1, concat_order=3, \n')
             outputFile.write(s+'filename = %s.twi \n')
@@ -199,16 +192,6 @@ class RbEle(QWidget):
             outputFile.write('&sdds_beam \n')
             outputFile.write(s+'input = "'+bunchFileName+'",'+'\n')
             outputFile.write('&end \n\n')
-            #outputFile.write('&bunched_beam \n')
-            #outputFile.write(s+'n_particles_per_bunch = 200000, \n')
-            #outputFile.write(s+'bunch = %s.bun,use_twiss_command_values = 1,beta_x=5,beta_y=5, alpha_x=0,alpha_y=0, \n')
-            #outputFile.write(s+'sigma_dp= 1E-4,\n')
-            #outputFile.write(s+'sigma_s = 20E-6, \n')
-            #outputFile.write(s+'emit_nx = 1E-6, \n')
-            #outputFile.write(s+'emit_ny = 1E-6, distribution_type[0] = 3*\"gaussian\", \n')
-            #outputFile.write(s+'distribution_cutoff[0]=3*3, \n')
-            #outputFile.write(s+'enforce_rms_values[0] = 1,1,1, \n')
-            #outputFile.write('&end \n\n')
             outputFile.write('&matrix_output \n')
             outputFile.write(s+'SDDS_output = %s.mat, SDDS_output_order = 3, output_at_each_step = 1 \n')
             outputFile.write('&end \n\n')
