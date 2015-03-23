@@ -26,3 +26,5 @@ cd radtrack
 #   ImportError: No module named numpy.distutils.core
 pip install numpy
 pip install -e .
+rm -f radtrack/dcp/sdds*
+cp install/fedora/sdds* $(python -c 'from distutils.sysconfig import get_python_lib as x; print x()')
