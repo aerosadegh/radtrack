@@ -103,10 +103,11 @@ class RbCbt(QtGui.QWidget):
     def emptyWorkingBeamlineCheck(self):
         isEmpty = (self.ui.workingBeamline.count() == 0 or \
                 self.emptyBeamlineMessage in self.workingBeamlineElementNames())
+        self.ui.clearBeamlineButton.setDisabled(isEmpty)
+        self.ui.saveBeamlineButton.setDisabled(isEmpty)
         if isEmpty:
             self.ui.workingBeamline.clear()
             self.ui.workingBeamline.addItem(self.emptyBeamlineMessage)
-        return isEmpty
 
     def postListDrop(self):
         self.fixWorkingBeamline()
@@ -325,9 +326,6 @@ class RbCbt(QtGui.QWidget):
         return name
 
     def addBeam(self):
-        if self.emptyWorkingBeamlineCheck():
-            return
-
         beamline = self.beamlineType()
         if self.workingBeamlineName != '':
             beamline.name = self.workingBeamlineName

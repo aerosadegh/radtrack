@@ -236,6 +236,7 @@ class RbBunchWindow(QtGui.QWidget):
         self.ui.unitsAngle.setText(self.unitsAngle)
         self.ui.numTicks.setText(str(self.numTicks))
         
+        self.ui.twissTable.setEditTriggers(QtGui.QAbstractItemView.CurrentChanged)
         self.ui.twissTable.setItem(0,0,QtGui.QTableWidgetItem('0.'))
         self.ui.twissTable.setItem(1,0,QtGui.QTableWidgetItem('0.'))
         self.ui.twissTable.setItem(0,1,QtGui.QTableWidgetItem('1 m'))
@@ -243,10 +244,12 @@ class RbBunchWindow(QtGui.QWidget):
         self.ui.twissTable.setItem(0,2,QtGui.QTableWidgetItem('1 micron'))
         self.ui.twissTable.setItem(1,2,QtGui.QTableWidgetItem('1 micron'))
 
+        self.ui.twissTableZ.setEditTriggers(QtGui.QAbstractItemView.CurrentChanged)
         self.ui.twissTableZ.setItem(0,0,QtGui.QTableWidgetItem('0'))
         self.ui.twissTableZ.setItem(0,1,QtGui.QTableWidgetItem('1 mm'))
         self.ui.twissTableZ.setItem(0,2,QtGui.QTableWidgetItem('1.e-3'))
         
+        self.ui.offsetTable.setEditTriggers(QtGui.QAbstractItemView.CurrentChanged)
         self.ui.offsetTable.setItem(0,0,QtGui.QTableWidgetItem('0 mm'))
         self.ui.offsetTable.setItem(1,0,QtGui.QTableWidgetItem('0 mm'))
         self.ui.offsetTable.setItem(2,0,QtGui.QTableWidgetItem('0 mm'))

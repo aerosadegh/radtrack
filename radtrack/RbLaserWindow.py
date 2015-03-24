@@ -176,6 +176,7 @@ class RbLaserWindow(QWidget):
         self.ui.numTicks.setText(str(self.numTicks))
 
         # load up the table of coefficients
+        self.ui.ghTable.setEditTriggers(QtGui.QAbstractItemView.CurrentChanged)
         self.ui.ghTable.setItem(0,0,QTableWidgetItem('1'))
         self.ui.ghTable.setItem(0,1,QTableWidgetItem('1'))
         maxLoop = max(self.mMax, 100)

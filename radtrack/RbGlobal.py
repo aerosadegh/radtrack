@@ -47,6 +47,7 @@ class RbGlobal(QtGui.QMainWindow):
         self.setWindowTitle('RadTrack')
 
         self.tabWidget = QtGui.QTabWidget()
+        self.tabWidget.setTabsClosable(True)
 
         if not beta_test:
             scrollArea = QtGui.QScrollArea(self)
@@ -128,14 +129,15 @@ class RbGlobal(QtGui.QMainWindow):
             self.ui.menuNewTab.addAction(actionNewTab)
 
         self.ui.verticalLayout.addWidget(self.tabWidget)
-        self.ui.actionOpen.triggered.connect(lambda ignore : self.openProjectFile())
+        self.ui.actionOpen.triggered.connect(lambda : self.openProjectFile())
         self.ui.actionSave.triggered.connect(self.saveProjectFile)
-        self.ui.actionImport.triggered.connect(lambda ignore : self.importFile())
+        self.ui.actionImport.triggered.connect(lambda : self.importFile())
         self.ui.actionExport.triggered.connect(self.exportCurrentTab)
         self.ui.actionExit.triggered.connect(self.close)
         self.ui.actionUndo.triggered.connect(self.undo)
         self.ui.actionRedo.triggered.connect(self.redo)
-        self.ui.actionCloseTab.triggered.connect(self.closeCurrentTab)
+        self.ui.actionCloseTab.triggered.connect(lambda : self.closeTab(None))
+        self.tabWidget.tabCloseRequested.connect(self.closeTab)
         self.ui.actionUndoCloseTab.triggered.connect(self.undoCloseTab)
         self.ui.actionRenameTab.triggered.connect(self.renameTab)
         self.tabWidget.currentChanged.connect(self.checkMenus)
@@ -176,8 +178,9 @@ class RbGlobal(QtGui.QMainWindow):
             title = originalTitle + ' ' + str(number)
         return title.strip()
 
-    def closeCurrentTab(self):
-        index = self.tabWidget.currentIndex()
+    def closeTab(self, index = None):
+        if index == None:
+            index = self.tabWidget.currentIndex()
         self.closedTabs.append((self.tabWidget.widget(index),
                                 index,
                                 self.tabWidget.tabText(index)))
@@ -272,13 +275,10 @@ class RbGlobal(QtGui.QMainWindow):
             if fileName == '':
                 return
 
-        print "Opening: ", fileName
-
         # Open a new window if user has worked in the current one
         if self.hasChanged():
             dest = RbGlobal()
             dest.show()
-            print 'new window'
         else:
             dest = self
 
