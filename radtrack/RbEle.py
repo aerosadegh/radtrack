@@ -128,8 +128,8 @@ class RbEle(QtGui.QWidget):
         if self.ui.bunchChoice.currentText() == self.ui.noneBunchChoice:
             errMsg += '  - No bunch file specified.\n'
         elif self.ui.bunchChoice.currentText() in self.tabTitles():
-            fileHandle, bunchFileName = tempfile.mkstemp('.sdds')
-            os.close(fileHandle)
+            self.ui.textEdit.append('Generating beam bunch file ...')
+            bunchFileName = os.path.join(self.parent.sessionDirectory, 'elegantSimulation.sdds')
             for index in range(self.parent.tabWidget.count()):
                 if self.parent.tabWidget.tabText(index) == self.ui.bunchChoice.currentText():
                     self.parent.tabWidget.widget(index).widget().saveToSDDS(bunchFileName)
