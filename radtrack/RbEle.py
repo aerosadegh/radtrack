@@ -10,6 +10,7 @@ from radtrack.interactions.rbele import *
 from  radtrack.RbBunchTransport import RbBunchTransport
 from  radtrack.RbBunchWindow import RbBunchWindow
 from  radtrack.RbUtility import stripComments
+import radtrack.util.resource as resource
 
 class RbEle(QWidget):
     def __init__(self, parent=None):
@@ -23,7 +24,7 @@ class RbEle(QWidget):
         self.ui.stepsLineEdit.setText('1')
         self.fileExtension = '.ele'
         self.parent = parent
-        
+
         if self.parent is None:
             self.parent = self
             self.parent.lastUsedDirectory = os.path.expanduser('~')
@@ -31,7 +32,7 @@ class RbEle(QWidget):
         self.loaderCache = dict() # saves the elements from beamline files chosen
                                   # so they don't have to be reloaded every time
                                   # the user chooses that file
-        
+
     def getBUN(self):
         if self.ui.bunchChoice.currentText() == self.ui.noneBunchChoice:
             return
@@ -50,8 +51,8 @@ class RbEle(QWidget):
             else:
                 self.ui.bunchChoice.addItem(sddsfileName)
                 self.ui.bunchChoice.setCurrentIndex(self.ui.bunchChoice.count()-1)
-		
-        
+
+
     def getLTE(self):
         self.ui.beamlineDropDown.clear()
 
@@ -80,7 +81,7 @@ class RbEle(QWidget):
 
             return
             # Setting the currentIndex triggers another signal that runs
-            # the else clause below 
+            # the else clause below
 
         else: # previously loaded file
             loader = self.loaderCache[self.ui.latticeChoice.currentText()]
@@ -93,10 +94,10 @@ class RbEle(QWidget):
         # Reset available beamlines
         self.ui.beamlineDropDown.addItems(allBeamLines)
         self.ui.beamlineDropDown.setCurrentIndex(self.ui.beamlineDropDown.findText(loader.defaultBeamline))
-        
+
     def tabTitles(self):
         return [self.parent.tabWidget.tabText(i) for i in range(self.parent.tabWidget.count())]
-    
+
     def simulate(self):
         self.ui.textEdit.append('Starting simulation ...')
 
@@ -199,10 +200,13 @@ class RbEle(QWidget):
             outputFile.write('&end \n\n')
             outputFile.write('&stop \n')
             outputFile.write('&end \n\n')
-                
+
         self.ui.textEdit.append('Running simulations ...')
 
-        subprocess.call(['Elegant', outputFileName])
+        if not os.getenv('RPN_DEFNS', None):
+            os.environ['RPN_DEFNS'] = resource.filename('defns.rpn')
+
+        subprocess.call(['elegant', outputFileName])
 
         self.ui.textEdit.append('Simulation complete!\n')
 
@@ -210,7 +214,7 @@ class RbEle(QWidget):
         for fileName in glob.glob(os.path.splitext(outputFileName)[0] + '*'):
             self.ui.textEdit.append(fileName)
 
-        
+
 def run():
 
     app = QtGui.QApplication(sys.argv)
@@ -219,7 +223,4 @@ def run():
     sys.exit(app.exec_())
 
 if __name__ == "__main__":
-    run()               
-               
-               
-               
+    run()
