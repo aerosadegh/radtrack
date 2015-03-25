@@ -17,10 +17,11 @@ font = {'family' : 'normal',
 mpl.rc('font', **font)
 import numpy as np
 from scipy import constants as consts
+from radtrack.genesis.rbExecuteGenesis import rbExecuteGenesis
 
 # A doublet cell
 
-my_lattice = GenLattice('ttf-base.lat')
+my_lattice = GenLattice('ttf.lat')
 
 gamma0 = 1956.947
 emittance = 2.000000e-6 #2 mm-mrad
@@ -65,14 +66,17 @@ print 'transfer map =\n', transfermap
 
 betax, betay, s = my_lattice.compute_beta_func()
 
-plt.plot(s, betax, c='r', label=r'$\beta_x$')
-plt.plot(s, betay, c='g', label=r'$\beta_y$')
-plt.ylabel(r'$\beta~\textrm{[m/rad]}$')
-plt.xlabel(r'$s~\textrm{[m]}$')
-plt.ylim([0., 1.5*max(betax)])
-plt.xlim([0., s[-1]])
-plt.legend()
-plt.tight_layout()
-plt.show()
+#plt.plot(s, betax, c='r', label=r'$\beta_x$')
+#plt.plot(s, betay, c='g', label=r'$\beta_y$')
+#plt.ylabel(r'$\beta~\textrm{[m/rad]}$')
+#plt.xlabel(r'$s~\textrm{[m]}$')
+#plt.ylim([0., 1.5*max(betax)])
+#plt.xlim([0., s[-1]])
+#plt.legend()
+#plt.tight_layout()
+#plt.show()
 
 my_lattice.export_genesis_lattice(l_undulator, gamma0)
+
+run_genesis = rbExecuteGenesis()
+run_genesis.execute_genesis('ttf.in')
