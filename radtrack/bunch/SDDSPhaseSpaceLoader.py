@@ -1,6 +1,8 @@
-# SDDS file loader for the files with particle phase spaces 
+# SDDS file loader for the files with particle phase spaces
 import numpy as np
-import sys, sdds
+import sys
+
+from radtrack.util.sdds_fix import sdds
 
 WorkingDir="..\..\Codes\Elegant\laserHeater\\"
 DirFileName="laserheat.out"
@@ -41,6 +43,6 @@ for i in xrange(0,Ncol):
 	elif x.columnName[i]=='particleID':
 		ID=x.columnData[i][0][:]
 	else:
-		sys.exit("Input parameter exceeds the number of columns or pages") 
+		sys.exit("Input parameter exceeds the number of columns or pages")
 print X[1:10]
-sys.exit("end")	
+sys.exit("end")

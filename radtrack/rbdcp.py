@@ -13,7 +13,7 @@ from radtrack.dcp.Plotlib2axis import *
 from radtrack.dcp.moverage import *
 from radtrack.dcp.FourieT import *
 from radtrack.dcp.math_analyses import *
-import radtrack.dcp.sdds as sdds 
+from radtrack.util.sdds_fix import sdds
 from radtrack.dcp.dcpwidget import Ui_dcpwidget
 from functools import partial
 from numpy.fft import fft, fftshift, ifftshift, fftfreq
@@ -23,7 +23,7 @@ ColumnXAxis =-1
 MaxNumParam=999
 MaxNumColum=999
 
-            
+
 class RbDcp(QtGui.QWidget):
     def __init__(self, parent = None):
         QtGui.QWidget.__init__(self)
@@ -50,7 +50,7 @@ class RbDcp(QtGui.QWidget):
         self.ui.param.setHorizontalHeaderItem(1, QtGui.QTableWidgetItem('Value'))
         self.ui.param.setHorizontalHeaderItem(2, QtGui.QTableWidgetItem('Unit'))
         self.ui.param.setHorizontalHeaderItem(3, QtGui.QTableWidgetItem('Name'))
-    
+
     def setcurrentFile(self, type):
         self.currentFiletype = type
 
@@ -78,7 +78,7 @@ class RbDcp(QtGui.QWidget):
 
     #for opening up elegant files
     def showDCP_ele(self, fnfromglobal):
-                
+
         #reset data selection
         ColumnPicked = [0]
         ColumnXAxis = -1
@@ -87,9 +87,9 @@ class RbDcp(QtGui.QWidget):
         self.ui.page.show()
         #get file info
         phile = QtCore.QFileInfo(fnfromglobal)
-        self.ui.file.setText(str(phile.fileName()))    
+        self.ui.file.setText(str(phile.fileName()))
         #SDDS specific code
-        self.x=sdds.SDDS(0)   
+        self.x=sdds.SDDS(0)
         self.x.load(fnfromglobal)
         #get # of pages and columns
         (_,_,_,_,self.Ncol,_,_,Npage)=SDDSreshape(self.x,ColumnXAxis,ColumnPicked,NumPage)
@@ -98,15 +98,15 @@ class RbDcp(QtGui.QWidget):
         stringOut=" Columns: "+str(self.Ncol)+" Pages: "+str(Npage)+" ColumnElements: "+\
         str(np.shape(self.x.columnData)[2])
         self.ui.textEdit.setText(QtGui.QApplication.translate("dcpwidget",\
-            self.x.description[0]+stringOut, None, QtGui.QApplication.UnicodeUTF8))   
+            self.x.description[0]+stringOut, None, QtGui.QApplication.UnicodeUTF8))
         for i in range(Npage):
-            self.ui.page.addItem(str(i))    
-        self.ui.page.setCurrentIndex(0)  
+            self.ui.page.addItem(str(i))
+        self.ui.page.setCurrentIndex(0)
         #preview of parameters
         self.preview()
         #preview of sdds data
         self.sddsprev()
-        
+
     #for opening up srw files and then previews and then previews
     def showDCP_srw(self,fnfromglobal):
         #reset data selection
@@ -114,7 +114,7 @@ class RbDcp(QtGui.QWidget):
         ColumnXAxis = -1
         #disable pages(have yet to see a srw files with multiple pages)
         self.ui.page.hide()
-        #get file 
+        #get file
         phile = QtCore.QFileInfo(fnfromglobal)
         self.ui.file.setText(str(phile.fileName()))
         self.ui.textEdit.setText(QtGui.QApplication.translate("dcpwidget",\
@@ -126,7 +126,7 @@ class RbDcp(QtGui.QWidget):
         (_,_,_,self.Ncol,_,_)=SRWreshape(self.x,ColumnXAxis,ColumnPicked)
         ColumnPicked = []
         for i in range(self.Ncol):
-            ColumnPicked.append(i)           
+            ColumnPicked.append(i)
         stringOut=" Columns: "+str(np.shape(x.columnData)[0])+" Pages: 1"+" ColumnElements: "+\
         str(np.shape(x.columnData)[1])
         self.ui.textEdit.setText(QtGui.QApplication.translate("dcpwidget",\
@@ -135,7 +135,7 @@ class RbDcp(QtGui.QWidget):
         self.preview()
         #preview srw data
         self.srwprev()
-        
+
     #for opening plain text/flat files and then previews
     def showDCP_ff(self,fnfromglobal):
         #reset data selection
@@ -146,7 +146,7 @@ class RbDcp(QtGui.QWidget):
         phile = QtCore.QFileInfo(fnfromglobal)
         self.ui.file.setText(str(phile.fileName()))
         self.ui.textEdit.setText(QtGui.QApplication.translate("dcpwidget",\
-            'flat file', None, QtGui.QApplication.UnicodeUTF8))        
+            'flat file', None, QtGui.QApplication.UnicodeUTF8))
         x = FF()
         xlabel=r'$\tau$'
         (self.x,_)=FFColRead(x,fnfromglobal,MaxNumColum)
@@ -159,20 +159,20 @@ class RbDcp(QtGui.QWidget):
         self.preview()
         #preview data
         self.ffprev()
-               
+
 
     #this method is needed for updating after selcting a new sdds page
     def sddspreview(self):
         self.preview()
         self.sddsprev()
-            
+
     #this method allows only one x and quickview selection at a time
     def action(self, i, n):
         self.ui.data.setFocus()
         if n == 1 or n == 4:
             for index, data in enumerate(self.select):
                 if index != i and self.select[index].currentIndex()==1:
-                    self.select[index].setCurrentIndex(0)  
+                    self.select[index].setCurrentIndex(0)
                 if index != i and self.select[index].currentIndex()==4:
                     self.select[index].setCurrentIndex(0)
                 #make math functions one at a time?
@@ -237,14 +237,14 @@ class RbDcp(QtGui.QWidget):
         self.ui.data.setRowCount(1000)
         self.ui.data.setColumnCount(self.Ncol+1)
         self.ui.param.setRowCount(size(self.x.parameterName))
-        
+
         for i,a in enumerate(self.x.columnDefinition):
             self.ui.data.setItem(1,i+1, QtGui.QTableWidgetItem(a[2]))
             self.ui.data.setItem(3,i+1, QtGui.QTableWidgetItem(a[1]))
-            
+
         for i,a in enumerate(self.x.columnName):
             self.ui.data.setItem(2,i+1,QtGui.QTableWidgetItem(a[0]))
-            
+
         for i,a in enumerate(self.x.parameterDefinition):
             self.ui.param.setItem(i,0,QtGui.QTableWidgetItem(a[2]))
             self.ui.param.setItem(i,2,QtGui.QTableWidgetItem(a[1]))
@@ -254,7 +254,7 @@ class RbDcp(QtGui.QWidget):
 
         for i,a in enumerate(self.x.parameterData):
             self.ui.param.setItem(i,1,QtGui.QTableWidgetItem(str(a)))
-            
+
         for i in range(self.Ncol):
             xin = QtGui.QComboBox()
             xin.addItem('<select>')
@@ -270,10 +270,10 @@ class RbDcp(QtGui.QWidget):
             xin.activated.connect(combocallback) #previously used index change signal
             self.ColumnPicked.append(i)
 
-    #shows sdds data        
+    #shows sdds data
     def sddsprev(self):
-        (Xrvec,Yrvec,YLab,Npar,Ncol,NcolPicked,NElemCol,Npage)=SDDSreshape(self.x,ColumnXAxis,self.ColumnPicked,NumPage) #reshapes file into vectors and a matrix  
-    
+        (Xrvec,Yrvec,YLab,Npar,Ncol,NcolPicked,NElemCol,Npage)=SDDSreshape(self.x,ColumnXAxis,self.ColumnPicked,NumPage) #reshapes file into vectors and a matrix
+
         for i, a in enumerate(Yrvec):
             #if i>0:# skip first column i+1=>i to adjust, because of extra 0 column!!!?
             if size(a)<1000:
@@ -282,8 +282,8 @@ class RbDcp(QtGui.QWidget):
                     self.ui.data.setItem(j+4,i+1,QtGui.QTableWidgetItem(str(b)))
             else:
                 for j in range(1000):
-                    self.ui.data.setItem(j+4,i+1,QtGui.QTableWidgetItem(str(a[j]))) 
-    #shows srw data                    
+                    self.ui.data.setItem(j+4,i+1,QtGui.QTableWidgetItem(str(a[j])))
+    #shows srw data
     def srwprev(self):
         (Xrvec,Yrvec,Npar,Ncol,NcolPicked,NElemCol)=SRWreshape(self.x,ColumnXAxis,self.ColumnPicked)
         for i, a in enumerate(Yrvec):
@@ -294,7 +294,7 @@ class RbDcp(QtGui.QWidget):
             else:
                 for j in range(1000):
                     self.ui.data.setItem(j+4,i+1,QtGui.QTableWidgetItem(str(a[j])))
-    #shows ff data               
+    #shows ff data
     def ffprev(self):
         (Xrvec,Yrvec,Ncol,NcolPicked,NElemCol)=FFreshape(self.x,ColumnXAxis,self.ColumnPicked)
         for i, a in enumerate(Yrvec):
@@ -305,7 +305,7 @@ class RbDcp(QtGui.QWidget):
             else:
                 for j in range(1000):
                     self.ui.data.setItem(j+4,i+1,QtGui.QTableWidgetItem(str(a[j])))
-        
+
     #data plotting method
     def graph(self):
         #resets display
@@ -351,11 +351,11 @@ class RbDcp(QtGui.QWidget):
             elif i == 2:
                 self.ui.widget.canvas.ax2.set_visible(True)
                 Yrvec2.append(Yrvec[n])
-                
+
         #plots the data
         PlotColnS2(Xrvec,Yrvec1,Yrvec2,'','bo','rs',self.x.description[0],Xlab,YLab, self.ui.widget.canvas)
-    
-    #method for quickly displaying data to see its general form    
+
+    #method for quickly displaying data to see its general form
     def quickview(self):
         self.ui.widget.canvas.ax.clear()
         self.ui.widget.canvas.ax2.clear()
@@ -368,7 +368,7 @@ class RbDcp(QtGui.QWidget):
             a = self.ui.data.cellWidget(0,i)
             if a.currentIndex()==4:
                 y.append(i-1)
-                
+
         if self.currentFiletype == 'sdds':
             (Xrvec,Yrvec,YLab,Npar,Ncol,NcolPicked,NElemCol,Npage)=SDDSreshape(self.x,-1,y,NumPage)
         elif self.currentFiletype == 'srw':
@@ -377,8 +377,8 @@ class RbDcp(QtGui.QWidget):
             (Xrvec,Yrvec,Ncol,NcolPicked,NElemCol)=FFreshape(self.x,ColumnXAxis,self.y)
         #matplotlib.pyplot.figure
         matplotlib.pyplot.plot(Xrvec,Yrvec[0],'ko')
-        matplotlib.pyplot.show()       
-        
+        matplotlib.pyplot.show()
+
     def math(self):
         #self.ui.widget.canvas.ax.clear()
         #self.ui.widget.canvas.ax2.clear()
@@ -404,7 +404,7 @@ class RbDcp(QtGui.QWidget):
             #yvec = [1,2,3]
             #self.ui.widget.canvas.ax.plot([1,2,3])
             #self.ui.widget.canvas.draw()
-        
+
 
     def reset(self):
         self.ui.widget.canvas.ax.clear()
@@ -419,5 +419,5 @@ class RbDcp(QtGui.QWidget):
         self.ui.param.setHorizontalHeaderItem(0, QtGui.QTableWidgetItem('Description'))
         self.ui.param.setHorizontalHeaderItem(1, QtGui.QTableWidgetItem('Value'))
         self.ui.param.setHorizontalHeaderItem(2, QtGui.QTableWidgetItem('Unit'))
-        self.ui.param.setHorizontalHeaderItem(3, QtGui.QTableWidgetItem('Name'))  
+        self.ui.param.setHorizontalHeaderItem(3, QtGui.QTableWidgetItem('Name'))
         self.ui.widget.canvas.draw()
