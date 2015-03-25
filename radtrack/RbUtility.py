@@ -265,11 +265,11 @@ def rpn(expression):
                 valueStack.append(rpnOp[token](valueStack))
             except (KeyError, IndexError):
                 # named function not defined in rpnOp or valueStack is empty
-                raise ValueError(expression + ' is not a valid RPN expression.')
+                raise ValueError('Token: "' + token + '" in "' + expression + '" is not a valid RPN expression.')
     if len(valueStack) == 1:
         return valueStack[0]
     else:
-        raise ValueError(expression + ' is not a valid RPN expression.')
+        raise ValueError('"' + expression + '" is not a valid RPN expression.')
 
 
 

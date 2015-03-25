@@ -19,13 +19,13 @@ for test in testList:
         raise Exception
 
 # These tests should fail
-try:
-    for exp in ["1 + 2", "+ 1 2", "1 2 3", "a"]:
+for exp in ["1 + 2", "+ 1 2", "1 2 3", "a"]:
+    try:
         rpn(exp)
-except:
-    pass
-else:
-    raise Exception("Invalid RPN Expression \"" + exp + "\"did not cause error.")
+    except Exception as e:
+        print 'Test correctly caused exception: ', e
+    else:
+        raise Exception("Invalid RPN Expression \"" + exp + "\"did not cause error.")
 
 # Find RPN expressions in files that can't be processed
 import glob, sys, os
