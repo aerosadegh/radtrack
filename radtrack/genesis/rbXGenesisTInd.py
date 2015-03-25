@@ -73,6 +73,26 @@ class RbXGenesisTInd(object):
         genesis_file = open(filename, 'r')
         line = genesis_file.readline()
         # Advance to find where the number of data entries are
+        output_keys = ['Power', 'Increment', 'p_mid', 'Phase', 'Rad. Size',
+                       'Diff. Angle', 'Energy', 'Bunching', 'X Beam Size',
+                       'Y Beam Size', 'Error', 'X Centroid', 'Y Centroid',
+                       'Energy Spread', 'Far Field', '2nd Harm.',
+                       '3rd Harm.', '4th Harm.', '5th Harm.']
+
+        # Find the output demanded by the simulation and associate it with
+        # the correct key.
+        while not 'lout' in line:
+            line = genesis_file.readline()
+
+        output = []
+        for idx in range(2,len(line.split())-1):
+            output.append(int(line.split()[idx]))
+
+        last_keys = []
+        for idx in range(len(output)-1):
+            if output[idx]==1:
+                last_keys.append(output_keys[idx])
+
         while not 'entries per record' in line:
             line = genesis_file.readline()
         num_steps = int(line.split()[0])
@@ -80,10 +100,6 @@ class RbXGenesisTInd(object):
             self.data_set[key] = np.zeros(num_steps-1)
 
         first_three_keys = ['z', 'aw', 'QF']
-        last_keys = ['Power', 'Increment', 'p_mid', 'Phase', 'Rad. Size',
-                     'Energy', 'Bunching', 'X Beam Size', 'Y Beam Size',
-                     'Error', 'X Centroid', 'Y Centroid', 'Energy Spread',
-                     'Far Field']
 
         # Advance to the first set of data
         while not 'z[m]' in line:
@@ -97,14 +113,13 @@ class RbXGenesisTInd(object):
                 self.data_set[first_three_keys[idx]][lineIdx] = float(
                     line.split()[idx])
 
-        while not 'power' in line:
+        while not last_keys[0] in line:
             line = genesis_file.readline()
 
         for lineIdx in range(0, num_steps-1):
             line = genesis_file.readline()
             for idx in range(0, len(last_keys)):
-                self.data_set[last_keys[idx]][lineIdx] = float(line.split()[
-                    idx])
+                self.data_set[last_keys[idx]][lineIdx]=float(line.split()[idx])
 
         genesis_file.close()
 

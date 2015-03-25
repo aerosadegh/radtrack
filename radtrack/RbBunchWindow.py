@@ -34,22 +34,7 @@ import radtrack.statistics.RbStatistics6D as stat
 from radtrack.ui.RbBunchInterface import *
 from  radtrack.RbUtility import parseUnits, unitConversion
 
-import radtrack.dcp.sdds as sdds
-if 'win32' in sys.platform or 'win64' in sys.platform:
-    import radtrack.dcp.sddsdata as sddsdata
-elif 'darwin' in sys.platform:
-    pass
-    #import radtrack.dcp.sddsdatamodule as sddsdata
-elif 'linux' in sys.platform:
-    pass
-    #import radtrack.dcp.sddsdatamodule as sddsdata
-else:
-    msg = '  !Warning -- /n'
-    msg += 'Operating system is not recognized. RadTrack recognizes win32, ' \
-           'win64, darwin, or linux operating systems./n'
-    msg += 'Contact customer support for further assistance.'
-    raise Exception(msg)
-# from radtrack.dcp.Servicelib import SDDSreshape
+from radtrack.util.sdds_fix import sdds, sddsdata
 
 class RbBunchWindow(QtGui.QWidget):
 
@@ -61,7 +46,7 @@ class RbBunchWindow(QtGui.QWidget):
 
         # set default values for flags
         self.numTicks = 5
-        self.plotFlag = 'combo'      
+        self.plotFlag = 'combo'
         self.axisFlag = 'symmetric'
         self.plotTitles = True
         self.longTwissFlag = 'alpha-bct-dp'
@@ -83,19 +68,19 @@ class RbBunchWindow(QtGui.QWidget):
         exportMenu.addAction(saveToSDDS)
         convertToSDDS = QtGui.QAction("Convert CSV to SDDS",self)
         exportMenu.addAction(convertToSDDS)
-        
+
         # associate these actions with class methods
         # The ignore variable catches the bool returned from the PyQt signal
         # and, as the name implies, ignores it.
         saveToCSV.triggered.connect(lambda ignore : self.saveToCSV())
         saveToSDDS.triggered.connect(lambda ignore : self.saveToSDDS())
         convertToSDDS.triggered.connect(lambda ignore : self.convertToSDDS())
-        
+
         # grab an existing button & insert the menu
         saveToFileButton = self.ui.saveToFile
         saveToFileButton.setMenu(exportMenu)
         saveToFileButton.setPopupMode(QtGui.QToolButton.InstantPopup)
-        
+
         # create a menu for importing particle data
         importMenu = QtGui.QMenu(self)
         readFromCSV = QtGui.QAction("RadTrack CSV format",self)
@@ -104,16 +89,16 @@ class RbBunchWindow(QtGui.QWidget):
         importMenu.addAction(readFromSDDS)
 
         self.acceptsFileTypes = ['sdds', 'csv']
-        
+
         # associate these actions with class methods
         readFromCSV.triggered.connect(lambda ignore : self.readFromCSV())
         readFromSDDS.triggered.connect(lambda ignore : self.readFromSDDS())
-        
+
         # grab an existing button & insert the menu
         importFileButton = self.ui.importFile
         importFileButton.setMenu(importMenu)
         importFileButton.setPopupMode(QtGui.QToolButton.InstantPopup)
-        
+
         # create a menu for bunch generation
         bunchMenu = QtGui.QMenu(self)
         radtrackGaussian = QtGui.QAction("RadTrack - gaussian",self)
@@ -122,17 +107,17 @@ class RbBunchWindow(QtGui.QWidget):
         bunchMenu.addAction(radtrackUniform)
         elegantGaussian = QtGui.QAction("Elegant - gaussian",self)
         bunchMenu.addAction(elegantGaussian)
-        
+
         # associate these actions with class methods
         radtrackGaussian.triggered.connect(self.radtrackGaussian)
         radtrackUniform.triggered.connect(self.radtrackUniform)
         elegantGaussian.triggered.connect(self.elegantGaussian)
-        
+
         # grab an existing button & insert the menu
         bunchButton = self.ui.generateBunch
         bunchButton.setMenu(bunchMenu)
         bunchButton.setPopupMode(QtGui.QToolButton.InstantPopup)
-        
+
         # create a menu for plot type
         plotsMenu = QtGui.QMenu(self)
         scatterPlots = QtGui.QAction("scatter",self)
@@ -143,18 +128,18 @@ class RbBunchWindow(QtGui.QWidget):
         plotsMenu.addAction(comboPlots)
         erasePlots = QtGui.QAction("erase",self)
         plotsMenu.addAction(erasePlots)
-        
+
         # associate these actions with class methods
         scatterPlots.triggered.connect(self.scatterPlots)
         contourPlots.triggered.connect(self.contourPlots)
         comboPlots.triggered.connect(self.comboPlots)
         erasePlots.triggered.connect(self.erasePlots)
-        
+
         # grab an existing button & insert the menu
         plotsButton = self.ui.plotType
         plotsButton.setMenu(plotsMenu)
         plotsButton.setPopupMode(QtGui.QToolButton.InstantPopup)
-        
+
         # create a menu for axis type
         axisMenu = QtGui.QMenu(self)
         bunchCenteredAxis = QtGui.QAction("bunch-centered",self)
@@ -163,17 +148,17 @@ class RbBunchWindow(QtGui.QWidget):
         axisMenu.addAction(compactAxis)
         symmetricAxis = QtGui.QAction("symmetric",self)
         axisMenu.addAction(symmetricAxis)
-        
+
         # associate these actions with class methods
         bunchCenteredAxis.triggered.connect(self.bunchCenteredAxis)
         compactAxis.triggered.connect(self.compactAxis)
         symmetricAxis.triggered.connect(self.symmetricAxis)
-        
+
         # grab an existing button & insert the menu
         axisButton = self.ui.axisType
         axisButton.setMenu(axisMenu)
         axisButton.setPopupMode(QtGui.QToolButton.InstantPopup)
-        
+
         # create a menu for transverse Twiss conventions
         perpTwissMenu = QtGui.QMenu(self)
         rmsNormalized = QtGui.QAction("rms, normalized",self)
@@ -182,17 +167,17 @@ class RbBunchWindow(QtGui.QWidget):
         perpTwissMenu.addAction(ninetyNormalized)
         rmsGeometric = QtGui.QAction("rms, geometric",self)
         perpTwissMenu.addAction(rmsGeometric)
-        
+
         # associate these actions with class methods
         rmsNormalized.triggered.connect(self.rmsNormalized)
         ninetyNormalized.triggered.connect(self.ninetyNormalized)
         rmsGeometric.triggered.connect(self.rmsGeometric)
-        
+
         # grab an existing button & insert the menu
         perpTwissButton = self.ui.perpTwissSpec
         perpTwissButton.setMenu(perpTwissMenu)
         perpTwissButton.setPopupMode(QtGui.QToolButton.InstantPopup)
-        
+
         # create a menu for longitudinal Twiss conventions
         longTwissMenu = QtGui.QMenu(self)
         alphaBctDp = QtGui.QAction("alpha-bct-dp",self)
@@ -201,17 +186,17 @@ class RbBunchWindow(QtGui.QWidget):
         longTwissMenu.addAction(couplingBctDp)
         alphaBetaEmit = QtGui.QAction("alpha-beta-emit",self)
         longTwissMenu.addAction(alphaBetaEmit)
-        
+
         # associate these actions with class methods
         alphaBctDp.triggered.connect(self.alphaBctDp)
         couplingBctDp.triggered.connect(self.couplingBctDp)
         alphaBetaEmit.triggered.connect(self.alphaBetaEmit)
-        
+
         # grab an existing button & insert the menu
         longTwissButton = self.ui.longTwissSpec
         longTwissButton.setMenu(longTwissMenu)
         longTwissButton.setPopupMode(QtGui.QToolButton.InstantPopup)
-        
+
         # specify physical constants
         self.c     = 299792458.           # speed of light [m/s]
         self.cSq   = self.c**2            # speed of light squared
@@ -221,7 +206,7 @@ class RbBunchWindow(QtGui.QWidget):
         self.eMass   = 9.10938215e-31     # electron mass [kG]
         self.eCharge = 1.602176487e-19    # elementary charge [C]
         self.eMassEV = self.eMass*self.cSq/self.eCharge  # eMass [eV]
-        
+
         # specify default values for all input fields
         numParticles = 4000
         self.designMomentumEV = 2.e+8
@@ -229,13 +214,13 @@ class RbBunchWindow(QtGui.QWidget):
         self.ui.numPtcls.setText("{:d}".format(numParticles))
         self.ui.designMomentum.setText("{:.0f}".format(self.designMomentumEV*1.e-6) + ' MeV')
         self.ui.totalCharge.setText("{:.0f}".format(self.totalCharge*1.e9) + ' nC')
-        
+
         self.unitsPos = 'mm'
         self.unitsAngle = 'mrad'
         self.ui.unitsPos.setText(self.unitsPos)
         self.ui.unitsAngle.setText(self.unitsAngle)
         self.ui.numTicks.setText(str(self.numTicks))
-        
+
         self.ui.twissTable.setEditTriggers(QtGui.QAbstractItemView.CurrentChanged)
         self.ui.twissTable.setItem(0,0,QtGui.QTableWidgetItem('0.'))
         self.ui.twissTable.setItem(1,0,QtGui.QTableWidgetItem('0.'))
@@ -248,7 +233,7 @@ class RbBunchWindow(QtGui.QWidget):
         self.ui.twissTableZ.setItem(0,0,QtGui.QTableWidgetItem('0'))
         self.ui.twissTableZ.setItem(0,1,QtGui.QTableWidgetItem('1 mm'))
         self.ui.twissTableZ.setItem(0,2,QtGui.QTableWidgetItem('1.e-3'))
-        
+
         self.ui.offsetTable.setEditTriggers(QtGui.QAbstractItemView.CurrentChanged)
         self.ui.offsetTable.setItem(0,0,QtGui.QTableWidgetItem('0 mm'))
         self.ui.offsetTable.setItem(1,0,QtGui.QTableWidgetItem('0 mm'))
@@ -286,13 +271,13 @@ class RbBunchWindow(QtGui.QWidget):
     def radtrackUniform(self):
         msgBox = QtGui.QMessageBox()
         msgBox.setText("This feature has not yet been implemented. Coming soon!")
-        msgBox.exec_()        
+        msgBox.exec_()
 
     def elegantGaussian(self):
         msgBox = QtGui.QMessageBox()
         msgBox.setText("This feature has not yet been implemented. Coming soon!")
-        msgBox.exec_()        
-        
+        msgBox.exec_()
+
     def generateBunchRT(self):
         # get input from text boxes
         numParticles = int(self.ui.numPtcls.text())
@@ -325,7 +310,7 @@ class RbBunchWindow(QtGui.QWidget):
             message += 'Please go to the "Specification Type" button and choose "alpha-bct-dp".\n\n'
             message += 'Thanks!'
             msgBox.setText(message)
-            msgBox.exec_()        
+            msgBox.exec_()
         elif self.longTwissFlag == "alpha-beta-emit":
             msgBox = QtGui.QMessageBox()
             message  = 'Error --\n\n'
@@ -334,7 +319,7 @@ class RbBunchWindow(QtGui.QWidget):
             message += 'Please go to the "Specification Type" button and choose "alpha-bct-dp".\n\n'
             message += 'Thanks!'
             msgBox.setText(message)
-            msgBox.exec_()        
+            msgBox.exec_()
         else:
             msgBox = QtGui.QMessageBox()
             message  = 'Error --\n\n'
@@ -343,8 +328,8 @@ class RbBunchWindow(QtGui.QWidget):
             message += 'Please use the "Specification Type" button to choose a valid option.\n\n'
             message += 'Thanks!'
             msgBox.setText(message)
-            msgBox.exec_()        
-        
+            msgBox.exec_()
+
         # Get input from the table of phase space offsets
         self.offsetX  = float(parseUnits(self.ui.offsetTable.item(0,0).text()))
         self.offsetY  = float(parseUnits(self.ui.offsetTable.item(1,0).text()))
@@ -422,15 +407,15 @@ class RbBunchWindow(QtGui.QWidget):
     def scatterPlots(self):
         self.plotFlag = 'scatter'
         self.refreshPlots()
-       
+
     def contourPlots(self):
         self.plotFlag = 'contour'
         self.refreshPlots()
-       
+
     def comboPlots(self):
         self.plotFlag = 'combo'
         self.refreshPlots()
-       
+
     def refreshPlots(self):
         # nothing to plot, if beam hasn't been initialized
         if self.beamInitialized == False:
@@ -439,36 +424,36 @@ class RbBunchWindow(QtGui.QWidget):
         # get the specified units for plotting
         self.unitsPos = self.ui.unitsPos.text()
         self.unitsAngle = self.ui.unitsAngle.text()
-        
+
         # get the number of tick marks
         self.numTicks = int(self.ui.numTicks.text())
-            
+
         # create local pointer to particle array
         tmp6 = self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D()
 
         # calculation of axis limits is same for all plot types
         self.calculateLimits(tmp6)
-        
+
         # set up basic parameters for histograms
         numParticles = tmp6.shape[1]
         nLevels = 5 + int(math.pow(numParticles, 0.33333333))
         nDivs = 10 + int(math.pow(numParticles, 0.2))
-        
+
         # generate the four plots
-        self.plotXY( tmp6[0,:]/unitConversion[self.unitsPos], 
-                     tmp6[2,:]/unitConversion[self.unitsPos], 
+        self.plotXY( tmp6[0,:]/unitConversion[self.unitsPos],
+                     tmp6[2,:]/unitConversion[self.unitsPos],
                      self.ui.xyPlot.canvas, nDivs, nLevels)
-                     
-        self.plotXPX(tmp6[0,:]/unitConversion[self.unitsPos], 
-                     tmp6[1,:]/unitConversion[self.unitsAngle], 
+
+        self.plotXPX(tmp6[0,:]/unitConversion[self.unitsPos],
+                     tmp6[1,:]/unitConversion[self.unitsAngle],
                      self.ui.xpxPlot.canvas, nDivs, nLevels)
-                     
-        self.plotYPY(tmp6[2,:]/unitConversion[self.unitsPos], 
-                     tmp6[3,:]/unitConversion[self.unitsAngle], 
+
+        self.plotYPY(tmp6[2,:]/unitConversion[self.unitsPos],
+                     tmp6[3,:]/unitConversion[self.unitsAngle],
                      self.ui.ypyPlot.canvas, nDivs, nLevels)
-                     
-        self.plotSDP(tmp6[4,:]/unitConversion[self.unitsPos], 
-                     tmp6[5,:]/unitConversion[self.unitsAngle], 
+
+        self.plotSDP(tmp6[4,:]/unitConversion[self.unitsPos],
+                     tmp6[5,:]/unitConversion[self.unitsAngle],
                      self.ui.tpzPlot.canvas, nDivs, nLevels)
 
         # indicate that tab data has changed
@@ -564,7 +549,7 @@ class RbBunchWindow(QtGui.QWidget):
             else:
                 xFac = tempYDiff/(tempXDiff/stretchFac)
                 _canvas.ax.axis([self.xMin*xFac, self.xMax*xFac, self.yMin, self.yMax])
-            
+
         _canvas.ax.xaxis.set_major_locator(plt.MaxNLocator(self.numTicks))
         _canvas.ax.yaxis.set_major_locator(plt.MaxNLocator(self.numTicks))
         _canvas.ax.set_xlabel('x ['+self.unitsPos+']')
@@ -575,7 +560,7 @@ class RbBunchWindow(QtGui.QWidget):
         _canvas.fig.set_facecolor('w')
         _canvas.draw()
 
-    def plotXPX(self, hData, vData, _canvas, nDivs, nLevels):        
+    def plotXPX(self, hData, vData, _canvas, nDivs, nLevels):
         _canvas.ax.clear()
         self.scatConPlot(hData, vData, _canvas.ax, nDivs, nLevels)
         _canvas.ax.axis([self.xMin, self.xMax, self.xpMin, self.xpMax])
@@ -589,7 +574,7 @@ class RbBunchWindow(QtGui.QWidget):
         _canvas.fig.set_facecolor('w')
         _canvas.draw()
 
-    def plotYPY(self, hData, vData, _canvas, nDivs, nLevels):        
+    def plotYPY(self, hData, vData, _canvas, nDivs, nLevels):
         _canvas.ax.clear()
         self.scatConPlot(hData, vData, _canvas.ax, nDivs, nLevels)
         _canvas.ax.axis([self.yMin, self.yMax, self.ypMin, self.ypMax])
@@ -603,7 +588,7 @@ class RbBunchWindow(QtGui.QWidget):
         _canvas.fig.set_facecolor('w')
         _canvas.draw()
 
-    def plotSDP(self, hData, vData, _canvas, nDivs, nLevels):        
+    def plotSDP(self, hData, vData, _canvas, nDivs, nLevels):
         _canvas.ax.clear()
         self.scatConPlot(hData, vData, _canvas.ax, nDivs, nLevels)
         _canvas.ax.axis([self.sMin, self.sMax, self.ptMin, self.ptMax])
@@ -620,7 +605,7 @@ class RbBunchWindow(QtGui.QWidget):
     """
     Generalized algorithm for plotting contour and/or scatter plots.
       self.plotFlag is queried to determine what's done.
-    
+
     Adapted from open source mehtod: scatter_contour.py
     https://github.com/astroML/astroML/blob/master/astroML/plotting/scatter_contour.py
 
@@ -638,19 +623,19 @@ class RbBunchWindow(QtGui.QWidget):
        points   - return value of ax.scatter()
        contours - return value of ax.contourf()
        Note: value is 'None' if plot wasn't generated
-       
+
     """
     def scatConPlot(self, x, y, ax, divs=10, levels=10):
 
         # logic for finding and plotting density contours
         if self.plotFlag=='contour' or self.plotFlag=='combo':
-            
+
             if self.plotFlag == 'combo':
                 threshold = 8
-                
+
             if self.plotFlag == 'contour':
                 threshold = 1
-                
+
             # generate the 2D histogram, allowing the algorithm to use
             #   all data points, automatically calculating the 2D extent
             myHist, edges = np.histogramdd([x,y], divs)
@@ -677,13 +662,13 @@ class RbBunchWindow(QtGui.QWidget):
             #   the return value is potentially useful to the calling method
             contours = ax.contourf(myHist.T, levels, extent=extent)
 
-        # no need for contours; particles only            
+        # no need for contours; particles only
         else:
             contours = None
 
         # logic for finding particles in low-density regions
         if self.plotFlag == 'combo':
-            
+
             # create new 2D array that will hold a subset of the particles
             #   i.e. only those in the low-density regions
             lowDensityArray = np.hstack([x[:, None], y[:, None]])
@@ -707,7 +692,7 @@ class RbBunchWindow(QtGui.QWidget):
 
         # load up all of the particles for plotting
         if self.plotFlag == 'scatter':
-            Xplot = np.hstack([x[:, None], y[:, None]])            
+            Xplot = np.hstack([x[:, None], y[:, None]])
 
         # overlay scatter plot on top of contour plot generated above
         #   the return value is potentially useful to the calling method
@@ -720,7 +705,7 @@ class RbBunchWindow(QtGui.QWidget):
         # Return plot objects; useful for creating colorbars, etc.
         #   Value is 'None' if corresponding plot was not generated.
         return points, contours
-       
+
     def erasePlots(self):
         self.ui.xyPlot.canvas.ax.clear()
         self.ui.xyPlot.canvas.ax.axis([-1., 1., -1., 1.])
@@ -785,11 +770,11 @@ class RbBunchWindow(QtGui.QWidget):
             self.ui.tpzPlot.canvas.fig.tight_layout()
         self.ui.tpzPlot.canvas.fig.set_facecolor('w')
         self.ui.tpzPlot.canvas.draw()
-    
+
     def rmsNormalized(self):
         # specify the perpendicular Twiss conventions
         self.perpTwissFlag = 'rms-normalized'
-        
+
         # Do nothing for now, as this is the default choice
         #   and alternate choices haven't yet been implemented.
         # In the future, the 'Twiss Parameters' input box will
@@ -801,7 +786,7 @@ class RbBunchWindow(QtGui.QWidget):
     def rmsGeometric(self):
         # specify the perpendicular Twiss conventions
 #        self.perpTwissFlag = 'rms-geometric'
-        
+
         # not yet implemented...
         msgBox = QtGui.QMessageBox()
         msgBox.setText("This feature has not yet been implemented. Coming soon!")
@@ -810,7 +795,7 @@ class RbBunchWindow(QtGui.QWidget):
     def ninetyNormalized(self):
         # specify the perpendicular Twiss conventions
 #        self.perpTwissFlag = '90%-normalized'
-        
+
         # not yet implemented...
         msgBox = QtGui.QMessageBox()
         msgBox.setText("This feature has not yet been implemented. Coming soon!")
@@ -819,7 +804,7 @@ class RbBunchWindow(QtGui.QWidget):
     def alphaBctDp(self):
         # specify the longitudinal Twiss conventions
         self.longTwissFlag = 'alpha-bct-dp'
-        
+
         # Do nothing for now, as this is the default choice
         #   and alternate choices haven't yet been implemented.
         # In the future, the 'Longitudinal phase space' input box will
@@ -831,18 +816,18 @@ class RbBunchWindow(QtGui.QWidget):
     def couplingBctDp(self):
         # specify the longitudinal Twiss conventions
 #        self.longTwissFlag = 'coupling-bct-dp'
-        
+
         msgBox = QtGui.QMessageBox()
         msgBox.setText("This feature has not yet been implemented. Coming soon!")
-        msgBox.exec_()        
+        msgBox.exec_()
 
     def alphaBetaEmit(self):
         # specify the longitudinal Twiss conventions
 #        self.longTwissFlag = 'alpha-beta-emit'
-        
+
         msgBox = QtGui.QMessageBox()
         msgBox.setText("This feature has not yet been implemented. Coming soon!")
-        msgBox.exec_()        
+        msgBox.exec_()
 
     # calculate the Twiss parameters
     def calculateTwiss(self):
@@ -852,7 +837,7 @@ class RbBunchWindow(QtGui.QWidget):
 
         # let the bunch object to the heavy lifting
         self.myBunch.calcTwissParams6D()
-        
+
         # now ask for the results
         self.twissX = self.myBunch.getTwissParamsByName2D('twissX')
         self.twissY = self.myBunch.getTwissParamsByName2D('twissY')
@@ -890,7 +875,7 @@ class RbBunchWindow(QtGui.QWidget):
             self.bctRms = beta0*math.sqrt(self.twissEmitNZ*self.twissBetaZ)
             twissGammaZ = (1.+self.twissAlphaZ**2) / self.twissBetaZ
             self.dPopRms = math.sqrt(self.twissEmitNZ*twissGammaZ)
-            
+
             self.ui.twissTableZ.setItem(0,0,QtGui.QTableWidgetItem("{:.5e}".format(self.twissAlphaZ)))
             self.ui.twissTableZ.setItem(0,1,QtGui.QTableWidgetItem("{:.5e}".format(self.bctRms)))
             self.ui.twissTableZ.setItem(0,2,QtGui.QTableWidgetItem("{:.5e}".format(self.dPopRms)))
@@ -903,7 +888,7 @@ class RbBunchWindow(QtGui.QWidget):
             message += 'Please go to the "Specification Type" button and choose "alpha-bct-dp".\n\n'
             message += 'Thanks!'
             msgBox.setText(message)
-            msgBox.exec_()        
+            msgBox.exec_()
         elif self.longTwissFlag == "alpha-beta-emit":
             msgBox = QtGui.QMessageBox()
             message  = 'Error --\n\n'
@@ -912,7 +897,7 @@ class RbBunchWindow(QtGui.QWidget):
             message += 'Please go to the "Specification Type" button and choose "alpha-bct-dp".\n\n'
             message += 'Thanks!'
             msgBox.setText(message)
-            msgBox.exec_()        
+            msgBox.exec_()
         else:
             msgBox = QtGui.QMessageBox()
             message  = 'Error --\n\n'
@@ -921,8 +906,8 @@ class RbBunchWindow(QtGui.QWidget):
             message += 'Please use the "Specification Type" button to choose a valid option.\n\n'
             message += 'Thanks!'
             msgBox.setText(message)
-            msgBox.exec_()        
-        
+            msgBox.exec_()
+
         # get average values
         avgArray = self.myStat.calcAverages6D(self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D())
 
@@ -933,11 +918,11 @@ class RbBunchWindow(QtGui.QWidget):
         self.ui.offsetTable.setItem(0,1,QtGui.QTableWidgetItem("{:.5e}".format(avgArray[1])))
         self.ui.offsetTable.setItem(1,1,QtGui.QTableWidgetItem("{:.5e}".format(avgArray[3])))
         self.ui.offsetTable.setItem(2,1,QtGui.QTableWidgetItem("{:.5e}".format(avgArray[5])))
-        
+
         # obtain top-level parameters
         self.designMomentumEV = self.myBunch.getDesignMomentumEV()
         numParticles = self.myBunch.getDistribution6D().getPhaseSpace6D().getNumParticles()
-        
+
         # load values into window for user to see
         self.ui.numPtcls.setText("{:d}".format(numParticles))
         self.ui.designMomentum.setText("{:.0f}".format(self.designMomentumEV*1.e-6) + ' MeV')
@@ -954,10 +939,10 @@ class RbBunchWindow(QtGui.QWidget):
         # if user cancels out, do nothing
         if fileName == '':
             return
-            
+
         self.parent.lastUsedDirectory = dirname(fileName)
         base, ext = splitext(fileName)
-            
+
         # throw exception for bad extensions
         if ext != '.sdds':
             msgBox = QtGui.QMessageBox()
@@ -973,7 +958,7 @@ class RbBunchWindow(QtGui.QWidget):
 
         # index is always zero...?
         sddsIndex = 0
-        
+
         # initialize sddsdata.pyd library (Windows only) with data file
         if sddsdata.InitializeInput(sddsIndex, fileName) != 1:
             sddsdata.PrintErrors(2)
@@ -1051,20 +1036,20 @@ class RbBunchWindow(QtGui.QWidget):
             for jLoop in range(numColumns):
                 tmpData = []
                 tmpData.append(sddsdata.GetColumn(sddsIndex,jLoop))
-                
+
                 if False:
                     print ' '
                     print ' jLoop = ', jLoop
                     print ' tmpData = ', tmpData
-                
+
                 columnData[jLoop] = np.array(tmpData[0])
-                
+
                 if False:
                     print ' '
                     print ' columnData[', jLoop, '] = ', columnData[jLoop]
-                
+
             errorCode = sddsdata.ReadPage(sddsIndex)
-        
+
         # logic for deciphering and making use of parameter data goes here!
 
         # check whether the particle data is 6D
@@ -1090,7 +1075,7 @@ class RbBunchWindow(QtGui.QWidget):
             if False:
                 print ' columnDefs[',iLoop,'] = ', columnDefs[iLoop]
                 print ' unitStrings[',iLoop,'] = ', unitStrings[iLoop]
-        
+
         # begin deciphering the column data
         dataRead = [False, False, False, False, False, False]
         dataIndex = [-1, -1, -1, -1, -1, -1]
@@ -1137,10 +1122,10 @@ class RbBunchWindow(QtGui.QWidget):
                     message += str(dataIndex[5]) + ' and ' + str(iLoop)
                 dataRead[5] = True
                 dataIndex[5] = iLoop
-        
+
         # initial validation of the column data
         for iLoop in range(6):
-            if dataRead[iLoop] == False:                
+            if dataRead[iLoop] == False:
                 msgBox = QtGui.QMessageBox()
                 message  = 'ERROR --\n\n'
                 message += '  Not all of the data columns could be correctly interpreted!\n'
@@ -1151,7 +1136,7 @@ class RbBunchWindow(QtGui.QWidget):
                 msgBox.setText(message)
                 msgBox.exec_()
                 return
-        
+
         # check for unspecified units, and set them to default value
         # if the units are specified, but incorrect, the problem is detected below
         defaultUnits = ['m', 'rad', 'm', 'rad', 'm', 'rad']
@@ -1160,18 +1145,18 @@ class RbBunchWindow(QtGui.QWidget):
             if unitStrings[iLoop] == '':
                 unitStrings[iLoop] = defaultUnits[dataIndex[iLoop]]
 #            print ' after: unitStrings[', iLoop, '] = ', unitStrings[iLoop]
-        
+
         if False:
             print ' '
             print ' Here is columnData[:]:'
             print columnData
-        
+
         # check that all data columns are the same length
         numElements = [0, 0, 0, 0, 0, 0]
         for iLoop in range(6):
             numElements[iLoop] = len(columnData[iLoop])
 #            print ' size of column # ', iLoop, ' = ', numElements[iLoop]
-        
+
         for iLoop in range(5):
             if numElements[iLoop+1] != numElements[0]:
                 msgBox = QtGui.QMessageBox()
@@ -1186,10 +1171,10 @@ class RbBunchWindow(QtGui.QWidget):
                 return
 
         # now we know the number of macro-particles
-        numParticles = numElements[0]  
+        numParticles = numElements[0]
 #        print ' '
 #        print ' numParticles = ', numParticles
-        
+
         # all seems to be well, so load particle data into local array,
         #   accounting for any non-standard physical units
         tmp6 = np.zeros((6,numParticles))
@@ -1204,7 +1189,7 @@ class RbBunchWindow(QtGui.QWidget):
         # close the SDDS particle file
         if sddsdata.Terminate(sddsIndex) != 1:
             sddsdata.PrintErrors(2)
-        
+
         # instantiate the particle bunch
         self.myBunch = beam.RbParticleBeam6D(numParticles)
         self.myBunch.setDesignMomentumEV(self.designMomentumEV)
@@ -1223,7 +1208,7 @@ class RbBunchWindow(QtGui.QWidget):
         self.calculateTwiss()
 
         # plot the results
-        self.refreshPlots()        
+        self.refreshPlots()
 
     def readFromCSV(self, fileName = None):
         if fileName is None or fileName == '':
@@ -1234,7 +1219,7 @@ class RbBunchWindow(QtGui.QWidget):
             self.parent.lastUsedDirectory = dirname(fileName)
 
         base, ext = splitext(fileName)
-            
+
         # notify user about bad extensions
         if ext != '.csv':
             msgBox = QtGui.QMessageBox()
@@ -1256,7 +1241,7 @@ class RbBunchWindow(QtGui.QWidget):
                 print ' '
                 print ' lineNumber = ', lineNumber
                 print ' rawData = ', rawData
-                
+
             # make sure this file follows the RadTrack format
             if lineNumber == 1:
                 if rawData[0] != 'RadTrack':
@@ -1267,7 +1252,7 @@ class RbBunchWindow(QtGui.QWidget):
                     message += '  Please select another file.\n\n'
                     message += 'Thanks!'
                     msgBox.setText(message)
-                    msgBox.exec_()                
+                    msgBox.exec_()
             # ignore the 2nd line
             elif lineNumber == 2:
                 continue
@@ -1284,9 +1269,9 @@ class RbBunchWindow(QtGui.QWidget):
             elif lineNumber > 3:
                 break
 
-        # close the file    
+        # close the file
         fileObject.close()
-            
+
         # load file into temporary data array
         tmp6 = np.loadtxt(fileName,dtype=float,skiprows=5,delimiter=',',unpack=True)
 
@@ -1305,7 +1290,7 @@ class RbBunchWindow(QtGui.QWidget):
 
         # store the number of particles read from the file
         numParticles = arrayShape[1]
-        
+
         # instantiate the particle bunch
         self.myBunch = beam.RbParticleBeam6D(numParticles)
         self.myBunch.setDesignMomentumEV(self.designMomentumEV)
@@ -1332,7 +1317,7 @@ class RbBunchWindow(QtGui.QWidget):
 
         # plot the results
         self.refreshPlots()
-       
+
     def saveToCSV(self, fileName = None):
         if fileName is None or fileName == '':
             fileName = QtGui.QFileDialog.getSaveFileName(self, 'Save distribution to RadTrack file ...',
@@ -1344,7 +1329,7 @@ class RbBunchWindow(QtGui.QWidget):
             self.parent.lastUsedDirectory = dirname(fileName)
 
         base, ext = splitext(fileName)
-            
+
         # throw exception for bad extensions
         if ext != '.csv':
             msgBox = QtGui.QMessageBox()
@@ -1354,7 +1339,7 @@ class RbBunchWindow(QtGui.QWidget):
             message += 'Thanks!'
             msgBox.setText(message)
             msgBox.exec_()
-            return 
+            return
 
         # make sure the top-level parameters are up-to-date
         self.designMomentumEV = float(parseUnits(self.ui.designMomentum.text()))
@@ -1363,7 +1348,7 @@ class RbBunchWindow(QtGui.QWidget):
         # create local pointer to particle array
         tmp6 = self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D()
         numParticles = tmp6.shape[1]
-        
+
         # create a header to identify this as a RadTrack file
         h1 = 'RadTrack,Copyright 2012-2014 by RadiaBeam Technologies LLC - All rights reserved (C)\n '
         # names of the top-level parameters
@@ -1387,7 +1372,7 @@ class RbBunchWindow(QtGui.QWidget):
         f6[:,4] = tmp6[4,:]
         f6[:,5] = tmp6[5,:]
         np.savetxt(fileName, f6, fmt='%.12e', delimiter=',', comments='', header=myHeader)
-       
+
     def saveToSDDS(self, sddsFileName = None):
         if sddsFileName is None or sddsFileName == '':
             sddsFileName = QtGui.QFileDialog.getSaveFileName(self, 'Save distribution to Elegant/SDDS file ...',
@@ -1399,7 +1384,7 @@ class RbBunchWindow(QtGui.QWidget):
             self.parent.lastUsedDirectory = dirname(sddsFileName)
 
         base, ext = splitext(sddsFileName)
-            
+
         # check for bad extensions
         if ext != '.sdds':
             msgBox = QtGui.QMessageBox()
@@ -1409,7 +1394,7 @@ class RbBunchWindow(QtGui.QWidget):
             message += 'Thanks!'
             msgBox.setText(message)
             msgBox.exec_()
-            return 
+            return
 
         # make sure the top-level parameters are up-to-date
         self.designMomentumEV = float(parseUnits(self.ui.designMomentum.text()))
@@ -1429,15 +1414,15 @@ class RbBunchWindow(QtGui.QWidget):
 #                                      ["","","","",mySDDS.SDDS_DOUBLE,""],
 #                                      ["","","","",mySDDS.SDDS_DOUBLE,""]]
         mySDDS.columnName = ["x", "xp", "y", "yp", "t", "p"]
-        mySDDS.columnData = [list(tmp6[0,:]), list(tmp6[1,:]), 
-                             list(tmp6[2,:]), list(tmp6[3,:]), 
+        mySDDS.columnData = [list(tmp6[0,:]), list(tmp6[1,:]),
+                             list(tmp6[2,:]), list(tmp6[3,:]),
                              list(tmp6[4,:]), list(tmp6[5,:])]
-        
+
         if False:
             print ' '
             print ' Here is mySDDS.columnData[:]:'
             print mySDDS.columnData
-        
+
         mySDDS.columnDefinition = [["","m",  "","",mySDDS.SDDS_FLOAT,0],
                                    ["","","","",mySDDS.SDDS_FLOAT,0],
                                    ["","m",  "","",mySDDS.SDDS_FLOAT,0],
@@ -1445,7 +1430,7 @@ class RbBunchWindow(QtGui.QWidget):
                                    ["","s",  "","",mySDDS.SDDS_FLOAT,0],
                                    ["","m_ec","","",mySDDS.SDDS_FLOAT,0]]
         mySDDS.save(sddsFileName)
-       
+
     def convertToSDDS(self):
         # use Qt file dialog
         csvFileName = QtGui.QFileDialog.getOpenFileName(self, 'Choose CSV file to be converted...',
@@ -1457,7 +1442,7 @@ class RbBunchWindow(QtGui.QWidget):
 
         self.parent.lastUsedDirectory = dirname(csvFileName)
         base, ext = splitext(csvFileName)
-            
+
         # check for bad extensions
         if ext != '.csv':
             msgBox = QtGui.QMessageBox()
@@ -1467,8 +1452,8 @@ class RbBunchWindow(QtGui.QWidget):
             message += 'Thanks!'
             msgBox.setText(message)
             msgBox.exec_()
-            return 
-        
+            return
+
         # convert SDDS format to CSV
         sddsFileName = base + '.sdds'
         cmdLineOptions  = '-col=name=x,type=float,units=m -col=name=xp,type=float '
@@ -1476,7 +1461,7 @@ class RbBunchWindow(QtGui.QWidget):
         cmdLineOptions += '-col=name=s,type=float,units=m -col=name=dp,type=float '
         cmdLineOptions += '-skiplines=5'
         subprocess.call('csv2sdds '+csvFileName+' '+sddsFileName+' '+ cmdLineOptions)
-                
+
 def main():
     app = QtGui.QApplication(sys.argv)
     myapp = RbBunchWindow()

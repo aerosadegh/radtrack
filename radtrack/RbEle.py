@@ -9,6 +9,7 @@ from radtrack.interactions.rbele import *
 from  radtrack.RbBunchTransport import RbBunchTransport
 from  radtrack.RbBunchWindow import RbBunchWindow
 from  radtrack.RbUtility import stripComments
+import radtrack.util.resource as resource
 
 class RbEle(QtGui.QWidget):
     def __init__(self, parent=None):
@@ -22,7 +23,7 @@ class RbEle(QtGui.QWidget):
         self.ui.stepsLineEdit.setText('1')
         self.fileExtension = '.ele'
         self.parent = parent
-        
+
         if self.parent is None:
             self.parent = self
             self.parent.lastUsedDirectory = os.path.expanduser('~')
@@ -30,7 +31,7 @@ class RbEle(QtGui.QWidget):
         self.loaderCache = dict() # saves the elements from beamline files chosen
                                   # so they don't have to be reloaded every time
                                   # the user chooses that file
-        
+
     def getBUN(self):
         if self.ui.bunchChoice.currentText() == self.ui.noneBunchChoice:
             return
@@ -49,8 +50,8 @@ class RbEle(QtGui.QWidget):
             else:
                 self.ui.bunchChoice.addItem(sddsfileName)
                 self.ui.bunchChoice.setCurrentIndex(self.ui.bunchChoice.count()-1)
-		
-        
+
+
     def getLTE(self):
         self.ui.beamlineDropDown.clear()
 
@@ -79,7 +80,7 @@ class RbEle(QtGui.QWidget):
 
             return
             # Setting the currentIndex triggers another signal that runs
-            # the else clause below 
+            # the else clause below
 
         else: # previously loaded file
             loader = self.loaderCache[self.ui.latticeChoice.currentText()]
@@ -92,10 +93,10 @@ class RbEle(QtGui.QWidget):
         # Reset available beamlines
         self.ui.beamlineDropDown.addItems(allBeamLines)
         self.ui.beamlineDropDown.setCurrentIndex(self.ui.beamlineDropDown.findText(loader.defaultBeamline))
-        
+
     def tabTitles(self):
         return [self.parent.tabWidget.tabText(i) for i in range(self.parent.tabWidget.count())]
-    
+
     def simulate(self):
         errMsg = ''
 
@@ -197,6 +198,8 @@ class RbEle(QtGui.QWidget):
             outputFile.write('&end \n\n')
                 
         self.ui.textEdit.setText('Running simulation ...')
+        if not os.getenv('RPN_DEFNS', None):
+            os.environ['RPN_DEFNS'] = resource.filename('defns.rpn')
 
         elegantRun = ElegantRunner(outputFileName)
         elegantThread = QtCore.QThread(self)
@@ -235,7 +238,6 @@ class ElegantRunner(QtCore.QObject):
 
         
 def run():
-
     app = QtGui.QApplication(sys.argv)
     ex = RbEle()
     ex.show()

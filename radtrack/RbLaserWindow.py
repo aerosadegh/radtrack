@@ -38,23 +38,9 @@ import radtrack.fields.RbGaussHermiteMN as hermite
 from radtrack.gui.RbLaserModeInterface import *
 from  radtrack.RbUtility import parseUnits, unitConversion
 import radtrack.plot.RbPlotUtils as plotutils
-
 import sys
-import radtrack.dcp.sdds as sdds
-if 'win32' in sys.platform or 'win64' in sys.platform:
-    import radtrack.dcp.sddsdata as sddsdata
-elif 'darwin' in sys.platform:
-    pass
-    #import radtrack.dcp.sddsdatamodule as sddsdata
-elif 'linux' in sys.platform:
-    pass
-    #import radtrack.dcp.sddsdatamodule as sddsdata
-else:
-    msg = '  !Warning -- /n'
-    msg += 'Operating system is not recognized. RadTrack recognizes win32, ' \
-           'win64, darwin, or linux operating systems./n'
-    msg += 'Contact customer support for further assistance.'
-    raise Exception(msg)
+
+from radtrack.util.sdds_fix import sdds, sddsdata
 
 class RbLaserWindow(QWidget):
 
@@ -1213,7 +1199,7 @@ class RbLaserWindow(QWidget):
         y_nm  = yGrid*1.e6
         yL_nm = xyMinV *1.e6
         yR_nm = xyMaxV *1.e6
-        
+
         self.ui.widget.canvas.ax.clear()
         self.ui.widget.canvas.ax.contourf(x_nm, y_nm, Ex, 20)
         self.ui.widget.canvas.draw()
