@@ -7,8 +7,8 @@ import sys, os
 from numpy import sqrt
 from PyQt4 import QtGui, QtCore
 from radtrack.ui.newsrw import Ui_Form as Ui_newsrw
-from radtrack.ui.undulatorforsrw import Ui_Dialog as und_dlg
-from radtrack.ui.beamforsrw import Ui_Dialog as beam_dlg
+from radtrack.ui.undulatorforthinsrw import Ui_Dialog as und_dlg
+from radtrack.ui.beamforthinsrw import Ui_Dialog as beam_dlg
 from radtrack.ui.precisionofsrw import Ui_Dialog as prec_dlg
 from radtrack.srw.uti_plot import *
 from radtrack.srw.AnalyticCalc import *
@@ -89,7 +89,6 @@ class rbsrw(QtGui.QWidget):
         self.up.xcID = float(dialog.ui.xcid.text())
         self.up.ycID = float(dialog.ui.ycid.text())
         self.up.zcID = float(dialog.ui.zcid.text())
-        self.up.n = int(dialog.ui.n.text())
         
     def ShowUndParams(self, dialog):
         dialog.ui.numper.setText(str(self.up.numPer))
@@ -103,7 +102,6 @@ class rbsrw(QtGui.QWidget):
         dialog.ui.xcid.setText(str(self.up.xcID))
         dialog.ui.ycid.setText(str(self.up.ycID))
         dialog.ui.zcid.setText(str(self.up.zcID))
-        dialog.ui.n.setText(str(self.up.n))
         
         
     def GetBeamParams(self,dialog):
@@ -115,26 +113,7 @@ class rbsrw(QtGui.QWidget):
         self.beam.partStatMom1.xp = float(dialog.ui.partstatmom1xp.text())
         self.beam.partStatMom1.yp = float(dialog.ui.partstatmom1yp.text()) 
         self.beam.partStatMom1.gamma = float(dialog.ui.partstatmom1gamma.text())
-        '''
-        sigEperE = 0.00089 #relative RMS energy spread
-        sigX = 33.33e-06 #horizontal RMS size of e-beam [m]
-        sigXp = 16.5e-06 #horizontal RMS angular divergence [rad]
-        sigY = 2.912e-06 #vertical RMS size of e-beam [m]
-        sigYp = 2.7472e-06 #vertical RMS angular divergence [rad]
-        '''
-        sigEperE = float(dialog.ui.sige.text())
-        sigX = float(dialog.ui.sigx.text())
-        sigXp = float(dialog.ui.sigxp.text())
-        sigY = float(dialog.ui.sigy.text())
-        sigYp = float(dialog.ui.sigyp.text())
-        #2nd order stat. moments:
-        self.beam.arStatMom2[0] = sigX*sigX #<(x-<x>)^2> 
-        self.beam.arStatMom2[1] = 0 #<(x-<x>)(x'-<x'>)>
-        self.beam.arStatMom2[2] = sigXp*sigXp #<(x'-<x'>)^2> 
-        self.beam.arStatMom2[3] = sigY*sigY #<(y-<y>)^2>
-        self.beam.arStatMom2[4] = 0 #<(y-<y>)(y'-<y'>)>
-        self.beam.arStatMom2[5] = sigYp*sigYp #<(y'-<y'>)^2>
-        self.beam.arStatMom2[10] = sigEperE*sigEperE #<(E-<E>)^2>/<E>^2
+        
         
     def ShowBeamParams(self, dialog):
         dialog.ui.iavg.setText(str(self.beam.Iavg))
@@ -144,11 +123,7 @@ class rbsrw(QtGui.QWidget):
         dialog.ui.partstatmom1xp.setText(str(self.beam.partStatMom1.xp))
         dialog.ui.partstatmom1yp.setText(str(self.beam.partStatMom1.yp))
         dialog.ui.partstatmom1gamma.setText(str(self.beam.partStatMom1.gamma))
-        dialog.ui.sige.setText(str(sqrt(self.beam.arStatMom2[10])))
-        dialog.ui.sigx.setText(str(sqrt(self.beam.arStatMom2[0])))
-        dialog.ui.sigy.setText(str(sqrt(self.beam.arStatMom2[3])))
-        dialog.ui.sigxp.setText(str(sqrt(self.beam.arStatMom2[2])))
-        dialog.ui.sigyp.setText(str(sqrt(self.beam.arStatMom2[5])))
+        
         
     def WfrSetUpE(self,wfrE):
         #wfrE = SRWLWfr() this is the waveform class
@@ -389,7 +364,6 @@ class DialogU(QtGui.QDialog):
         self.ui.xcid.setText('0')       #Misaligment. Horizontal Coordinate of Undulator Center 
         self.ui.ycid.setText('0')       #Misaligment. Vertical Coordinate of Undulator Center 
         self.ui.zcid.setText('0')       #Misaligment. Longitudinal Coordinate of Undulator Center
-        self.ui.n.setText('1')
                 
 class DialogB(QtGui.QDialog):
     def __init__(self, parent=None):
@@ -403,12 +377,7 @@ class DialogB(QtGui.QDialog):
         self.ui.partstatmom1xp.setText('0') #self.beam.partStatMom1.xp, initial x angle offset
         self.ui.partstatmom1yp.setText('0') #self.beam.partStatMom1.yp, initial y angle offset
         self.ui.partstatmom1gamma.setText('5870.925') # electron beam relative energy, gamma
-        self.ui.sige.setText('0.00089')
-        self.ui.sigx.setText('33.33e-06')
-        self.ui.sigy.setText('2.912e-06')
-        self.ui.sigxp.setText('16.5e-06')
-        self.ui.sigyp.setText('2.7472e-06')
-        
+
 class DialogP(QtGui.QDialog):
     def __init__(self, parent=None):
         QtGui.QDialog.__init__(self,parent)

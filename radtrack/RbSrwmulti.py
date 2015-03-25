@@ -6,7 +6,7 @@ Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 import sys, os
 from PyQt4 import QtGui, QtCore
 from radtrack.ui.newsrw import Ui_Form as Ui_newsrw
-from radtrack.ui.undulatorforsrw import Ui_Dialog as und_dlg
+from radtrack.ui.undulatorforthicksrw import Ui_Dialog as und_dlg
 from radtrack.ui.beamforsrw import Ui_Dialog as beam_dlg
 from radtrack.ui.precisionthicksrw import Ui_Dialog as prec_dlg
 from radtrack.srw.uti_plot import *
@@ -78,14 +78,12 @@ class rbsrw(QtGui.QWidget):
         #vertical harmonic magnetic field
         harmB = SRWLMagFldH() #magnetic field harmonic
         harmB.n = self.up.n #harmonic number
-        harmB.h_or_v = 'v' #magnetic field plane: horzontal ('h') or vertical ('v')
-        harmB.B = self.up.By #magnetic field amplitude [T]
-        
-        #horizontal harmonic magnetic field
-        harmA = SRWLMagFldH() #magnetic field harmonic
-        harmA.n = self.up.n #harmonic number
-        harmA.h_or_v = 'h' #magnetic field plane: horzontal ('h') or vertical ('v')
-        harmA.B = self.up.Bx #magnetic field amplitude [T]
+        if self.up.By is None:
+            harmB.B = self.up.Bx #magnetic field amplitude [T] 
+            harmB.h_or_v = 'h'   #magnetic field plane: horzontal ('h')
+        else:
+            harmB.B = self.up.By #magnetic field amplitude[T]
+            harmB.h_or_v = 'v'   #magnetic field plane: vertical ('v')
         
         und = SRWLMagFldU([harmB])
         und.per = self.up.undPer #period length [m]
@@ -96,29 +94,25 @@ class rbsrw(QtGui.QWidget):
     def GetUndParams(self, dialog):
         self.up.numPer = float(dialog.ui.numper.text())
         self.up.undPer = float(dialog.ui.undper.text())
-        self.up.Bx = float(dialog.ui.bx.text())
-        self.up.By = float(dialog.ui.by.text())
-        self.up.phBx = float(dialog.ui.phbx.text())
-        self.up.phBy = float(dialog.ui.phby.text())
-        self.up.sBx = float(dialog.ui.sbx.text())
-        self.up.sBy = float(dialog.ui.sby.text())
-        self.up.xcID = float(dialog.ui.xcid.text())
-        self.up.ycID = float(dialog.ui.ycid.text())
-        self.up.zcID = float(dialog.ui.zcid.text())
         self.up.n = int(dialog.ui.n.text())
+
+        if dialog.ui.vh.isChecked():
+            self.up.By = float(dialog.ui.b.text())
+            self.up.Bx = None
+        else:
+            self.up.Bx = float(dialog.ui.b.text())
+            self.up.By = None
+
         
     def ShowUndParams(self, dialog):
         dialog.ui.numper.setText(str(self.up.numPer))
         dialog.ui.undper.setText(str(self.up.undPer))
-        dialog.ui.bx.setText(str(self.up.Bx))
-        dialog.ui.by.setText(str(self.up.By))
-        dialog.ui.phbx.setText(str(self.up.phBx))
-        dialog.ui.phby.setText(str(self.up.phBy))
-        dialog.ui.sbx.setText(str(self.up.sBx))
-        dialog.ui.sby.setText(str(self.up.sBy))
-        dialog.ui.xcid.setText(str(self.up.xcID))
-        dialog.ui.ycid.setText(str(self.up.ycID))
-        dialog.ui.zcid.setText(str(self.up.zcID))
+        if self.up.By is None:
+            dialog.ui.b.setText(str(self.up.Bx))
+            dialog.ui.vh.setChecked(False)
+        else:
+            dialog.ui.b.setText(str(self.up.By))
+            dialog.ui.vh.setChecked(True)
         dialog.ui.n.setText(str(self.up.n))    
         
     def GetBeamParams(self,dialog):
@@ -407,16 +401,9 @@ class DialogU(QtGui.QDialog):
         self.ui.setupUi(self)
         self.ui.numper.setText('40.5')  #Number of ID Periods (without accounting for terminations)
         self.ui.undper.setText('0.049') #Period Length
-        self.ui.bx.setText('0.0')       #Peak Vertical field
-        self.ui.by.setText('0.57')      #Peak Horizontal field
-        self.ui.phbx.setText('0')       #Initial Phase of the Horizontal field component
-        self.ui.phby.setText('0')       #Initial Phase of the Vertical field component
-        self.ui.sbx.setText('-1')       #Symmetry of the Horizontal field component vs Longitudinal position
-        self.ui.sby.setText('1')        #Symmetry of the Vertical field component vs Longitudinal position
-        self.ui.xcid.setText('0')       #Misaligment. Horizontal Coordinate of Undulator Center 
-        self.ui.ycid.setText('0')       #Misaligment. Vertical Coordinate of Undulator Center 
-        self.ui.zcid.setText('0')       #Misaligment. Longitudinal Coordinate of Undulator Center
         self.ui.n.setText('1')
+        self.ui.b.setText('1')
+        self.ui.vh.setChecked(True)
                 
 class DialogB(QtGui.QDialog):
     def __init__(self, parent=None):
