@@ -2,18 +2,17 @@
 Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 version 2
 """
-import sys, os, subprocess, tempfile, glob
+import sys, os, subprocess, tempfile, glob, time
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt4 import QtCore, QtGui
 from radtrack.interactions.rbele import *
 from  radtrack.RbBunchTransport import RbBunchTransport
 from  radtrack.RbBunchWindow import RbBunchWindow
 from  radtrack.RbUtility import stripComments
 
-class RbEle(QWidget):
+class RbEle(QtGui.QWidget):
     def __init__(self, parent=None):
-        QWidget.__init__(self)
+        QtGui.QWidget.__init__(self)
         self.ui = Ui_ELE()
         self.ui.setupUi(self)
         self.ui.sim.clicked.connect(self.simulate)
@@ -67,7 +66,7 @@ class RbEle(QWidget):
             fileName = QtGui.QFileDialog.getOpenFileName(self, 'Open',
                     self.parent.lastUsedDirectory, '*.lte')
             if fileName == '':
-                self.ui.latticeChoice.setCurrentIndex(self.ui.latticeChoice.findText(self.ui.noneLatticeChoice))
+                self.ui.latticeChoice.setCurrentIndex(self.ui.latticeChoice.findText(self.ui.noneBeamChoice))
                 return
             self.parent.lastUsedDirectory = os.path.dirname(fileName)
             # Check if user already selected a file previously
@@ -98,8 +97,6 @@ class RbEle(QWidget):
         return [self.parent.tabWidget.tabText(i) for i in range(self.parent.tabWidget.count())]
     
     def simulate(self):
-        self.ui.textEdit.append('Starting simulation ...')
-
         errMsg = ''
 
         # Get beamline file
@@ -149,7 +146,7 @@ class RbEle(QWidget):
 
         if errMsg:
             errMsg = 'Cannot start simulation due to:\n' + errMsg
-            msgBox = QMessageBox(QMessageBox.Warning, 'RadTrack', errMsg)
+            msgBox = QtGui.QMessageBox(QtGui.QMessageBox.Warning, 'RadTrack', errMsg)
             msgBox.exec_()
             return
 
@@ -172,7 +169,6 @@ class RbEle(QWidget):
             outputFile.write(s+'random_number_seed = 987654321,\n')
             outputFile.write(s+'combine_bunch_statistics = 0,\n')
             outputFile.write(s+'concat_order = 2,\n')
-            outputFile.write(s+'print_statistics = 0,\n')
             outputFile.write(s+'tracking_updates = 1,\n') #0
             outputFile.write(s+'echo_lattice = 0 \n')
             outputFile.write('&end \n\n')
@@ -200,15 +196,42 @@ class RbEle(QWidget):
             outputFile.write('&stop \n')
             outputFile.write('&end \n\n')
                 
-        self.ui.textEdit.append('Running simulations ...')
+        self.ui.textEdit.setText('Running simulation ...')
 
-        subprocess.call(['Elegant', outputFileName])
+        elegantRun = ElegantRunner(outputFileName)
+        elegantThread = QtCore.QThread(self)
+        elegantRun.moveToThread(elegantThread)
 
+        elegantThread.started.connect(elegantRun.start)
+        elegantThread.finished.connect(lambda : self.postSimulationResults(outputFileName))
+        elegantRun.runFinished.connect(elegantThread.quit)
+
+        elegantThread.start()
+        time.sleep(0.01) # sleep for 10 ms to allow thread to complete
+
+    def postSimulationResults(self, inputFileName):
         self.ui.textEdit.append('Simulation complete!\n')
 
         self.ui.textEdit.append('Generated files:')
-        for fileName in glob.glob(os.path.splitext(outputFileName)[0] + '*'):
+        for fileName in glob.glob(os.path.splitext(inputFileName)[0] + '*'):
             self.ui.textEdit.append(fileName)
+
+
+# This class essentially runs the elegant command line. Wrapping
+# it in a class that inherits GObject allows for handing the
+# process off to another thread.
+class ElegantRunner(QtCore.QObject):
+    runFinished = QtCore.pyqtSignal(int)
+
+    def __init__(self, inputFileName):
+        QtCore.QObject.__init__(self)
+        self.inputFileName = inputFileName
+
+    def start(self):
+        elegantProcess = QtCore.QProcess()
+        elegantProcess.start('elegant', [self.inputFileName])
+        elegantProcess.waitForFinished()
+        self.runFinished.emit(elegantProcess.exitCode())
 
         
 def run():
@@ -220,6 +243,3 @@ def run():
 
 if __name__ == "__main__":
     run()               
-               
-               
-               
