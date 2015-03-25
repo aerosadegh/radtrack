@@ -110,18 +110,20 @@ class RbCbt(QtGui.QWidget):
             self.ui.workingBeamline.addItem(self.emptyBeamlineMessage)
 
     def postListDrop(self):
-        self.fixWorkingBeamline()
-        self.postListSave = self.workingBeamlineElementNames()
-        if self.preListSave == self.postListSave:
-            return
-        self.postListNameSave = self.workingBeamlineName
-        self.postListLabelSave = self.ui.label.text()
-        undoAction = commandundoAdd2Beam(self)
-        self.undoStack.push(undoAction)
-        self.preListSave = self.postListSave
-        self.preListNameSave = self.postListNameSave
-        self.preListLabelSave = self.postListLabelSave
-        self.emptyWorkingBeamlineCheck()
+        try:
+            self.fixWorkingBeamline()
+            self.postListSave = self.workingBeamlineElementNames()
+            if self.preListSave == self.postListSave:
+                return
+            self.postListNameSave = self.workingBeamlineName
+            self.postListLabelSave = self.ui.label.text()
+            undoAction = commandundoAdd2Beam(self)
+            self.undoStack.push(undoAction)
+            self.preListSave = self.postListSave
+            self.preListNameSave = self.postListNameSave
+            self.preListLabelSave = self.postListLabelSave
+        finally:
+            self.emptyWorkingBeamlineCheck()
     
     def treeClick(self):
         # Draw element currently selected
@@ -786,7 +788,6 @@ class commandRemoveFromBeam(QtGui.QUndoCommand):
     def undo(self):
         self.widget.ui.workingBeamline.insertItem(self.row, self.text)
         self.widget.workingBeamlinePreview()
-        self.widget.emptyWorkingBeamlineCheck()
         
         
 class commandundoAdd2Beam(QtGui.QUndoCommand):
@@ -818,7 +819,6 @@ class commandundoAdd2Beam(QtGui.QUndoCommand):
         self.widget.workingBeamlineName = self.nextListName
         self.widget.ui.label.setText(self.nextListLabel)
         self.widget.workingBeamlinePreview()
-        self.widget.emptyWorkingBeamlineCheck()
 
 
 class commandReverse(QtGui.QUndoCommand):
