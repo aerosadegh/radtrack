@@ -8,6 +8,8 @@ This script should set up a development environment. It's written in Unix
 terms, but should be translatable to Windows:
 
 ```bash
+# Assumes running in virtualenv an PyQt4 is installed
+pip install numpy
 cd
 mkdir src
 cd src
@@ -22,4 +24,6 @@ cd radiasoft
 git clone https://github.com/radiasoft/radtrack
 cd radtrack
 python setup.py develop
+rm -f radtrack/dcp/sdds*
+cp install/fedora/sdds* $(python -c 'from distutils.sysconfig import get_python_lib as x; print x()')
 ```
