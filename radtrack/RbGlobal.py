@@ -435,6 +435,10 @@ class RbGlobal(QtGui.QMainWindow):
                 return
         event.accept()
         QtGui.QMainWindow.closeEvent(self, event)
+        try:
+            os.rmdir(self.sessionDirectory) # delete sessionDirectory if it's empty
+        except OSError, WindowsError:
+            pass # files exist in sessionDirectory, so don't delete
 
 
 def getRealWidget(widget):
