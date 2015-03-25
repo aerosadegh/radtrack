@@ -2,7 +2,7 @@
 Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 version 2
 """
-import sys, os, subprocess, tempfile, glob, time
+import sys, os, subprocess, glob, time
 
 from PyQt4 import QtCore, QtGui
 from radtrack.interactions.rbele import *
@@ -99,14 +99,15 @@ class RbEle(QtGui.QWidget):
 
     def simulate(self):
         errMsg = ''
+        self.ui.textEdit.clear()
 
         # Get beamline file
         if self.ui.latticeChoice.currentText() == self.ui.noneBeamChoice:
             errMsg += '  - No beamline lattice specified.\n'
 
         elif self.ui.latticeChoice.currentText() in self.tabTitles():
-            fileHandle, latticeFileName = tempfile.mkstemp('.lte')
-            os.close(fileHandle)
+            self.ui.textEdit.append('Generating beam lattice file ...')
+            latticeFileName = os.path.join(self.parent.sessionDirectory, 'elegantSimulation.lte')
             for tabIndex in range(self.parent.tabWidget.count()):
                 if self.ui.latticeChoice.currentText() == self.parent.tabWidget.tabText(tabIndex):
                     self.parent.tabWidget.widget(tabIndex).exportToFile(latticeFileName)
@@ -152,8 +153,8 @@ class RbEle(QtGui.QWidget):
             return
 
         #generate ele file
-        self.ui.textEdit.append('Writing .ele file ...')
-        outputFileName = os.path.join(self.parent.sessionDirectory, 'elegantFile.ele')
+        self.ui.textEdit.append('Writing Elegant simulation file ...')
+        outputFileName = os.path.join(self.parent.sessionDirectory, 'elegantSimulation.ele')
         with open(outputFileName, 'w') as outputFile:
             s = '    '
             outputFile.write('&run_setup\n')
@@ -197,9 +198,10 @@ class RbEle(QtGui.QWidget):
             outputFile.write('&stop \n')
             outputFile.write('&end \n\n')
                 
-        self.ui.textEdit.setText('Running simulation ...')
         if not os.getenv('RPN_DEFNS', None):
             os.environ['RPN_DEFNS'] = resource.filename('defns.rpn')
+
+        self.ui.textEdit.append('Running simulation ...')
 
         elegantRun = ElegantRunner(outputFileName)
         elegantThread = QtCore.QThread(self)
@@ -210,7 +212,13 @@ class RbEle(QtGui.QWidget):
         elegantRun.runFinished.connect(elegantThread.quit)
 
         elegantThread.start()
-        time.sleep(0.01) # sleep for 10 ms to allow thread to complete
+
+        # Sleep for 10 ms to allow thread to run.
+        # This is not for allowing time for the simulation to finish, but to get
+        # the GUI thread to give up control to allow the simulation thread
+        # to proceed. Python doesn't actually have multithreaded capabilities,
+        # so hacks like these are necessary.
+        time.sleep(0.01)
 
     def postSimulationResults(self, inputFileName):
         self.ui.textEdit.append('Simulation complete!\n')
