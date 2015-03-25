@@ -345,6 +345,7 @@ class RbCbt(QtGui.QWidget):
             else:
                 undoAction = commandLoadElements(self, [beamline], 'addBeam')
                 self.undoStack.push(undoAction)
+        self.emptyWorkingBeamlineCheck()
 
 
 
