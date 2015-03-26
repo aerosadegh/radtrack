@@ -2,7 +2,7 @@
 """pytest for `radtrack.util.gen_parameters`
 
 :copyright: Copyright (c) 2015 RadiaBeam Technologies, LLC.  All Rights Reserved.
-:license: Apache, see license.md for more details.
+:license: Apache, see LICENSE for more details.
 """
 
 import glob
