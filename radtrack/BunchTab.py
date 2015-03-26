@@ -933,7 +933,7 @@ class BunchTab(QtGui.QWidget):
     def readFromSDDS(self, fileName = None):
         # use Qt file dialog
         if not fileName:
-            fileName = QFileDialog.getOpenFileName(self, "Import Elegant/SDDS particle file -- ",
+            fileName = QtGui.QFileDialog.getOpenFileName(self, "Import Elegant/SDDS particle file -- ",
                                                   self.parent.lastUsedDirectory, "*.sdds")
         # if user cancels out, do nothing
         if fileName == '':
@@ -1211,7 +1211,7 @@ class BunchTab(QtGui.QWidget):
 
     def readFromCSV(self, fileName = None):
         if fileName is None or fileName == '':
-            fileName = QFileDialog.getOpenFileName(self, "Import RadTrack particle file -- ",
+            fileName = QtGui.QFileDialog.getOpenFileName(self, "Import RadTrack particle file -- ",
                                                    self.parent.lastUsedDirectory, "*.csv")
             if fileName == '':
                 return
