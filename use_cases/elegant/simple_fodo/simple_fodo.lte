@@ -1,0 +1,14 @@
+
+! Simple FODO for demo
+
+
+
+L: DRIF,L=.5
+QF: QUAD, L=0.25,K1=2
+QD: QUAD, L=0.25,K1=-2
+
+
+BL1: line=(QF,L,QD,QD,L,QF)
+BL: line=(10*BL1)
+
+
