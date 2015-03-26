@@ -31,22 +31,22 @@ from scipy.optimize import leastsq
 # PyQt4 imports
 import sip
 sip.setapi('QString', 2)
-from PyQt4.QtGui import *
+from PyQt4 import QtGui
 
 # RadTrack imports
 import radtrack.fields.RbGaussHermiteMN as hermite
-from radtrack.gui.RbLaserModeInterface import *
-from  radtrack.RbUtility import parseUnits, unitConversion
+from radtrack.ui.LaserInterface import Ui_laserModeInterface
+from radtrack.RbUtility import parseUnits, unitConversion
 import radtrack.plot.RbPlotUtils as plotutils
 import sys
 
 from radtrack.util.sdds_fix import sdds, sddsdata
 
-class RbLaserWindow(QWidget):
+class LaserTab(QtGui.QWidget):
 
     def __init__(self,parent=None):
         # initialization
-        super(RbLaserWindow, self).__init__()
+        super(LaserTab, self).__init__()
         self.ui = Ui_laserModeInterface()
         self.ui.setupUi(self)
 
@@ -115,8 +115,8 @@ class RbLaserWindow(QWidget):
         importFileButton.setPopupMode(QtGui.QToolButton.InstantPopup)
 
         # create a menu for laser pulse generation
-        pulseMenu = QMenu(self)
-        paraxialGaussian = QAction("Paraxial approx - Gaussian",self)
+        pulseMenu = QtGui.QMenu(self)
+        paraxialGaussian = QtGui.QAction("Paraxial approx - Gaussian",self)
         pulseMenu.addAction(paraxialGaussian)
 
         # associate these actions with class methods
@@ -125,11 +125,11 @@ class RbLaserWindow(QWidget):
         # grab an existing button & insert the menu
         pulseButton = self.ui.generatePulse
         pulseButton.setMenu(pulseMenu)
-        pulseButton.setPopupMode(QToolButton.InstantPopup)
+        pulseButton.setPopupMode(QtGui.QToolButton.InstantPopup)
 
         # create a menu for external fields
-        extFieldsMenu = QMenu(self)
-        mirrorWithHole = QAction("Mirror with hole",self)
+        extFieldsMenu = QtGui.QMenu(self)
+        mirrorWithHole = QtGui.QAction("Mirror with hole",self)
         extFieldsMenu.addAction(mirrorWithHole)
 
         # associate these actions with class methods
@@ -138,7 +138,7 @@ class RbLaserWindow(QWidget):
         # grab an existing button & insert the menu
         extFieldsButton = self.ui.externalFields
         extFieldsButton.setMenu(extFieldsMenu)
-        extFieldsButton.setPopupMode(QToolButton.InstantPopup)
+        extFieldsButton.setPopupMode(QtGui.QToolButton.InstantPopup)
 
         # specify physical constants
         self.c     = 299792458.           # speed of light [m/s]
@@ -163,12 +163,12 @@ class RbLaserWindow(QWidget):
 
         # load up the table of coefficients
         self.ui.ghTable.setEditTriggers(QtGui.QAbstractItemView.CurrentChanged)
-        self.ui.ghTable.setItem(0,0,QTableWidgetItem('1'))
-        self.ui.ghTable.setItem(0,1,QTableWidgetItem('1'))
+        self.ui.ghTable.setItem(0,0,QtGui.QTableWidgetItem('1'))
+        self.ui.ghTable.setItem(0,1,QtGui.QTableWidgetItem('1'))
         maxLoop = max(self.mMax, 100)
         for iLoop in range(1,maxLoop):
-            self.ui.ghTable.setItem(iLoop,0,QTableWidgetItem('0'))
-            self.ui.ghTable.setItem(iLoop,1,QTableWidgetItem('0'))
+            self.ui.ghTable.setItem(iLoop,0,QtGui.QTableWidgetItem('0'))
+            self.ui.ghTable.setItem(iLoop,1,QtGui.QTableWidgetItem('0'))
 
         # file directories
         self.parent = parent
@@ -1207,7 +1207,7 @@ class RbLaserWindow(QWidget):
 
 def main():
     app = QtGui.QApplication(sys.argv)
-    myapp = RbLaserWindow()
+    myapp = LaserTab()
     myapp.show()
     sys.exit(app.exec_())
 

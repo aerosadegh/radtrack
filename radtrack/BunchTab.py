@@ -22,25 +22,24 @@ import csv
 
 # SciPy imports
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
 
 # PyQt4 imports
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtGui
 
 # RadTrack imports
 import radtrack.bunch.RbParticleBeam6D as beam
 import radtrack.statistics.RbStatistics6D as stat
-from radtrack.ui.RbBunchInterface import *
-from  radtrack.RbUtility import parseUnits, unitConversion
+from radtrack.ui.BunchInterface import Ui_bunchInterface
+from radtrack.RbUtility import parseUnits, unitConversion
 
 from radtrack.util.sdds_fix import sdds, sddsdata
 
-class RbBunchWindow(QtGui.QWidget):
+class BunchTab(QtGui.QWidget):
 
     def __init__(self,parent=None):
         # initialization
-        super(RbBunchWindow, self).__init__()
+        super(BunchTab, self).__init__()
         self.ui = Ui_bunchInterface()
         self.ui.setupUi(self)
 
@@ -1464,7 +1463,7 @@ class RbBunchWindow(QtGui.QWidget):
 
 def main():
     app = QtGui.QApplication(sys.argv)
-    myapp = RbBunchWindow()
+    myapp = BunchTab()
     myapp.show()
     sys.exit(app.exec_())
 

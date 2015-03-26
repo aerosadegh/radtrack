@@ -7,7 +7,7 @@ import sys, os, subprocess, glob, time
 from PyQt4 import QtCore, QtGui
 from radtrack.interactions.rbele import *
 from  radtrack.RbBunchTransport import RbBunchTransport
-from  radtrack.RbBunchWindow import RbBunchWindow
+from  radtrack.BunchTab import BunchTab
 from  radtrack.RbUtility import stripComments
 import radtrack.util.resource as resource
 

@@ -12,12 +12,12 @@ from PyQt4 import QtGui
 from datetime import datetime
 
 from  radtrack.globalgu import Ui_globalgu
-from  radtrack.RbLaserWindow import RbLaserWindow
+from  radtrack.LaserTab import LaserTab
 from  radtrack.rbdcp import RbDcp
 from  radtrack.RbBunchTransport import RbBunchTransport
 from  radtrack.RbLaserTransport import RbLaserTransport
 from  radtrack.RbGenesisTransport import RbGenesisTransport
-from  radtrack.RbBunchWindow import RbBunchWindow
+from  radtrack.BunchTab import BunchTab
 from  radtrack.RbEle import RbEle
 from  radtrack.RbFEL import RbFEL
 from  radtrack.RbSimulations import RbSimulations
@@ -51,13 +51,13 @@ class RbGlobal(QtGui.QMainWindow):
 
         if not beta_test:
             scrollArea = QtGui.QScrollArea(self)
-            scrollArea.setWidget(RbLaserWindow(self))
+            scrollArea.setWidget(LaserTab(self))
             self.tabWidget.addTab(scrollArea, self.tr('Laser'))
 
             self.tabWidget.addTab(RbLaserTransport(self), self.tr('Laser Transport'))
 
         scrollArea = QtGui.QScrollArea(self)
-        scrollArea.setWidget(RbBunchWindow(self))
+        scrollArea.setWidget(BunchTab(self))
         self.tabWidget.addTab(scrollArea, self.tr('Bunch'))
 
         self.tabWidget.addTab(RbBunchTransport(self), self.tr('Bunch Transport'))
@@ -386,7 +386,7 @@ class RbGlobal(QtGui.QMainWindow):
                 widget.ui.latticeChoice.addItem(widget.ui.noneBeamChoice)
 
                 for index in range(self.tabWidget.count()):
-                    if type(getRealWidget(self.tabWidget.widget(index))) == RbBunchWindow:
+                    if type(getRealWidget(self.tabWidget.widget(index))) == BunchTab:
                         widget.ui.bunchChoice.addItem(self.tabWidget.tabText(index))
                     elif type(getRealWidget(self.tabWidget.widget(index))) == RbBunchTransport:
                         widget.ui.latticeChoice.addItem(self.tabWidget.tabText(index))
