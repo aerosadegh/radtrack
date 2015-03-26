@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'BunchInterface.ui'
 #
-# Created: Fri Mar 20 17:26:24 2015
+# Created: Thu Mar 26 10:45:45 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_bunchInterface(object):
     def setupUi(self, bunchInterface):
         bunchInterface.setObjectName(_fromUtf8("bunchInterface"))
-        bunchInterface.resize(1260, 791)
+        bunchInterface.resize(1260, 801)
         self.formLayoutWidget = QtGui.QWidget(bunchInterface)
         self.formLayoutWidget.setGeometry(QtCore.QRect(10, 160, 231, 85))
         self.formLayoutWidget.setObjectName(_fromUtf8("formLayoutWidget"))

@@ -35,7 +35,7 @@ from PyQt4 import QtGui
 
 # RadTrack imports
 import radtrack.fields.RbGaussHermiteMN as hermite
-from radtrack.ui.LaserInterface import Ui_laserModeInterface
+from radtrack.ui.LaserInterface import Ui_LaserInterface
 from radtrack.RbUtility import parseUnits, unitConversion
 import radtrack.plot.RbPlotUtils as plotutils
 import sys
@@ -47,7 +47,7 @@ class LaserTab(QtGui.QWidget):
     def __init__(self,parent=None):
         # initialization
         super(LaserTab, self).__init__()
-        self.ui = Ui_laserModeInterface()
+        self.ui = Ui_LaserInterface()
         self.ui.setupUi(self)
 
         # set default values
