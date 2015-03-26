@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'BunchInterface.ui'
 #
-# Created: Thu Mar 26 15:06:30 2015
+# Created: Thu Mar 26 17:01:47 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -186,10 +186,6 @@ class Ui_bunchInterface(object):
         self.noTitles_2.setGeometry(QtCore.QRect(310, 520, 31, 21))
         self.noTitles_2.setPopupMode(QtGui.QToolButton.InstantPopup)
         self.noTitles_2.setObjectName(_fromUtf8("noTitles_2"))
-        self.toggleToolTips = QtGui.QToolButton(bunchInterface)
-        self.toggleToolTips.setGeometry(QtCore.QRect(220, 110, 51, 21))
-        self.toggleToolTips.setPopupMode(QtGui.QToolButton.InstantPopup)
-        self.toggleToolTips.setObjectName(_fromUtf8("toggleToolTips"))
         self.overview = QtGui.QTextBrowser(bunchInterface)
         self.overview.setGeometry(QtCore.QRect(10, 10, 371, 31))
         self.overview.setObjectName(_fromUtf8("overview"))
@@ -346,13 +342,10 @@ class Ui_bunchInterface(object):
         self.noTitles_2.setToolTip(_translate("bunchInterface", "Toggle plot titles on/off.", None))
         self.noTitles_2.setStatusTip(_translate("bunchInterface", "Toggle plot titles on/off.", None))
         self.noTitles_2.setText(_translate("bunchInterface", "NT", None))
-        self.toggleToolTips.setToolTip(_translate("bunchInterface", "Toggle plot titles on/off.", None))
-        self.toggleToolTips.setStatusTip(_translate("bunchInterface", "Toggle plot titles on/off.", None))
-        self.toggleToolTips.setText(_translate("bunchInterface", "Tool Tips", None))
         self.overview.setHtml(_translate("bunchInterface", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt;\">This tab is used to create a charged particle distribution.</span></p></body></html>", None))
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt;\">This tab is used to create a charged particle distribution.</span></p></body></html>", None))
 
 from radtrack.gui.matplotlibwidget import matplotlibWidget

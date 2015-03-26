@@ -11,20 +11,20 @@ sip.setapi('QString', 2)
 from PyQt4 import QtGui
 from datetime import datetime
 
-from  radtrack.globalgu import Ui_globalgu
-from  radtrack.LaserTab import LaserTab
-from  radtrack.rbdcp import RbDcp
-from  radtrack.RbBunchTransport import RbBunchTransport
-from  radtrack.RbLaserTransport import RbLaserTransport
-from  radtrack.RbGenesisTransport import RbGenesisTransport
-from  radtrack.BunchTab import BunchTab
-from  radtrack.RbEle import RbEle
-from  radtrack.RbFEL import RbFEL
-from  radtrack.RbSimulations import RbSimulations
+from radtrack.globalgu import Ui_globalgu
+from radtrack.LaserTab import LaserTab
+from radtrack.rbdcp import RbDcp
+from radtrack.RbBunchTransport import RbBunchTransport
+from radtrack.RbLaserTransport import RbLaserTransport
+from radtrack.RbGenesisTransport import RbGenesisTransport
+from radtrack.BunchTab import BunchTab
+from radtrack.RbEle import RbEle
+from radtrack.RbFEL import RbFEL
+from radtrack.RbSimulations import RbSimulations
 from radtrack.srw.RbSrwUndulator import srwund
 from radtrack.genesis.rbgenesis2 import RbGenesis2
-from  radtrack.RbSrwsingle import rbsrw as rbsrwsingle
-from  radtrack.RbSrwmulti import rbsrw as rbsrwmulti
+from radtrack.RbSrwsingle import rbsrw as rbsrwsingle
+from radtrack.RbSrwmulti import rbsrw as rbsrwmulti
 
 class RbGlobal(QtGui.QMainWindow):
     #Constructor
@@ -33,6 +33,9 @@ class RbGlobal(QtGui.QMainWindow):
         QtGui.QMainWindow.__init__(self)
         self.ui = Ui_globalgu()
         self.ui.setupUi(self)
+
+        default_font = QtGui.QFont("Times", 10)
+        QtGui.QApplication.setFont(default_font)
 
         self.lastUsedDirectory = os.path.expanduser('~').replace('\\', '/')
         session = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
