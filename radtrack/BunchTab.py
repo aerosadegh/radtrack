@@ -1413,9 +1413,9 @@ class BunchTab(QtGui.QWidget):
 #                                      ["","","","",mySDDS.SDDS_DOUBLE,""],
 #                                      ["","","","",mySDDS.SDDS_DOUBLE,""]]
         mySDDS.columnName = ["x", "xp", "y", "yp", "t", "p"]
-        mySDDS.columnData = [list(tmp6[0,:]), list(tmp6[1,:]),
-                             list(tmp6[2,:]), list(tmp6[3,:]),
-                             list(tmp6[4,:]), list(tmp6[5,:])]
+        mySDDS.columnData = [[list(tmp6[0,:])], [list(tmp6[1,:])],
+                             [list(tmp6[2,:])], [list(tmp6[3,:])],
+                             [list(tmp6[4,:])], [list(tmp6[5,:])]]
 
         if False:
             print ' '
