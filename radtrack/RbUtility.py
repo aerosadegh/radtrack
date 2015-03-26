@@ -77,23 +77,24 @@ def separateNumberUnit(inputString):
 
 
 def convertUnitsNumber(number, oldUnit, newUnit):
-    return number*float(parseUnits('1' + oldUnit))/float(parseUnits('1' + newUnit))
+    if '' in [oldUnit, newUnit] and '%' not in [oldUnit, newUnit]:
+        return number # values without units don't get converted
+    else:
+        try:
+            return number*float(parseUnits('1' + oldUnit))/float(parseUnits('1' + newUnit))
+        except ValueError: # float(...) failed
+            raise ValueError('Cannot convert "' + oldUnit + '" to "' + newUnit + '".')
 
 def convertUnitsString(inputString, newUnit):
-    try:
-        return (str(float(parseUnits(inputString))/float(parseUnits('1' + newUnit))) + ' ' + newUnit).strip()
-    except ValueError: # float(parseUnits(inputString)) fails
-        return inputString
+    number, unit = separateNumberUnit(inputString)
+    return convertUnitsNumberToString(number, unit, newUnit)
 
 def convertUnitsNumberToString(number, oldUnit, newUnit):
     return (str(convertUnitsNumber(number, oldUnit, newUnit)) + ' ' + newUnit).strip()
 
 def convertUnitsStringToNumber(inputString, newUnit):
-    try:
-        value, unit = separateNumberUnit(inputString)
-        return convertUnitsNumber(value, unit, newUnit)
-    except ValueError:
-        return float(parseUnits(inputString))
+    value, unit = separateNumberUnit(inputString)
+    return convertUnitsNumber(value, unit, newUnit)
 
 # This function converts a value to units that result in the
 # smallest number larger than one.

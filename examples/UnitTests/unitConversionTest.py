@@ -29,15 +29,18 @@ if ac != bc:
 
 # Invalid test
 a = '4 score'
-ac = convertUnitsString(a, 'years')
-if ac != a:
+try:
+    ac = convertUnitsString(a, 'years')
+except ValueError:
+    pass
+else:
     print a, ac
     raise Exception
 
 # Higher dimension test
 a = 16.7 # km^2, 
 ac = convertUnitsNumberToString(a, 'km^2', 'mi^2')
-b = '6.447906047658846 mi^2'
+b = '6.44790604765 mi^2'
 bc = convertUnitsString(b, 'mi^2')
 if ac != bc:
     print a, ac

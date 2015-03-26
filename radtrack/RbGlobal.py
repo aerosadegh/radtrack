@@ -249,21 +249,23 @@ class RbGlobal(QtGui.QMainWindow):
         openWidgetIndexes = [i for i in range(self.tabWidget.count()) if type(getRealWidget(self.tabWidget.widget(i))) == destinationType]
         if openWidgetIndexes:
             choices = [self.tabWidget.tabText(i) for i in openWidgetIndexes] + ['New Tab']
-            box = QtGui.QMessageBox(QtGui.QMessageBox.Question, 'Ambiguous Import Destination', 'Which tab should receive the data?')
+            box = QtGui.QMessageBox(QtGui.QMessageBox.Question, 'Choose Import Destination', 'Which tab should receive the data?')
             responses = [box.addButton(widgetType, QtGui.QMessageBox.ActionRole) for widgetType in choices] + [box.addButton(QtGui.QMessageBox.Cancel)]
 
             box.exec_()
             destinationIndex = responses.index(box.clickedButton())
             try:
-                if choices[destinationIndex] != 'New Tab':
+                if choices[destinationIndex] != 'New Tab': # Pre-existing tab
                     destination = getRealWidget(self.tabWidget.widget(openWidgetIndexes[destinationIndex]))
                     destination.importFile(openFile)
                     self.tabWidget.setCurrentWidget(destination)
-                else:
-                    self.newTab(destinationType)
-                    getRealWidget(self.tabWidget.currentWidget()).importFile(openFile)
+                    return
             except IndexError: # Cancel was pressed
                 return
+
+        # Make a new tab
+        self.newTab(destinationType)
+        getRealWidget(self.tabWidget.currentWidget()).importFile(openFile)
 
 
     def openProjectFile(self, fileName = None):
