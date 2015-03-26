@@ -181,17 +181,12 @@ def exportToFile(outputFileName, elementDictionary, defaultBeamline = ''):
 
 class ElegantBeamline(BeamlineCommon):
     def displayLine(self):
-        return 'LINE=(' + \
-                collapseBeamline([element.name for element in self.data]) + \
-                ')'
+        return collapseBeamline([element.name for element in self.data])
 
     def componentLine(self):
-        if ':' in self.name:
-            quote = '"'
-        else:
-            quote = ''
+        quote = '"' if ':' in self.name else ''
         declaration = quote + self.name + quote + ':  LINE=('
-        line =  declaration + collapseBeamline([element.name for element in self.data]) + ')'
+        line = declaration + self.displayLine() + ')'
         return wordwrap(line, 80, ' &', len(declaration))
 
     # Shorten beamline descriptions by finding repetitions
