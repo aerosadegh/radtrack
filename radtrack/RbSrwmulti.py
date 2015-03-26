@@ -399,8 +399,8 @@ class DialogU(QtGui.QDialog):
         QtGui.QDialog.__init__(self,parent)
         self.ui = und_dlg()
         self.ui.setupUi(self)
-        self.ui.numper.setText('40.5')  #Number of ID Periods (without accounting for terminations)
-        self.ui.undper.setText('0.049') #Period Length
+        self.ui.numper.setText('150')  #Number of ID Periods (without accounting for terminations)
+        self.ui.undper.setText('0.02') #Period Length
         self.ui.n.setText('1')
         self.ui.b.setText('1')
         self.ui.vh.setChecked(True)
