@@ -20,7 +20,7 @@ def write(filename, elems, unit_length):
     """
     params = copy.copy(elems)
     params['unit_length'] = unit_length
-    if os.path.exists(filename):
+    if os.path.lexists(filename):
         os.remove(filename)
     # Note: trailing whitespace
     template = '''? VERSION = 1.0
