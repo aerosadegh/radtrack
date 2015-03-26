@@ -17,7 +17,7 @@ curl -s -L https://raw.githubusercontent.com/radiasoft/foss-mirror/master/instal
 cd ~/src/biviosoftware
 git clone -q https://github.com/biviosoftware/pybivio
 cd pybivio
-pip install -e .
+python setup.py develop
 mkdir -p ~/src/radiasoft
 cd ~/src/radiasoft
 git clone -q https://github.com/radiasoft/radtrack
@@ -25,6 +25,6 @@ cd radtrack
 # Need to do this first, or scipy complains with:
 #   ImportError: No module named numpy.distutils.core
 pip install numpy
-pip install -e .
+python setup.py develop
 rm -f radtrack/dcp/sdds*
 cp install/fedora/sdds* $(python -c 'from distutils.sysconfig import get_python_lib as x; print x()')
