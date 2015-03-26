@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'BunchInterface.ui'
 #
-# Created: Thu Mar 26 10:45:45 2015
+# Created: Thu Mar 26 15:06:30 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_bunchInterface(object):
     def setupUi(self, bunchInterface):
         bunchInterface.setObjectName(_fromUtf8("bunchInterface"))
-        bunchInterface.resize(1260, 801)
+        bunchInterface.resize(1260, 761)
         self.formLayoutWidget = QtGui.QWidget(bunchInterface)
         self.formLayoutWidget.setGeometry(QtCore.QRect(10, 160, 231, 85))
         self.formLayoutWidget.setObjectName(_fromUtf8("formLayoutWidget"))
@@ -100,16 +100,16 @@ class Ui_bunchInterface(object):
         self.saveToFile.setGeometry(QtCore.QRect(130, 50, 81, 23))
         self.saveToFile.setObjectName(_fromUtf8("saveToFile"))
         self.ypyPlot = matplotlibWidget(bunchInterface)
-        self.ypyPlot.setGeometry(QtCore.QRect(830, 50, 411, 361))
+        self.ypyPlot.setGeometry(QtCore.QRect(830, 10, 411, 361))
         self.ypyPlot.setObjectName(_fromUtf8("ypyPlot"))
         self.xyPlot = matplotlibWidget(bunchInterface)
-        self.xyPlot.setGeometry(QtCore.QRect(390, 420, 421, 361))
+        self.xyPlot.setGeometry(QtCore.QRect(390, 380, 421, 361))
         self.xyPlot.setObjectName(_fromUtf8("xyPlot"))
         self.tpzPlot = matplotlibWidget(bunchInterface)
-        self.tpzPlot.setGeometry(QtCore.QRect(830, 420, 411, 361))
+        self.tpzPlot.setGeometry(QtCore.QRect(830, 380, 411, 361))
         self.tpzPlot.setObjectName(_fromUtf8("tpzPlot"))
         self.xpxPlot = matplotlibWidget(bunchInterface)
-        self.xpxPlot.setGeometry(QtCore.QRect(390, 50, 421, 361))
+        self.xpxPlot.setGeometry(QtCore.QRect(390, 10, 421, 361))
         self.xpxPlot.setObjectName(_fromUtf8("xpxPlot"))
         self.unitsLabel = QtGui.QLabel(bunchInterface)
         self.unitsLabel.setGeometry(QtCore.QRect(280, 140, 81, 16))
@@ -191,7 +191,7 @@ class Ui_bunchInterface(object):
         self.toggleToolTips.setPopupMode(QtGui.QToolButton.InstantPopup)
         self.toggleToolTips.setObjectName(_fromUtf8("toggleToolTips"))
         self.overview = QtGui.QTextBrowser(bunchInterface)
-        self.overview.setGeometry(QtCore.QRect(10, 10, 1241, 31))
+        self.overview.setGeometry(QtCore.QRect(10, 10, 371, 31))
         self.overview.setObjectName(_fromUtf8("overview"))
 
         self.retranslateUi(bunchInterface)
@@ -210,8 +210,7 @@ class Ui_bunchInterface(object):
     def retranslateUi(self, bunchInterface):
         bunchInterface.setWindowTitle(_translate("bunchInterface", "Form", None))
         self.numPtclsLabel.setText(_translate("bunchInterface", "# macroparticles", None))
-        self.numPtcls.setToolTip(_translate("bunchInterface", "The number of macro-particles in the distribution.\n"
-"", None))
+        self.numPtcls.setToolTip(_translate("bunchInterface", "The number of macro-particles in the distribution.", None))
         self.designMomentumLabel.setText(_translate("bunchInterface", "<html><head/><body><p>design pC [eV]</p></body></html>", None))
         self.designMomentum.setToolTip(_translate("bunchInterface", "<html><head/><body><p>Design momentum is the average momentum for zero offset.</p><p>Defaul units can be overridden.</p></body></html>", None))
         self.charge.setText(_translate("bunchInterface", "total Q [C]", None))
@@ -354,6 +353,6 @@ class Ui_bunchInterface(object):
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt;\">The bunch tab is used to create a 3D charged particle distribution.</span></p></body></html>", None))
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt;\">This tab is used to create a charged particle distribution.</span></p></body></html>", None))
 
 from radtrack.gui.matplotlibwidget import matplotlibWidget
