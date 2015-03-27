@@ -8,7 +8,7 @@ from PyQt4 import QtCore, QtGui
 from radtrack.interactions.rbele import Ui_ELE
 from  radtrack.RbBunchTransport import RbBunchTransport
 from  radtrack.BunchTab import BunchTab
-from  radtrack.RbUtility import stripComments
+from  radtrack.RbUtility import stripComments, convertUnitsNumber
 import radtrack.util.resource as resource
 
 class RbEle(QtGui.QWidget):
@@ -30,8 +30,6 @@ class RbEle(QtGui.QWidget):
 
         self.ui.pushButton_2.setText('Generated files ...')
         self.ui.pushButton_2.setEnabled(False)
-
-        self.generatedFileButtons = []
 
         if self.parent is None:
             self.parent = self
@@ -154,8 +152,20 @@ class RbEle(QtGui.QWidget):
             bunchFileName = self.ui.bunchSourceComboBox.currentText()
             deleteBunchFile = False
 
-        if self.ui.momentumLineEdit.text() == '':
-            errMsg += '  - No momentum specified.\n'
+        if self.ui.momentumLineEdit.isHidden():
+            bunchTabIndex = self.tabTitles().index(self.ui.bunchSourceComboBox.currentText())
+            momentum = convertUnitsNumber(self.parent.tabWidget.widget(bunchTabIndex).widget().myBunch.getDesignMomentumEV(), 'eV', 'MeV')
+        else:
+            if self.ui.momentumLineEdit.text() == '':
+                errMsg += '  - No momentum specified.\n'
+            else:
+                try:
+                    momentum = float(self.ui.momentumLineEdit.text())
+                except ValueError:
+                    try:
+                        momentum = convertUnitsStringToNumber(self.ui.momentumLineEdit.text(), 'MeV')
+                    except ValueError:
+                        errMsg += '  - Unable to parse momentum.\n'
 
         if errMsg:
             errMsg = 'Cannot start simulation due to:\n' + errMsg
@@ -172,7 +182,7 @@ class RbEle(QtGui.QWidget):
             outputFile.write(s+'lattice = "'+latticeFileName+'",'+'\n')
             outputFile.write(s+'use_beamline = '+beamlineName+','+'\n')
             outputFile.write(s+'default_order = 2\n')
-            outputFile.write(s+'p_central = '+self.ui.momentumLineEdit.text()+','+'\n')
+            outputFile.write(s+'p_central_mev = '+str(momentum)+','+'\n')
             outputFile.write(s+'output = %s.out, \n')
             outputFile.write(s+'centroid = %s.cen, \n')
             outputFile.write(s+'sigma = %s.sig,\n')
@@ -234,18 +244,17 @@ class RbEle(QtGui.QWidget):
     def postSimulationResults(self, inputFileName):
         self.ui.textEdit_2.append('Simulation complete!\n')
 
-        self.ui.textEdit_2.append('Generated files:')
-
         self.generatedFileButtons = []
 
         for fileName in glob.glob(os.path.splitext(inputFileName)[0] + '*'):
-            self.generatedFileButtons.append(QtGui.QPushButton())
-            self.generatedFileButtons[-1].setText(os.path.basename(fileName))
-            self.generatedFileButtons[-1].setMinimumSize(self.ui.pushButton_2.minimumSize())
-            self.generatedFileButtons[-1].clicked.connect(self.parent.importFile)
-            self.ui.verticalLayout_4.addWidget(self.generatedFileButtons[-1])
+            newButton = QtGui.QPushButton()
+            self.generatedFileButtons.append(newButton)
+            newButton.setText(os.path.basename(fileName))
+            newButton.setMinimumSize(self.ui.pushButton_2.minimumSize())
+            newButton.clicked.connect(lambda ignore, name = fileName : self.parent.importFile(name))
+            self.ui.verticalLayout_4.addWidget(newButton)
 
-        self.ui.pushButton_2.setHidden(self.generatedFileButtons)
+        self.ui.pushButton_2.setHidden(len(self.generatedFileButtons) > 0)
 
 
 # This class essentially runs the elegant command line. Wrapping
