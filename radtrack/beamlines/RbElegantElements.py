@@ -303,11 +303,18 @@ class elegantElement(elementCommon):
             quote = ''
         declaration = quote + self.name + quote + ':  ' + type(self).__name__ + ', '
 
-        sentence = [(param, parseUnits(datum)) for param, datum in \
+        phrases = [[param, parseUnits(datum)] for param, datum in \
                 zip(self.parameterNames, self.data) if datum != '']
 
+        # Non-numeric values need quoting
+        for phrase in phrases:
+            try:
+                float(phrase[1])
+            except ValueError:
+                phrase[1] = '"' + phrase[1] + '"'
+
         #add "=" in within phrases, then add ', ' between those groups
-        sentence = ', '.join(['='.join(phrase) for phrase in sentence])
+        sentence = ', '.join(['='.join(phrase) for phrase in phrases])
 
         line = declaration + sentence
         return wordwrap(line, 80, ' &', len(declaration))
