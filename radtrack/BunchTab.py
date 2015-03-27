@@ -1145,7 +1145,7 @@ class BunchTab(QtGui.QWidget):
                 unitStrings[iLoop] = defaultUnits[dataIndex[iLoop]]
 #            print ' after: unitStrings[', iLoop, '] = ', unitStrings[iLoop]
 
-        if False:
+        if True:
             print ' '
             print ' Here is columnData[:]:'
             print columnData
@@ -1413,21 +1413,30 @@ class BunchTab(QtGui.QWidget):
 #                                      ["","","","",mySDDS.SDDS_DOUBLE,""],
 #                                      ["","","","",mySDDS.SDDS_DOUBLE,""]]
         mySDDS.columnName = ["x", "xp", "y", "yp", "t", "p"]
-        mySDDS.columnData = [[list(tmp6[0,:])], [list(tmp6[1,:])],
-                             [list(tmp6[2,:])], [list(tmp6[3,:])],
-                             [list(tmp6[4,:])], [list(tmp6[5,:])]]
+
+# The syntax commented out here does NOT work.
+# The following, uncommented text does work.
+#
+#        mySDDS.columnData = [[list(tmp6[0,:])], [list(tmp6[1,:])],
+#                             [list(tmp6[2,:])], [list(tmp6[3,:])],
+#                             [list(tmp6[4,:])], [list(tmp6[5,:])]]
+#
+        mySDDS.columnData = [list(tmp6[0,:]), list(tmp6[1,:]),
+                             list(tmp6[2,:]), list(tmp6[3,:]),
+                             list(tmp6[4,:]), list(tmp6[5,:])]
+
 
         if False:
             print ' '
             print ' Here is mySDDS.columnData[:]:'
             print mySDDS.columnData
 
-        mySDDS.columnDefinition = [["","m",  "","",mySDDS.SDDS_FLOAT,0],
-                                   ["","","","",mySDDS.SDDS_FLOAT,0],
-                                   ["","m",  "","",mySDDS.SDDS_FLOAT,0],
-                                   ["","","","",mySDDS.SDDS_FLOAT,0],
-                                   ["","s",  "","",mySDDS.SDDS_FLOAT,0],
-                                   ["","m_ec","","",mySDDS.SDDS_FLOAT,0]]
+        mySDDS.columnDefinition = [["","m",  "","",mySDDS.SDDS_DOUBLE,0],
+                                   ["","","","",mySDDS.SDDS_DOUBLE,0],
+                                   ["","m",  "","",mySDDS.SDDS_DOUBLE,0],
+                                   ["","","","",mySDDS.SDDS_DOUBLE,0],
+                                   ["","s",  "","",mySDDS.SDDS_DOUBLE,0],
+                                   ["","m_ec","","",mySDDS.SDDS_DOUBLE,0]]
         mySDDS.save(sddsFileName)
 
     def convertToSDDS(self):
