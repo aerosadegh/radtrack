@@ -28,8 +28,7 @@ class RbEle(QtGui.QWidget):
         self.noneBunchChoice = 'Select beam bunch source ...'
         self.fileBunchChoice = 'Use another file ...'
 
-        self.ui.pushButton_2.setText('Generated files ...')
-        self.ui.pushButton_2.setEnabled(False)
+        self.generatedFileButtons = []
 
         if self.parent is None:
             self.parent = self
@@ -244,17 +243,15 @@ class RbEle(QtGui.QWidget):
     def postSimulationResults(self, inputFileName):
         self.ui.textEdit_2.append('Simulation complete!\n')
 
-        self.generatedFileButtons = []
+        while self.generatedFileButtons:
+            self.ui.verticalLayout_4.removeWidget(self.generatedFileButtons.pop())
 
         for fileName in glob.glob(os.path.splitext(inputFileName)[0] + '*'):
             newButton = QtGui.QPushButton()
             self.generatedFileButtons.append(newButton)
             newButton.setText(os.path.basename(fileName))
-            newButton.setMinimumSize(self.ui.pushButton_2.minimumSize())
             newButton.clicked.connect(lambda ignore, name = fileName : self.parent.importFile(name))
             self.ui.verticalLayout_4.addWidget(newButton)
-
-        self.ui.pushButton_2.setHidden(len(self.generatedFileButtons) > 0)
 
 
 # This class essentially runs the elegant command line. Wrapping
