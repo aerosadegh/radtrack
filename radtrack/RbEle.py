@@ -8,7 +8,7 @@ from PyQt4 import QtCore, QtGui
 from radtrack.interactions.rbele import Ui_ELE
 from  radtrack.RbBunchTransport import RbBunchTransport
 from  radtrack.BunchTab import BunchTab
-from  radtrack.RbUtility import stripComments, convertUnitsNumber
+from  radtrack.RbUtility import stripComments, convertUnitsNumber, convertUnitsStringToNumber
 import radtrack.util.resource as resource
 
 class RbEle(QtGui.QWidget):
