@@ -5,7 +5,7 @@ version 2
 import sys, os, subprocess, glob, time
 
 from PyQt4 import QtCore, QtGui
-from radtrack.interactions.rbele import Ui_ELE
+from radtrack.ui.rbele import Ui_ELE
 from  radtrack.RbBunchTransport import RbBunchTransport
 from  radtrack.BunchTab import BunchTab
 from  radtrack.RbUtility import stripComments, convertUnitsNumber, convertUnitsStringToNumber

@@ -4,7 +4,7 @@ import sip
 sip.setapi('QString', 2)
 from PyQt4 import QtGui, QtCore
 
-from radtrack.beamlines.cbt import Ui_tree, genDialog, advDialog
+from radtrack.ui.cbt import Ui_tree, genDialog, advDialog
 from  radtrack.RbUtility import displayWithUnitsNumber, \
                       convertUnitsNumber, \
                       roundSigFig
