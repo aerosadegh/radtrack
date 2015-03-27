@@ -373,30 +373,30 @@ class RbGlobal(QtGui.QMainWindow):
         # Configure Elegant tab to use tabs for simulation input
         for widget in self.allWidgets():
             if type(widget) == RbEle:
-                oldBeamlineChoice = widget.ui.beamlineDropDown.currentText()
+                oldBeamlineChoice = widget.ui.beamLineComboBox.currentText()
 
-                oldBunchChoice = widget.ui.bunchChoice.currentText()
-                widget.ui.bunchChoice.clear()
+                oldBunchChoice = widget.ui.bunchSourceComboBox.currentText()
+                widget.ui.bunchSourceComboBox.clear()
 
-                oldLatticeChoice = widget.ui.latticeChoice.currentText()
-                widget.ui.latticeChoice.clear()
+                oldLatticeChoice = widget.ui.beamLineSourceComboBox.currentText()
+                widget.ui.beamLineSourceComboBox.clear()
 
-                widget.ui.bunchChoice.addItem(widget.ui.noneBunchChoice)
-                widget.ui.latticeChoice.addItem(widget.ui.noneBeamChoice)
+                widget.ui.bunchSourceComboBox.addItem(widget.noneBunchChoice)
+                widget.ui.beamLineSourceComboBox.addItem(widget.noneBeamChoice)
 
                 for index in range(self.tabWidget.count()):
                     if type(getRealWidget(self.tabWidget.widget(index))) == BunchTab:
-                        widget.ui.bunchChoice.addItem(self.tabWidget.tabText(index))
+                        widget.ui.bunchSourceComboBox.addItem(self.tabWidget.tabText(index))
                     elif type(getRealWidget(self.tabWidget.widget(index))) == RbBunchTransport:
-                        widget.ui.latticeChoice.addItem(self.tabWidget.tabText(index))
+                        widget.ui.beamLineSourceComboBox.addItem(self.tabWidget.tabText(index))
 
-                widget.ui.bunchChoice.addItem(widget.ui.fileBunchChoice)
-                widget.ui.latticeChoice.addItem(widget.ui.fileBeamChoice)
+                widget.ui.bunchSourceComboBox.addItem(widget.fileBunchChoice)
+                widget.ui.beamLineSourceComboBox.addItem(widget.fileBeamChoice)
 
                 # Reselect the previous user's choice
-                widget.ui.bunchChoice.setCurrentIndex(widget.ui.bunchChoice.findText(oldBunchChoice))
-                widget.ui.latticeChoice.setCurrentIndex(widget.ui.latticeChoice.findText(oldLatticeChoice))
-                widget.ui.beamlineDropDown.setCurrentIndex(widget.ui.beamlineDropDown.findText(oldBeamlineChoice))
+                widget.ui.bunchSourceComboBox.setCurrentIndex(widget.ui.bunchSourceComboBox.findText(oldBunchChoice))
+                widget.ui.beamLineSourceComboBox.setCurrentIndex(widget.ui.beamLineSourceComboBox.findText(oldLatticeChoice))
+                widget.ui.beamLineComboBox.setCurrentIndex(widget.ui.beamLineComboBox.findText(oldBeamlineChoice))
 
 
     def hasChanged(self):

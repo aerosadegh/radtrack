@@ -2,86 +2,95 @@
 
 # Form implementation generated from reading ui file 'rbele.ui'
 #
-# Created: Thu Feb 20 16:12:26 2014
-#      by: pyside-uic 0.2.14 running on PySide 1.1.2
+# Created: Thu Mar 26 19:07:41 2015
+#      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
 
+try:
+    _fromUtf8 = QtCore.QString.fromUtf8
+except AttributeError:
+    def _fromUtf8(s):
+        return s
+
+try:
+    _encoding = QtGui.QApplication.UnicodeUTF8
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+except AttributeError:
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig)
+
 class Ui_ELE(object):
     def setupUi(self, ELE):
-        ELE.setObjectName("ELE")
-        ELE.resize(568, 364)
-        self.formLayoutWidget = QtGui.QWidget(ELE)
-        self.formLayoutWidget.setGeometry(QtCore.QRect(10, 10, 341, 211))
-        self.formLayoutWidget.setObjectName("formLayoutWidget")
-        self.formLayout = QtGui.QFormLayout(self.formLayoutWidget)
-        self.formLayout.setFieldGrowthPolicy(QtGui.QFormLayout.AllNonFixedFieldsGrow)
-        self.formLayout.setContentsMargins(0, 0, 0, 0)
-        self.formLayout.setObjectName("formLayout")
-        self.latticeChoice = QtGui.QComboBox(self.formLayoutWidget)
-        self.noneBeamChoice = 'Select beamline source ...'
-        self.fileBeamChoice = 'Use another file ...'
-        self.latticeChoice.addItem(self.noneBeamChoice)
-        self.latticeChoice.addItem(self.fileBeamChoice)
-        self.latticeChoice.setObjectName("latticeChoice")
-        self.formLayout.setWidget(0, QtGui.QFormLayout.FieldRole, self.latticeChoice)
-        self.bunchChoice = QtGui.QComboBox(self.formLayoutWidget)
-        self.noneBunchChoice = 'Select beam bunch source ...'
-        self.fileBunchChoice = 'Use another file ...'
-        self.bunchChoice.addItem(self.noneBunchChoice)
-        self.bunchChoice.addItem(self.fileBunchChoice)
-        self.bunchChoice.setObjectName("bunchChoice")
-        self.formLayout.setWidget(1, QtGui.QFormLayout.FieldRole, self.bunchChoice)
-        self.beamlineLabel = QtGui.QLabel(self.formLayoutWidget)
-        self.beamlineLabel.setObjectName("beamlineLabel")
-        self.formLayout.setWidget(2, QtGui.QFormLayout.LabelRole, self.beamlineLabel)
-        self.orderLabel = QtGui.QLabel(self.formLayoutWidget)
-        self.orderLabel.setObjectName("orderLabel")
-        self.formLayout.setWidget(3, QtGui.QFormLayout.LabelRole, self.orderLabel)
-        self.orderLineEdit = QtGui.QLineEdit(self.formLayoutWidget)
-        self.orderLineEdit.setObjectName("orderLineEdit")
-        self.formLayout.setWidget(3, QtGui.QFormLayout.FieldRole, self.orderLineEdit)
-        self.momentumLabel = QtGui.QLabel(self.formLayoutWidget)
-        self.momentumLabel.setObjectName("momentumLabel")
-        self.formLayout.setWidget(4, QtGui.QFormLayout.LabelRole, self.momentumLabel)
-        self.momentumLineEdit = QtGui.QLineEdit(self.formLayoutWidget)
-        self.momentumLineEdit.setObjectName("momentumLineEdit")
-        self.formLayout.setWidget(4, QtGui.QFormLayout.FieldRole, self.momentumLineEdit)
-        self.stepLabel = QtGui.QLabel(self.formLayoutWidget)
-        self.stepLabel.setObjectName("stepLabel")
-        self.formLayout.setWidget(5, QtGui.QFormLayout.LabelRole, self.stepLabel)
-        self.stepsLineEdit = QtGui.QLineEdit(self.formLayoutWidget)
-        self.stepsLineEdit.setObjectName("stepsLineEdit")
-        self.formLayout.setWidget(5, QtGui.QFormLayout.FieldRole, self.stepsLineEdit)
-        self.formLayout.setWidget(1, QtGui.QFormLayout.FieldRole, self.bunchChoice)
-        self.lte = QtGui.QLabel(self.formLayoutWidget)
-        self.lte.setObjectName("lte")
-        self.formLayout.setWidget(0, QtGui.QFormLayout.LabelRole, self.lte)
-        self.bun = QtGui.QLabel(self.formLayoutWidget)
-        self.bun.setObjectName("bun")
-        self.formLayout.setWidget(1, QtGui.QFormLayout.LabelRole, self.bun)
-        self.beamlineDropDown = QtGui.QComboBox(self.formLayoutWidget)
-        self.beamlineDropDown.setObjectName("beamlineDropDown")
-        self.formLayout.setWidget(2, QtGui.QFormLayout.FieldRole, self.beamlineDropDown)
-        self.sim = QtGui.QPushButton(ELE)
-        self.sim.setGeometry(QtCore.QRect(80, 220, 211, 101))
-        self.sim.setObjectName("sim")
-        self.textEdit = QtGui.QTextEdit(ELE)
-        self.textEdit.setGeometry(QtCore.QRect(360, 10, 201, 211))
-        self.textEdit.setObjectName("textEdit")
+        ELE.setObjectName(_fromUtf8("ELE"))
+        ELE.resize(1043, 364)
+        self.horizontalLayoutWidget = QtGui.QWidget(ELE)
+        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(10, 10, 1021, 341))
+        self.horizontalLayoutWidget.setObjectName(_fromUtf8("horizontalLayoutWidget"))
+        self.horizontalLayout_2 = QtGui.QHBoxLayout(self.horizontalLayoutWidget)
+        self.horizontalLayout_2.setMargin(0)
+        self.horizontalLayout_2.setObjectName(_fromUtf8("horizontalLayout_2"))
+        self.formLayout_2 = QtGui.QFormLayout()
+        self.formLayout_2.setObjectName(_fromUtf8("formLayout_2"))
+        self.bunchSourceLabel = QtGui.QLabel(self.horizontalLayoutWidget)
+        self.bunchSourceLabel.setObjectName(_fromUtf8("bunchSourceLabel"))
+        self.formLayout_2.setWidget(0, QtGui.QFormLayout.LabelRole, self.bunchSourceLabel)
+        self.bunchSourceComboBox = QtGui.QComboBox(self.horizontalLayoutWidget)
+        self.bunchSourceComboBox.setObjectName(_fromUtf8("bunchSourceComboBox"))
+        self.bunchSourceComboBox.addItem(_fromUtf8(""))
+        self.bunchSourceComboBox.addItem(_fromUtf8(""))
+        self.formLayout_2.setWidget(0, QtGui.QFormLayout.FieldRole, self.bunchSourceComboBox)
+        self.beamLineSourceLabel = QtGui.QLabel(self.horizontalLayoutWidget)
+        self.beamLineSourceLabel.setObjectName(_fromUtf8("beamLineSourceLabel"))
+        self.formLayout_2.setWidget(1, QtGui.QFormLayout.LabelRole, self.beamLineSourceLabel)
+        self.beamLineSourceComboBox = QtGui.QComboBox(self.horizontalLayoutWidget)
+        self.beamLineSourceComboBox.setObjectName(_fromUtf8("beamLineSourceComboBox"))
+        self.beamLineSourceComboBox.addItem(_fromUtf8(""))
+        self.beamLineSourceComboBox.addItem(_fromUtf8(""))
+        self.formLayout_2.setWidget(1, QtGui.QFormLayout.FieldRole, self.beamLineSourceComboBox)
+        self.beamLineLabel = QtGui.QLabel(self.horizontalLayoutWidget)
+        self.beamLineLabel.setObjectName(_fromUtf8("beamLineLabel"))
+        self.formLayout_2.setWidget(2, QtGui.QFormLayout.LabelRole, self.beamLineLabel)
+        self.beamLineComboBox = QtGui.QComboBox(self.horizontalLayoutWidget)
+        self.beamLineComboBox.setObjectName(_fromUtf8("beamLineComboBox"))
+        self.formLayout_2.setWidget(2, QtGui.QFormLayout.FieldRole, self.beamLineComboBox)
+        self.momentumLabel = QtGui.QLabel(self.horizontalLayoutWidget)
+        self.momentumLabel.setObjectName(_fromUtf8("momentumLabel"))
+        self.formLayout_2.setWidget(3, QtGui.QFormLayout.LabelRole, self.momentumLabel)
+        self.momentumLineEdit = QtGui.QLineEdit(self.horizontalLayoutWidget)
+        self.momentumLineEdit.setObjectName(_fromUtf8("momentumLineEdit"))
+        self.formLayout_2.setWidget(3, QtGui.QFormLayout.FieldRole, self.momentumLineEdit)
+        self.pushButton = QtGui.QPushButton(self.horizontalLayoutWidget)
+        self.pushButton.setObjectName(_fromUtf8("pushButton"))
+        self.formLayout_2.setWidget(4, QtGui.QFormLayout.FieldRole, self.pushButton)
+        self.textEdit_2 = QtGui.QTextEdit(self.horizontalLayoutWidget)
+        self.textEdit_2.setObjectName(_fromUtf8("textEdit_2"))
+        self.formLayout_2.setWidget(5, QtGui.QFormLayout.SpanningRole, self.textEdit_2)
+        self.horizontalLayout_2.addLayout(self.formLayout_2)
+        self.verticalLayout_4 = QtGui.QVBoxLayout()
+        self.verticalLayout_4.setObjectName(_fromUtf8("verticalLayout_4"))
+        self.pushButton_2 = QtGui.QPushButton(self.horizontalLayoutWidget)
+        self.pushButton_2.setMinimumSize(QtCore.QSize(400, 0))
+        self.pushButton_2.setObjectName(_fromUtf8("pushButton_2"))
+        self.verticalLayout_4.addWidget(self.pushButton_2)
+        self.horizontalLayout_2.addLayout(self.verticalLayout_4)
 
         self.retranslateUi(ELE)
         QtCore.QMetaObject.connectSlotsByName(ELE)
 
     def retranslateUi(self, ELE):
-        ELE.setWindowTitle(QtGui.QApplication.translate("ELE", "Form", None, QtGui.QApplication.UnicodeUTF8))
-        self.beamlineLabel.setText(QtGui.QApplication.translate("ELE", "beamline:", None, QtGui.QApplication.UnicodeUTF8))
-        self.orderLabel.setText(QtGui.QApplication.translate("ELE", "default order:", None, QtGui.QApplication.UnicodeUTF8))
-        self.momentumLabel.setText(QtGui.QApplication.translate("ELE", "momentum:", None, QtGui.QApplication.UnicodeUTF8))
-        self.stepLabel.setText(QtGui.QApplication.translate("ELE", "step number:", None, QtGui.QApplication.UnicodeUTF8))
-        self.lte.setText(QtGui.QApplication.translate("ELE", "Lattice File:", None, QtGui.QApplication.UnicodeUTF8))
-        self.bun.setText(QtGui.QApplication.translate("ELE", "Bunch File:", None, QtGui.QApplication.UnicodeUTF8))
-        self.sim.setText(QtGui.QApplication.translate("ELE", "SIMULATE", None, QtGui.QApplication.UnicodeUTF8))
+        ELE.setWindowTitle(_translate("ELE", "Form", None))
+        self.bunchSourceLabel.setText(_translate("ELE", "Bunch Source:", None))
+        self.bunchSourceComboBox.setItemText(0, _translate("ELE", "Select bunch source ...", None))
+        self.bunchSourceComboBox.setItemText(1, _translate("ELE", "Another file ...", None))
+        self.beamLineSourceLabel.setText(_translate("ELE", "Beam Line Source:", None))
+        self.beamLineSourceComboBox.setItemText(0, _translate("ELE", "Select beam line source ...", None))
+        self.beamLineSourceComboBox.setItemText(1, _translate("ELE", "Another file ...", None))
+        self.beamLineLabel.setText(_translate("ELE", "Beam Line:", None))
+        self.momentumLabel.setText(_translate("ELE", "Momentum:", None))
+        self.pushButton.setText(_translate("ELE", "Simulate", None))
+        self.pushButton_2.setText(_translate("ELE", "PushButton", None))
 

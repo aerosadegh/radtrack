@@ -5,7 +5,7 @@ version 2
 import sys, os, subprocess, glob, time
 
 from PyQt4 import QtCore, QtGui
-from radtrack.interactions.rbele import *
+from radtrack.interactions.rbele import Ui_ELE
 from  radtrack.RbBunchTransport import RbBunchTransport
 from  radtrack.BunchTab import BunchTab
 from  radtrack.RbUtility import stripComments
@@ -16,13 +16,22 @@ class RbEle(QtGui.QWidget):
         QtGui.QWidget.__init__(self)
         self.ui = Ui_ELE()
         self.ui.setupUi(self)
-        self.ui.sim.clicked.connect(self.simulate)
-        self.ui.latticeChoice.currentIndexChanged.connect(self.getLTE)
-        self.ui.bunchChoice.currentIndexChanged.connect(self.getBUN)
-        self.ui.orderLineEdit.setText('2')
-        self.ui.stepsLineEdit.setText('1')
+        self.ui.pushButton.clicked.connect(self.simulate)
+        self.ui.beamLineSourceComboBox.currentIndexChanged.connect(self.getLTE)
+        self.ui.bunchSourceComboBox.currentIndexChanged.connect(self.getBUN)
         self.fileExtension = '.ele'
         self.parent = parent
+
+        self.noneBeamChoice = 'Select beamline source ...'
+        self.fileBeamChoice = 'Use another file ...'
+
+        self.noneBunchChoice = 'Select beam bunch source ...'
+        self.fileBunchChoice = 'Use another file ...'
+
+        self.ui.pushButton_2.setText('Generated files ...')
+        self.ui.pushButton_2.setEnabled(False)
+
+        self.generatedFileButtons = []
 
         if self.parent is None:
             self.parent = self
@@ -33,41 +42,47 @@ class RbEle(QtGui.QWidget):
                                   # the user chooses that file
 
     def getBUN(self):
-        if self.ui.bunchChoice.currentText() == self.ui.noneBunchChoice:
+        if self.ui.bunchSourceComboBox.currentText() == self.noneBunchChoice:
             return
 
-        if self.ui.bunchChoice.currentText() == self.ui.fileBunchChoice:
+        if self.ui.bunchSourceComboBox.currentText() == self.fileBunchChoice:
             sddsfileName = QtGui.QFileDialog.getOpenFileName(self, 'Open',
                     self.parent.lastUsedDirectory, '*.sdds')
             if sddsfileName == '':
-                self.ui.bunchChoice.setCurrentIndex(self.ui.bunchChoice.findText(self.ui.noneBunchChoice))
+                self.ui.bunchSourceComboBox.setCurrentIndex(self.ui.bunchSourceComboBox.findText(self.noneBunchChoice))
                 return
             self.parent.lastUsedDirectory = os.path.dirname(sddsfileName)
             # Check if file has already been selected
-            index = self.ui.bunchChoice.findText(sddsfileName)
+            index = self.ui.bunchSourceComboBox.findText(sddsfileName)
             if index != -1:
-                self.ui.bunchChoice.setCurrentIndex(index)
+                self.ui.bunchSourceComboBox.setCurrentIndex(index)
             else:
-                self.ui.bunchChoice.addItem(sddsfileName)
-                self.ui.bunchChoice.setCurrentIndex(self.ui.bunchChoice.count()-1)
+                self.ui.bunchSourceComboBox.addItem(sddsfileName)
+                self.ui.bunchSourceComboBox.setCurrentIndex(self.ui.bunchSourceComboBox.count()-1)
+        elif self.ui.bunchSourceComboBox.currentText() in self.tabTitles():
+            self.ui.momentumLabel.setHidden(True)
+            self.ui.momentumLineEdit.setHidden(True)
+        else:
+            self.ui.momentumLabel.setHidden(False)
+            self.ui.momentumLineEdit.setHidden(False)
 
 
     def getLTE(self):
-        self.ui.beamlineDropDown.clear()
+        self.ui.beamLineComboBox.clear()
 
-        if self.ui.latticeChoice.currentText() in [self.ui.noneBeamChoice, '']:
+        if self.ui.beamLineSourceComboBox.currentText() in [self.noneBeamChoice, '']:
             return
 
-        elif self.ui.latticeChoice.currentText() in self.tabTitles():
+        elif self.ui.beamLineSourceComboBox.currentText() in self.tabTitles():
             for tabIndex in range(self.parent.tabWidget.count()):
-                if self.parent.tabWidget.tabText(tabIndex) == self.ui.latticeChoice.currentText():
+                if self.parent.tabWidget.tabText(tabIndex) == self.ui.beamLineSourceComboBox.currentText():
                     loader = self.parent.tabWidget.widget(tabIndex)
 
-        elif self.ui.latticeChoice.currentText() == self.ui.fileBeamChoice:
+        elif self.ui.beamLineSourceComboBox.currentText() == self.fileBeamChoice:
             fileName = QtGui.QFileDialog.getOpenFileName(self, 'Open',
                     self.parent.lastUsedDirectory, '*.lte')
             if fileName == '':
-                self.ui.latticeChoice.setCurrentIndex(self.ui.latticeChoice.findText(self.ui.noneBeamChoice))
+                self.ui.beamLineSourceComboBox.setCurrentIndex(self.ui.beamLineSourceComboBox.findText(self.noneBeamChoice))
                 return
             self.parent.lastUsedDirectory = os.path.dirname(fileName)
             # Check if user already selected a file previously
@@ -75,15 +90,15 @@ class RbEle(QtGui.QWidget):
                 loader = RbBunchTransport()
                 loader.importFile(fileName)
                 self.loaderCache[fileName] = loader
-                self.ui.latticeChoice.addItem(fileName)
-            self.ui.latticeChoice.setCurrentIndex(self.ui.latticeChoice.findText(fileName))
+                self.ui.beamLineSourceComboBox.addItem(fileName)
+            self.ui.beamLineSourceComboBox.setCurrentIndex(self.ui.beamLineSourceComboBox.findText(fileName))
 
             return
             # Setting the currentIndex triggers another signal that runs
             # the else clause below
 
         else: # previously loaded file
-            loader = self.loaderCache[self.ui.latticeChoice.currentText()]
+            loader = self.loaderCache[self.ui.beamLineSourceComboBox.currentText()]
 
         allBeamLines = []
         for element in loader.elementDictionary.values():
@@ -91,60 +106,56 @@ class RbEle(QtGui.QWidget):
                 allBeamLines.append(element.name)
 
         # Reset available beamlines
-        self.ui.beamlineDropDown.addItems(allBeamLines)
-        self.ui.beamlineDropDown.setCurrentIndex(self.ui.beamlineDropDown.findText(loader.defaultBeamline))
+        self.ui.beamLineComboBox.addItems(allBeamLines)
+        self.ui.beamLineComboBox.setCurrentIndex(self.ui.beamLineComboBox.findText(loader.defaultBeamline))
 
     def tabTitles(self):
         return [self.parent.tabWidget.tabText(i) for i in range(self.parent.tabWidget.count())]
 
     def simulate(self):
         errMsg = ''
-        self.ui.textEdit.clear()
+        self.ui.textEdit_2.clear()
 
         # Get beamline file
-        if self.ui.latticeChoice.currentText() == self.ui.noneBeamChoice:
+        if self.ui.beamLineSourceComboBox.currentText() == self.noneBeamChoice:
             errMsg += '  - No beamline lattice specified.\n'
 
-        elif self.ui.latticeChoice.currentText() in self.tabTitles():
-            self.ui.textEdit.append('Generating beam lattice file ...')
+        elif self.ui.beamLineSourceComboBox.currentText() in self.tabTitles():
+            self.ui.textEdit_2.append('Generating beam lattice file ...')
             latticeFileName = os.path.join(self.parent.sessionDirectory, 'elegantSimulation.lte')
             for tabIndex in range(self.parent.tabWidget.count()):
-                if self.ui.latticeChoice.currentText() == self.parent.tabWidget.tabText(tabIndex):
+                if self.ui.beamLineSourceComboBox.currentText() == self.parent.tabWidget.tabText(tabIndex):
                     self.parent.tabWidget.widget(tabIndex).exportToFile(latticeFileName)
                     break
             else:
-                errMsg += "  - Could not find tab with name: " + self.ui.latticeChoice.currentText() + '\n'
+                errMsg += "  - Could not find tab with name: " + self.ui.beamLineSourceComboBox.currentText() + '\n'
             deleteLatticeFile = True
 
         else: # Separate file chosen
-            latticeFileName = self.ui.latticeChoice.currentText()
+            latticeFileName = self.ui.beamLineSourceComboBox.currentText()
             deleteLatticeFile = False
 
-        beamlineName = self.ui.beamlineDropDown.currentText()
+        beamlineName = self.ui.beamLineComboBox.currentText()
         if not beamlineName:
             errMsg += "  - No beamline selected.\n"
 
         # Get bunch file
-        if self.ui.bunchChoice.currentText() == self.ui.noneBunchChoice:
+        if self.ui.bunchSourceComboBox.currentText() == self.noneBunchChoice:
             errMsg += '  - No bunch file specified.\n'
-        elif self.ui.bunchChoice.currentText() in self.tabTitles():
-            self.ui.textEdit.append('Generating beam bunch file ...')
+        elif self.ui.bunchSourceComboBox.currentText() in self.tabTitles():
+            self.ui.textEdit_2.append('Generating beam bunch file ...')
             bunchFileName = os.path.join(self.parent.sessionDirectory, 'elegantSimulation.sdds')
             for index in range(self.parent.tabWidget.count()):
-                if self.parent.tabWidget.tabText(index) == self.ui.bunchChoice.currentText():
+                if self.parent.tabWidget.tabText(index) == self.ui.bunchSourceComboBox.currentText():
                     self.parent.tabWidget.widget(index).widget().saveToSDDS(bunchFileName)
                     deleteBunchFile = True
                     break
         else:
-            bunchFileName = self.ui.bunchChoice.currentText()
+            bunchFileName = self.ui.bunchSourceComboBox.currentText()
             deleteBunchFile = False
 
-        if self.ui.orderLineEdit.text() == '':
-            errMsg += '  - No default order specified.\n'
         if self.ui.momentumLineEdit.text() == '':
             errMsg += '  - No momentum specified.\n'
-        if self.ui.stepsLineEdit.text() == '':
-            errMsg += '  - No step number specified.\n'
 
         if errMsg:
             errMsg = 'Cannot start simulation due to:\n' + errMsg
@@ -153,14 +164,14 @@ class RbEle(QtGui.QWidget):
             return
 
         #generate ele file
-        self.ui.textEdit.append('Writing Elegant simulation file ...')
+        self.ui.textEdit_2.append('Writing Elegant simulation file ...')
         outputFileName = os.path.join(self.parent.sessionDirectory, 'elegantSimulation.ele')
         with open(outputFileName, 'w') as outputFile:
             s = '    '
             outputFile.write('&run_setup\n')
             outputFile.write(s+'lattice = "'+latticeFileName+'",'+'\n')
             outputFile.write(s+'use_beamline = '+beamlineName+','+'\n')
-            outputFile.write(s+'default_order = '+self.ui.orderLineEdit.text()+','+'\n')
+            outputFile.write(s+'default_order = 2\n')
             outputFile.write(s+'p_central = '+self.ui.momentumLineEdit.text()+','+'\n')
             outputFile.write(s+'output = %s.out, \n')
             outputFile.write(s+'centroid = %s.cen, \n')
@@ -175,7 +186,7 @@ class RbEle(QtGui.QWidget):
             outputFile.write(s+'echo_lattice = 0 \n')
             outputFile.write('&end \n\n')
             outputFile.write('&run_control \n')
-            outputFile.write(s+'n_steps = '+self.ui.stepsLineEdit.text()+','+'\n')
+            outputFile.write(s+'n_steps = 1\n')
             outputFile.write(s+'reset_rf_for_each_step = 1 \n')
             outputFile.write('&end \n\n')
             outputFile.write('&twiss_output \n')
@@ -201,7 +212,7 @@ class RbEle(QtGui.QWidget):
         if not os.getenv('RPN_DEFNS', None):
             os.environ['RPN_DEFNS'] = resource.filename('defns.rpn')
 
-        self.ui.textEdit.append('Running simulation ...')
+        self.ui.textEdit_2.append('Running simulation ...')
 
         elegantRun = ElegantRunner(outputFileName)
         elegantThread = QtCore.QThread(self)
@@ -221,11 +232,20 @@ class RbEle(QtGui.QWidget):
         time.sleep(0.01)
 
     def postSimulationResults(self, inputFileName):
-        self.ui.textEdit.append('Simulation complete!\n')
+        self.ui.textEdit_2.append('Simulation complete!\n')
 
-        self.ui.textEdit.append('Generated files:')
+        self.ui.textEdit_2.append('Generated files:')
+
+        self.generatedFileButtons = []
+
         for fileName in glob.glob(os.path.splitext(inputFileName)[0] + '*'):
-            self.ui.textEdit.append(fileName)
+            self.generatedFileButtons.append(QtGui.QPushButton())
+            self.generatedFileButtons[-1].setText(os.path.basename(fileName))
+            self.generatedFileButtons[-1].setMinimumSize(self.ui.pushButton_2.minimumSize())
+            self.generatedFileButtons[-1].clicked.connect(self.parent.importFile)
+            self.ui.verticalLayout_4.addWidget(self.generatedFileButtons[-1])
+
+        self.ui.pushButton_2.setHidden(self.generatedFileButtons)
 
 
 # This class essentially runs the elegant command line. Wrapping
