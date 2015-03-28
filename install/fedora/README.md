@@ -64,3 +64,10 @@ perl -pi -e '/Vagrant.configure/ && ($_ .= "  config.ssh.forward_x11 = true\n")'
 vagrant box update
 vagrant up
 ```
+
+pykern? Runs as a service.
+
+config.vm.provider :virtualbox do |vb|
+vb.customize ['guestproperty', 'set', :id, '/VirtualBox/GuestAdd/VBoxService/--timesync-interval', '500']
+vb.customize ['guestproperty', 'set', :id, '/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold', '800']
+  end
