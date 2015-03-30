@@ -14,6 +14,7 @@ if /sbin/lsmod | grep -i -s -q vbox; then
     systemctl restart sshd.service
 fi
 
+yum --assumeyes update
 yum --quiet --assumeyes install $(cat /cfg/yum-install.list)
 curl -s -L https://raw.githubusercontent.com/radiasoft/foss-mirror/master/install-as-root.sh | bash
 
