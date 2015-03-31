@@ -224,6 +224,8 @@ class RbEle(QtGui.QWidget):
         self.ui.textEdit_2.append('Running simulation ...')
 
         elegantRun = ElegantRunner(outputFileName)
+        self.elegantOutputFileName = elegantRun.outputFileName
+        self.elegantErrorFileName = elegantRun.errorFileName
         elegantThread = QtCore.QThread(self)
         elegantRun.moveToThread(elegantThread)
 
@@ -241,17 +243,25 @@ class RbEle(QtGui.QWidget):
         time.sleep(0.01)
 
     def postSimulationResults(self, inputFileName):
+        if os.stat(self.elegantErrorFileName).st_size > 0:
+            self.ui.textEdit_2.append('Errors reported:')
+            with open(self.elegantErrorFileName) as err:
+                for line in err:
+                    self.ui.textEdit_2.append(line)
         self.ui.textEdit_2.append('Simulation complete!\n')
 
         while self.generatedFileButtons:
             self.ui.verticalLayout_4.removeWidget(self.generatedFileButtons.pop())
 
-        for fileName in glob.glob(os.path.splitext(inputFileName)[0] + '*'):
+        for i, fileName in enumerate(glob.glob(os.path.splitext(inputFileName)[0] + '*')):
             newButton = QtGui.QPushButton()
             self.generatedFileButtons.append(newButton)
             newButton.setText(os.path.basename(fileName))
-            newButton.clicked.connect(lambda ignore, name = fileName : self.parent.importFile(name))
-            self.ui.verticalLayout_4.addWidget(newButton)
+            newButton.clicked.connect(lambda ignore, name = newButton.text() : \
+                    self.parent.importFile(os.path.join(self.parent.sessionDirectory, name)))
+            self.ui.verticalLayout_4.insertWidget(i + 2, newButton)
+
+
 
 
 # This class essentially runs the elegant command line. Wrapping
@@ -262,10 +272,15 @@ class ElegantRunner(QtCore.QObject):
 
     def __init__(self, inputFileName):
         QtCore.QObject.__init__(self)
-        self.inputFileName = inputFileName
+        self.inputFileName = os.path.realpath(inputFileName).replace('\\', '\\\\')
+        self.outputFileName = os.path.join(os.path.dirname(self.inputFileName), 'elegant_output.txt')
+        self.errorFileName = os.path.join(os.path.dirname(self.inputFileName), 'elegant_errors.txt')
 
     def start(self):
         elegantProcess = QtCore.QProcess()
+        elegantProcess.setStandardOutputFile(self.outputFileName)
+        elegantProcess.setStandardErrorFile(self.errorFileName)
+        print self.inputFileName
         elegantProcess.start('elegant', [self.inputFileName])
         elegantProcess.waitForFinished()
         self.runFinished.emit(elegantProcess.exitCode())
