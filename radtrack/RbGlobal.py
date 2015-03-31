@@ -3,7 +3,6 @@ Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 
 """
 import sys, os, tempfile, shutil
-from zipfile import ZipFile
 
 import argh
 import sip
@@ -27,7 +26,6 @@ from radtrack.RbSrwsingle import rbsrw as rbsrwsingle
 from radtrack.RbSrwmulti import rbsrw as rbsrwmulti
 
 class RbGlobal(QtGui.QMainWindow):
-    #Constructor
     def __init__(self, beta_test=False):
         self.beta_test=beta_test
         QtGui.QMainWindow.__init__(self)
@@ -38,11 +36,12 @@ class RbGlobal(QtGui.QMainWindow):
         QtGui.QApplication.setFont(default_font)
 
         self.lastUsedDirectory = os.path.expanduser('~').replace('\\', '/')
+
         session = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-        self.sessionDirectory = os.path.join(os.path.expanduser('~'), 'RadTrack', session).replace('\\', '/')
+        self.sessionDirectory = os.path.join(os.path.expanduser('~'), 'RadTrack', session)
         if not os.path.exists(self.sessionDirectory):
             os.makedirs(self.sessionDirectory)
-        self.fileExtension = '.radtrack'
+
         self.recentfile = None
 
         self.ui = Ui_globalgu()
@@ -50,7 +49,9 @@ class RbGlobal(QtGui.QMainWindow):
         self.setWindowTitle('RadTrack')
 
         self.tabWidget = QtGui.QTabWidget()
+        self.ui.verticalLayout.addWidget(self.tabWidget)
         self.tabWidget.setTabsClosable(True)
+        self.tabPrefix = '###Tab###' # used to identify files that are the saved data from tabs
 
         if not beta_test:
             scrollArea = QtGui.QScrollArea(self)
@@ -127,9 +128,9 @@ class RbGlobal(QtGui.QMainWindow):
 
             self.ui.menuNewTab.addAction(actionNewTab)
 
-        self.ui.verticalLayout.addWidget(self.tabWidget)
-        self.ui.actionOpen.triggered.connect(lambda : self.openProjectFile())
-        self.ui.actionSave.triggered.connect(self.saveProjectFile)
+        self.ui.actionOpen.triggered.connect(lambda : self.openProject())
+        self.ui.actionSetLocation.triggered.connect(self.setProjectLocation)
+        self.ui.actionNewInstance.triggered.connect(lambda : RbGlobal().show())
         self.ui.actionImport.triggered.connect(lambda : self.importFile())
         self.ui.actionExport.triggered.connect(self.exportCurrentTab)
         self.ui.actionExit.triggered.connect(self.close)
@@ -267,92 +268,86 @@ class RbGlobal(QtGui.QMainWindow):
         getRealWidget(self.tabWidget.currentWidget()).importFile(openFile)
 
 
-    def openProjectFile(self, fileName = None):
-        if fileName is None or fileName == '':
-            fileName = QtGui.QFileDialog.getOpenFileName(self,
-                    'Open file',
-                    self.lastUsedDirectory,
-                    '*' + self.fileExtension)
-            if fileName == '':
+    def setProjectLocation(self):
+        directory = QtGui.QFileDialog.getExistingDirectory(self,
+                'Choose folder to store project',
+                self.sessionDirectory)
+        if not directory:
+            return
+
+        if set(os.listdir(self.sessionDirectory)).intersection(os.listdir(directory)):
+            box = QtGui.QMessageBox(QtGui.QMessageBox.Question, 'File Overwrite Warning',
+                    'There are files in this directory with the same name\nas files in the original project folder. Do you wish\nto overwrite these files?')
+            ok = box.addButton('Continue and overwrite files', QtGui.QMessageBox.ActionRole)
+            cancel = box.addButton('Cancel and preserve files', QtGui.QMessageBox.ActionRole)
+            box.exec_()
+            if box.clickedButton() == cancel:
                 return
 
-        # Open a new window if user has worked in the current one
-        if self.hasChanged():
-            dest = RbGlobal()
-            dest.show()
-        else:
-            dest = self
+        for thing in os.listdir(self.sessionDirectory):
+            try:
+                shutil.move(os.path.join(self.sessionDirectory, thing), directory)
+            except shutil.Error:
+                shutil.copy2(os.path.join(self.sessionDirectory, thing), directory)
+                os.remove(os.path.join(self.sessionDirectory, thing))
+        os.rmdir(self.sessionDirectory)
+        self.sessionDirectory = directory
+        self.saveProjectFile()
 
-        dest.tabWidget.clear()
 
-        with ZipFile(fileName, 'r') as zf:
-            for i, subFileName in enumerate(zf.namelist()):
-                print subFileName
-                zf.extract(subFileName)
-                _, originalTitle, tabName = os.path.basename(subFileName).split('_')
-                tabName = tabName.rsplit(".", 1)[0]
-                dest.newTab(self.originalNameToTabType[originalTitle])
-                getRealWidget(dest.tabWidget.widget(i)).importFile(subFileName)
-                dest.tabWidget.setTabText(i, tabName)
-                os.remove(subFileName)
-        dest.lastUsedDirectory = os.path.dirname(fileName)
+    def openProject(self, directory = None):
+        if directory is None or directory == '':
+            directory = QtGui.QFileDialog.getExistingDirectory(self,
+                    'Open project folder',
+                    self.lastUsedDirectory)
+            if not directory:
+                return
+
+        self.saveProjectFile()
+
+        self.sessionDirectory = directory
+        self.lastUsedDirectory = directory
+
+        # Load tab data
+        self.tabWidget.clear()
+        for i, subFileName in enumerate(sorted( \
+                [os.path.join(self.sessionDirectory, fn) for fn in os.listdir(self.sessionDirectory) if fn.startswith(self.tabPrefix)])):
+            _, _, originalTitle, tabName = os.path.basename(subFileName).split('_')
+            tabName = tabName.rsplit(".", 1)[0]
+            self.newTab(self.originalNameToTabType[originalTitle])
+            getRealWidget(self.tabWidget.widget(i)).importFile(subFileName)
+            self.tabWidget.setTabText(i, tabName)
 
     def saveProjectFile(self):
-        fileName = QtGui.QFileDialog.getSaveFileName(self,
-                'Save Project',
-                self.lastUsedDirectory,
-                '*' + self.fileExtension)
-        if fileName == '':
-            return
-        if not fileName.endswith(self.fileExtension):
-            fileName = fileName + self.fileExtension
+        # Delete previous tab data in self.sessionDirectory
+        for fileName in os.listdir(self.sessionDirectory):
+            if fileName.startswith(self.tabPrefix):
+                os.remove(os.path.join(self.sessionDirectory, fileName))
 
-        tempFileName = fileName + '.partial'
-        with ZipFile(tempFileName, 'w') as zf:
-            saveProgress = QtGui.QProgressDialog('Saving as ' + fileName + ' ...',
-                    'Cancel',
-                    0,
-                    self.tabWidget.count()-1)
-            saveProgress.setValue(0)
-            padding = len(str(self.tabWidget.count()))
-            for i in range(self.tabWidget.count()):
-                if saveProgress.wasCanceled():
-                    return
+        saveProgress = QtGui.QProgressDialog('Saving project ...', 'Cancel', 0, self.tabWidget.count()-1)
+        saveProgress.setValue(0)
+        padding = len(str(self.tabWidget.count()))
+        for i in range(self.tabWidget.count()):
+            if saveProgress.wasCanceled():
+                return
 
-                widget = getRealWidget(self.tabWidget.widget(i))
-                try:
-                    subExtension = widget.acceptsFileTypes[0]
-                    subFileHandle, subFileName = tempfile.mkstemp(subExtension)
-                except AttributeError as e: # skip tabs without file extensions
-                    print 'ERROR: Skipping ' + self.tabWidget.tabText(i)
-                    print e
-                    saveProgress.setValue(saveProgress.value()+1)
-                    continue
-                os.close(subFileHandle)
+            widget = getRealWidget(self.tabWidget.widget(i))
+            try:
+                subExtension = widget.acceptsFileTypes[0]
+                subFileName  = os.path.join(self.sessionDirectory,
+                    '_'.join([self.tabPrefix,
+                              str(i).rjust(padding, '0'),
+                              self.tabTypeToOriginalName[type(widget)],
+                              self.tabWidget.tabText(i) + '.' + subExtension]))
+                widget.exportToFile(subFileName)
+                saveProgress.setValue(saveProgress.value()+1)
+            except AttributeError as e: # skip tabs without file extensions
+                print 'ERROR: Skipping ' + self.tabWidget.tabText(i)
+                print e
+                saveProgress.setValue(saveProgress.value()+1)
+                continue
 
-                try:
-                    print self.tabWidget.tabText(i)
-                    widget.exportToFile(subFileName)
-                    zf.write(subFileName, str(i).rjust(padding, '0')
-                                          + '_'
-                                          + self.tabTypeToOriginalName[type(widget)]
-                                          + '_'
-                                          + self.tabWidget.tabText(i)
-                                          + "."
-                                          + subExtension)
-                    saveProgress.setValue(saveProgress.value()+1)
-                except Exception as e:
-                    print 'Error saving ' + widget.__class__.__name__
-                    print e
-                    saveProgress.reset()
-                    if type(e) is not AttributeError:
-                        raise
-                finally:
-                    os.remove(subFileName)
-
-        shutil.move(tempFileName, fileName)
         self.globalHasChanged = False
-        print 'Done.'
 
     def exportCurrentTab(self):
         getRealWidget(self.tabWidget.currentWidget()).exportToFile()
@@ -421,25 +416,9 @@ class RbGlobal(QtGui.QMainWindow):
         self.globalHasChanged = True
 
     def closeEvent(self, event):
-        if self.hasChanged():
-            saveBox = QtGui.QMessageBox(QtGui.QMessageBox.Question,
-                    'RadTrack',
-                    'Do you want to save the current project?',
-                    QtGui.QMessageBox.Save | QtGui.QMessageBox.Discard |
-                    QtGui.QMessageBox.Cancel)
-            answer = saveBox.exec_()
-
-            if answer == QtGui.QMessageBox.Save:
-                self.saveProjectFile()
-            elif answer == QtGui.QMessageBox.Cancel:
-                event.ignore()
-                return
+        self.saveProjectFile()
         event.accept()
         QtGui.QMainWindow.closeEvent(self, event)
-        try:
-            os.rmdir(self.sessionDirectory) # delete sessionDirectory if it's empty
-        except OSError, WindowsError:
-            pass # files exist in sessionDirectory, so don't delete
 
 
 def getRealWidget(widget):
