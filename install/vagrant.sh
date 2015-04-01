@@ -6,7 +6,6 @@ fi
 
 echo 'Installing RadTrack...'
 set -e
-2>&3
 err_trap() {
     local e=$?
     if [ 0 != "$e" ]; then
