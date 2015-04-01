@@ -7,30 +7,33 @@ import sys, os
 from numpy import sqrt
 from PyQt4 import QtGui, QtCore
 from ui.newsrw import Ui_Form as Ui_newsrw
-from ui.undulatorforsrw import Ui_Dialog as und_dlg
-from ui.beamforsrw import Ui_Dialog as beam_dlg
+from ui.undulatorforthinsrw import Ui_Dialog as und_dlg
+from ui.beamforthinsrw import Ui_Dialog as beam_dlg
 from ui.precisionofsrw import Ui_Dialog as prec_dlg
 from srw.uti_plot import *
 from srw.AnalyticCalc import *
 from srw.srwlib import *
+from xlrd import *
 
 class rbsrw(QtGui.QWidget):
     def __init__(self, parent = None):
         QtGui.QWidget.__init__(self, parent)
         self.ui = Ui_newsrw()
         self.ui.setupUi(self)
-        #self.srwdictionary = dict()
         self.up = UP()
         self.beam = SRWLPartBeam()
         self.precis = Precis()
+        #load initial values from excel
+        workbook = open_workbook('/Users/stevenseung/Desktop/radtrack/radtrack/srw/SRWinitialvalues.xls')
+        self.thinsheet = workbook.sheet_by_name('thin table')
         self.thin(self.ui.deparg.currentIndex())
-        #dialog boxes
-        #self.dialogb = DialogB()
-        #self.dialogp = DialogP()
         #set srw initial values 
-        self.GetUndParams(DialogU())
-        self.GetBeamParams(DialogB())
-        self.GetPrecision(DialogP())
+        column = workbook.sheet_by_name('thin undulator').col(0)
+        self.GetUndParams(DialogU(self,column))
+        column = workbook.sheet_by_name('thin beam').col(0)
+        self.GetBeamParams(DialogB(self,column))
+        column = workbook.sheet_by_name('thin precision').col(0)
+        self.GetPrecision(DialogP(self,column))
         
         #connections
         self.ui.undulator.clicked.connect(self.makeund)
@@ -89,7 +92,6 @@ class rbsrw(QtGui.QWidget):
         self.up.xcID = float(dialog.ui.xcid.text())
         self.up.ycID = float(dialog.ui.ycid.text())
         self.up.zcID = float(dialog.ui.zcid.text())
-        self.up.n = int(dialog.ui.n.text())
         
     def ShowUndParams(self, dialog):
         dialog.ui.numper.setText(str(self.up.numPer))
@@ -103,7 +105,6 @@ class rbsrw(QtGui.QWidget):
         dialog.ui.xcid.setText(str(self.up.xcID))
         dialog.ui.ycid.setText(str(self.up.ycID))
         dialog.ui.zcid.setText(str(self.up.zcID))
-        dialog.ui.n.setText(str(self.up.n))
         
         
     def GetBeamParams(self,dialog):
@@ -115,26 +116,7 @@ class rbsrw(QtGui.QWidget):
         self.beam.partStatMom1.xp = float(dialog.ui.partstatmom1xp.text())
         self.beam.partStatMom1.yp = float(dialog.ui.partstatmom1yp.text()) 
         self.beam.partStatMom1.gamma = float(dialog.ui.partstatmom1gamma.text())
-        '''
-        sigEperE = 0.00089 #relative RMS energy spread
-        sigX = 33.33e-06 #horizontal RMS size of e-beam [m]
-        sigXp = 16.5e-06 #horizontal RMS angular divergence [rad]
-        sigY = 2.912e-06 #vertical RMS size of e-beam [m]
-        sigYp = 2.7472e-06 #vertical RMS angular divergence [rad]
-        '''
-        sigEperE = float(dialog.ui.sige.text())
-        sigX = float(dialog.ui.sigx.text())
-        sigXp = float(dialog.ui.sigxp.text())
-        sigY = float(dialog.ui.sigy.text())
-        sigYp = float(dialog.ui.sigyp.text())
-        #2nd order stat. moments:
-        self.beam.arStatMom2[0] = sigX*sigX #<(x-<x>)^2> 
-        self.beam.arStatMom2[1] = 0 #<(x-<x>)(x'-<x'>)>
-        self.beam.arStatMom2[2] = sigXp*sigXp #<(x'-<x'>)^2> 
-        self.beam.arStatMom2[3] = sigY*sigY #<(y-<y>)^2>
-        self.beam.arStatMom2[4] = 0 #<(y-<y>)(y'-<y'>)>
-        self.beam.arStatMom2[5] = sigYp*sigYp #<(y'-<y'>)^2>
-        self.beam.arStatMom2[10] = sigEperE*sigEperE #<(E-<E>)^2>/<E>^2
+
         
     def ShowBeamParams(self, dialog):
         dialog.ui.iavg.setText(str(self.beam.Iavg))
@@ -144,11 +126,6 @@ class rbsrw(QtGui.QWidget):
         dialog.ui.partstatmom1xp.setText(str(self.beam.partStatMom1.xp))
         dialog.ui.partstatmom1yp.setText(str(self.beam.partStatMom1.yp))
         dialog.ui.partstatmom1gamma.setText(str(self.beam.partStatMom1.gamma))
-        dialog.ui.sige.setText(str(sqrt(self.beam.arStatMom2[10])))
-        dialog.ui.sigx.setText(str(sqrt(self.beam.arStatMom2[0])))
-        dialog.ui.sigy.setText(str(sqrt(self.beam.arStatMom2[3])))
-        dialog.ui.sigxp.setText(str(sqrt(self.beam.arStatMom2[2])))
-        dialog.ui.sigyp.setText(str(sqrt(self.beam.arStatMom2[5])))
         
     def WfrSetUpE(self,wfrE):
         #wfrE = SRWLWfr() this is the waveform class
@@ -321,16 +298,22 @@ class rbsrw(QtGui.QWidget):
         uti_plot_show()
           
     def thin(self,i):
-        thintable = [[10000,1,1,20,10,3000,0,0,0,0], 
-                     [1,100,3,20,395,395,-0.0025,0,0.0025,0],
-                     [1,3,100,20,395,395,0,-0.0025,0,0.0025],
-                     [1,100,100,20,395,395,-0.0025,-0.0025,0.0025,0.0025],
-                     [1000,100,3,20,10,3000,-0.0025,-0.0025,0.0025,0.0025],
-                     [1000,3,100,20,10,3000,-0.0025,-0.0025,0.0025,0.0025],
-                     [1000,30,30,20,10,3000,0,0,0,0]]
+        '''
+        r = self.thinsheet.nrows
+        c = self.thinsheet.ncols
+        thintable = []
+        for k in range(c):
+            l = []
+            for j in range(r):
+                l.append(self.thinsheet.cell(j,k).value)
+            thintable.append(l)
                      
         for n,x in enumerate(thintable[i]):
-            self.ui.tableWidget.setItem(n,0,QtGui.QTableWidgetItem(str(x)))
+            self.ui.tableWidget.setItem(n,0,QtGui.QTableWidgetItem(str(x)))'''
+            
+        for n,c in enumerate(self.thinsheet.col(i)):
+            self.ui.tableWidget.setItem(n,0,QtGui.QTableWidgetItem(str(c.value)))
+        
         
     def makeund(self):
         dialog = DialogU()
@@ -375,54 +358,53 @@ class Precis:
         Precis.useTermin = [] 
         Precis.sampFactNxNyForProp = []
         
+        
 class DialogU(QtGui.QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None,column=None):
         QtGui.QDialog.__init__(self,parent)
         self.ui = und_dlg()
         self.ui.setupUi(self)
-        self.ui.numper.setText('40.5')  #Number of ID Periods (without accounting for terminations)
-        self.ui.undper.setText('0.049') #Period Length
-        self.ui.bx.setText('0.0')       #Peak Vertical field
-        self.ui.by.setText('0.57')      #Peak Horizontal field
-        self.ui.phbx.setText('0')       #Initial Phase of the Horizontal field component
-        self.ui.phby.setText('0')       #Initial Phase of the Vertical field component
-        self.ui.sbx.setText('-1')       #Symmetry of the Horizontal field component vs Longitudinal position
-        self.ui.sby.setText('1')        #Symmetry of the Vertical field component vs Longitudinal position
-        self.ui.xcid.setText('0')       #Misaligment. Horizontal Coordinate of Undulator Center 
-        self.ui.ycid.setText('0')       #Misaligment. Vertical Coordinate of Undulator Center 
-        self.ui.zcid.setText('0')       #Misaligment. Longitudinal Coordinate of Undulator Center
-        self.ui.n.setText('1')
+        if column is not None:
+            self.ui.numper.setText(str(column[0].value))  #Number of ID Periods (without accounting for terminations)
+            self.ui.undper.setText(str(column[1].value)) #Period Length
+            self.ui.bx.setText(str(column[2].value))       #Peak Vertical field
+            self.ui.by.setText(str(column[3].value))      #Peak Horizontal field
+            self.ui.phbx.setText(str(column[4].value))       #Initial Phase of the Horizontal field component
+            self.ui.phby.setText(str(column[5].value))       #Initial Phase of the Vertical field component
+            self.ui.sbx.setText(str(column[6].value))       #Symmetry of the Horizontal field component vs Longitudinal position
+            self.ui.sby.setText(str(column[7].value))        #Symmetry of the Vertical field component vs Longitudinal position
+            self.ui.xcid.setText(str(column[8].value))       #Misaligment. Horizontal Coordinate of Undulator Center 
+            self.ui.ycid.setText(str(column[9].value))       #Misaligment. Vertical Coordinate of Undulator Center 
+            self.ui.zcid.setText(str(column[10].value))      #Misaligment. Longitudinal Coordinate of Undulator Center
                 
 class DialogB(QtGui.QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, column=None):
         QtGui.QDialog.__init__(self,parent)
         self.ui = beam_dlg()
         self.ui.setupUi(self)
-        self.ui.iavg.setText('0.5')     #Above is the UP class, this is self.beam.iavg
-        self.ui.partstatmom1x.setText('0')  #self.beam.partStatMom1.x, initial x-offset    
-        self.ui.partstatmom1y.setText('0')  #self.beam.partStatMom1.y, initial y-offset
-        self.ui.partstatmom1z.setText('0.0') #self.beam.partStatMom1.z, initial z-offset
-        self.ui.partstatmom1xp.setText('0') #self.beam.partStatMom1.xp, initial x angle offset
-        self.ui.partstatmom1yp.setText('0') #self.beam.partStatMom1.yp, initial y angle offset
-        self.ui.partstatmom1gamma.setText('5870.925') # electron beam relative energy, gamma
-        self.ui.sige.setText('0.00089')
-        self.ui.sigx.setText('33.33e-06')
-        self.ui.sigy.setText('2.912e-06')
-        self.ui.sigxp.setText('16.5e-06')
-        self.ui.sigyp.setText('2.7472e-06')
-        
+        if column is not None:
+            self.ui.iavg.setText(str(column[0].value))     #Above is the UP class, this is self.beam.iavg
+            self.ui.partstatmom1x.setText(str(column[1].value))  #self.beam.partStatMom1.x, initial x-offset    
+            self.ui.partstatmom1y.setText(str(column[2].value))  #self.beam.partStatMom1.y, initial y-offset
+            self.ui.partstatmom1z.setText(str(column[3].value)) #self.beam.partStatMom1.z, initial z-offset
+            self.ui.partstatmom1xp.setText(str(column[4].value)) #self.beam.partStatMom1.xp, initial x angle offset
+            self.ui.partstatmom1yp.setText(str(column[5].value)) #self.beam.partStatMom1.yp, initial y angle offset
+            self.ui.partstatmom1gamma.setText(str(column[6].value)) # electron beam relative energy, gamma
+
 class DialogP(QtGui.QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, column=None):
         QtGui.QDialog.__init__(self,parent)
         self.ui = prec_dlg()
         self.ui.setupUi(self)
-        self.ui.meth.setCurrentIndex(1) #SR calculation method: 0- "manual", 1- "auto-undulator", 2- "auto-wiggler"
-        self.ui.relprec.setText('0.01') #relative precision
-        self.ui.zstartint.setText('0') #longitudinal position to start integration (effective if < zEndInteg)
-        self.ui.zendint.setText('0') #longitudinal position to finish integration (effective if > zStartInteg)
-        self.ui.nptraj.setText('20000') #Number of points for trajectory calculation
-        self.ui.usetermin.setCurrentIndex(1) #Use "terminating terms" (i.e. asymptotic expansions at zStartInteg and zEndInteg) or not (1 or 0 respectively)
-        self.ui.sampfactnxny.setText('0') #sampling factor for adjusting nx, ny (effective if > 0)
+        if column is not None:
+            self.ui.meth.setCurrentIndex(int(column[0].value)) #SR calculation method: 0- "manual", 1- "auto-undulator", 2- "auto-wiggler"
+            self.ui.relprec.setText(str(column[1].value)) #relative precision
+            self.ui.zstartint.setText(str(column[2].value)) #longitudinal position to start integration (effective if < zEndInteg)
+            self.ui.zendint.setText(str(column[3].value)) #longitudinal position to finish integration (effective if > zStartInteg)
+            self.ui.nptraj.setText(str(column[4].value)) #Number of points for trajectory calculation
+            self.ui.usetermin.setCurrentIndex(int(column[5].value)) #Use "terminating terms" (i.e. asymptotic expansions at zStartInteg and zEndInteg) or not (1 or 0 respectively)
+            self.ui.sampfactnxny.setText(str(column[6].value)) #sampling factor for adjusting nx, ny (effective if > 0)
+        
         
                 
 def main():

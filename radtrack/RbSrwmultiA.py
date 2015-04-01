@@ -6,12 +6,13 @@ Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 import sys, os
 from PyQt4 import QtGui, QtCore
 from ui.newsrw import Ui_Form as Ui_newsrw
-from ui.undulatorforsrw import Ui_Dialog as und_dlg
+from ui.undulatorforthicksrw import Ui_Dialog as und_dlg
 from ui.beamforsrw import Ui_Dialog as beam_dlg
 from ui.precisionthicksrw import Ui_Dialog as prec_dlg
 from srw.uti_plot import *
 from srw.AnalyticCalc import *
 from srw.srwlib import *
+from xlrd import *
 
 class rbsrw(QtGui.QWidget):
     def __init__(self, parent = None):
@@ -23,12 +24,21 @@ class rbsrw(QtGui.QWidget):
         #self.precis = Precis()
         self.arPrecF = [0]*5
         self.arPrecP = [0]*5 
+        #load initial values from excel
+        workbook = open_workbook('/Users/stevenseung/Desktop/radtrack/radtrack/srw/SRWinitialvalues.xls')
+        self.thicksheet = workbook.sheet_by_name('thick table')
         self.thick(self.ui.deparg.currentIndex())
-
+        #disable/remove broken simulation argument
+        self.ui.deparg.removeItem(4)
+        self.ui.deparg.removeItem(5)
+        self.ui.deparg.removeItem(6)
         #set srw initial values
-        self.GetUndParams(DialogU())
-        self.GetBeamParams(DialogB())
-        self.GetPrecision(DialogP())
+        column = workbook.sheet_by_name('thick undulator').col(0)
+        self.GetUndParams(DialogU(self,column))
+        column = workbook.sheet_by_name('thick beam').col(0)
+        self.GetBeamParams(DialogB(self,column))
+        column = workbook.sheet_by_name('thick precision').col(0)
+        self.GetPrecision(DialogP(self,column))
         
         #connections
         self.ui.undulator.clicked.connect(self.makeund)
@@ -78,14 +88,12 @@ class rbsrw(QtGui.QWidget):
         #vertical harmonic magnetic field
         harmB = SRWLMagFldH() #magnetic field harmonic
         harmB.n = self.up.n #harmonic number
-        harmB.h_or_v = 'v' #magnetic field plane: horzontal ('h') or vertical ('v')
-        harmB.B = self.up.By #magnetic field amplitude [T]
-        
-        #horizontal harmonic magnetic field
-        harmA = SRWLMagFldH() #magnetic field harmonic
-        harmA.n = self.up.n #harmonic number
-        harmA.h_or_v = 'h' #magnetic field plane: horzontal ('h') or vertical ('v')
-        harmA.B = self.up.Bx #magnetic field amplitude [T]
+        if self.up.By is None:
+            harmB.B = self.up.Bx #magnetic field amplitude [T] 
+            harmB.h_or_v = 'h'   #magnetic field plane: horzontal ('h')
+        else:
+            harmB.B = self.up.By #magnetic field amplitude[T]
+            harmB.h_or_v = 'v'   #magnetic field plane: vertical ('v')
         
         und = SRWLMagFldU([harmB])
         und.per = self.up.undPer #period length [m]
@@ -96,30 +104,26 @@ class rbsrw(QtGui.QWidget):
     def GetUndParams(self, dialog):
         self.up.numPer = float(dialog.ui.numper.text())
         self.up.undPer = float(dialog.ui.undper.text())
-        self.up.Bx = float(dialog.ui.bx.text())
-        self.up.By = float(dialog.ui.by.text())
-        self.up.phBx = float(dialog.ui.phbx.text())
-        self.up.phBy = float(dialog.ui.phby.text())
-        self.up.sBx = float(dialog.ui.sbx.text())
-        self.up.sBy = float(dialog.ui.sby.text())
-        self.up.xcID = float(dialog.ui.xcid.text())
-        self.up.ycID = float(dialog.ui.ycid.text())
-        self.up.zcID = float(dialog.ui.zcid.text())
-        self.up.n = int(dialog.ui.n.text())
+        self.up.n = int(float(dialog.ui.n.text()))
+
+        if dialog.ui.vh.isChecked():
+            self.up.By = float(dialog.ui.b.text())
+            self.up.Bx = None
+        else:
+            self.up.Bx = float(dialog.ui.b.text())
+            self.up.By = None
+
         
     def ShowUndParams(self, dialog):
         dialog.ui.numper.setText(str(self.up.numPer))
         dialog.ui.undper.setText(str(self.up.undPer))
-        dialog.ui.bx.setText(str(self.up.Bx))
-        dialog.ui.by.setText(str(self.up.By))
-        dialog.ui.phbx.setText(str(self.up.phBx))
-        dialog.ui.phby.setText(str(self.up.phBy))
-        dialog.ui.sbx.setText(str(self.up.sBx))
-        dialog.ui.sby.setText(str(self.up.sBy))
-        dialog.ui.xcid.setText(str(self.up.xcID))
-        dialog.ui.ycid.setText(str(self.up.ycID))
-        dialog.ui.zcid.setText(str(self.up.zcID))
-        dialog.ui.n.setText(str(self.up.n))    
+        if self.up.By is None:
+            dialog.ui.b.setText(str(self.up.Bx))
+            dialog.ui.vh.setChecked(False)
+        else:
+            dialog.ui.b.setText(str(self.up.By))
+            dialog.ui.vh.setChecked(True)
+        dialog.ui.n.setText(str(self.up.n))   
         
     def GetBeamParams(self,dialog):
         #this is the beam class
@@ -192,7 +196,7 @@ class rbsrw(QtGui.QWidget):
         self.arPrecP[1] = dialog.ui.field.currentIndex()+1 #power density computation method (1- "near field", 2- "far field")
         self.arPrecP[2] = float(dialog.ui.ilp.text()) #initial longitudinal position (effective if self.arPrecP[2] < self.arPrecP[3])
         self.arPrecP[3] = float(dialog.ui.flp.text()) #final longitudinal position (effective if self.arPrecP[2] < self.arPrecP[3])
-        self.arPrecP[4] = int(dialog.ui.np.text()) #number of points for (intermediate) trajectory calculation
+        self.arPrecP[4] = int(float(dialog.ui.np.text())) #number of points for (intermediate) trajectory calculation
         #return (self.arPrecF, self.arPrecP)
         
     def ShowPrecision(self,dialog):
@@ -368,7 +372,7 @@ class rbsrw(QtGui.QWidget):
 
                      
     def thick(self,i):
-        thicktable = [[10000,1,1,20,10,3000,-0.0025,-0.0025,0.0025,0.0025],
+        '''thicktable = [[10000,1,1,20,10,3000,-0.0025,-0.0025,0.0025,0.0025],
                      [1,100,3,20,395,395,-0.015,-0.015,0.015,0.015],
                      [1,3,100,20,395,395,-0.015,-0.015,0.015,0.015],
                      [1,101,100,20,395,395,-0.015,-0.015,0.015,0.015],
@@ -377,7 +381,9 @@ class rbsrw(QtGui.QWidget):
                      [1000,30,30,20,10,3000,-0.0025,-0.0025,0.0025,0.0025]]
                      
         for n,x in enumerate(thicktable[i]):
-            self.ui.tableWidget.setItem(n,0,QtGui.QTableWidgetItem(str(x)))
+            self.ui.tableWidget.setItem(n,0,QtGui.QTableWidgetItem(str(x)))'''
+        for n,c in enumerate(self.thicksheet.col(i)):
+            self.ui.tableWidget.setItem(n,0,QtGui.QTableWidgetItem(str(c.value)))
         
     def makeund(self):
         dialog = DialogU()
@@ -402,57 +408,54 @@ class rbsrw(QtGui.QWidget):
         
         
 class DialogU(QtGui.QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None,column=None):
         QtGui.QDialog.__init__(self,parent)
         self.ui = und_dlg()
         self.ui.setupUi(self)
-        self.ui.numper.setText('40.5')  #Number of ID Periods (without accounting for terminations)
-        self.ui.undper.setText('0.049') #Period Length
-        self.ui.bx.setText('0.0')       #Peak Vertical field
-        self.ui.by.setText('0.57')      #Peak Horizontal field
-        self.ui.phbx.setText('0')       #Initial Phase of the Horizontal field component
-        self.ui.phby.setText('0')       #Initial Phase of the Vertical field component
-        self.ui.sbx.setText('-1')       #Symmetry of the Horizontal field component vs Longitudinal position
-        self.ui.sby.setText('1')        #Symmetry of the Vertical field component vs Longitudinal position
-        self.ui.xcid.setText('0')       #Misaligment. Horizontal Coordinate of Undulator Center 
-        self.ui.ycid.setText('0')       #Misaligment. Vertical Coordinate of Undulator Center 
-        self.ui.zcid.setText('0')       #Misaligment. Longitudinal Coordinate of Undulator Center
-        self.ui.n.setText('1')
+        if column is not None:
+            self.ui.numper.setText(str(column[0].value))  #Number of ID Periods (without accounting for terminations)
+            self.ui.undper.setText(str(column[1].value)) #Period Length
+            self.ui.n.setText(str(column[2].value))
+            self.ui.b.setText(str(column[3].value))
+            self.ui.vh.setChecked(column[4].value is unicode('v'))             
+            
                 
 class DialogB(QtGui.QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None,column=None):
         QtGui.QDialog.__init__(self,parent)
         self.ui = beam_dlg()
         self.ui.setupUi(self)
-        self.ui.iavg.setText('0.5')     #Above is the UP class, this is self.beam.iavg
-        self.ui.partstatmom1x.setText('0')  #self.beam.partStatMom1.x, initial x-offset    
-        self.ui.partstatmom1y.setText('0')  #self.beam.partStatMom1.y, initial y-offset
-        self.ui.partstatmom1z.setText('0.0') #self.beam.partStatMom1.z, initial z-offset
-        self.ui.partstatmom1xp.setText('0') #self.beam.partStatMom1.xp, initial x angle offset
-        self.ui.partstatmom1yp.setText('0') #self.beam.partStatMom1.yp, initial y angle offset
-        self.ui.partstatmom1gamma.setText('5870.925') # electron beam relative energy, gamma
-        self.ui.sige.setText('0.00089')
-        self.ui.sigx.setText('33.33e-06')
-        self.ui.sigy.setText('2.912e-06')
-        self.ui.sigxp.setText('16.5e-06')
-        self.ui.sigyp.setText('2.7472e-06')
+        if column is not None:
+            self.ui.iavg.setText(str(column[0].value))     #Above is the UP class, this is self.beam.iavg
+            self.ui.partstatmom1x.setText(str(column[1].value))  #self.beam.partStatMom1.x, initial x-offset    
+            self.ui.partstatmom1y.setText(str(column[2].value))  #self.beam.partStatMom1.y, initial y-offset
+            self.ui.partstatmom1z.setText(str(column[3].value)) #self.beam.partStatMom1.z, initial z-offset
+            self.ui.partstatmom1xp.setText(str(column[4].value)) #self.beam.partStatMom1.xp, initial x angle offset
+            self.ui.partstatmom1yp.setText(str(column[5].value)) #self.beam.partStatMom1.yp, initial y angle offset
+            self.ui.partstatmom1gamma.setText(str(column[6].value)) # electron beam relative energy, gamma
+            self.ui.sige.setText(str(column[7].value))
+            self.ui.sigx.setText(str(column[8].value))
+            self.ui.sigy.setText(str(column[9].value))
+            self.ui.sigxp.setText(str(column[10].value))
+            self.ui.sigyp.setText(str(column[11].value))
         
 class DialogP(QtGui.QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None,column=None):
         QtGui.QDialog.__init__(self,parent)
         self.ui = prec_dlg()
         self.ui.setupUi(self)
-        self.ui.harma.setText('1')
-        self.ui.harmb.setText('11')
-        self.ui.lip.setText('1.5')
-        self.ui.aip.setText('1.5')
-        self.ui.flux.setCurrentIndex(0)
+        if column is not None:
+            self.ui.harma.setText(str(column[0].value))
+            self.ui.harmb.setText(str(column[1].value))
+            self.ui.lip.setText(str(column[2].value))
+            self.ui.aip.setText(str(column[3].value))
+            self.ui.flux.setCurrentIndex(int(column[4].value))
         
-        self.ui.prefact.setText('1.5')
-        self.ui.field.setCurrentIndex(0)
-        self.ui.ilp.setText('0')
-        self.ui.flp.setText('0')
-        self.ui.np.setText('20000')
+            self.ui.prefact.setText(str(column[5].value))
+            self.ui.field.setCurrentIndex(column[6].value)
+            self.ui.ilp.setText(str(column[7].value))
+            self.ui.flp.setText(str(column[8].value))
+            self.ui.np.setText(str(column[9].value))
         
 class UP:
      def __init__(self): 
