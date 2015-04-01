@@ -27,3 +27,10 @@ python setup.py develop
 rm -f radtrack/dcp/sdds*
 cp install/fedora/sdds* $(python -c 'from distutils.sysconfig import get_python_lib as x; print x()')
 ```
+
+#### Installing Beta Mac OS
+
+```
+curl -s -L https://raw.githubusercontent.com/radiasoft/radtrack/master/install/vagrant.sh | bash
+```
+
