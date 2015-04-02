@@ -262,8 +262,6 @@ class RbEle(QtGui.QWidget):
             self.ui.verticalLayout_4.insertWidget(i + 2, newButton)
 
 
-
-
 # This class essentially runs the elegant command line. Wrapping
 # it in a class that inherits GObject allows for handing the
 # process off to another thread.
@@ -272,7 +270,10 @@ class ElegantRunner(QtCore.QObject):
 
     def __init__(self, inputFileName):
         QtCore.QObject.__init__(self)
+        
+        # Required so Elegant will interpret the file name correctly
         self.inputFileName = os.path.realpath(inputFileName).replace('\\', '\\\\')
+
         self.outputFileName = os.path.join(os.path.dirname(self.inputFileName), 'elegant_output.txt')
         self.errorFileName = os.path.join(os.path.dirname(self.inputFileName), 'elegant_errors.txt')
 
@@ -280,7 +281,6 @@ class ElegantRunner(QtCore.QObject):
         elegantProcess = QtCore.QProcess()
         elegantProcess.setStandardOutputFile(self.outputFileName)
         elegantProcess.setStandardErrorFile(self.errorFileName)
-        print self.inputFileName
         elegantProcess.start('elegant', [self.inputFileName])
         elegantProcess.waitForFinished()
         self.runFinished.emit(elegantProcess.exitCode())
