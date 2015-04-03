@@ -48,8 +48,7 @@ class rbsrw(QtGui.QWidget):
         
         
     def AnalyticA(self):
-        n_har=1 #harmB.n harmonic number from SRWTestCases(2)\UndC
-        (Kx,Ky,lam_rn,e_phn,w_or_id)=IDWaveLengthPhotonEnergy(n_har,self.up.undPer,self.up.Bx,self.up.By,self.beam.partStatMom1.gamma)
+        (Kx,Ky,lam_rn,e_phn)=IDWaveLengthPhotonEnergy(self.up.undPer,self.up.Bx,self.up.By,self.beam.partStatMom1.gamma)
         #Outputs: (UP.Kx=0.934*UP.By*UP.undPer, UP.K, RAD.ephn, UP.WorU)=
         #1. derived Kx from UP.By and UP.undPer
         #2. Introduced new class RAD.ephn = radiation class, variable phot energy of nth harmonics
@@ -62,23 +61,38 @@ class rbsrw(QtGui.QWidget):
         '3rd harmonic '+'{:.3e}'.format(lam_rn/3.0)+' '+'{:.3f}'.format(e_phn*3.0)+'\n'+\
         '5th harmonic '+'{:.3e}'.format(lam_rn/5.0)+' '+'{:.3f}'.format(e_phn*5.0)+'\n' 
         
-        (E_c,w_or_id)=CriticalEnergyWiggler(self.up.Bx,self.beam.partStatMom1.gamma,Kx)
+        E_c=CriticalEnergyWiggler(self.up.By,self.beam.partStatMom1.gamma)
         #Outputs: (RAD.Ecrit,UPWorU) where RAD.Ecrit is critical energy of Wiggler Radiation
         #Inputs: (UP.Bx, self.beam.partStatMom1.gamma,UP.Kx)
-        stra=stri+'# If wiggler: critical energy:'+'{:.3e}'.format(E_c)+', eV'+'\n'
+        stra=stri+'# Critical energy:'+'{:.3e}'.format(E_c)+', eV'+'\n'+\
+        '-----------------------------------'+'\n'
         
-        (P_W, L_id)=RadiatedPowerPlanarWiggler(self.up.undPer,self.up.Bx,self.up.numPer,self.beam.partStatMom1.gamma,self.beam.Iavg)
+        (P_W, L_id)=RadiatedPowerPlanarWiggler(self.up.undPer,self.up.By,self.up.numPer,self.beam.partStatMom1.gamma,self.beam.Iavg)
         #Outputs: (RAD.PowW,UP.L) where RAD.PowW is radiated power of Wiggler Radiation, UP.L=length of ID
         #Inputs: (UP.undPer,UP.Bx,UP.numPer,self.beam.partStatMom1.gamma,self.beam.Iavg) standart SRW class variables
-        strb=stra+'# Length of ID:'+'{:.3e}'.format(L_id)+', m'+'\n' + \
+        #RadiatedPowerPlanarWiggler(lam_u,Bx,N_u,Gam,I_b):
+        
+        (RadSpotSize,RadSpotDivergence)=UndulatorSourceSizeDivergence(lam_rn,L_id)
+        stre=stra+'# Rad spot size: '+'{:.3e}'.format(RadSpotSize)+', m'+'\n'
+        strf=stre+'# Rad divergence: '+'{:.3e}'.format(RadSpotDivergence)+', rad'+'\n'+\
+        '-----------------------------------'+'\n'
+        
+        strb=strf+'# Length of ID:'+'{:.3f}'.format(L_id)+', m'+'\n' + \
         '# Radiated power:'+'{:.3e}'.format(P_W)+', W'+'\n'
         
-        P_Wdc=CentralPowerDensityPlanarWiggler(self.up.Bx,self.up.numPer,self.beam.partStatMom1.gamma,self.beam.Iavg)
+        P_Wdc=CentralPowerDensityPlanarWiggler(self.up.By,self.up.numPer,self.beam.partStatMom1.gamma,self.beam.Iavg)
         #Outputs: (RAD.PowCPD) where RAD.PowCPD is radiated central cone power density of Wiggler Radiation
         #Inputs: (UP.undPer,UP.Bx,UP.numPer,self.beam.partStatMom1.gamma,self.beam.Iavg) standart SRW class variables
         strc=strb+'# Central Power Density: '+'{:.3e}'.format(P_Wdc)+', W/mrad2'+'\n'
         
-        self.ui.analytic.setText(strc)
+        SpectralFluxValue=SpectralFLux(self.up.numPer,self.beam.partStatMom1.gamma,1,self.beam.Iavg,Kx)
+        strd=strc+'# Spectral flux: '+'{:.3e}'.format(SpectralFluxValue)+', phot/(sec mrad 0.1% BW)'+'\n'
+        
+        RadBrightness=SpectralCenBrightness(self.up.numPer,self.beam.partStatMom1.gamma,self.beam.Iavg)
+        strw=strd+'# Spectral Central Brightness: '+'{:.3e}'.format(RadBrightness)+', phot/(sec mrad2 0.1% BW)'+'\n'+\
+        '-----------------------------------'+'\n'
+        
+        self.ui.analytic.setText(strw)
         
     def GetUndParams(self, dialog):
         self.up.numPer = float(dialog.ui.numper.text())
