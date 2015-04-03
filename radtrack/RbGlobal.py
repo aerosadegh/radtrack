@@ -22,8 +22,8 @@ from radtrack.RbFEL import RbFEL
 from radtrack.RbSimulations import RbSimulations
 from radtrack.srw.RbSrwUndulator import srwund
 from radtrack.genesis.rbgenesis2 import RbGenesis2
-from radtrack.RbSrwsingle import rbsrw as rbsrwsingle
-from radtrack.RbSrwmulti import rbsrw as rbsrwmulti
+from radtrack.RbSrwsingleA import rbsrw as rbsrwsingle
+from radtrack.RbSrwmultiA import rbsrw as rbsrwmulti
 
 class RbGlobal(QtGui.QMainWindow):
     def __init__(self, beta_test=False):
@@ -74,6 +74,7 @@ class RbGlobal(QtGui.QMainWindow):
         self.tabWidget.addTab(RbEle(self), self.tr('Elegant'))
 
         self.tabWidget.addTab(RbDcp(self), self.tr('Data Visualization'))
+        
 
         if not beta_test:
             self.tabWidget.addTab(RbFEL(self), self.tr('FEL'))
@@ -82,15 +83,28 @@ class RbGlobal(QtGui.QMainWindow):
             scrollArea.setWidget(RbGenesis2(self))
             self.tabWidget.addTab(scrollArea, self.tr('Genesis'))
 
-            scrollArea = QtGui.QScrollArea(self)
+            '''scrollArea = QtGui.QScrollArea(self)
             scrollArea.setWidget(rbsrwsingle(self))
             self.tabWidget.addTab(scrollArea, self.tr('SRW-single-electron'))
 
             scrollArea = QtGui.QScrollArea(self)
             scrollArea.setWidget(rbsrwmulti(self))
-            self.tabWidget.addTab(scrollArea, self.tr('SRW-Multi-electron'))
+            self.tabWidget.addTab(scrollArea, self.tr('SRW-Multi-electron'))'''
 
             self.tabWidget.addTab(RbGenesisTransport(self), self.tr('Genesis Transport'))
+            
+            self.stackwidget = QtGui.QStackedWidget(self)
+            self.stackwidget.addWidget(rbsrwmulti(self))
+            self.stackwidget.addWidget(rbsrwsingle(self))
+            self.srw_particle = QtGui.QCheckBox(self)
+            self.srw_particle.setText('Single-Particle')
+            layout = QtGui.QVBoxLayout(self)
+            layout.addWidget(self.srw_particle)
+            layout.addWidget(self.stackwidget)
+            srwidget = QtGui.QWidget(self)
+            srwidget.setLayout(layout)
+            self.tabWidget.addTab(srwidget, self.tr('SRW'))
+            self.srw_particle.stateChanged.connect(self.togglesrw)
 
 
         # Information for making new tabs and importing files
@@ -149,6 +163,11 @@ class RbGlobal(QtGui.QMainWindow):
         self.globalHasChanged = False
 
         self.checkMenus()
+        
+    def togglesrw(self):
+        self.stackwidget.setCurrentIndex(int(self.srw_particle.isChecked()))
+        print self.stackwidget.currentIndex()
+        print int(self.srw_particle.isChecked())
 
     def populateRecentFile(self):
         action = QtGui.QAction(self)
