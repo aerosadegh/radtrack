@@ -14,6 +14,7 @@ from srw.uti_plot import *
 from srw.AnalyticCalc import *
 from srw.srwlib import *
 from xlrd import *
+import radtrack.util.resource as resource
 
 class rbsrw(QtGui.QWidget):
     def __init__(self, parent = None):
@@ -24,7 +25,7 @@ class rbsrw(QtGui.QWidget):
         self.beam = SRWLPartBeam()
         self.precis = Precis()
         #load initial values from excel
-        workbook = open_workbook('/Users/stevenseung/Desktop/radtrack/radtrack/srw/SRWinitialvalues.xls')
+        workbook = open_workbook(resource.filename('SRWinitialvalues.xls'))
         self.thinsheet = workbook.sheet_by_name('thin table')
         self.thin(self.ui.deparg.currentIndex())
         #set srw initial values 

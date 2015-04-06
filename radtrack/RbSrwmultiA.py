@@ -13,6 +13,7 @@ from srw.uti_plot import *
 from srw.AnalyticCalc import *
 from srw.srwlib import *
 from xlrd import *
+import radtrack.util.resource as resource
 
 class rbsrw(QtGui.QWidget):
     def __init__(self, parent = None):
@@ -25,7 +26,7 @@ class rbsrw(QtGui.QWidget):
         self.arPrecF = [0]*5
         self.arPrecP = [0]*5 
         #load initial values from excel
-        workbook = open_workbook('/Users/stevenseung/Desktop/radtrack/radtrack/srw/SRWinitialvalues.xls')
+        workbook = open_workbook(resource.filename('SRWinitialvalues.xls'))
         self.thicksheet = workbook.sheet_by_name('thick table')
         self.thick(self.ui.deparg.currentIndex())
         #disable/remove broken simulation argument
