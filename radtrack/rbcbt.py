@@ -97,9 +97,6 @@ class RbCbt(QtGui.QWidget):
     def redo(self):
         self.undoStack.redo()
 
-    def hasChanged(self):
-        return not self.undoStack.isClean()
-
     def emptyWorkingBeamlineCheck(self):
         isEmpty = (self.ui.workingBeamline.count() == 0 or \
                 self.emptyBeamlineMessage in self.workingBeamlineElementNames())
@@ -607,10 +604,6 @@ class RbCbt(QtGui.QWidget):
                 '*.' + self.acceptsFileTypes[0])
                 
             self.parent.recentfile = outputFileName
-        else:
-            # Exporting a single tab doesn't count towards hasChanged()
-            # Only saving to a project file provides this function with a name
-            self.undoStack.setClean()
 
         self.exporter(outputFileName, self.elementDictionary, self.defaultBeamline)
 

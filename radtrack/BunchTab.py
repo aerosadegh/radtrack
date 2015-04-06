@@ -256,13 +256,6 @@ class BunchTab(QtGui.QWidget):
         # instantiate an object for doing statistics
         self.myStat = stat.RbStatistics6D()
 
-        # Has this tab been modified since it was created?
-        self.modified = False
-
-    # return True or False to indicate whether tab's data has changed and needs to be saved
-    def hasChanged(self):
-        return self.modified
-
     def radtrackGaussian(self):
         self.distributionFlag = 'gaussian'
         self.generateBunchRT()

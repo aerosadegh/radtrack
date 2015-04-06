@@ -30,7 +30,6 @@ class RbFEL(QtGui.QWidget):
             self.parent.lastUsedDirectory = os.path.expanduser('~')
         else:
             self.parent = parent
-        self.felHasChanged = False
 
         self.ui = Ui_Form()
         self.ui.setupUi(self)
@@ -225,8 +224,6 @@ class RbFEL(QtGui.QWidget):
         self.calculate()
         self.plot()
 
-        self.felHasChanged = False
-
  
     def calculate(self, writeToTextBoxes = True):
         # Every time the user changes the text in an input text box,
@@ -234,8 +231,6 @@ class RbFEL(QtGui.QWidget):
         # This way, the derived values are filled in as
         # the user enters data. If an output cannot be calculated,
         # it is simply skipped.
-
-        self.felHasChanged = True
 
         charge = self.getValue(self.ui.charge)
         peakCurrent = self.getValue(self.ui.peakamp)
@@ -416,12 +411,6 @@ class RbFEL(QtGui.QWidget):
         if writeToTextBox:
             textBox.setText(displayWithUnitsNumber(roundSigFig(value, 5), textBox.unit))
             textBox.setCursorPosition(0)
-
-    def hasChanged(self):
-        return self.felHasChanged \
-                or any([box.text() for box in self.plotInputBoxes]) \
-                or any([box.currentText() for box in self.plotInputBoxChoices])
-
 
     def plot(self):
         try:
@@ -635,7 +624,6 @@ class RbFEL(QtGui.QWidget):
 
         self.calculate()
         self.plot()
-        self.felHasChanged = False
 
 
 def rangeUnits(textBox, array):

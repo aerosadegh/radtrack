@@ -160,7 +160,6 @@ class RbGlobal(QtGui.QMainWindow):
         QtGui.QShortcut(QtGui.QKeySequence.Redo, self).activated.connect(self.redo)
 
         self.closedTabs = []
-        self.globalHasChanged = False
 
         self.checkMenus()
         
@@ -186,7 +185,6 @@ class RbGlobal(QtGui.QMainWindow):
             self.tabWidget.addTab(newTabType(self), newTitle)
         self.tabWidget.setCurrentIndex(self.tabWidget.count()-1)
         self.checkMenus()
-        self.globalHasChanged = True
 
     def uniqueTabTitle(self, title, ignoreIndex = -1):
         originalTitle = title
@@ -205,14 +203,12 @@ class RbGlobal(QtGui.QMainWindow):
                                 self.tabWidget.tabText(index)))
         self.tabWidget.removeTab(index)
         self.checkMenus()
-        self.globalHasChanged = True
 
     def undoCloseTab(self):
         widget, index, title = self.closedTabs.pop()
         self.tabWidget.insertTab(index, widget, title)
         self.checkMenus()
         self.tabWidget.setCurrentIndex(index)
-        self.globalHasChanged = True
         self.checkMenus()
 
     def renameTab(self):
@@ -221,9 +217,7 @@ class RbGlobal(QtGui.QMainWindow):
 
         if ok and newName:
             self.tabWidget.setTabText(index, self.uniqueTabTitle(newName, index))
-            self.globalHasChanged = True
             self.checkMenus()
-
 
     def importFile(self, openFile = None):
         if not openFile:
@@ -233,7 +227,7 @@ class RbGlobal(QtGui.QMainWindow):
                     "Charged Beam Transport (*.lte);;" +
                     "SDDS (*.sdds);;" +
                     "SRW (*.srw)")
-            if openFile == '':
+            if not openFile:
                 return
             self.lastUsedDirectory = os.path.dirname(openFile)
 
@@ -241,20 +235,18 @@ class RbGlobal(QtGui.QMainWindow):
 
         # Find all types of tabs that accept file type "ext"
         choices = []
-        for possibleWidget in [widget(self) for widget in self.widgetChoices]:
+        for widgetType in self.widgetChoices:
             try:
-                if ext in possibleWidget.acceptsFileTypes:
-                    choices.append(type(possibleWidget))
+                if ext in widgetType().acceptsFileTypes:
+                    choices.append(widgetType)
             except AttributeError:
                 pass
 
         if len(choices) == 0:
             QtGui.QMessageBox.warning(self, 'Import Error', 'No suitable tab for file:\n' + openFile)
             return
-
         elif len(choices) == 1:
             destinationType = choices[0]
-
         else: # len(choices) > 1
             box = QtGui.QMessageBox(QtGui.QMessageBox.Question, 'Ambiguous Import Destination', 'Multiple tab types can import this file.\nWhich kind of tab should be used?')
             responses = [box.addButton(widgetType.__name__, QtGui.QMessageBox.ActionRole) for widgetType in choices] + [box.addButton(QtGui.QMessageBox.Cancel)]
@@ -286,7 +278,6 @@ class RbGlobal(QtGui.QMainWindow):
         self.newTab(destinationType)
         getRealWidget(self.tabWidget.currentWidget()).importFile(openFile)
 
-
     def setProjectLocation(self):
         directory = QtGui.QFileDialog.getExistingDirectory(self,
                 'Choose folder to store project',
@@ -294,21 +285,31 @@ class RbGlobal(QtGui.QMainWindow):
         if not directory:
             return
 
-        if set(os.listdir(self.sessionDirectory)).intersection(os.listdir(directory)):
+        if os.listdir(directory):
             box = QtGui.QMessageBox(QtGui.QMessageBox.Question, 'File Overwrite Warning',
-                    'There are files in this directory with the same name\nas files in the original project folder. Do you wish\nto overwrite these files?')
-            ok = box.addButton('Continue and overwrite files', QtGui.QMessageBox.ActionRole)
-            cancel = box.addButton('Cancel and preserve files', QtGui.QMessageBox.ActionRole)
+                    'The chosen directory is not empty.\n' + \
+                    'Do you wish to create a new "RadTrack" folder there?')
+            newFolder = box.addButton('Create "RadTrack" folder', QtGui.QMessageBox.ActionRole)
+            cancel = box.addButton('Cancel location change', QtGui.QMessageBox.ActionRole)
             box.exec_()
             if box.clickedButton() == cancel:
                 return
 
+            directory = os.path.join(directory, 'RadTrack')
+            if os.path.lexists(directory):
+                count = 1
+                while os.path.lexists(directory + '_' + str(count)):
+                    count += 1
+                directory = directory + '_' + count
+
+        os.makedirs(directory)
         for thing in os.listdir(self.sessionDirectory):
+            thingPath = os.path.join(self.sessionDirectory, thing)
             try:
-                shutil.move(os.path.join(self.sessionDirectory, thing), directory)
+                shutil.move(thingPath, directory)
             except shutil.Error:
-                shutil.copy2(os.path.join(self.sessionDirectory, thing), directory)
-                os.remove(os.path.join(self.sessionDirectory, thing))
+                shutil.copy2(thingPath, directory)
+                os.remove(thingPath)
         os.rmdir(self.sessionDirectory)
         self.sessionDirectory = directory
         self.saveProjectFile()
@@ -330,7 +331,7 @@ class RbGlobal(QtGui.QMainWindow):
         # Load tab data
         self.tabWidget.clear()
         for i, subFileName in enumerate(sorted( \
-                [os.path.join(self.sessionDirectory, fn) for fn in os.listdir(self.sessionDirectory) if fn.startswith(self.tabPrefix)])):
+                [os.path.join(self.sessionDirectory, _) for _ in os.listdir(self.sessionDirectory) if _.startswith(self.tabPrefix)])):
             _, _, originalTitle, tabName = os.path.basename(subFileName).split('_')
             tabName = tabName.rsplit(".", 1)[0]
             self.newTab(self.originalNameToTabType[originalTitle])
@@ -365,8 +366,6 @@ class RbGlobal(QtGui.QMainWindow):
                 print e
                 saveProgress.setValue(saveProgress.value()+1)
                 continue
-
-        self.globalHasChanged = False
 
     def exportCurrentTab(self):
         getRealWidget(self.tabWidget.currentWidget()).exportToFile()
@@ -413,26 +412,11 @@ class RbGlobal(QtGui.QMainWindow):
                 widget.ui.beamLineComboBox.setCurrentIndex(widget.ui.beamLineComboBox.findText(oldBeamlineChoice))
 
 
-    def hasChanged(self):
-        if self.globalHasChanged:
-            return True
-
-        for widget in self.allWidgets():
-            try:
-                if widget.hasChanged():
-                    return True
-            except AttributeError:
-                print('*** ' + type(widget).__name__ + " has no hasChanged() method")
-        return False
-
-
     def undo(self):
         getRealWidget(self.tabWidget.currentWidget()).undo()
-        self.globalHasChanged = True
 
     def redo(self):
         getRealWidget(self.tabWidget.currentWidget()).redo()
-        self.globalHasChanged = True
 
     def closeEvent(self, event):
         self.saveProjectFile()
