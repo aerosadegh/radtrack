@@ -22,3 +22,5 @@ six>=1.9
 Sphinx==1.2
 sphinxcontrib-napoleon>=0.3
 tox>=1.8
+xlrd>=0.9
+
