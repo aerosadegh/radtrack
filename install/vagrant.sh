@@ -35,7 +35,7 @@ with_log="$(type with_log | tail +2)"
 # install 
 boot_volume=
 get_boot_volume() {
-    if [ ! -z "$_boot_volume" ]; then
+    if [ -n "$_boot_volume" ]; then
         return
     fi
     for f in /Volumes/*; do
@@ -56,7 +56,7 @@ install_pkg() {
     echo "Downloading $pkg... (speed depends on Internet connection)"
     # Needed for XQuartz which mounts dmg at XQuartz-<version>
     vol="$(echo /Volumes/$pkg*)"
-    if [ ! -z "$vol" ]; then
+    if [ -n "$vol" ]; then
         with_log hdiutil unmount "$vol"
     fi
     rm -f "$dmg"
@@ -113,7 +113,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 end
 EOF
 if vagrant box list 2>&1 | grep -s -q biviosoftware/radtrack; then
-    echo 'Checking virtual machine update... (may take an hour)'
+    echo 'Checking virtual machine update... (may take an hour if out of date)'
     with_log vagrant box update
 else
     echo 'Downloading virtual machine... (may take an hour)'
@@ -129,8 +129,7 @@ cat > radtrack <<EOF
 echo 'Starting radtrack... (may take a few seconds)'
 cd $vm_dir
 $with_log
-vagrant status 2>&1 | grep -s -q default.*running
-if [ \$? != 0 ]; then
+if ! vagrant status 2>&1 | grep -s -q default.*running; then
     echo 'Starting virtual machine... (may take a minute)'
     with_log vagrant up
 fi
