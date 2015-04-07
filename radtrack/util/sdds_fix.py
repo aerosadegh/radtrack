@@ -6,7 +6,8 @@
 """
 try:
     import sdds
-    import sddsdatamodule as sddsdata
+#    import sddsdatamodule as sddsdata
+    import sddsdata
 except ImportError:
     import radtrack.dcp.sdds as sdds
     import radtrack.dcp.sddsdata as sddsdata
