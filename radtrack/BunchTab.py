@@ -33,7 +33,7 @@ import radtrack.statistics.RbStatistics6D as stat
 from radtrack.ui.BunchInterface import Ui_bunchInterface
 from radtrack.RbUtility import parseUnits, unitConversion
 
-from radtrack.util.sdds_fix import sdds, sddsdata
+import sdds
 
 class BunchTab(QtGui.QWidget):
 
@@ -951,22 +951,22 @@ class BunchTab(QtGui.QWidget):
         # index is always zero...?
         sddsIndex = 0
 
-        # initialize sddsdata.pyd library (Windows only) with data file
-        if sddsdata.InitializeInput(sddsIndex, fileName) != 1:
-            sddsdata.PrintErrors(2)
+        # initialize sdds.sddsdata.pyd library (Windows only) with data file
+        if sdds.sddsdata.InitializeInput(sddsIndex, fileName) != 1:
+            sdds.sddsdata.PrintErrors(2)
 
         # get data storage mode...?
-        sddsStorageMode = sddsdata.GetMode(sddsIndex)
+        sddsStorageMode = sdds.sddsdata.GetMode(sddsIndex)
         if False:
             print ' Storage mode for index ', sddsIndex, ': ', sddsStorageMode
 
         # get description text...?
-        sddsDescription = sddsdata.GetDescription(sddsIndex)
+        sddsDescription = sdds.sddsdata.GetDescription(sddsIndex)
         if False:
             print ' Description for index ', sddsIndex, ': ', sddsDescription
 
         # get parameter names
-        paramNames = sddsdata.GetParameterNames(sddsIndex)
+        paramNames = sdds.sddsdata.GetParameterNames(sddsIndex)
         numParams = len(paramNames)
         if False:
             print ' numParams = ', numParams
@@ -975,7 +975,7 @@ class BunchTab(QtGui.QWidget):
         # get parameter definitions
         paramDefs = range(numParams)
         for iLoop in range(numParams):
-            paramDefs[iLoop] = sddsdata.GetParameterDefinition(sddsIndex,paramNames[iLoop])
+            paramDefs[iLoop] = sdds.sddsdata.GetParameterDefinition(sddsIndex,paramNames[iLoop])
             if False:
                 print ' paramDefs[',iLoop,'] = ', paramDefs[iLoop]
 
@@ -1000,7 +1000,7 @@ class BunchTab(QtGui.QWidget):
         msgBox.exec_()
 
         # get column names
-        columnNames = sddsdata.GetColumnNames(sddsIndex)
+        columnNames = sdds.sddsdata.GetColumnNames(sddsIndex)
         numColumns = len(columnNames)
         if False:
             print ' numColumns = ', numColumns
@@ -1017,17 +1017,17 @@ class BunchTab(QtGui.QWidget):
 
         # read parameter data from the SDDS file
         # mus read particle data at the same time
-        errorCode = sddsdata.ReadPage(sddsIndex)
+        errorCode = sdds.sddsdata.ReadPage(sddsIndex)
 #        print ' '
 #        print ' errorCode = ', errorCode
         if errorCode != 1:
-            sddsdata.PrintErrors(2)
+            sdds.sddsdata.PrintErrors(2)
         while errorCode > 0:
             for iLoop in range(numParams):
-                paramData[iLoop].append(sddsdata.GetParameter(sddsIndex,iLoop))
+                paramData[iLoop].append(sdds.sddsdata.GetParameter(sddsIndex,iLoop))
             for jLoop in range(numColumns):
                 tmpData = []
-                tmpData.append(sddsdata.GetColumn(sddsIndex,jLoop))
+                tmpData.append(sdds.sddsdata.GetColumn(sddsIndex,jLoop))
 
                 if False:
                     print ' '
@@ -1040,7 +1040,7 @@ class BunchTab(QtGui.QWidget):
                     print ' '
                     print ' columnData[', jLoop, '] = ', columnData[jLoop]
 
-            errorCode = sddsdata.ReadPage(sddsIndex)
+            errorCode = sdds.sddsdata.ReadPage(sddsIndex)
 
         # logic for deciphering and making use of parameter data goes here!
 
@@ -1062,7 +1062,7 @@ class BunchTab(QtGui.QWidget):
         columnDefs = range(numColumns)
         unitStrings = range(numColumns)
         for iLoop in range(numColumns):
-            columnDefs[iLoop] = sddsdata.GetColumnDefinition(sddsIndex,columnNames[iLoop])
+            columnDefs[iLoop] = sdds.sddsdata.GetColumnDefinition(sddsIndex,columnNames[iLoop])
             unitStrings[iLoop] = columnDefs[iLoop][1]
             if False:
                 print ' columnDefs[',iLoop,'] = ', columnDefs[iLoop]
@@ -1179,8 +1179,8 @@ class BunchTab(QtGui.QWidget):
 #        print ' myShape = ', myShape
 
         # close the SDDS particle file
-        if sddsdata.Terminate(sddsIndex) != 1:
-            sddsdata.PrintErrors(2)
+        if sdds.sddsdata.Terminate(sddsIndex) != 1:
+            sdds.sddsdata.PrintErrors(2)
 
         # instantiate the particle bunch
         self.myBunch = beam.RbParticleBeam6D(numParticles)

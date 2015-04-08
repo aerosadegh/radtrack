@@ -2,7 +2,7 @@
 import numpy as np
 import sys
 
-from radtrack.util.sdds_fix import sdds
+import sdds
 
 WorkingDir="..\..\Codes\Elegant\laserHeater\\"
 DirFileName="laserheat.out"

@@ -13,7 +13,7 @@ from radtrack.dcp.Plotlib2axis import *
 from radtrack.dcp.moverage import *
 from radtrack.dcp.FourieT import *
 from radtrack.dcp.math_analyses import *
-from radtrack.util.sdds_fix import sdds
+import sdds
 from radtrack.dcp.dcpwidget import Ui_dcpwidget
 from functools import partial
 from numpy.fft import fft, fftshift, ifftshift, fftfreq
