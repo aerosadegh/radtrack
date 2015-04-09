@@ -1,0 +1,139 @@
+# -*- coding: utf-8 -*-
+
+# Form implementation generated from reading ui file 'globalgu.ui'
+#
+# Created: Thu Apr 09 12:54:30 2015
+#      by: PyQt4 UI code generator 4.10.4
+#
+# WARNING! All changes made in this file will be lost!
+
+from PyQt4 import QtCore, QtGui
+
+try:
+    _fromUtf8 = QtCore.QString.fromUtf8
+except AttributeError:
+    def _fromUtf8(s):
+        return s
+
+try:
+    _encoding = QtGui.QApplication.UnicodeUTF8
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+except AttributeError:
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig)
+
+class Ui_globalgu(object):
+    def setupUi(self, globalgu):
+        globalgu.setObjectName(_fromUtf8("globalgu"))
+        globalgu.resize(772, 490)
+        self.centralwidget = QtGui.QWidget(globalgu)
+        self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
+        self.horizontalLayout = QtGui.QHBoxLayout(self.centralwidget)
+        self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
+        self.verticalLayout = QtGui.QVBoxLayout()
+        self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
+        self.horizontalLayout.addLayout(self.verticalLayout)
+        globalgu.setCentralWidget(self.centralwidget)
+        self.menubar = QtGui.QMenuBar(globalgu)
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 772, 21))
+        self.menubar.setObjectName(_fromUtf8("menubar"))
+        self.menuFile = QtGui.QMenu(self.menubar)
+        self.menuFile.setObjectName(_fromUtf8("menuFile"))
+        self.menuRecent_Projects = QtGui.QMenu(self.menuFile)
+        self.menuRecent_Projects.setObjectName(_fromUtf8("menuRecent_Projects"))
+        self.menuRecent_Files = QtGui.QMenu(self.menuFile)
+        self.menuRecent_Files.setObjectName(_fromUtf8("menuRecent_Files"))
+        self.menuEdit = QtGui.QMenu(self.menubar)
+        self.menuEdit.setObjectName(_fromUtf8("menuEdit"))
+        self.menuTabs = QtGui.QMenu(self.menubar)
+        self.menuTabs.setObjectName(_fromUtf8("menuTabs"))
+        self.menuNew_Tab = QtGui.QMenu(self.menuTabs)
+        self.menuNew_Tab.setObjectName(_fromUtf8("menuNew_Tab"))
+        globalgu.setMenuBar(self.menubar)
+        self.statusbar = QtGui.QStatusBar(globalgu)
+        self.statusbar.setObjectName(_fromUtf8("statusbar"))
+        globalgu.setStatusBar(self.statusbar)
+        self.actionOpen = QtGui.QAction(globalgu)
+        self.actionOpen.setObjectName(_fromUtf8("actionOpen"))
+        self.actionExit = QtGui.QAction(globalgu)
+        self.actionExit.setObjectName(_fromUtf8("actionExit"))
+        self.actionUndo = QtGui.QAction(globalgu)
+        self.actionUndo.setObjectName(_fromUtf8("actionUndo"))
+        self.actionRedo = QtGui.QAction(globalgu)
+        self.actionRedo.setObjectName(_fromUtf8("actionRedo"))
+        self.actionOpen_Project = QtGui.QAction(globalgu)
+        self.actionOpen_Project.setObjectName(_fromUtf8("actionOpen_Project"))
+        self.actionSet_Current_Project_Location = QtGui.QAction(globalgu)
+        self.actionSet_Current_Project_Location.setObjectName(_fromUtf8("actionSet_Current_Project_Location"))
+        self.actionOpen_New_RadTrack_Window = QtGui.QAction(globalgu)
+        self.actionOpen_New_RadTrack_Window.setObjectName(_fromUtf8("actionOpen_New_RadTrack_Window"))
+        self.actionImport_File = QtGui.QAction(globalgu)
+        self.actionImport_File.setObjectName(_fromUtf8("actionImport_File"))
+        self.actionExport_Current_Tab = QtGui.QAction(globalgu)
+        self.actionExport_Current_Tab.setObjectName(_fromUtf8("actionExport_Current_Tab"))
+        self.actionClose_Current_Tab = QtGui.QAction(globalgu)
+        self.actionClose_Current_Tab.setObjectName(_fromUtf8("actionClose_Current_Tab"))
+        self.actionReopen_Closed_Tab = QtGui.QAction(globalgu)
+        self.actionReopen_Closed_Tab.setObjectName(_fromUtf8("actionReopen_Closed_Tab"))
+        self.actionRename_Current_Tab = QtGui.QAction(globalgu)
+        self.actionRename_Current_Tab.setObjectName(_fromUtf8("actionRename_Current_Tab"))
+        self.actionAsdf = QtGui.QAction(globalgu)
+        self.actionAsdf.setObjectName(_fromUtf8("actionAsdf"))
+        self.actionAsdf_2 = QtGui.QAction(globalgu)
+        self.actionAsdf_2.setObjectName(_fromUtf8("actionAsdf_2"))
+        self.actionAsdf_3 = QtGui.QAction(globalgu)
+        self.actionAsdf_3.setObjectName(_fromUtf8("actionAsdf_3"))
+        self.actionExit_2 = QtGui.QAction(globalgu)
+        self.actionExit_2.setObjectName(_fromUtf8("actionExit_2"))
+        self.menuFile.addAction(self.actionOpen_Project)
+        self.menuFile.addAction(self.actionSet_Current_Project_Location)
+        self.menuFile.addAction(self.actionOpen_New_RadTrack_Window)
+        self.menuFile.addAction(self.menuRecent_Projects.menuAction())
+        self.menuFile.addSeparator()
+        self.menuFile.addAction(self.actionImport_File)
+        self.menuFile.addAction(self.actionExport_Current_Tab)
+        self.menuFile.addAction(self.menuRecent_Files.menuAction())
+        self.menuFile.addSeparator()
+        self.menuFile.addAction(self.actionExit_2)
+        self.menuEdit.addAction(self.actionUndo)
+        self.menuEdit.addAction(self.actionRedo)
+        self.menuTabs.addAction(self.menuNew_Tab.menuAction())
+        self.menuTabs.addSeparator()
+        self.menuTabs.addAction(self.actionClose_Current_Tab)
+        self.menuTabs.addAction(self.actionReopen_Closed_Tab)
+        self.menuTabs.addSeparator()
+        self.menuTabs.addAction(self.actionRename_Current_Tab)
+        self.menubar.addAction(self.menuFile.menuAction())
+        self.menubar.addAction(self.menuEdit.menuAction())
+        self.menubar.addAction(self.menuTabs.menuAction())
+
+        self.retranslateUi(globalgu)
+        QtCore.QObject.connect(self.actionExit, QtCore.SIGNAL(_fromUtf8("triggered()")), globalgu.close)
+        QtCore.QMetaObject.connectSlotsByName(globalgu)
+
+    def retranslateUi(self, globalgu):
+        globalgu.setWindowTitle(_translate("globalgu", "MainWindow", None))
+        self.menuFile.setTitle(_translate("globalgu", "File", None))
+        self.menuRecent_Projects.setTitle(_translate("globalgu", "Recent Projects", None))
+        self.menuRecent_Files.setTitle(_translate("globalgu", "Recent Files", None))
+        self.menuEdit.setTitle(_translate("globalgu", "Edit", None))
+        self.menuTabs.setTitle(_translate("globalgu", "Tabs", None))
+        self.menuNew_Tab.setTitle(_translate("globalgu", "New Tab", None))
+        self.actionOpen.setText(_translate("globalgu", "Open", None))
+        self.actionExit.setText(_translate("globalgu", "Exit", None))
+        self.actionUndo.setText(_translate("globalgu", "Undo", None))
+        self.actionRedo.setText(_translate("globalgu", "Redo", None))
+        self.actionOpen_Project.setText(_translate("globalgu", "Open Project ...", None))
+        self.actionSet_Current_Project_Location.setText(_translate("globalgu", "Set Current Project Location ...", None))
+        self.actionOpen_New_RadTrack_Window.setText(_translate("globalgu", "Open New RadTrack Window ...", None))
+        self.actionImport_File.setText(_translate("globalgu", "Import File ...", None))
+        self.actionExport_Current_Tab.setText(_translate("globalgu", "Export Current Tab ...", None))
+        self.actionClose_Current_Tab.setText(_translate("globalgu", "Close Current Tab", None))
+        self.actionReopen_Closed_Tab.setText(_translate("globalgu", "Reopen Closed Tab", None))
+        self.actionRename_Current_Tab.setText(_translate("globalgu", "Rename Current Tab ...", None))
+        self.actionAsdf.setText(_translate("globalgu", "asdf", None))
+        self.actionAsdf_2.setText(_translate("globalgu", "asdf", None))
+        self.actionAsdf_3.setText(_translate("globalgu", "asdf", None))
+        self.actionExit_2.setText(_translate("globalgu", "Exit", None))
+

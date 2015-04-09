@@ -10,7 +10,7 @@ sip.setapi('QString', 2)
 from PyQt4 import QtGui
 from datetime import datetime
 
-from radtrack.globalgu import Ui_globalgu
+from radtrack.ui.globalgu import Ui_globalgu, _translate
 from radtrack.LaserTab import LaserTab
 from radtrack.rbdcp import RbDcp
 from radtrack.RbBunchTransport import RbBunchTransport
@@ -41,12 +41,9 @@ class RbGlobal(QtGui.QMainWindow):
         self.sessionDirectory = os.path.join(os.path.expanduser('~'), 'RadTrack', session)
         if not os.path.exists(self.sessionDirectory):
             os.makedirs(self.sessionDirectory)
+        self.setTitleBar("RadTrack - " + self.sessionDirectory)
 
         self.recentfile = None
-
-        self.ui = Ui_globalgu()
-        self.ui.setupUi(self)
-        self.setWindowTitle('RadTrack')
 
         self.tabWidget = QtGui.QTabWidget()
         self.ui.verticalLayout.addWidget(self.tabWidget)
@@ -122,9 +119,9 @@ class RbGlobal(QtGui.QMainWindow):
             self.widgetChoices.append(type(realWidget))
 
             # populate New Tab Menu
-            actionNewTab = QtGui.QAction(self)
-            actionNewTab.setObjectName('new ' + originalTitle)
-            actionNewTab.setText(originalTitle)
+            actionNew_Tab = QtGui.QAction(self)
+            actionNew_Tab.setObjectName('new ' + originalTitle)
+            actionNew_Tab.setText(originalTitle)
 
             # The next line has some weirdness that needs explaining:
             #  1. "ignore" is a variable that receives the boolean returned
@@ -137,22 +134,22 @@ class RbGlobal(QtGui.QMainWindow):
             #     replaced every iteration, so that every selection in the
             #     Tabs->New Tab menu would result in a new copy of the last
             #     tab added.
-            actionNewTab.triggered.connect(lambda ignore, t = widgetType : self.newTab(t))
+            actionNew_Tab.triggered.connect(lambda ignore, t = widgetType : self.newTab(t))
 
-            self.ui.menuNewTab.addAction(actionNewTab)
+            self.ui.menuNew_Tab.addAction(actionNew_Tab)
 
-        self.ui.actionOpen.triggered.connect(lambda : self.openProject())
-        self.ui.actionSetLocation.triggered.connect(self.setProjectLocation)
-        self.ui.actionNewInstance.triggered.connect(lambda : RbGlobal().show())
-        self.ui.actionImport.triggered.connect(lambda : self.importFile())
-        self.ui.actionExport.triggered.connect(self.exportCurrentTab)
+        self.ui.actionOpen_Project.triggered.connect(lambda : self.openProject())
+        self.ui.actionSet_Current_Project_Location.triggered.connect(self.setProjectLocation)
+        self.ui.actionOpen_New_RadTrack_Window.triggered.connect(lambda : RbGlobal().show())
+        self.ui.actionImport_File.triggered.connect(lambda : self.importFile())
+        self.ui.actionExport_Current_Tab.triggered.connect(self.exportCurrentTab)
         self.ui.actionExit.triggered.connect(self.close)
         self.ui.actionUndo.triggered.connect(self.undo)
         self.ui.actionRedo.triggered.connect(self.redo)
-        self.ui.actionCloseTab.triggered.connect(lambda : self.closeTab(None))
+        self.ui.actionClose_Current_Tab.triggered.connect(lambda : self.closeTab(None))
         self.tabWidget.tabCloseRequested.connect(self.closeTab)
-        self.ui.actionUndoCloseTab.triggered.connect(self.undoCloseTab)
-        self.ui.actionRenameTab.triggered.connect(self.renameTab)
+        self.ui.actionReopen_Closed_Tab.triggered.connect(self.undoCloseTab)
+        self.ui.actionRename_Current_Tab.triggered.connect(self.renameTab)
         self.tabWidget.currentChanged.connect(self.checkMenus)
 
         QtGui.QShortcut(QtGui.QKeySequence.Undo, self).activated.connect(self.undo)
@@ -162,6 +159,9 @@ class RbGlobal(QtGui.QMainWindow):
 
         self.checkMenus()
         
+    def setTitleBar(self, text):
+        self.setWindowTitle(_translate("globalgu", text, None))
+
     def togglesrw(self):
         self.stackwidget.setCurrentIndex(int(self.srw_particle.isChecked()))
         print self.stackwidget.currentIndex()
@@ -171,7 +171,7 @@ class RbGlobal(QtGui.QMainWindow):
         action = QtGui.QAction(self)
         action.setObjectName(self.recentfile)
         action.setText(self.recentfile)
-        self.ui.menurecent.addAction(action)
+        #self.ui.menuRecent_Files.addAction(action)
         #action.triggered.connect(self.importFile(action.text()))
 
     def newTab(self, newTabType):
@@ -312,6 +312,7 @@ class RbGlobal(QtGui.QMainWindow):
         os.rmdir(self.sessionDirectory)
         self.sessionDirectory = directory
         self.saveProjectFile()
+        self.setTitleBar('RadTrack - ' + self.sessionDirectory)
 
 
     def openProject(self, directory = None):
@@ -336,6 +337,8 @@ class RbGlobal(QtGui.QMainWindow):
             self.newTab(self.originalNameToTabType[originalTitle])
             getRealWidget(self.tabWidget.widget(i)).importFile(subFileName)
             self.tabWidget.setTabText(i, tabName)
+
+        self.setTitleBar('RadTrack - ' + self.sessionDirectory)
 
     def saveProjectFile(self):
         # Delete previous tab data in self.sessionDirectory
@@ -375,12 +378,12 @@ class RbGlobal(QtGui.QMainWindow):
 
     def checkMenus(self):
         menuMap = dict()
-        menuMap['exportToFile'] = self.ui.actionExport
+        menuMap['exportToFile'] = self.ui.actionExport_Current_Tab
         menuMap['undo'] = self.ui.actionUndo
         menuMap['redo'] = self.ui.actionRedo
         for function in menuMap:
             menuMap[function].setEnabled(hasattr(getRealWidget(self.tabWidget.currentWidget()), function))
-        self.ui.actionUndoCloseTab.setEnabled(len(self.closedTabs) > 0)
+        self.ui.actionReopen_Closed_Tab.setEnabled(len(self.closedTabs) > 0)
 
         # Configure Elegant tab to use tabs for simulation input
         for widget in self.allWidgets():
