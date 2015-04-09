@@ -1,7 +1,3 @@
-###
-
-This will download the latest docker and start the docker daemon.
-
 #### Windows build
 
 * Install Anaconda 2.x
@@ -16,5 +12,3 @@ Then run:
 ```bat
 python install\cx_freeze_win32.py bdist_msi
 ```
-#### Linux Build
-
