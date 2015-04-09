@@ -98,14 +98,13 @@ class RbGlobal(QtGui.QMainWindow):
             self.stackwidget.addWidget(rbsrwsingle(self))
             self.srw_particle = QtGui.QCheckBox(self)
             self.srw_particle.setText('Single-Particle')
-            layout = QtGui.QVBoxLayout(self)
+            srwidget = QtGui.QWidget(self)
+            layout = QtGui.QVBoxLayout(srwidget)
+            srwidget.setLayout(layout)
             layout.addWidget(self.srw_particle)
             layout.addWidget(self.stackwidget)
-            srwidget = QtGui.QWidget(self)
-            srwidget.setLayout(layout)
             self.tabWidget.addTab(srwidget, self.tr('SRW'))
             self.srw_particle.stateChanged.connect(self.togglesrw)
-
 
         # Information for making new tabs and importing files
         self.originalNameToTabType = dict()

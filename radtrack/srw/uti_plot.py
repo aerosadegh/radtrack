@@ -11,8 +11,6 @@ import numpy as np
 
 #plotting modules and plotting setup
 import matplotlib as mpl
-
-mpl.use('TkAgg')
 import matplotlib.pyplot as pl
 pl.ioff()
 
