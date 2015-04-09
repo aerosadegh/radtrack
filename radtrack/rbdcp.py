@@ -243,7 +243,7 @@ class RbDcp(QtGui.QWidget):
             self.ui.data.setItem(3,i+1, QtGui.QTableWidgetItem(a[1]))
 
         for i,a in enumerate(self.x.columnName):
-            self.ui.data.setItem(2,i+1,QtGui.QTableWidgetItem(a[0]))
+            self.ui.data.setItem(2,i+1,QtGui.QTableWidgetItem(a))
 
         for i,a in enumerate(self.x.parameterDefinition):
             self.ui.param.setItem(i,0,QtGui.QTableWidgetItem(a[2]))
