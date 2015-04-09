@@ -311,7 +311,7 @@ class RbGlobal(QtGui.QMainWindow):
                 os.remove(thingPath)
         os.rmdir(self.sessionDirectory)
         self.sessionDirectory = directory
-        self.saveProjectFile()
+        self.saveProject()
         self.setTitleBar('RadTrack - ' + self.sessionDirectory)
 
 
@@ -323,7 +323,7 @@ class RbGlobal(QtGui.QMainWindow):
             if not directory:
                 return
 
-        self.saveProjectFile()
+        self.saveProject()
 
         self.sessionDirectory = directory
         self.lastUsedDirectory = directory
@@ -340,7 +340,7 @@ class RbGlobal(QtGui.QMainWindow):
 
         self.setTitleBar('RadTrack - ' + self.sessionDirectory)
 
-    def saveProjectFile(self):
+    def saveProject(self):
         # Delete previous tab data in self.sessionDirectory
         for fileName in os.listdir(self.sessionDirectory):
             if fileName.startswith(self.tabPrefix):
@@ -421,7 +421,7 @@ class RbGlobal(QtGui.QMainWindow):
         getRealWidget(self.tabWidget.currentWidget()).redo()
 
     def closeEvent(self, event):
-        self.saveProjectFile()
+        self.saveProject()
         event.accept()
         QtGui.QMainWindow.closeEvent(self, event)
 
