@@ -15,6 +15,7 @@ from srw.AnalyticCalc import *
 from srw.srwlib import *
 from xlrd import *
 import radtrack.util.resource as resource
+from RbUtility import *
 
 class rbsrw(QtGui.QWidget):
     def __init__(self, parent = None):
@@ -25,16 +26,21 @@ class rbsrw(QtGui.QWidget):
         self.beam = SRWLPartBeam()
         self.precis = Precis()
         #load initial values from excel
-        workbook = open_workbook(resource.filename('SRWinitialvalues.xls'))
-        self.thinsheet = workbook.sheet_by_name('thin table')
+        self.workbook = open_workbook(resource.filename('SRWinitialvalues.xls'))
         self.thin(self.ui.deparg.currentIndex())
         #set srw initial values 
-        column = workbook.sheet_by_name('thin undulator').col(0)
-        self.GetUndParams(DialogU(self,column))
-        column = workbook.sheet_by_name('thin beam').col(0)
-        self.GetBeamParams(DialogB(self,column))
-        column = workbook.sheet_by_name('thin precision').col(0)
-        self.GetPrecision(DialogP(self,column))
+        column = self.workbook.sheet_by_name('thin undulator').col(0)
+        units = self.workbook.sheet_by_name('thin undulator').col(1)
+        units =self.unitstr(units)
+        self.GetUndParams(DialogU(self,units,column))
+        column = self.workbook.sheet_by_name('thin beam').col(0)
+        units = self.workbook.sheet_by_name('thin beam').col(1)
+        units =self.unitstr(units)
+        self.GetBeamParams(DialogB(self,units,column))
+        column = self.workbook.sheet_by_name('thin precision').col(0)
+        units = self.workbook.sheet_by_name('thin precision').col(1)
+        units =self.unitstr(units)
+        self.GetPrecision(DialogP(self,units,column))
         
         #connections
         self.ui.undulator.clicked.connect(self.makeund)
@@ -96,51 +102,54 @@ class rbsrw(QtGui.QWidget):
         self.ui.analytic.setText(strw)
         
     def GetUndParams(self, dialog):
-        self.up.numPer = float(dialog.ui.numper.text())
-        self.up.undPer = float(dialog.ui.undper.text())
-        self.up.Bx = float(dialog.ui.bx.text())
-        self.up.By = float(dialog.ui.by.text())
-        self.up.phBx = float(dialog.ui.phbx.text())
-        self.up.phBy = float(dialog.ui.phby.text())
-        self.up.sBx = float(dialog.ui.sbx.text())
-        self.up.sBy = float(dialog.ui.sby.text())
-        self.up.xcID = float(dialog.ui.xcid.text())
-        self.up.ycID = float(dialog.ui.ycid.text())
-        self.up.zcID = float(dialog.ui.zcid.text())
+        units = dialog.u
+        self.up.numPer = convertUnitsStringToNumber(dialog.ui.numper.text(),units[0])
+        self.up.undPer = convertUnitsStringToNumber(dialog.ui.undper.text(),units[1])
+        self.up.Bx = convertUnitsStringToNumber(dialog.ui.bx.text(),units[2])
+        self.up.By = convertUnitsStringToNumber(dialog.ui.by.text(),units[3])
+        self.up.phBx = convertUnitsStringToNumber(dialog.ui.phbx.text(),units[4])
+        self.up.phBy = convertUnitsStringToNumber(dialog.ui.phby.text(),units[5])
+        self.up.sBx = convertUnitsStringToNumber(dialog.ui.sbx.text(),units[6])
+        self.up.sBy = convertUnitsStringToNumber(dialog.ui.sby.text(),units[7])
+        self.up.xcID = convertUnitsStringToNumber(dialog.ui.xcid.text(),units[8])
+        self.up.ycID = convertUnitsStringToNumber(dialog.ui.ycid.text(),units[9])
+        self.up.zcID = convertUnitsStringToNumber(dialog.ui.zcid.text(),units[10])
         
     def ShowUndParams(self, dialog):
-        dialog.ui.numper.setText(str(self.up.numPer))
-        dialog.ui.undper.setText(str(self.up.undPer))
-        dialog.ui.bx.setText(str(self.up.Bx))
-        dialog.ui.by.setText(str(self.up.By))
-        dialog.ui.phbx.setText(str(self.up.phBx))
-        dialog.ui.phby.setText(str(self.up.phBy))
-        dialog.ui.sbx.setText(str(self.up.sBx))
-        dialog.ui.sby.setText(str(self.up.sBy))
-        dialog.ui.xcid.setText(str(self.up.xcID))
-        dialog.ui.ycid.setText(str(self.up.ycID))
-        dialog.ui.zcid.setText(str(self.up.zcID))
+        units = dialog.u
+        dialog.ui.numper.setText(displayWithUnitsNumber(self.up.numPer,units[0]))
+        dialog.ui.undper.setText(displayWithUnitsNumber(self.up.undPer,units[1]))
+        dialog.ui.bx.setText(displayWithUnitsNumber(self.up.Bx,units[2]))
+        dialog.ui.by.setText(displayWithUnitsNumber(self.up.By,units[3]))
+        dialog.ui.phbx.setText(displayWithUnitsNumber(self.up.phBx,units[4]))
+        dialog.ui.phby.setText(displayWithUnitsNumber(self.up.phBy,units[5]))
+        dialog.ui.sbx.setText(displayWithUnitsNumber(self.up.sBx,units[6]))
+        dialog.ui.sby.setText(displayWithUnitsNumber(self.up.sBy,units[7]))
+        dialog.ui.xcid.setText(displayWithUnitsNumber(self.up.xcID,units[8]))
+        dialog.ui.ycid.setText(displayWithUnitsNumber(self.up.ycID,units[9]))
+        dialog.ui.zcid.setText(displayWithUnitsNumber(self.up.zcID,units[10]))
         
         
     def GetBeamParams(self,dialog):
-        #this is the self.beam class
-        self.beam.Iavg = float(dialog.ui.iavg.text())
-        self.beam.partStatMom1.x = float(dialog.ui.partstatmom1x.text())
-        self.beam.partStatMom1.y = float(dialog.ui.partstatmom1y.text())
-        self.beam.partStatMom1.z = float(dialog.ui.partstatmom1z.text())
-        self.beam.partStatMom1.xp = float(dialog.ui.partstatmom1xp.text())
-        self.beam.partStatMom1.yp = float(dialog.ui.partstatmom1yp.text()) 
-        self.beam.partStatMom1.gamma = float(dialog.ui.partstatmom1gamma.text())
+        units = dialog.u
+        self.beam.Iavg = convertUnitsStringToNumber(dialog.ui.iavg.text(),units[0])
+        self.beam.partStatMom1.x = convertUnitsStringToNumber(dialog.ui.partstatmom1x.text(),units[1])
+        self.beam.partStatMom1.y = convertUnitsStringToNumber(dialog.ui.partstatmom1y.text(),units[2])
+        self.beam.partStatMom1.z = convertUnitsStringToNumber(dialog.ui.partstatmom1z.text(),units[3])
+        self.beam.partStatMom1.xp = convertUnitsStringToNumber(dialog.ui.partstatmom1xp.text(),units[4])
+        self.beam.partStatMom1.yp = convertUnitsStringToNumber(dialog.ui.partstatmom1yp.text(),units[5]) 
+        self.beam.partStatMom1.gamma = convertUnitsStringToNumber(dialog.ui.partstatmom1gamma.text(),units[6])
 
         
     def ShowBeamParams(self, dialog):
-        dialog.ui.iavg.setText(str(self.beam.Iavg))
-        dialog.ui.partstatmom1x.setText(str(self.beam.partStatMom1.x))
-        dialog.ui.partstatmom1y.setText(str(self.beam.partStatMom1.y))
-        dialog.ui.partstatmom1z.setText(str(self.beam.partStatMom1.z))
-        dialog.ui.partstatmom1xp.setText(str(self.beam.partStatMom1.xp))
-        dialog.ui.partstatmom1yp.setText(str(self.beam.partStatMom1.yp))
-        dialog.ui.partstatmom1gamma.setText(str(self.beam.partStatMom1.gamma))
+        units = dialog.u
+        dialog.ui.iavg.setText(displayWithUnitsNumber(self.beam.Iavg),units[0])
+        dialog.ui.partstatmom1x.setText(displayWithUnitsNumber(self.beam.partStatMom1.x),units[1])
+        dialog.ui.partstatmom1y.setText(displayWithUnitsNumber(self.beam.partStatMom1.y),units[2])
+        dialog.ui.partstatmom1z.setText(displayWithUnitsNumber(self.beam.partStatMom1.z),units[3])
+        dialog.ui.partstatmom1xp.setText(displayWithUnitsNumber(self.beam.partStatMom1.xp),units[4])
+        dialog.ui.partstatmom1yp.setText(displayWithUnitsNumber(self.beam.partStatMom1.yp),untis[5])
+        dialog.ui.partstatmom1gamma.setText(displayWithUnitsNumber(self.beam.partStatMom1.gamma),units[6])
         
     def WfrSetUpE(self,wfrE):
         #wfrE = SRWLWfr() this is the waveform class
@@ -157,22 +166,24 @@ class rbsrw(QtGui.QWidget):
         wfrE.mesh.yFin = float(self.ui.tableWidget.item(9,0).text())
         
     def GetPrecision(self,dialog):
+        units = dialog.u
         self.precis.meth = dialog.ui.meth.currentIndex()
-        self.precis.relPrec = float(dialog.ui.relprec.text())
-        self.precis.zStartInteg = float(dialog.ui.zstartint.text())
-        self.precis.zEndInteg = float(dialog.ui.zendint.text())
-        self.precis.npTraj = float(dialog.ui.nptraj.text())
+        self.precis.relPrec = convertUnitsStringToNumber(dialog.ui.relprec.text(),units[1])
+        self.precis.zStartInteg = convertUnitsStringToNumber(dialog.ui.zstartint.text(),units[2])
+        self.precis.zEndInteg = convertUnitsStringToNumber(dialog.ui.zendint.text(),units[3])
+        self.precis.npTraj = convertUnitsStringToNumber(dialog.ui.nptraj.text(),units[4])
         self.precis.useTermin = dialog.ui.usetermin.currentIndex()
-        self.precis.sampFactNxNyForProp = float(dialog.ui.sampfactnxny.text())
+        self.precis.sampFactNxNyForProp = convertUnitsStringToNumber(dialog.ui.sampfactnxny.text(),units[6])
         
     def ShowPrecision(self,dialog):
+        units = dialog.u
         dialog.ui.meth.setCurrentIndex(self.precis.meth)
-        dialog.ui.relprec.setText(str(self.precis.relPrec))
-        dialog.ui.zstartint.setText(str(self.precis.zStartInteg))
-        dialog.ui.zendint.setText(str(self.precis.zEndInteg))
-        dialog.ui.nptraj.setText(str(self.precis.npTraj))
+        dialog.ui.relprec.setText(displayWithUnitsNumber(self.precis.relPrec),units[1])
+        dialog.ui.zstartint.setText(displayWithUnitsNumber(self.precis.zStartInteg),units[2])
+        dialog.ui.zendint.setText(displayWithUnitsNumber(self.precis.zEndInteg),units[3])
+        dialog.ui.nptraj.setText(displayWithUnitsNumber(self.precis.npTraj),units[4])
         dialog.ui.usetermin.setCurrentIndex(self.precis.useTermin)
-        dialog.ui.sampfactnxny.setText(str(self.precis.sampFactNxNyForProp))
+        dialog.ui.sampfactnxny.setText(displayWithUnitsNumber(self.precis.sampFactNxNyForProp),units[6])
     
          
     def srwbuttonThin(self):
@@ -313,37 +324,37 @@ class rbsrw(QtGui.QWidget):
         uti_plot_show()
           
     def thin(self,i):
-        '''
-        r = self.thinsheet.nrows
-        c = self.thinsheet.ncols
-        thintable = []
-        for k in range(c):
-            l = []
-            for j in range(r):
-                l.append(self.thinsheet.cell(j,k).value)
-            thintable.append(l)
-                     
-        for n,x in enumerate(thintable[i]):
-            self.ui.tableWidget.setItem(n,0,QtGui.QTableWidgetItem(str(x)))'''
+        thinsheet = self.workbook.sheet_by_name('thin table')
             
-        for n,c in enumerate(self.thinsheet.col(i)):
+        for n,c in enumerate(thinsheet.col(i)):
             self.ui.tableWidget.setItem(n,0,QtGui.QTableWidgetItem(str(c.value)))
-        
+            
+    def unitstr(self,units):
+        for n,u in enumerate(units):
+            units[n]=str(u.value)
+            
+        return units
         
     def makeund(self):
-        dialog = DialogU()
+        units = self.workbook.sheet_by_name('thin undulator').col(1)
+        units = self.unitstr(units)
+        dialog = DialogU(units)
         self.ShowUndParams(dialog)
         if dialog.exec_():
             self.GetUndParams(dialog)
             
     def makebeam(self):
-        dialog = DialogB()
+        units = self.workbook.sheet_by_name('thin beam').col(1)
+        units = self.unitstr(units)
+        dialog = DialogB(units)
         self.ShowBeamParams(dialog)
         if dialog.exec_():
             self.GetBeamParams(dialog)
             
     def setprec(self):
-        dialog = DialogP()
+        units = self.workbook.sheet_by_name('thin precision').col(1)
+        units = self.unitstr(units)
+        dialog = DialogP(units)
         self.ShowPrecision(dialog)
         if dialog.exec_():
             self.GetPrecision(dialog)
@@ -375,50 +386,53 @@ class Precis:
         
         
 class DialogU(QtGui.QDialog):
-    def __init__(self, parent=None,column=None):
+    def __init__(self, parent=None,units=None,column=None):
         QtGui.QDialog.__init__(self,parent)
         self.ui = und_dlg()
         self.ui.setupUi(self)
+        self.u = units
         if column is not None:
-            self.ui.numper.setText(str(column[0].value))  #Number of ID Periods (without accounting for terminations)
-            self.ui.undper.setText(str(column[1].value)) #Period Length
-            self.ui.bx.setText(str(column[2].value))       #Peak Vertical field
-            self.ui.by.setText(str(column[3].value))      #Peak Horizontal field
-            self.ui.phbx.setText(str(column[4].value))       #Initial Phase of the Horizontal field component
-            self.ui.phby.setText(str(column[5].value))       #Initial Phase of the Vertical field component
-            self.ui.sbx.setText(str(column[6].value))       #Symmetry of the Horizontal field component vs Longitudinal position
-            self.ui.sby.setText(str(column[7].value))        #Symmetry of the Vertical field component vs Longitudinal position
-            self.ui.xcid.setText(str(column[8].value))       #Misaligment. Horizontal Coordinate of Undulator Center 
-            self.ui.ycid.setText(str(column[9].value))       #Misaligment. Vertical Coordinate of Undulator Center 
-            self.ui.zcid.setText(str(column[10].value))      #Misaligment. Longitudinal Coordinate of Undulator Center
+            self.ui.numper.setText(str(column[0].value)+' '+units[0])  #Number of ID Periods (without accounting for terminations)
+            self.ui.undper.setText(str(column[1].value)+' '+units[1]) #Period Length
+            self.ui.bx.setText(str(column[2].value)+' '+units[2])       #Peak Vertical field
+            self.ui.by.setText(str(column[3].value)+' '+units[3])      #Peak Horizontal field
+            self.ui.phbx.setText(str(column[4].value)+' '+units[4])       #Initial Phase of the Horizontal field component
+            self.ui.phby.setText(str(column[5].value)+' '+units[5])       #Initial Phase of the Vertical field component
+            self.ui.sbx.setText(str(column[6].value)+' '+units[6])       #Symmetry of the Horizontal field component vs Longitudinal position
+            self.ui.sby.setText(str(column[7].value)+' '+units[7])        #Symmetry of the Vertical field component vs Longitudinal position
+            self.ui.xcid.setText(str(column[8].value)+' '+units[8])       #Misaligment. Horizontal Coordinate of Undulator Center 
+            self.ui.ycid.setText(str(column[9].value)+' '+units[9])       #Misaligment. Vertical Coordinate of Undulator Center 
+            self.ui.zcid.setText(str(column[10].value)+' '+units[10])      #Misaligment. Longitudinal Coordinate of Undulator Center
                 
 class DialogB(QtGui.QDialog):
-    def __init__(self, parent=None, column=None):
+    def __init__(self, parent=None, units = None, column=None):
         QtGui.QDialog.__init__(self,parent)
         self.ui = beam_dlg()
         self.ui.setupUi(self)
+        self.u = units
         if column is not None:
-            self.ui.iavg.setText(str(column[0].value))     #Above is the UP class, this is self.beam.iavg
-            self.ui.partstatmom1x.setText(str(column[1].value))  #self.beam.partStatMom1.x, initial x-offset    
-            self.ui.partstatmom1y.setText(str(column[2].value))  #self.beam.partStatMom1.y, initial y-offset
-            self.ui.partstatmom1z.setText(str(column[3].value)) #self.beam.partStatMom1.z, initial z-offset
-            self.ui.partstatmom1xp.setText(str(column[4].value)) #self.beam.partStatMom1.xp, initial x angle offset
-            self.ui.partstatmom1yp.setText(str(column[5].value)) #self.beam.partStatMom1.yp, initial y angle offset
-            self.ui.partstatmom1gamma.setText(str(column[6].value)) # electron beam relative energy, gamma
+            self.ui.iavg.setText(str(column[0].value)+' '+units[0])     #Above is the UP class, this is self.beam.iavg
+            self.ui.partstatmom1x.setText(str(column[1].value)+' '+units[1])  #self.beam.partStatMom1.x, initial x-offset    
+            self.ui.partstatmom1y.setText(str(column[2].value)+' '+units[2])  #self.beam.partStatMom1.y, initial y-offset
+            self.ui.partstatmom1z.setText(str(column[3].value)+' '+units[3]) #self.beam.partStatMom1.z, initial z-offset
+            self.ui.partstatmom1xp.setText(str(column[4].value)+' '+units[4]) #self.beam.partStatMom1.xp, initial x angle offset
+            self.ui.partstatmom1yp.setText(str(column[5].value)+' '+units[5]) #self.beam.partStatMom1.yp, initial y angle offset
+            self.ui.partstatmom1gamma.setText(str(column[6].value)+' '+units[6]) # electron beam relative energy, gamma
 
 class DialogP(QtGui.QDialog):
-    def __init__(self, parent=None, column=None):
+    def __init__(self, parent=None, units=None,column=None):
         QtGui.QDialog.__init__(self,parent)
         self.ui = prec_dlg()
         self.ui.setupUi(self)
+        self.u = units
         if column is not None:
-            self.ui.meth.setCurrentIndex(int(column[0].value)) #SR calculation method: 0- "manual", 1- "auto-undulator", 2- "auto-wiggler"
-            self.ui.relprec.setText(str(column[1].value)) #relative precision
-            self.ui.zstartint.setText(str(column[2].value)) #longitudinal position to start integration (effective if < zEndInteg)
-            self.ui.zendint.setText(str(column[3].value)) #longitudinal position to finish integration (effective if > zStartInteg)
-            self.ui.nptraj.setText(str(column[4].value)) #Number of points for trajectory calculation
+            self.ui.meth.setCurrentIndex(int(column[0].value)+' '+units[0]) #SR calculation method: 0- "manual", 1- "auto-undulator", 2- "auto-wiggler"
+            self.ui.relprec.setText(str(column[1].value)+' '+units[1]) #relative precision
+            self.ui.zstartint.setText(str(column[2].value)+' '+units[2]) #longitudinal position to start integration (effective if < zEndInteg)
+            self.ui.zendint.setText(str(column[3].value)+' '+units[3]) #longitudinal position to finish integration (effective if > zStartInteg)
+            self.ui.nptraj.setText(str(column[4].value)+' '+units[4]) #Number of points for trajectory calculation
             self.ui.usetermin.setCurrentIndex(int(column[5].value)) #Use "terminating terms" (i.e. asymptotic expansions at zStartInteg and zEndInteg) or not (1 or 0 respectively)
-            self.ui.sampfactnxny.setText(str(column[6].value)) #sampling factor for adjusting nx, ny (effective if > 0)
+            self.ui.sampfactnxny.setText(str(column[6].value)+' '+units[6]) #sampling factor for adjusting nx, ny (effective if > 0)
         
         
                 
