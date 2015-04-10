@@ -59,7 +59,7 @@ def separateNumberUnit(inputString):
     # the largest continuous block of characters starting from the left that
     # can be converted to a float.  The rest (if any) are assumed to specify
     # the units.
-    parse = inputString.replace(' ','')
+    parse = removeWhitespace(inputString)
 
     for numLength in range(len(parse),-1,-1):
         try:
@@ -77,20 +77,23 @@ def separateNumberUnit(inputString):
 
 
 def convertUnitsNumber(number, oldUnit, newUnit):
+    oldUnit = removeWhitespace(oldUnit)
+    newUnit = removeWhitespace(newUnit)
+
     if '' in [oldUnit, newUnit] and '%' not in [oldUnit, newUnit]:
         return number # values without units don't get converted
-    else:
-        try:
-            return number*float(parseUnits('1' + oldUnit))/float(parseUnits('1' + newUnit))
-        except ValueError: # float(...) failed
-            raise ValueError('Cannot convert "' + oldUnit + '" to "' + newUnit + '".')
+
+    try:
+        return number*float(parseUnits('1' + oldUnit))/float(parseUnits('1' + newUnit))
+    except ValueError: # float(...) failed
+        raise ValueError('Cannot convert "' + oldUnit + '" to "' + newUnit + '".')
 
 def convertUnitsString(inputString, newUnit):
     number, unit = separateNumberUnit(inputString)
     return convertUnitsNumberToString(number, unit, newUnit)
 
 def convertUnitsNumberToString(number, oldUnit, newUnit):
-    return (str(convertUnitsNumber(number, oldUnit, newUnit)) + ' ' + newUnit).strip()
+    return str(convertUnitsNumber(number, oldUnit, newUnit)) + ' ' + removeWhitespace(newUnit)
 
 def convertUnitsStringToNumber(inputString, newUnit):
     value, unit = separateNumberUnit(inputString)
@@ -314,6 +317,9 @@ def stripComments(line, commentCharacter):
             insideQuote = not insideQuote
     return line.strip()
 
+
+def removeWhitespace(string):
+    return ''.join(string)
 
 
 # Generic Exception class for file read errors
