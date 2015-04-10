@@ -4,6 +4,8 @@ Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 """
 
 import sys, os
+import sip
+sip.setapi('QString', 2)
 from PyQt4 import QtGui, QtCore
 from ui.newsrw import Ui_Form as Ui_newsrw
 from ui.undulatorforthicksrw import Ui_Dialog as und_dlg
@@ -14,6 +16,7 @@ from srw.AnalyticCalc import *
 from srw.srwlib import *
 from xlrd import *
 import radtrack.util.resource as resource
+from RbUtility import *
 
 class rbsrw(QtGui.QWidget):
     def __init__(self, parent = None):
@@ -26,20 +29,25 @@ class rbsrw(QtGui.QWidget):
         self.arPrecF = [0]*5
         self.arPrecP = [0]*5 
         #load initial values from excel
-        workbook = open_workbook(resource.filename('SRWinitialvalues.xls'))
-        self.thicksheet = workbook.sheet_by_name('thick table')
+        self.workbook = open_workbook(resource.filename('SRWinitialvalues.xls'))
         self.thick(self.ui.deparg.currentIndex())
         #disable/remove broken simulation argument
         self.ui.deparg.removeItem(4)
         self.ui.deparg.removeItem(5)
         self.ui.deparg.removeItem(6)
         #set srw initial values
-        column = workbook.sheet_by_name('thick undulator').col(0)
-        self.GetUndParams(DialogU(self,column))
-        column = workbook.sheet_by_name('thick beam').col(0)
-        self.GetBeamParams(DialogB(self,column))
-        column = workbook.sheet_by_name('thick precision').col(0)
-        self.GetPrecision(DialogP(self,column))
+        column = self.workbook.sheet_by_name('thick undulator').col(0)
+        units = self.workbook.sheet_by_name('thick undulator').col(1)
+        units = self.unitstr(units)
+        self.GetUndParams(DialogU(self,units,column))
+        column = self.workbook.sheet_by_name('thick beam').col(0)
+        units = self.workbook.sheet_by_name('thick beam').col(1)
+        units = self.unitstr(units)
+        self.GetBeamParams(DialogB(self,units,column))
+        column = self.workbook.sheet_by_name('thick precision').col(0)
+        units = self.workbook.sheet_by_name('thick precision').col(1)
+        units = self.unitstr(units)
+        self.GetPrecision(DialogP(self,units,column))
         
         #connections
         self.ui.undulator.clicked.connect(self.makeund)
@@ -117,38 +125,41 @@ class rbsrw(QtGui.QWidget):
         return (und, magFldCnt) 
         
     def GetUndParams(self, dialog):
-        self.up.numPer = float(dialog.ui.numper.text())
-        self.up.undPer = float(dialog.ui.undper.text())
+        units = dialog.u
+        self.up.numPer = convertUnitsStringToNumber(dialog.ui.numper.text(),units[0])
+        self.up.undPer = convertUnitsStringToNumber(dialog.ui.undper.text(),units[1])
         self.up.n = int(float(dialog.ui.n.text()))
 
         if dialog.ui.vh.isChecked():
-            self.up.By = float(dialog.ui.b.text())
+            self.up.By = convertUnitsStringToNumber(dialog.ui.b.text(),units[2])
             self.up.Bx = None
         else:
-            self.up.Bx = float(dialog.ui.b.text())
+            self.up.Bx = convertUnitsStringToNumber(dialog.ui.b.text(),units[2])
             self.up.By = None
 
         
     def ShowUndParams(self, dialog):
-        dialog.ui.numper.setText(str(self.up.numPer))
-        dialog.ui.undper.setText(str(self.up.undPer))
+        units = dialog.u
+        dialog.ui.numper.setText(displayWithUnitsNumber(self.up.numPer,units[0]))
+        dialog.ui.undper.setText(displayWithUnitsNumber(self.up.undPer,units[1]))
         if self.up.By is None:
-            dialog.ui.b.setText(str(self.up.Bx))
+            dialog.ui.b.setText(displayWithUnitsNumber(self.up.Bx,units[2]))
             dialog.ui.vh.setChecked(False)
         else:
-            dialog.ui.b.setText(str(self.up.By))
+            dialog.ui.b.setText(displayWithUnitsNumber(self.up.By,units[2]))
             dialog.ui.vh.setChecked(True)
         dialog.ui.n.setText(str(self.up.n))   
         
     def GetBeamParams(self,dialog):
+        units = dialog.u
         #this is the beam class
-        self.beam.Iavg = float(dialog.ui.iavg.text())
-        self.beam.partStatMom1.x = float(dialog.ui.partstatmom1x.text())
-        self.beam.partStatMom1.y = float(dialog.ui.partstatmom1y.text())
-        self.beam.partStatMom1.z = float(dialog.ui.partstatmom1z.text())
-        self.beam.partStatMom1.xp = float(dialog.ui.partstatmom1xp.text())
-        self.beam.partStatMom1.yp = float(dialog.ui.partstatmom1yp.text()) 
-        self.beam.partStatMom1.gamma = float(dialog.ui.partstatmom1gamma.text())
+        self.beam.Iavg = convertUnitsStringToNumber(dialog.ui.iavg.text(),units[0])
+        self.beam.partStatMom1.x = convertUnitsStringToNumber(dialog.ui.partstatmom1x.text(),units[1])
+        self.beam.partStatMom1.y = convertUnitsStringToNumber(dialog.ui.partstatmom1y.text(),units[2])
+        self.beam.partStatMom1.z = convertUnitsStringToNumber(dialog.ui.partstatmom1z.text(),units[3])
+        self.beam.partStatMom1.xp = convertUnitsStringToNumber(dialog.ui.partstatmom1xp.text(),units[4])
+        self.beam.partStatMom1.yp = convertUnitsStringToNumber(dialog.ui.partstatmom1yp.text(),units[5]) 
+        self.beam.partStatMom1.gamma = convertUnitsStringToNumber(dialog.ui.partstatmom1gamma.text(),units[6])
         '''
         sigEperE = 0.00089 #relative RMS energy spread
         sigX = 33.33e-06 #horizontal RMS size of e-beam [m]
@@ -156,11 +167,11 @@ class rbsrw(QtGui.QWidget):
         sigY = 2.912e-06 #vertical RMS size of e-beam [m]
         sigYp = 2.7472e-06 #vertical RMS angular divergence [rad]
         '''
-        sigEperE = float(dialog.ui.sige.text())
-        sigX = float(dialog.ui.sigx.text())
-        sigXp = float(dialog.ui.sigxp.text())
-        sigY = float(dialog.ui.sigy.text())
-        sigYp = float(dialog.ui.sigyp.text())
+        sigEperE = convertUnitsStringToNumber(dialog.ui.sige.text(),units[7])
+        sigX = convertUnitsStringToNumber(dialog.ui.sigx.text(),units[8])
+        sigXp = convertUnitsStringToNumber(dialog.ui.sigxp.text(),units[9])
+        sigY = convertUnitsStringToNumber(dialog.ui.sigy.text(),units[10])
+        sigYp = convertUnitsStringToNumber(dialog.ui.sigyp.text(),units[11])
         #2nd order stat. moments:
         self.beam.arStatMom2[0] = sigX*sigX #<(x-<x>)^2> 
         self.beam.arStatMom2[1] = 0 #<(x-<x>)(x'-<x'>)>
@@ -171,18 +182,19 @@ class rbsrw(QtGui.QWidget):
         self.beam.arStatMom2[10] = sigEperE*sigEperE #<(E-<E>)^2>/<E>^2
         
     def ShowBeamParams(self, dialog):
-        dialog.ui.iavg.setText(str(self.beam.Iavg))
-        dialog.ui.partstatmom1x.setText(str(self.beam.partStatMom1.x))
-        dialog.ui.partstatmom1y.setText(str(self.beam.partStatMom1.y))
-        dialog.ui.partstatmom1z.setText(str(self.beam.partStatMom1.z))
-        dialog.ui.partstatmom1xp.setText(str(self.beam.partStatMom1.xp))
-        dialog.ui.partstatmom1yp.setText(str(self.beam.partStatMom1.yp))
-        dialog.ui.partstatmom1gamma.setText(str(self.beam.partStatMom1.gamma))
-        dialog.ui.sige.setText(str(sqrt(self.beam.arStatMom2[10])))
-        dialog.ui.sigx.setText(str(sqrt(self.beam.arStatMom2[0])))
-        dialog.ui.sigy.setText(str(sqrt(self.beam.arStatMom2[3])))
-        dialog.ui.sigxp.setText(str(sqrt(self.beam.arStatMom2[2])))
-        dialog.ui.sigyp.setText(str(sqrt(self.beam.arStatMom2[5])))
+        units = dialog.u
+        dialog.ui.iavg.setText(displayWithUnitsNumber(self.beam.Iavg,units[0]))
+        dialog.ui.partstatmom1x.setText(displayWithUnitsNumber(self.beam.partStatMom1.x,units[1]))
+        dialog.ui.partstatmom1y.setText(displayWithUnitsNumber(self.beam.partStatMom1.y,units[2]))
+        dialog.ui.partstatmom1z.setText(displayWithUnitsNumber(self.beam.partStatMom1.z,units[3]))
+        dialog.ui.partstatmom1xp.setText(displayWithUnitsNumber(self.beam.partStatMom1.xp,units[4]))
+        dialog.ui.partstatmom1yp.setText(displayWithUnitsNumber(self.beam.partStatMom1.yp,units[5]))
+        dialog.ui.partstatmom1gamma.setText(displayWithUnitsNumber(self.beam.partStatMom1.gamma,units[6]))
+        dialog.ui.sige.setText(displayWithUnitsNumber(sqrt(self.beam.arStatMom2[10]),units[7]))
+        dialog.ui.sigx.setText(displayWithUnitsNumber(sqrt(self.beam.arStatMom2[0]),units[8]))
+        dialog.ui.sigy.setText(displayWithUnitsNumber(sqrt(self.beam.arStatMom2[3]),units[9]))
+        dialog.ui.sigxp.setText(displayWithUnitsNumber(sqrt(self.beam.arStatMom2[2]),units[10]))
+        dialog.ui.sigyp.setText(displayWithUnitsNumber(sqrt(self.beam.arStatMom2[5]),units[11]))
         
     def WfrSetUpE(self,wfrE):
         #wfrE = SRWLWfr() this is the waveform class
@@ -199,6 +211,7 @@ class rbsrw(QtGui.QWidget):
         wfrE.mesh.yFin = float(self.ui.tableWidget.item(9,0).text())   
         
     def GetPrecision(self,dialog):
+        units = dialog.u
         #for spectral flux vs photon energy
         self.arPrecF[0] = float(dialog.ui.harma.text()) #initial UR harmonic to take into account
         self.arPrecF[1] = float(dialog.ui.harmb.text()) #final UR harmonic to take into account
@@ -227,14 +240,24 @@ class rbsrw(QtGui.QWidget):
         dialog.ui.flp.setText(str(self.arPrecP[3]))
         dialog.ui.np.setText(str(self.arPrecP[4]))
         
+    def unitstr(self,units):
+        for n,u in enumerate(units):
+            units[n]=str(u.value)
+            
+        return units
+        
     def makeund(self):
-        dialog = DialogU()
+        units = self.workbook.sheet_by_name('thick undulator').col(1)
+        units = self.unitstr(units)
+        dialog = DialogU(self,units)
         self.ShowUndParams(dialog)
         if dialog.exec_():
             self.GetUndParams(dialog)
             
     def makebeam(self):
-        dialog = DialogB()
+        units = self.workbook.sheet_by_name('thick undulator').col(1)
+        units = self.unitstr(units)
+        dialog = DialogB(self,units)
         self.ShowBeamParams(dialog)
         if dialog.exec_():
             self.GetBeamParams(dialog)
@@ -387,27 +410,28 @@ class rbsrw(QtGui.QWidget):
 
                      
     def thick(self,i):
-        '''thicktable = [[10000,1,1,20,10,3000,-0.0025,-0.0025,0.0025,0.0025],
-                     [1,100,3,20,395,395,-0.015,-0.015,0.015,0.015],
-                     [1,3,100,20,395,395,-0.015,-0.015,0.015,0.015],
-                     [1,101,100,20,395,395,-0.015,-0.015,0.015,0.015],
-                     [1000,100,3,20,10,3000,-0.0025,-0.0025,0.0025,0.0025],
-                     [1000,3,100,20,10,3000,-0.0025,-0.0025,0.0025,0.0025],
-                     [1000,30,30,20,10,3000,-0.0025,-0.0025,0.0025,0.0025]]
-                     
-        for n,x in enumerate(thicktable[i]):
-            self.ui.tableWidget.setItem(n,0,QtGui.QTableWidgetItem(str(x)))'''
-        for n,c in enumerate(self.thicksheet.col(i)):
+        thicksheet = self.workbook.sheet_by_name('thick table')
+        for n,c in enumerate(thicksheet.col(i)):
             self.ui.tableWidget.setItem(n,0,QtGui.QTableWidgetItem(str(c.value)))
+            
+    def unitstr(self,units):
+        for n,u in enumerate(units):
+            units[n]=str(u.value)
+            
+        return units
         
     def makeund(self):
-        dialog = DialogU()
+        units = self.workbook.sheet_by_name('thick undulator').col(1)
+        units = self.unitstr(units)
+        dialog = DialogU(self,units)
         self.ShowUndParams(dialog)
         if dialog.exec_():
             self.GetUndParams(dialog)
             
     def makebeam(self):
-        dialog = DialogB()
+        units = self.workbook.sheet_by_name('thick beam').col(1)
+        units = self.unitstr(units)
+        dialog = DialogB(self,units)
         self.ShowBeamParams(dialog)
         if dialog.exec_():
             self.GetBeamParams(dialog)
@@ -419,46 +443,49 @@ class rbsrw(QtGui.QWidget):
             self.GetPrecision(dialog)
             
     def check(self):
-        print self.self.arPrecF
+        print self.arPrecF
         
         
 class DialogU(QtGui.QDialog):
-    def __init__(self, parent=None,column=None):
+    def __init__(self, parent=None,units=None,column=None):
         QtGui.QDialog.__init__(self,parent)
         self.ui = und_dlg()
         self.ui.setupUi(self)
+        self.u = units
         if column is not None:
-            self.ui.numper.setText(str(column[0].value))  #Number of ID Periods (without accounting for terminations)
+            self.ui.numper.setText(str(column[0].value)+' '+units[0])  #Number of ID Periods (without accounting for terminations)
             self.ui.undper.setText(str(column[1].value)) #Period Length
             self.ui.n.setText(str(column[2].value))
-            self.ui.b.setText(str(column[3].value))
+            self.ui.b.setText(str(column[3].value)+' '+units[2])
             self.ui.vh.setChecked(column[4].value is unicode('v'))             
             
                 
 class DialogB(QtGui.QDialog):
-    def __init__(self, parent=None,column=None):
+    def __init__(self, parent=None,units=None,column=None):
         QtGui.QDialog.__init__(self,parent)
         self.ui = beam_dlg()
         self.ui.setupUi(self)
+        self.u = units
         if column is not None:
-            self.ui.iavg.setText(str(column[0].value))     #Above is the UP class, this is self.beam.iavg
-            self.ui.partstatmom1x.setText(str(column[1].value))  #self.beam.partStatMom1.x, initial x-offset    
-            self.ui.partstatmom1y.setText(str(column[2].value))  #self.beam.partStatMom1.y, initial y-offset
-            self.ui.partstatmom1z.setText(str(column[3].value)) #self.beam.partStatMom1.z, initial z-offset
-            self.ui.partstatmom1xp.setText(str(column[4].value)) #self.beam.partStatMom1.xp, initial x angle offset
-            self.ui.partstatmom1yp.setText(str(column[5].value)) #self.beam.partStatMom1.yp, initial y angle offset
-            self.ui.partstatmom1gamma.setText(str(column[6].value)) # electron beam relative energy, gamma
-            self.ui.sige.setText(str(column[7].value))
-            self.ui.sigx.setText(str(column[8].value))
-            self.ui.sigy.setText(str(column[9].value))
-            self.ui.sigxp.setText(str(column[10].value))
-            self.ui.sigyp.setText(str(column[11].value))
+            self.ui.iavg.setText(str(column[0].value)+' '+units[0])     #Above is the UP class, this is self.beam.iavg
+            self.ui.partstatmom1x.setText(str(column[1].value)+' '+units[1])  #self.beam.partStatMom1.x, initial x-offset    
+            self.ui.partstatmom1y.setText(str(column[2].value)+' '+units[2])  #self.beam.partStatMom1.y, initial y-offset
+            self.ui.partstatmom1z.setText(str(column[3].value)+' '+units[3]) #self.beam.partStatMom1.z, initial z-offset
+            self.ui.partstatmom1xp.setText(str(column[4].value)+' '+units[4]) #self.beam.partStatMom1.xp, initial x angle offset
+            self.ui.partstatmom1yp.setText(str(column[5].value)+' '+units[5]) #self.beam.partStatMom1.yp, initial y angle offset
+            self.ui.partstatmom1gamma.setText(str(column[6].value)+' '+units[6]) # electron beam relative energy, gamma
+            self.ui.sige.setText(str(column[7].value)+' '+units[7])
+            self.ui.sigx.setText(str(column[8].value)+' '+units[8])
+            self.ui.sigy.setText(str(column[9].value)+' '+units[9])
+            self.ui.sigxp.setText(str(column[10].value)+' '+units[10])
+            self.ui.sigyp.setText(str(column[11].value)+' '+units[11])
         
 class DialogP(QtGui.QDialog):
-    def __init__(self, parent=None,column=None):
+    def __init__(self, parent=None,units=None,column=None):
         QtGui.QDialog.__init__(self,parent)
         self.ui = prec_dlg()
         self.ui.setupUi(self)
+        self.u = units
         if column is not None:
             self.ui.harma.setText(str(column[0].value))
             self.ui.harmb.setText(str(column[1].value))
