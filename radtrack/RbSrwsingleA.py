@@ -5,6 +5,8 @@ Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 
 import sys, os
 from numpy import sqrt
+import sip
+sip.setapi('QString', 2)
 from PyQt4 import QtGui, QtCore
 from ui.newsrw import Ui_Form as Ui_newsrw
 from ui.undulatorforthinsrw import Ui_Dialog as und_dlg

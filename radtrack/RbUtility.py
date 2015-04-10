@@ -32,7 +32,7 @@ def parseUnits(inputString):
         return inputString # number is not a number
 
     # Attempt parsing of compound unit (e.g., 'm/s^2')
-    convertValue = 1
+    convertValue = 1.0
     currentUnit = ''
     multiply = True
     try:
@@ -42,7 +42,7 @@ def parseUnits(inputString):
                     currentUnit, exponent = currentUnit.split('^')
                     exponent = float(exponent)
                 else:
-                    exponent = 1
+                    exponent = 1.0
                 exponent = exponent if multiply else -exponent
                 convertValue = convertValue*(unitConversion[currentUnit]**exponent)
                 multiply = (char == '*')
