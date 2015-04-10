@@ -145,13 +145,13 @@ class rbsrw(QtGui.QWidget):
         
     def ShowBeamParams(self, dialog):
         units = dialog.u
-        dialog.ui.iavg.setText(displayWithUnitsNumber(self.beam.Iavg),units[0])
-        dialog.ui.partstatmom1x.setText(displayWithUnitsNumber(self.beam.partStatMom1.x),units[1])
-        dialog.ui.partstatmom1y.setText(displayWithUnitsNumber(self.beam.partStatMom1.y),units[2])
-        dialog.ui.partstatmom1z.setText(displayWithUnitsNumber(self.beam.partStatMom1.z),units[3])
-        dialog.ui.partstatmom1xp.setText(displayWithUnitsNumber(self.beam.partStatMom1.xp),units[4])
-        dialog.ui.partstatmom1yp.setText(displayWithUnitsNumber(self.beam.partStatMom1.yp),untis[5])
-        dialog.ui.partstatmom1gamma.setText(displayWithUnitsNumber(self.beam.partStatMom1.gamma),units[6])
+        dialog.ui.iavg.setText(displayWithUnitsNumber(self.beam.Iavg,units[0]))
+        dialog.ui.partstatmom1x.setText(displayWithUnitsNumber(self.beam.partStatMom1.x,units[1]))
+        dialog.ui.partstatmom1y.setText(displayWithUnitsNumber(self.beam.partStatMom1.y,units[2]))
+        dialog.ui.partstatmom1z.setText(displayWithUnitsNumber(self.beam.partStatMom1.z,units[3]))
+        dialog.ui.partstatmom1xp.setText(displayWithUnitsNumber(self.beam.partStatMom1.xp,units[4]))
+        dialog.ui.partstatmom1yp.setText(displayWithUnitsNumber(self.beam.partStatMom1.yp,units[5]))
+        dialog.ui.partstatmom1gamma.setText(displayWithUnitsNumber(self.beam.partStatMom1.gamma,units[6]))
         
     def WfrSetUpE(self,wfrE):
         #wfrE = SRWLWfr() this is the waveform class
@@ -180,12 +180,12 @@ class rbsrw(QtGui.QWidget):
     def ShowPrecision(self,dialog):
         units = dialog.u
         dialog.ui.meth.setCurrentIndex(self.precis.meth)
-        dialog.ui.relprec.setText(displayWithUnitsNumber(self.precis.relPrec),units[1])
-        dialog.ui.zstartint.setText(displayWithUnitsNumber(self.precis.zStartInteg),units[2])
-        dialog.ui.zendint.setText(displayWithUnitsNumber(self.precis.zEndInteg),units[3])
-        dialog.ui.nptraj.setText(displayWithUnitsNumber(self.precis.npTraj),units[4])
+        dialog.ui.relprec.setText(displayWithUnitsNumber(self.precis.relPrec,units[1]))
+        dialog.ui.zstartint.setText(displayWithUnitsNumber(self.precis.zStartInteg,units[2]))
+        dialog.ui.zendint.setText(displayWithUnitsNumber(self.precis.zEndInteg,units[3]))
+        dialog.ui.nptraj.setText(displayWithUnitsNumber(self.precis.npTraj,units[4]))
         dialog.ui.usetermin.setCurrentIndex(self.precis.useTermin)
-        dialog.ui.sampfactnxny.setText(displayWithUnitsNumber(self.precis.sampFactNxNyForProp),units[6])
+        dialog.ui.sampfactnxny.setText(displayWithUnitsNumber(self.precis.sampFactNxNyForProp,units[6]))
     
          
     def srwbuttonThin(self):
@@ -340,7 +340,7 @@ class rbsrw(QtGui.QWidget):
     def makeund(self):
         units = self.workbook.sheet_by_name('thin undulator').col(1)
         units = self.unitstr(units)
-        dialog = DialogU(units)
+        dialog = DialogU(self,units)
         self.ShowUndParams(dialog)
         if dialog.exec_():
             self.GetUndParams(dialog)
@@ -348,7 +348,7 @@ class rbsrw(QtGui.QWidget):
     def makebeam(self):
         units = self.workbook.sheet_by_name('thin beam').col(1)
         units = self.unitstr(units)
-        dialog = DialogB(units)
+        dialog = DialogB(self,units)
         self.ShowBeamParams(dialog)
         if dialog.exec_():
             self.GetBeamParams(dialog)
@@ -356,7 +356,7 @@ class rbsrw(QtGui.QWidget):
     def setprec(self):
         units = self.workbook.sheet_by_name('thin precision').col(1)
         units = self.unitstr(units)
-        dialog = DialogP(units)
+        dialog = DialogP(self,units)
         self.ShowPrecision(dialog)
         if dialog.exec_():
             self.GetPrecision(dialog)
@@ -428,7 +428,7 @@ class DialogP(QtGui.QDialog):
         self.ui.setupUi(self)
         self.u = units
         if column is not None:
-            self.ui.meth.setCurrentIndex(int(column[0].value)+' '+units[0]) #SR calculation method: 0- "manual", 1- "auto-undulator", 2- "auto-wiggler"
+            self.ui.meth.setCurrentIndex(int(column[0].value)) #SR calculation method: 0- "manual", 1- "auto-undulator", 2- "auto-wiggler"
             self.ui.relprec.setText(str(column[1].value)+' '+units[1]) #relative precision
             self.ui.zstartint.setText(str(column[2].value)+' '+units[2]) #longitudinal position to start integration (effective if < zEndInteg)
             self.ui.zendint.setText(str(column[3].value)+' '+units[3]) #longitudinal position to finish integration (effective if > zStartInteg)
