@@ -851,6 +851,8 @@ class commandDeleteElement(QtGui.QUndoCommand):
         self.oldBeamlineData = []
         self.oldWorkingBeamline = self.widget.workingBeamlineElementNames()
         self.oldElementDictionary = OrderedDict()
+        for element in self.widget.elementDictionary.values():
+            self.oldElementDictionary[element.name] = element
             if element.isBeamline() and not element.name.startswith('-'):
                 self.oldBeamlines.append(element)
                 self.oldBeamlineData.append(element.data[:])
