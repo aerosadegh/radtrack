@@ -850,10 +850,10 @@ class commandDeleteElement(QtGui.QUndoCommand):
         self.oldBeamlines = []
         self.oldBeamlineData = []
         self.oldWorkingBeamline = self.widget.workingBeamlineElementNames()
-        for beamline in self.widget.elementDictionary.values():
-            if beamline.isBeamline() and not beamline.name.startswith('-'):
-                self.oldBeamlines.append(beamline)
-                self.oldBeamlineData.append(beamline.data[:])
+        self.oldElementDictionary = OrderedDict()
+            if element.isBeamline() and not element.name.startswith('-'):
+                self.oldBeamlines.append(element)
+                self.oldBeamlineData.append(element.data[:])
 
     def redo(self):
         # Delete from dictionary
@@ -877,7 +877,7 @@ class commandDeleteElement(QtGui.QUndoCommand):
 
     def undo(self):
         # Restore to dictionary
-        self.widget.elementDictionary[self.element.name] = self.element
+        self.widget.elementDictionary = self.oldElementDictionary
 
         # Restore to tree
         if self.widget.ui.treeWidget.indexOfTopLevelItem(self.parent) == -1:
