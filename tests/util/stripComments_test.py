@@ -1,5 +1,5 @@
 print 'Strip comments test ...'
-from RbUtility import stripComments
+from radtrack.RbUtility import stripComments
 
 inputString  = 'This is a test that "#" is treated as a comment. # This should not appear.'
 outputString = 'This is a test that "#" is treated as a comment.'

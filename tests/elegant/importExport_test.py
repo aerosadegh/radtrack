@@ -1,6 +1,7 @@
 print 'Import/Export test ...'
 
-import os, glob, sys
+import os, glob, sys, sip
+sip.setapi('QString', 2)
 from radtrack import RbBunchTransport, RbLaserTransport
 from radtrack.RbUtility import insideQuote
 

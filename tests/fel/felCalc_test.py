@@ -1,5 +1,5 @@
 print 'FEL Calculations Test ...'
-from RbFEL import RbFEL
+from radtrack.RbFEL import RbFEL
 
 a = RbFEL()
 a.ui.charge.setText('300 pC')

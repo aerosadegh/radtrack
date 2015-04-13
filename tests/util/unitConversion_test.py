@@ -1,6 +1,6 @@
 print 'Unit Conversion Test ...'
 
-from RbUtility import convertUnitsString, \
+from radtrack.RbUtility import convertUnitsString, \
                       convertUnitsStringToNumber, \
                       convertUnitsNumberToString, \
                       convertUnitsNumber, \

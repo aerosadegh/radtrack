@@ -1,6 +1,6 @@
 print 'RPN Test ...'
 
-from RbUtility import rpn
+from radtrack.RbUtility import rpn
 
 testList = []
 testList.append(("1 2 +", 3))
