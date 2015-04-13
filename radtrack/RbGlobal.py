@@ -388,31 +388,7 @@ class RbGlobal(QtGui.QMainWindow):
         # Configure Elegant tab to use tabs for simulation input
         for widget in self.allWidgets():
             if type(widget) == RbEle:
-                oldBeamlineChoice = widget.ui.beamLineComboBox.currentText()
-
-                oldBunchChoice = widget.ui.bunchSourceComboBox.currentText()
-                widget.ui.bunchSourceComboBox.clear()
-
-                oldLatticeChoice = widget.ui.beamLineSourceComboBox.currentText()
-                widget.ui.beamLineSourceComboBox.clear()
-
-                widget.ui.bunchSourceComboBox.addItem(widget.noneBunchChoice)
-                widget.ui.beamLineSourceComboBox.addItem(widget.noneBeamChoice)
-
-                for index in range(self.tabWidget.count()):
-                    if type(getRealWidget(self.tabWidget.widget(index))) == BunchTab:
-                        widget.ui.bunchSourceComboBox.addItem(self.tabWidget.tabText(index))
-                    elif type(getRealWidget(self.tabWidget.widget(index))) == RbBunchTransport:
-                        widget.ui.beamLineSourceComboBox.addItem(self.tabWidget.tabText(index))
-
-                widget.ui.bunchSourceComboBox.addItem(widget.fileBunchChoice)
-                widget.ui.beamLineSourceComboBox.addItem(widget.fileBeamChoice)
-
-                # Reselect the previous user's choice
-                widget.ui.bunchSourceComboBox.setCurrentIndex(widget.ui.bunchSourceComboBox.findText(oldBunchChoice))
-                widget.ui.beamLineSourceComboBox.setCurrentIndex(widget.ui.beamLineSourceComboBox.findText(oldLatticeChoice))
-                widget.ui.beamLineComboBox.setCurrentIndex(widget.ui.beamLineComboBox.findText(oldBeamlineChoice))
-
+                widget.update_sources_from_tabs()
 
     def undo(self):
         getRealWidget(self.tabWidget.currentWidget()).undo()
