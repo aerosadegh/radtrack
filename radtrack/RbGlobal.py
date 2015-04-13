@@ -24,6 +24,7 @@ from radtrack.srw.RbSrwUndulator import srwund
 from radtrack.genesis.rbgenesis2 import RbGenesis2
 from radtrack.RbSrwsingleA import rbsrw as rbsrwsingle
 from radtrack.RbSrwmultiA import rbsrw as rbsrwmulti
+from radtrack.RbUtility import getRealWidget
 
 class RbGlobal(QtGui.QMainWindow):
     def __init__(self, beta_test=False):
@@ -400,13 +401,6 @@ class RbGlobal(QtGui.QMainWindow):
         self.saveProject()
         event.accept()
         QtGui.QMainWindow.closeEvent(self, event)
-
-
-def getRealWidget(widget):
-    try:
-        return getRealWidget(widget.widget())
-    except AttributeError:
-        return widget
 
 
 @argh.arg('project_file', nargs='?', default=None, help='project file to open at startup')

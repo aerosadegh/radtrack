@@ -11,7 +11,7 @@ from radtrack.RbBunchTransport import RbBunchTransport
 from radtrack.RbUtility import convertUnitsStringToNumber, convertUnitsNumber
 from radtrack.rbdcp import RbDcp
 from radtrack.ui.rbele import Ui_ELE
-import radtrack.RbGlobal
+from radtrack.RbUtility import getRealWidget
 import radtrack.util.resource as resource
 
 class RbEle(QtGui.QWidget):
@@ -111,7 +111,7 @@ class RbEle(QtGui.QWidget):
         tab = self.parent.tabWidget
         for i in range(tab.count()):
             if tab.tabText(i) == tab_name:
-                return radtrack.RbGlobal.getRealWidget(tab.widget(i))
+                return getRealWidget(tab.widget(i))
         return None
 
     def get_tab_names_for_type(self, tab_type):
@@ -302,8 +302,7 @@ class RbEle(QtGui.QWidget):
     def _new_tab(self, tab_type, file_name):
         """Create a new parent tab and load the data from the specified file"""
         self.parent.newTab(tab_type)
-        radtrack.RbGlobal.getRealWidget(
-            self.parent.tabWidget.currentWidget()).importFile(file_name)
+        getRealWidget(self.parent.tabWidget.currentWidget()).importFile(file_name)
 
     def _process_finished(self, code, status):
         """Callback when simulation process has finished"""
@@ -398,7 +397,9 @@ class RbEle(QtGui.QWidget):
         self.output_file = open(
             self.session_file(file_name=self.OUTPUT_FILE_NAME), 'w')
         self._enable_status_and_results()
-        elegant_input_file = self._write_simulation_input_files(momentum)
+        # The replace() command changes backslashes to forward slashes
+        # since Elegant interprets \x as a special character.
+        elegant_input_file = self._write_simulation_input_files(momentum).replace('\\', '/')
         self.append_status('Running simulation ...\n')
         self.process.start(
             'elegant', [elegant_input_file])

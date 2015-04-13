@@ -330,3 +330,10 @@ def removeWhitespace(string):
 class FileParseException(Exception):
     def __init__(self, message):
         self.message = message
+
+# Returns the data-holding widget inside layout widgets (QScrollArea, etc.)
+def getRealWidget(widget):
+    try:
+        return getRealWidget(widget.widget())
+    except AttributeError:
+        return widget
