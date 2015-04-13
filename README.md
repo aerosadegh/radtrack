@@ -28,6 +28,20 @@ rm -f radtrack/dcp/sdds*
 cp install/fedora/sdds* $(python -c 'from distutils.sysconfig import get_python_lib as x; print x()')
 ```
 
+#### Running tests
+
+You can run the tests with either `py.test` or `python setup.py test` in the main
+directory. To run an individual test, go to the directory and run `py.test <file>`.
+
+One trick that's useful when debugging is:
+
+```
+py.test --capture=no some_test.py
+```
+
+This will allow you to watch `stdout` and `stderr` in real-time as the test runs.
+Normally, `py.test` captures output and only writes it if there is a failure.
+
 #### Installing Alpha on Mac
 
 Currently only Mac OS X (Darwin) install:
