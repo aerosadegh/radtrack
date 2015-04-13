@@ -3,14 +3,14 @@ from radtrack.beamlines.RbElegantElements import expandBeamline, collapseBeamlin
 print "Elegant Expand/Collapse Beamline Test ..."
 testCases = [
              (["A"], "A"),
-             (["A", "A"], "2*(A)"),
+             (["A", "A"], "2*A"),
              (["A", "B", "A", "A", "B", "A"], "2*(A, B, A)"),
              (["A", "B", "A", "B", "A", "B", "A", "B", "A", "B", "A"], "5*(A, B), A"),
-             (84*["A"], "84*(A)"),
-             (["a", "b", "a", "a", "b", "a", "c", "c", "c", "c", "c"], "2*(a, b, a), 5*(c)"),
-             (4*(["E"] + 6*["A", "B", "C"] + 2*["D"]), "4*(E, 6*(A, B, C), 2*(D))"),
-             (6*(["E"] + 6*["A", "B", "C"] + 2*["D"]), "6*(E, 6*(A, B, C), 2*(D))"),
-             (5*(["E"] + 6*["A", "B", "C"] + 2*["D"]), "5*(E, 6*(A, B, C), 2*(D))")
+             (84*["A"], "84*A"),
+             (["a", "b", "a", "a", "b", "a", "c", "c", "c", "c", "c"], "2*(a, b, a), 5*c"),
+             (4*(["E"] + 6*["A", "B", "C"] + 2*["D"]), "4*(E, 6*(A, B, C), 2*D)"),
+             (6*(["E"] + 6*["A", "B", "C"] + 2*["D"]), "6*(E, 6*(A, B, C), 2*D)"),
+             (5*(["E"] + 6*["A", "B", "C"] + 2*["D"]), "5*(E, 6*(A, B, C), 2*D)")
              ]
 
 fail = False

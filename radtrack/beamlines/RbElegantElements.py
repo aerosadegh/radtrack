@@ -209,9 +209,17 @@ def collapseBeamline(nameList):
                 if subListCollapse[0] in string.digits and isSingleGroup(subListCollapse):
                     numSplit = subListCollapse.split('*', 1)
                     count = count*int(numSplit[0])
-                    subListCollapse = numSplit[1][1:-1] # remove outermost parentheses
+                    subListCollapse = numSplit[1]
+                    while subListCollapse.startswith('(') and subListCollapse.endswith(')'):
+                        subListCollapse = subListCollapse[1:-1]
                 count += removeRepetitions(nameList, expandBeamline(subListCollapse), startIndex)
-                nameList.insert(startIndex, str(count) + '*' + '(' + subListCollapse + ')')
+                if ',' in subListCollapse:
+                    beginParen = '('
+                    endParen = ')'
+                else:
+                    beginParen = ''
+                    endParen = ''
+                nameList.insert(startIndex, str(count) + '*' + beginParen + subListCollapse + endParen)
             startIndex += 1
     return ', '.join(nameList)
 
