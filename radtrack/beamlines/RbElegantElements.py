@@ -148,7 +148,7 @@ def parseLine(line, importDictionary, classDictionary, nameMangler):
                     data[i] = value
                     break
             else:
-                raise ValueError('Unknown parameter "' + parameter + \
+                raise FileParseException('Unknown parameter "' + parameter + \
                         '" for element "' + elementType.__name__ + '\n' + \
                         line)
 

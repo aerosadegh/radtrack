@@ -2,6 +2,7 @@ print 'Import/Export test ...'
 
 import os, glob, sys
 from radtrack import RbBunchTransport, RbLaserTransport
+from radtrack.RbUtility import insideQuote
 
 
 currentDirectory = os.getcwd()
@@ -32,6 +33,12 @@ try:
             loader.importFile(fileName)
             exportFileName = os.path.splitext(fileName)[0] + exportEnd
             loader.exportToFile(exportFileName)
+            with open(exportFileName) as f:
+                for lineNumber, line in enumerate(f.readlines()):
+                    if insideQuote(line, len(line))and line[-1]:
+                        print "Line split inside quoted portion."
+                        print exportFileName, 'Line:', lineNumber + 1
+                        raise Exception
 
             loader2 = transportTab(None)
             loader2.importFile(exportFileName)

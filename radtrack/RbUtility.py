@@ -293,11 +293,11 @@ def wordwrap(line, lineWidth, endLine = '', indenting = 0):
     while lineBegin + lineWidth < len(line):
         # location of editing cursor
         lineEdit = lineBegin + lineWidth - len(endLine)
-        while line[lineEdit] not in string.whitespace and lineEdit > lineBegin:
-            lineEdit += -1 # backup up until whitespace is found
+        while (line[lineEdit] not in string.whitespace or insideQuote(line, lineEdit)) and lineEdit > lineBegin:
+            lineEdit -= 1 # backup up until whitespace is found
         if lineEdit == lineBegin:
             # whitespace not found, skip ahead to next whitespace or end of line
-            while line[lineEdit] not in string.whitespace and lineEdit < len(line):
+            while (line[lineEdit] not in string.whitespace or insideQuote(line, lineEdit)) and lineEdit < len(line):
                 lineEdit += 1
             if lineEdit == len(line):
                 return line
@@ -307,14 +307,18 @@ def wordwrap(line, lineWidth, endLine = '', indenting = 0):
     return line
 
 
+def insideQuote(line, position):
+    quoted = False
+    for index in range(position):
+        if line[index] == '"' and (index == 0 or line[index-1] != '\\'):
+            quoted = not quoted
+    return quoted
+
 
 def stripComments(line, commentCharacter):
-    insideQuote = False
     for i in range(len(line)):
-        if line[i] == commentCharacter and not insideQuote:
+        if line[i] == commentCharacter and not insideQuote(line, i):
             return line[:i].strip()
-        if line[i] == '"' and (i == 0 or line[i-1] != '\\'): # non-escaped quote
-            insideQuote = not insideQuote
     return line.strip()
 
 
