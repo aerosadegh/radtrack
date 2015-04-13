@@ -52,7 +52,8 @@
     <addaction name="actionExport_Current_Tab"/>
     <addaction name="menuRecent_Files"/>
     <addaction name="separator"/>
-    <addaction name="actionExit_2"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -85,11 +86,6 @@
   <action name="actionOpen">
    <property name="text">
     <string>Open</string>
-   </property>
-  </action>
-  <action name="actionExit">
-   <property name="text">
-    <string>Exit</string>
    </property>
   </action>
   <action name="actionUndo">
@@ -142,44 +138,12 @@
     <string>Rename Current Tab ...</string>
    </property>
   </action>
-  <action name="actionAsdf">
-   <property name="text">
-    <string>asdf</string>
-   </property>
-  </action>
-  <action name="actionAsdf_2">
-   <property name="text">
-    <string>asdf</string>
-   </property>
-  </action>
-  <action name="actionAsdf_3">
-   <property name="text">
-    <string>asdf</string>
-   </property>
-  </action>
-  <action name="actionExit_2">
+  <action name="actionExit">
    <property name="text">
     <string>Exit</string>
    </property>
   </action>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>actionExit</sender>
-   <signal>triggered()</signal>
-   <receiver>globalgu</receiver>
-   <slot>close()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>385</x>
-     <y>244</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

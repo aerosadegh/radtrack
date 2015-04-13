@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'globalgu.ui'
 #
-# Created: Thu Apr 09 12:54:30 2015
+# Created: Mon Apr 13 12:23:01 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -56,8 +56,6 @@ class Ui_globalgu(object):
         globalgu.setStatusBar(self.statusbar)
         self.actionOpen = QtGui.QAction(globalgu)
         self.actionOpen.setObjectName(_fromUtf8("actionOpen"))
-        self.actionExit = QtGui.QAction(globalgu)
-        self.actionExit.setObjectName(_fromUtf8("actionExit"))
         self.actionUndo = QtGui.QAction(globalgu)
         self.actionUndo.setObjectName(_fromUtf8("actionUndo"))
         self.actionRedo = QtGui.QAction(globalgu)
@@ -78,14 +76,8 @@ class Ui_globalgu(object):
         self.actionReopen_Closed_Tab.setObjectName(_fromUtf8("actionReopen_Closed_Tab"))
         self.actionRename_Current_Tab = QtGui.QAction(globalgu)
         self.actionRename_Current_Tab.setObjectName(_fromUtf8("actionRename_Current_Tab"))
-        self.actionAsdf = QtGui.QAction(globalgu)
-        self.actionAsdf.setObjectName(_fromUtf8("actionAsdf"))
-        self.actionAsdf_2 = QtGui.QAction(globalgu)
-        self.actionAsdf_2.setObjectName(_fromUtf8("actionAsdf_2"))
-        self.actionAsdf_3 = QtGui.QAction(globalgu)
-        self.actionAsdf_3.setObjectName(_fromUtf8("actionAsdf_3"))
-        self.actionExit_2 = QtGui.QAction(globalgu)
-        self.actionExit_2.setObjectName(_fromUtf8("actionExit_2"))
+        self.actionExit = QtGui.QAction(globalgu)
+        self.actionExit.setObjectName(_fromUtf8("actionExit"))
         self.menuFile.addAction(self.actionOpen_Project)
         self.menuFile.addAction(self.actionSet_Current_Project_Location)
         self.menuFile.addAction(self.actionOpen_New_RadTrack_Window)
@@ -95,7 +87,8 @@ class Ui_globalgu(object):
         self.menuFile.addAction(self.actionExport_Current_Tab)
         self.menuFile.addAction(self.menuRecent_Files.menuAction())
         self.menuFile.addSeparator()
-        self.menuFile.addAction(self.actionExit_2)
+        self.menuFile.addSeparator()
+        self.menuFile.addAction(self.actionExit)
         self.menuEdit.addAction(self.actionUndo)
         self.menuEdit.addAction(self.actionRedo)
         self.menuTabs.addAction(self.menuNew_Tab.menuAction())
@@ -109,7 +102,6 @@ class Ui_globalgu(object):
         self.menubar.addAction(self.menuTabs.menuAction())
 
         self.retranslateUi(globalgu)
-        QtCore.QObject.connect(self.actionExit, QtCore.SIGNAL(_fromUtf8("triggered()")), globalgu.close)
         QtCore.QMetaObject.connectSlotsByName(globalgu)
 
     def retranslateUi(self, globalgu):
@@ -121,7 +113,6 @@ class Ui_globalgu(object):
         self.menuTabs.setTitle(_translate("globalgu", "Tabs", None))
         self.menuNew_Tab.setTitle(_translate("globalgu", "New Tab", None))
         self.actionOpen.setText(_translate("globalgu", "Open", None))
-        self.actionExit.setText(_translate("globalgu", "Exit", None))
         self.actionUndo.setText(_translate("globalgu", "Undo", None))
         self.actionRedo.setText(_translate("globalgu", "Redo", None))
         self.actionOpen_Project.setText(_translate("globalgu", "Open Project ...", None))
@@ -132,8 +123,5 @@ class Ui_globalgu(object):
         self.actionClose_Current_Tab.setText(_translate("globalgu", "Close Current Tab", None))
         self.actionReopen_Closed_Tab.setText(_translate("globalgu", "Reopen Closed Tab", None))
         self.actionRename_Current_Tab.setText(_translate("globalgu", "Rename Current Tab ...", None))
-        self.actionAsdf.setText(_translate("globalgu", "asdf", None))
-        self.actionAsdf_2.setText(_translate("globalgu", "asdf", None))
-        self.actionAsdf_3.setText(_translate("globalgu", "asdf", None))
-        self.actionExit_2.setText(_translate("globalgu", "Exit", None))
+        self.actionExit.setText(_translate("globalgu", "Exit", None))
 
