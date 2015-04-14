@@ -54,7 +54,9 @@ class RbGlobal(QtGui.QMainWindow):
                 for line in f:
                     self.addToRecentMenu(line.strip())
         except IOError: # self.recentFile doesn't exist
-            return
+            pass
+        for menu in [self.ui.menuRecent_Projects, self.ui.menuRecent_Files]:
+            menu.setEnabled(len(menu.actions()) > 0)
 
         session = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         self.sessionDirectory = os.path.join(os.path.expanduser('~'), 'RadTrack', session)
@@ -195,6 +197,7 @@ class RbGlobal(QtGui.QMainWindow):
         menu.addAction(menuSelect)
         for action in [a for a in oldList if a.objectName() != name]:
             menu.addAction(action)
+        menu.setEnabled(True)
 
     def togglesrw(self):
         self.stackwidget.setCurrentIndex(int(self.srw_particle.isChecked()))
