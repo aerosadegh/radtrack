@@ -1,65 +1,46 @@
-print 'Import/Export test ...'
-
-import os, glob, sys, sip
-sip.setapi('QString', 2)
-from radtrack import RbBunchTransport, RbLaserTransport
+import os, glob, sys
+import radtrack.beamlines.RbElegantElements as ele
+import radtrack.beamlines.RbOpticalElements as opt
 from radtrack.RbUtility import insideQuote
 
-
-currentDirectory = os.getcwd()
-os.chdir('external\\elegant')
+# QApplication needs to be instantiated to use QWidgets
+# that can't be isolated from the rest of the application.
+# If this isn't here, the test suite will simply halt with
+# no messages.
+#
+# Note: make sure this is only called once during the entire test
+# run. If more than one QApplications are created, python will
+# crash at the end of the test suite.
+from PyQt4 import QtGui
+app = QtGui.QApplication(sys.argv)
 
 exportEnd = '_export.lte'
 
-if len(sys.argv) > 1:
-    fileList = sys.argv[1:]
-else:
-    ignoreList = ['beamlines\\case_line.lte', 'beamlines\\name_test.lte']
-    particleFileList = [fileName for fileName in glob.glob('beamlines\\*.lte') \
-        if fileName not in ignoreList \
-        and not fileName.endswith(exportEnd)]
+particleFileList = glob.glob(
+        os.path.join(os.getcwd(), 'external', 'elegant', 'beamlines', '*.lte'))
 
-    opticalFileList = glob.glob('optics\\*.rad')
+opticalFileList = glob.glob(
+        os.path.join(os.getcwd(), 'external', 'elegant', 'optics', '*.rad'))
 
-    fileLists = [particleFileList, opticalFileList]
-    transportTabs = [RbBunchTransport.RbBunchTransport,
-                     RbLaserTransport.RbLaserTransport]
+fileLists = [particleFileList, opticalFileList]
+fileHandlers = [ele, opt]
 
 # Test that importing an .lte file and an exported version of that file
 # result in the same elements being created
-try:
-    for fileList, transportTab in zip(fileLists, transportTabs):
+def test_import_export():
+    for fileList, fileHandler in zip(fileLists, fileHandlers):
         for fileName in fileList:
-            loader = transportTab(None)
-            loader.importFile(fileName)
+            elementDictionary1, _ = fileHandler.fileImporter(fileName)
             exportFileName = os.path.splitext(fileName)[0] + exportEnd
-            loader.exportToFile(exportFileName)
+            fileHandler.exportToFile(exportFileName, elementDictionary1)
             with open(exportFileName) as f:
+                # Check that lines are not split inside quotes
                 for lineNumber, line in enumerate(f.readlines()):
-                    if insideQuote(line, len(line))and line[-1]:
-                        print "Line split inside quoted portion."
-                        print exportFileName, 'Line:', lineNumber + 1
-                        raise Exception
+                    assert not insideQuote(line, len(line))
 
-            loader2 = transportTab(None)
-            loader2.importFile(exportFileName)
+            elementDictionary2, _ = fileHandler.fileImporter(exportFileName)
 
-            if len(loader.elementDictionary) != len(loader2.elementDictionary):
-                print fileName
-                print "Reimporting created different number of elements."
-                raise Exception
-
-            for (element1, element2) in \
-                    zip(loader.elementDictionary.values(), \
-                        loader2.elementDictionary.values()):
-                if element1 != element2:
-                    print fileName
-                    print element1.componentLine()
-                    print element2.componentLine()
-                    raise Exception
+            assert all([element1 == element2 for (element1, element2) in \
+                    zip(elementDictionary1.values(), elementDictionary2.values())])
 
             os.remove(exportFileName)
-
-    print "Passed."
-finally:
-    os.chdir(currentDirectory)

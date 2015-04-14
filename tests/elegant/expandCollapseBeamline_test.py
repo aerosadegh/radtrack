@@ -1,6 +1,6 @@
 from radtrack.beamlines.RbElegantElements import expandBeamline, collapseBeamline
 
-print "Elegant Expand/Collapse Beamline Test ..."
+# In each test case, the first element in the tuple should collapse to the second.
 testCases = [
              (["A"], "A"),
              (["A", "A"], "2*A"),
@@ -13,27 +13,9 @@ testCases = [
              (5*(["E"] + 6*["A", "B", "C"] + 2*["D"]), "5*(E, 6*(A, B, C), 2*D)")
              ]
 
-fail = False
-for case in testCases:
-    if collapseBeamline(case[0][:]) != case[1]: 
-        print "Not ideal collapse:\n", case[0], "-->", collapseBeamline(case[0][:]), "instead of", case[1]
-        fail = True
-
-    if expandBeamline(collapseBeamline(case[0][:])) != case[0]:
-        print "Expand(Collapse()) not an identity."
-        print expandBeamline(collapseBeamline(case[0][:])), '-->', case[0]
-        fail = True
-
-    if case[0] != expandBeamline(case[1]):
-        print "Incorrect expansion:\n", case[1], "-->", expandBeamline(case[1]), "instead of", case[0]
-        fail = True
-
-    if collapseBeamline(expandBeamline(case[1])) != case[1]:
-        print "Collapse(Expand()) not an identity."
-        print collapseBeamline(expandBeamline(case[1])), "-->", case[1]
-        fail = True
-
-if fail:
-    raise Exception
-
-print "Passed"
+def test_beamline_expand_collapse():
+    for case in testCases:
+        assert collapseBeamline(case[0][:]) == case[1]
+        assert expandBeamline(collapseBeamline(case[0][:])) == case[0]
+        assert case[0] == expandBeamline(case[1])
+        assert collapseBeamline(expandBeamline(case[1])) == case[1]

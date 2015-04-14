@@ -1,6 +1,5 @@
-print 'RPN Test ...'
-
 from radtrack.RbUtility import rpn
+import pytest
 
 testList = []
 testList.append(("1 2 +", 3))
@@ -10,39 +9,28 @@ testList.append(("6 9 *", 54))
 testList.append(("5 sqr", 25))
 testList.append(("16 sqr 4 3 -35 * * - sqrt -16 + 2 3 * /", 5.0/3.0))
 
-for test in testList:
-    a = test[0]
-    b = test[1]
-    c = rpn(a)
-    if c != b:
-        print a, '=', b, 'not', c
-        raise Exception
+def test_rpn_success():
+    for test in testList:
+        a = test[0]
+        b = test[1]
+        c = rpn(a)
+        assert c == b
 
 # These tests should fail
-for exp in ["1 + 2", "+ 1 2", "1 2 3", "a"]:
-    try:
-        rpn(exp)
-    except Exception as e:
-        print 'Test correctly caused exception: ', e
-    else:
-        raise Exception("Invalid RPN Expression \"" + exp + "\"did not cause error.")
+def test_rpn_fail():
+    for exp in ["1 + 2", "+ 1 2", "1 2 3", "a"]:
+        with pytest.raises(ValueError):
+            rpn(exp)
 
 # Find RPN expressions in files that can't be processed
-import glob, sys, os
-from radtrack import RbBunchTransport
+def test_rpn_files():
+    import glob, sys, os
+    from radtrack.beamlines.RbElegantElements import fileImporter
 
-currentDirectory = os.getcwd()
-os.chdir('external\\elegant\\beamlines')
-
-ignoreList = ['case_line.lte', 'name_test.lte']
-fileList = [fileName for fileName in glob.glob('*.lte') if fileName not in ignoreList]
-
-alreadySeen = []
-try:
-    for fileName in fileList:
+    alreadySeen = []
+    for fileName in glob.glob(os.path.join(os.getcwd(), 'external', 'elegant', 'beamlines', '*.lte')):
         # Test that files load without errors
-        loader = RbBunchTransport.RbBunchTransport(None)
-        loader.importFile(fileName)
+        elementDictionary, _ = fileImporter(fileName)
 
         for element in loader.elementDictionary.values():
             if element.isBeamline():
@@ -54,22 +42,16 @@ try:
                     answer = rpn(thing)
                     try:
                         if answer == float(thing):
-                            continue
+                            continue # Just a number
                         else:
-                            print 'Conflict:', thing, '=', answer, 'or', float(thing)
-                            raise Exception
+                            assert answer == float(thing) # 2 interpretations of value
                     except ValueError:
-                        print fileName + ':', thing, '=', answer
+                        pass # thing is an unambiguous rpn expression
                 except ValueError:
                     if thing != '' and \
                             thing not in ['', '"+X"', '"+Y"', '"-Y"', '"-X"'] and \
                             all([x not in thing.lower() for x in \
                                 ['coord', '%', 'centroid', 'ideal', 'param', 'sdds']]) and \
                             thing.lower() not in ['"t"', '"w"']:
-                        print fileName, ':', element.name, type(element), element.displayLine(), thing
-                        raise
+                        assert (fileName, ':', element.name, type(element), element.displayLine(), thing) == None
                 alreadySeen.append(thing)
-
-    print 'Passed.'
-finally:
-    os.chdir(currentDirectory)

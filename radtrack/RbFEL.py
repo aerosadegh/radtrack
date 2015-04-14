@@ -1,5 +1,3 @@
-import sip
-sip.setapi('QString', 2)
 from PyQt4 import QtGui, QtCore
 from radtrack.fel.mxcal import Ui_Form
 from  radtrack.RbUtility import displayWithUnitsNumber, \
@@ -161,7 +159,7 @@ class RbFEL(QtGui.QWidget):
                 thing.setToolTip(thing.unit)
             else:
                 thing.setReadOnly(True)
-                if thing.objectName().startswith("Bunch length"):
+                if str(thing.objectName()).startswith("Bunch length"):
                     thing.setToolTip("FWHM")
                 else:
                     thing.setToolTip('') 
@@ -400,7 +398,7 @@ class RbFEL(QtGui.QWidget):
 
     def getValue(self, textBox):
         try:
-            self.valueFromTextBox[textBox] = convertUnitsStringToNumber(textBox.text(), textBox.unit)
+            self.valueFromTextBox[textBox] = convertUnitsStringToNumber(str(textBox.text()), textBox.unit)
             return self.valueFromTextBox[textBox]
         except ValueError:
             if textBox in self.valueFromTextBox:
