@@ -28,7 +28,7 @@ def test_rpn_files():
     from radtrack.beamlines.RbElegantElements import fileImporter
 
     alreadySeen = []
-    for fileName in glob.glob(os.path.join(os.getcwd(), 'external', 'elegant', 'beamlines', '*.lte')):
+    for fileName in glob.glob(os.path.join(os.getcwd(), 'deprecated', 'elegant', 'beamlines', '*.lte')):
         # Test that files load without errors
         elementDictionary, _ = fileImporter(fileName)
 

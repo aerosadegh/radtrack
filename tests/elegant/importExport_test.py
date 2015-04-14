@@ -17,10 +17,10 @@ app = QtGui.QApplication(sys.argv)
 exportEnd = '_export.lte'
 
 particleFileList = glob.glob(
-        os.path.join(os.getcwd(), 'external', 'elegant', 'beamlines', '*.lte'))
+        os.path.join(os.getcwd(), 'deprecated', 'elegant', 'beamlines', '*.lte'))
 
 opticalFileList = glob.glob(
-        os.path.join(os.getcwd(), 'external', 'elegant', 'optics', '*.rad'))
+        os.path.join(os.getcwd(), 'deprecated', 'laser_transport', '*.rad'))
 
 fileLists = [particleFileList, opticalFileList]
 fileHandlers = [ele, opt]
