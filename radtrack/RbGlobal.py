@@ -46,7 +46,15 @@ class RbGlobal(QtGui.QMainWindow):
             os.makedirs(self.configDirectory)
         except OSError:
             pass
-        self.readRecentFiles()
+
+        # Read recent files and projects
+        self.recentFile = os.path.join(self.configDirectory, 'recent')
+        try:
+            with open(self.recentFile) as f:
+                for line in f:
+                    self.addToRecentMenu(line.strip())
+        except IOError: # self.recentFile doesn't exist
+            return
 
         session = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         self.sessionDirectory = os.path.join(os.path.expanduser('~'), 'RadTrack', session)
@@ -166,51 +174,27 @@ class RbGlobal(QtGui.QMainWindow):
     def setTitleBar(self, text):
         self.setWindowTitle(_translate("globalgu", text, None))
 
-    def readRecentFiles(self):
-        self.recentFile = os.path.join(self.configDirectory, 'recent')
-
-        self.recentProjectHeader = '### Recent Projects ###'
-        self.recentImportHeader = '### Recent Imports ###'
-
-        self.recentProjects = []
-        self.recentImports = []
-
-        addToList = None
-        try:
-            with open(self.recentFile) as f:
-                for line in f:
-                    line = line.strip()
-                    if line == self.recentProjectHeader:
-                        addToList = self.recentProjects
-                    elif line == self.recentImportHeader:
-                        addToList = self.recentImports
-                    elif line:
-                        addToList.append(line)
-        except IOError: # self.recentFile doesn't exist
+    def addToRecentMenu(self, name):
+        if not name:
             return
 
-        for thing in self.recentProjects + self.recentImports:
-            self.addToRecentMenu(thing)
+        menuSelect = QtGui.QAction(os.path.basename(name), self)
+        menuSelect.setObjectName(name)
 
-    def addToRecentMenu(self, name):
         if os.path.isdir(name):
-            try:
-                self.recentProjects.remove(name)
-            except ValueError:
-                pass
-            self.recentProjects.insert(0, name)
-            menuSelect = QtGui.QAction(os.path.basename(name), self)
+            menu = self.ui.menuRecent_Projects
             menuSelect.triggered.connect(lambda ignore, f = name : self.openProject(f))
-            self.ui.menuRecent_Projects.addAction(menuSelect)
-        else:
-            try:
-                self.recentImports.remove(name)
-            except ValueError:
-                pass
-            self.recentImports.insert(0, name)
-            menuSelect = QtGui.QAction(os.path.basename(name), self)
+        elif os.path.isfile(name):
+            menu = self.ui.menuRecent_Files
             menuSelect.triggered.connect(lambda ignore, f = name : self.importFile(f))
-            self.ui.menuRecent_Files.addAction(menuSelect)
+        else:
+            return
+
+        oldList = menu.actions()
+        menu.clear()
+        menu.addAction(menuSelect)
+        for action in [a for a in oldList if a.objectName() != name]:
+            menu.addAction(action)
 
     def togglesrw(self):
         self.stackwidget.setCurrentIndex(int(self.srw_particle.isChecked()))
@@ -262,7 +246,6 @@ class RbGlobal(QtGui.QMainWindow):
             self.checkMenus()
 
     def importFile(self, openFile = None):
-        print openFile
         if not openFile:
             openFile = QtGui.QFileDialog.getOpenFileName(self, 'Open file', self.lastUsedDirectory,
                     "All Files (*.*);;" +
@@ -272,7 +255,7 @@ class RbGlobal(QtGui.QMainWindow):
                     "SRW (*.srw)")
             if not openFile:
                 return
-            self.lastUsedDirectory = os.path.dirname(openFile)
+        self.lastUsedDirectory = os.path.dirname(openFile)
 
         ext = os.path.splitext(openFile)[-1].lower().lstrip(".") # lowercased extension after '.'
 
@@ -371,12 +354,7 @@ class RbGlobal(QtGui.QMainWindow):
 
         self.saveProject()
 
-        try:
-            self.recentProjects.remove(self.sessionDirectory)
-        except ValueError:
-            pass
-        self.recentProjects.insert(0, self.sessionDirectory)
-        self.reloadRecent()
+        self.addToRecentMenu(self.sessionDirectory)
 
         self.sessionDirectory = directory
         self.lastUsedDirectory = directory
@@ -453,17 +431,12 @@ class RbGlobal(QtGui.QMainWindow):
         self.saveProject()
         event.accept()
         QtGui.QMainWindow.closeEvent(self, event)
-        try:
-            self.recentProjects.remove(self.sessionDirectory)
-        except ValueError: # self.sessionDirectory not in list
-            pass
-        self.recentProjects.insert(0, self.sessionDirectory)
+        self.addToRecentMenu(self.sessionDirectory)
 
         with open(self.recentFile, 'w') as f:
-            f.write(self.recentProjectHeader + '\n')
-            f.write('\n'.join(self.recentProjects))
-            f.write('\n' + self.recentImportHeader + '\n')
-            f.write('\n'.join(self.recentImports))
+            f.write('\n'.join([action.objectName() for action in self.ui.menuRecent_Projects.actions()]))
+            f.write('\n')
+            f.write('\n'.join([action.objectName() for action in self.ui.menuRecent_Files.actions()]))
 
 
 @argh.arg('project_file', nargs='?', default=None, help='project file to open at startup')
