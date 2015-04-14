@@ -397,12 +397,11 @@ class RbEle(QtGui.QWidget):
         self.output_file = open(
             self.session_file(file_name=self.OUTPUT_FILE_NAME), 'w')
         self._enable_status_and_results()
-        # The replace() command changes backslashes to forward slashes
+        # The replace() command escapes backslashes
         # since Elegant interprets \x as a special character.
-        elegant_input_file = self._write_simulation_input_files(momentum).replace('\\', '/')
+        elegant_input_file = self._write_simulation_input_files(momentum).replace('\\', '\\\\')
         self.append_status('Running simulation ...\n')
-        self.process.start(
-            'elegant', [elegant_input_file])
+        self.process.start('elegant', [elegant_input_file])
 
     def _sdds_description(self, file_name):
         """Return the sdds file description if present"""
