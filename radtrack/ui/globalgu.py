@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'globalgu.ui'
 #
-# Created: Mon Apr 13 12:23:01 2015
+# Created: Tue Apr 14 00:00:11 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -50,6 +50,12 @@ class Ui_globalgu(object):
         self.menuTabs.setObjectName(_fromUtf8("menuTabs"))
         self.menuNew_Tab = QtGui.QMenu(self.menuTabs)
         self.menuNew_Tab.setObjectName(_fromUtf8("menuNew_Tab"))
+        self.menuExamples = QtGui.QMenu(self.menubar)
+        self.menuExamples.setObjectName(_fromUtf8("menuExamples"))
+        self.menuLoad_Example_Project = QtGui.QMenu(self.menuExamples)
+        self.menuLoad_Example_Project.setObjectName(_fromUtf8("menuLoad_Example_Project"))
+        self.menuImport_Example_File = QtGui.QMenu(self.menuExamples)
+        self.menuImport_Example_File.setObjectName(_fromUtf8("menuImport_Example_File"))
         globalgu.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(globalgu)
         self.statusbar.setObjectName(_fromUtf8("statusbar"))
@@ -97,9 +103,12 @@ class Ui_globalgu(object):
         self.menuTabs.addAction(self.actionReopen_Closed_Tab)
         self.menuTabs.addSeparator()
         self.menuTabs.addAction(self.actionRename_Current_Tab)
+        self.menuExamples.addAction(self.menuLoad_Example_Project.menuAction())
+        self.menuExamples.addAction(self.menuImport_Example_File.menuAction())
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
         self.menubar.addAction(self.menuTabs.menuAction())
+        self.menubar.addAction(self.menuExamples.menuAction())
 
         self.retranslateUi(globalgu)
         QtCore.QMetaObject.connectSlotsByName(globalgu)
@@ -112,6 +121,9 @@ class Ui_globalgu(object):
         self.menuEdit.setTitle(_translate("globalgu", "Edit", None))
         self.menuTabs.setTitle(_translate("globalgu", "Tabs", None))
         self.menuNew_Tab.setTitle(_translate("globalgu", "New Tab", None))
+        self.menuExamples.setTitle(_translate("globalgu", "Examples", None))
+        self.menuLoad_Example_Project.setTitle(_translate("globalgu", "Load Example Project", None))
+        self.menuImport_Example_File.setTitle(_translate("globalgu", "Import Example File", None))
         self.actionOpen.setText(_translate("globalgu", "Open", None))
         self.actionUndo.setText(_translate("globalgu", "Undo", None))
         self.actionRedo.setText(_translate("globalgu", "Redo", None))

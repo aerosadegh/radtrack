@@ -78,9 +78,27 @@
     <addaction name="separator"/>
     <addaction name="actionRename_Current_Tab"/>
    </widget>
+   <widget class="QMenu" name="menuExamples">
+    <property name="title">
+     <string>Examples</string>
+    </property>
+    <widget class="QMenu" name="menuLoad_Example_Project">
+     <property name="title">
+      <string>Load Example Project</string>
+     </property>
+    </widget>
+    <widget class="QMenu" name="menuImport_Example_File">
+     <property name="title">
+      <string>Import Example File</string>
+     </property>
+    </widget>
+    <addaction name="menuLoad_Example_Project"/>
+    <addaction name="menuImport_Example_File"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuTabs"/>
+   <addaction name="menuExamples"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionOpen">

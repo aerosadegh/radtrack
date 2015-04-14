@@ -36,15 +36,26 @@ class RbGlobal(QtGui.QMainWindow):
         default_font = QtGui.QFont("Times", 10)
         QtGui.QApplication.setFont(default_font)
 
-        self.lastUsedDirectory = os.path.expanduser('~').replace('\\', '/')
+        self.lastUsedDirectory = os.path.expanduser('~').replace('\\', '\\\\')
+
+        if sys.platform == 'win32':
+            self.configDirectory = os.path.join(os.getenv('APPDATA'), 'RadTrack')
+        else:
+            self.configDirectory = os.path.join(os.path.expanduser('~'), '.radtrack')
+        try:
+            os.makedirs(self.configDirectory)
+        except OSError:
+            pass
+        self.readRecentFiles()
 
         session = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         self.sessionDirectory = os.path.join(os.path.expanduser('~'), 'RadTrack', session)
-        if not os.path.exists(self.sessionDirectory):
+        try:
             os.makedirs(self.sessionDirectory)
-        self.setTitleBar("RadTrack - " + self.sessionDirectory)
+        except OSError:
+            pass
 
-        self.recentfile = None
+        self.setTitleBar("RadTrack - " + self.sessionDirectory)
 
         self.tabWidget = QtGui.QTabWidget()
         self.ui.verticalLayout.addWidget(self.tabWidget)
@@ -80,14 +91,6 @@ class RbGlobal(QtGui.QMainWindow):
             scrollArea = QtGui.QScrollArea(self)
             scrollArea.setWidget(RbGenesis2(self))
             self.tabWidget.addTab(scrollArea, self.tr('Genesis'))
-
-            '''scrollArea = QtGui.QScrollArea(self)
-            scrollArea.setWidget(rbsrwsingle(self))
-            self.tabWidget.addTab(scrollArea, self.tr('SRW-single-electron'))
-
-            scrollArea = QtGui.QScrollArea(self)
-            scrollArea.setWidget(rbsrwmulti(self))
-            self.tabWidget.addTab(scrollArea, self.tr('SRW-Multi-electron'))'''
 
             self.tabWidget.addTab(RbGenesisTransport(self), self.tr('Genesis Transport'))
             
@@ -163,17 +166,56 @@ class RbGlobal(QtGui.QMainWindow):
     def setTitleBar(self, text):
         self.setWindowTitle(_translate("globalgu", text, None))
 
+    def readRecentFiles(self):
+        self.recentFile = os.path.join(self.configDirectory, 'recent')
+
+        self.recentProjectHeader = '### Recent Projects ###'
+        self.recentImportHeader = '### Recent Imports ###'
+
+        self.recentProjects = []
+        self.recentImports = []
+
+        addToList = None
+        try:
+            with open(self.recentFile) as f:
+                for line in f:
+                    line = line.strip()
+                    if line == self.recentProjectHeader:
+                        addToList = self.recentProjects
+                    elif line == self.recentImportHeader:
+                        addToList = self.recentImports
+                    elif line:
+                        addToList.append(line)
+        except IOError: # self.recentFile doesn't exist
+            return
+
+        for thing in self.recentProjects + self.recentImports:
+            self.addToRecentMenu(thing)
+
+    def addToRecentMenu(self, name):
+        if os.path.isdir(name):
+            try:
+                self.recentProjects.remove(name)
+            except ValueError:
+                pass
+            self.recentProjects.insert(0, name)
+            menuSelect = QtGui.QAction(os.path.basename(name), self)
+            menuSelect.triggered.connect(lambda ignore, f = name : self.openProject(f))
+            self.ui.menuRecent_Projects.addAction(menuSelect)
+        else:
+            try:
+                self.recentImports.remove(name)
+            except ValueError:
+                pass
+            self.recentImports.insert(0, name)
+            menuSelect = QtGui.QAction(os.path.basename(name), self)
+            menuSelect.triggered.connect(lambda ignore, f = name : self.importFile(f))
+            self.ui.menuRecent_Files.addAction(menuSelect)
+
     def togglesrw(self):
         self.stackwidget.setCurrentIndex(int(self.srw_particle.isChecked()))
         print self.stackwidget.currentIndex()
         print int(self.srw_particle.isChecked())
-
-    def populateRecentFile(self):
-        action = QtGui.QAction(self)
-        action.setObjectName(self.recentfile)
-        action.setText(self.recentfile)
-        #self.ui.menuRecent_Files.addAction(action)
-        #action.triggered.connect(self.importFile(action.text()))
 
     def newTab(self, newTabType):
         newTitle = self.uniqueTabTitle(self.tabTypeToOriginalName[newTabType])
@@ -220,6 +262,7 @@ class RbGlobal(QtGui.QMainWindow):
             self.checkMenus()
 
     def importFile(self, openFile = None):
+        print openFile
         if not openFile:
             openFile = QtGui.QFileDialog.getOpenFileName(self, 'Open file', self.lastUsedDirectory,
                     "All Files (*.*);;" +
@@ -270,6 +313,7 @@ class RbGlobal(QtGui.QMainWindow):
                     destination = getRealWidget(self.tabWidget.widget(openWidgetIndexes[destinationIndex]))
                     destination.importFile(openFile)
                     self.tabWidget.setCurrentWidget(destination)
+                    self.addToRecentMenu(openFile)
                     return
             except IndexError: # Cancel was pressed
                 return
@@ -277,6 +321,7 @@ class RbGlobal(QtGui.QMainWindow):
         # Make a new tab
         self.newTab(destinationType)
         getRealWidget(self.tabWidget.currentWidget()).importFile(openFile)
+        self.addToRecentMenu(openFile)
 
     def setProjectLocation(self):
         directory = QtGui.QFileDialog.getExistingDirectory(self,
@@ -326,13 +371,20 @@ class RbGlobal(QtGui.QMainWindow):
 
         self.saveProject()
 
+        try:
+            self.recentProjects.remove(self.sessionDirectory)
+        except ValueError:
+            pass
+        self.recentProjects.insert(0, self.sessionDirectory)
+        self.reloadRecent()
+
         self.sessionDirectory = directory
         self.lastUsedDirectory = directory
 
         # Load tab data
         self.tabWidget.clear()
         for i, subFileName in enumerate(sorted( \
-                [os.path.join(self.sessionDirectory, _) for _ in os.listdir(self.sessionDirectory) if _.startswith(self.tabPrefix)])):
+                [os.path.join(self.sessionDirectory, fn) for fn in os.listdir(self.sessionDirectory) if fn.startswith(self.tabPrefix)])):
             _, _, originalTitle, tabName = os.path.basename(subFileName).split('_')
             tabName = tabName.rsplit(".", 1)[0]
             self.newTab(self.originalNameToTabType[originalTitle])
@@ -340,6 +392,7 @@ class RbGlobal(QtGui.QMainWindow):
             self.tabWidget.setTabText(i, tabName)
 
         self.setTitleBar('RadTrack - ' + self.sessionDirectory)
+
 
     def saveProject(self):
         # Delete previous tab data in self.sessionDirectory
@@ -372,7 +425,6 @@ class RbGlobal(QtGui.QMainWindow):
 
     def exportCurrentTab(self):
         getRealWidget(self.tabWidget.currentWidget()).exportToFile()
-        self.populateRecentFile()
 
     def allWidgets(self):
         return [getRealWidget(self.tabWidget.widget(i)) for i in range(self.tabWidget.count())]
@@ -401,6 +453,17 @@ class RbGlobal(QtGui.QMainWindow):
         self.saveProject()
         event.accept()
         QtGui.QMainWindow.closeEvent(self, event)
+        try:
+            self.recentProjects.remove(self.sessionDirectory)
+        except ValueError: # self.sessionDirectory not in list
+            pass
+        self.recentProjects.insert(0, self.sessionDirectory)
+
+        with open(self.recentFile, 'w') as f:
+            f.write(self.recentProjectHeader + '\n')
+            f.write('\n'.join(self.recentProjects))
+            f.write('\n' + self.recentImportHeader + '\n')
+            f.write('\n'.join(self.recentImports))
 
 
 @argh.arg('project_file', nargs='?', default=None, help='project file to open at startup')
