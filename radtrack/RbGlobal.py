@@ -435,9 +435,9 @@ class RbGlobal(QtGui.QMainWindow):
         self.addToRecentMenu(self.sessionDirectory)
 
         with open(self.recentFile, 'w') as f:
-            f.write('\n'.join([action.objectName() for action in self.ui.menuRecent_Projects.actions()]))
-            f.write('\n')
-            f.write('\n'.join([action.objectName() for action in self.ui.menuRecent_Files.actions()]))
+            f.write('\n'.join([action.objectName() for action in \
+                    self.ui.menuRecent_Projects.actions() + \
+                    self.ui.menuRecent_Files.actions()]))
 
 
 @argh.arg('project_file', nargs='?', default=None, help='project file to open at startup')
