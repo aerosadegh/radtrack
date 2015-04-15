@@ -198,9 +198,9 @@ class rbsrw(QtGui.QWidget):
         
     def WfrSetUpE(self,wfrE):
         #wfrE = SRWLWfr() this is the waveform class
-        Nenergy = int(self.ui.tableWidget.item(0,0).text())#float?
-        Nx = int(self.ui.tableWidget.item(1,0).text())
-        Ny = int(self.ui.tableWidget.item(2,0).text())
+        Nenergy = int(float(self.ui.tableWidget.item(0,0).text()))#float?
+        Nx = int(float(self.ui.tableWidget.item(1,0).text()))
+        Ny = int(float(self.ui.tableWidget.item(2,0).text()))
         wfrE.allocate(Nenergy,Nx,Ny)
         wfrE.mesh.zStart = float(self.ui.tableWidget.item(3,0).text())
         wfrE.mesh.eStart = float(self.ui.tableWidget.item(4,0).text())

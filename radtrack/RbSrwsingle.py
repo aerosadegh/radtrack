@@ -6,13 +6,16 @@ Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 import sys, os
 from numpy import sqrt
 from PyQt4 import QtGui, QtCore
-from radtrack.ui.newsrw import Ui_Form as Ui_newsrw
-from radtrack.ui.undulatorforthinsrw import Ui_Dialog as und_dlg
-from radtrack.ui.beamforthinsrw import Ui_Dialog as beam_dlg
-from radtrack.ui.precisionofsrw import Ui_Dialog as prec_dlg
-from radtrack.srw.uti_plot import *
-from radtrack.srw.AnalyticCalc import *
-from radtrack.srw.srwlib import *
+from ui.newsrw import Ui_Form as Ui_newsrw
+from ui.undulatorforsrw import Ui_Dialog as und_dlg
+from ui.beamforsrw import Ui_Dialog as beam_dlg
+from ui.precisionofsrw import Ui_Dialog as prec_dlg
+from srw.uti_plot import *
+from srw.AnalyticCalc import *
+from srw.srwlib import *
+
+#global CritWvsU
+#CritWvsU=2
 
 class rbsrw(QtGui.QWidget):
     def __init__(self, parent = None):
@@ -45,37 +48,51 @@ class rbsrw(QtGui.QWidget):
         
         
     def AnalyticA(self):
-        n_har=1 #harmB.n harmonic number from SRWTestCases(2)\UndC
-        (Kx,Ky,lam_rn,e_phn,w_or_id)=IDWaveLengthPhotonEnergy(n_har,self.up.undPer,self.up.Bx,self.up.By,self.beam.partStatMom1.gamma)
+        (Kx,Ky,lam_rn,e_phn)=IDWaveLengthPhotonEnergy(self.up.undPer,self.up.Bx,self.up.By,self.beam.partStatMom1.gamma)
         #Outputs: (UP.Kx=0.934*UP.By*UP.undPer, UP.K, RAD.ephn, UP.WorU)=
         #1. derived Kx from UP.By and UP.undPer
         #2. Introduced new class RAD.ephn = radiation class, variable phot energy of nth harmonics
         #3. UP.WorU=flag indicating wiggler or undulator situation
         #Inputs: (harmB.n, UP.undPer, UP.Bx, UP.By, self.beam.partStatMom1.gamma)
-        stri='# K vertical:'+'{:.3f}'.format(Kx)+'\n'+\
-        '# K horizontal:'+'{:.3f}'.format(Ky)+'\n'+\
-        '# Wavelength, m         Photon energy, eV'+'\n'+\
-        '1st harmonic '+'{:.3e}'.format(lam_rn)+' '+'{:.3e}'.format(e_phn)+'\n'+\
-        '3rd harmonic '+'{:.3e}'.format(lam_rn/3.0)+' '+'{:.3e}'.format(e_phn*3.0)+'\n'+\
-        '5th harmonic '+'{:.3e}'.format(lam_rn/5.0)+' '+'{:.3e}'.format(e_phn*5.0)+'\n' 
+        stri='# Ky:'+'{:.3f}'.format(Kx)+\
+        ' # Kx:'+'{:.3f}'.format(Ky)+'\n'+\
+        '# Wavelength, m           Phot. energy, eV'+'\n'+\
+        '1st harmonic '+'{:.3e}'.format(lam_rn)+' '+'{:.3f}'.format(e_phn)+'\n'+\
+        '3rd harmonic '+'{:.3e}'.format(lam_rn/3.0)+' '+'{:.3f}'.format(e_phn*3.0)+'\n'+\
+        '5th harmonic '+'{:.3e}'.format(lam_rn/5.0)+' '+'{:.3f}'.format(e_phn*5.0)+'\n' 
         
-        (E_c,w_or_id)=CriticalEnergyWiggler(self.up.Bx,self.beam.partStatMom1.gamma,Kx)
+        E_c=CriticalEnergyWiggler(self.up.By,self.beam.partStatMom1.gamma)
         #Outputs: (RAD.Ecrit,UPWorU) where RAD.Ecrit is critical energy of Wiggler Radiation
         #Inputs: (UP.Bx, self.beam.partStatMom1.gamma,UP.Kx)
-        stra=stri+'# If wiggler: critical energy:'+'{:.3e}'.format(E_c)+', eV'+'\n'
+        stra=stri+'# Critical energy:'+'{:.3e}'.format(E_c)+', eV'+'\n'+\
+        '-----------------------------------'+'\n'
         
-        (P_W, L_id)=RadiatedPowerPlanarWiggler(self.up.undPer,self.up.Bx,self.up.numPer,self.beam.partStatMom1.gamma,self.beam.Iavg)
+        (P_W, L_id)=RadiatedPowerPlanarWiggler(self.up.undPer,self.up.By,self.up.numPer,self.beam.partStatMom1.gamma,self.beam.Iavg)
         #Outputs: (RAD.PowW,UP.L) where RAD.PowW is radiated power of Wiggler Radiation, UP.L=length of ID
         #Inputs: (UP.undPer,UP.Bx,UP.numPer,self.beam.partStatMom1.gamma,self.beam.Iavg) standart SRW class variables
-        strb=stra+'# Length of ID:'+'{:.3e}'.format(L_id)+', m'+'\n' + \
+        #RadiatedPowerPlanarWiggler(lam_u,Bx,N_u,Gam,I_b):
+        
+        (RadSpotSize,RadSpotDivergence)=UndulatorSourceSizeDivergence(lam_rn,L_id)
+        stre=stra+'# Rad spot size: '+'{:.3e}'.format(RadSpotSize)+', m'+'\n'
+        strf=stre+'# Rad divergence: '+'{:.3e}'.format(RadSpotDivergence)+', rad'+'\n'+\
+        '-----------------------------------'+'\n'
+        
+        strb=strf+'# Length of ID:'+'{:.3f}'.format(L_id)+', m'+'\n' + \
         '# Radiated power:'+'{:.3e}'.format(P_W)+', W'+'\n'
         
-        P_Wdc=CentralPowerDensityPlanarWiggler(self.up.Bx,self.up.numPer,self.beam.partStatMom1.gamma,self.beam.Iavg)
+        P_Wdc=CentralPowerDensityPlanarWiggler(self.up.By,self.up.numPer,self.beam.partStatMom1.gamma,self.beam.Iavg)
         #Outputs: (RAD.PowCPD) where RAD.PowCPD is radiated central cone power density of Wiggler Radiation
         #Inputs: (UP.undPer,UP.Bx,UP.numPer,self.beam.partStatMom1.gamma,self.beam.Iavg) standart SRW class variables
         strc=strb+'# Central Power Density: '+'{:.3e}'.format(P_Wdc)+', W/mrad2'+'\n'
         
-        self.ui.analytic.setText(strc)
+        SpectralFluxValue=SpectralFLux(self.up.numPer,self.beam.partStatMom1.gamma,1,self.beam.Iavg,Kx)
+        strd=strc+'# Spectral flux: '+'{:.3e}'.format(SpectralFluxValue)+', phot/(sec mrad 0.1% BW)'+'\n'
+        
+        RadBrightness=SpectralCenBrightness(self.up.numPer,self.beam.partStatMom1.gamma,self.beam.Iavg)
+        strw=strd+'# Spectral Central Brightness: '+'{:.3e}'.format(RadBrightness)+', phot/(sec mrad2 0.1% BW)'+'\n'+\
+        '-----------------------------------'+'\n'
+        
+        self.ui.analytic.setText(strw)
         
     def GetUndParams(self, dialog):
         self.up.numPer = float(dialog.ui.numper.text())
@@ -89,6 +106,7 @@ class rbsrw(QtGui.QWidget):
         self.up.xcID = float(dialog.ui.xcid.text())
         self.up.ycID = float(dialog.ui.ycid.text())
         self.up.zcID = float(dialog.ui.zcid.text())
+        self.up.n = int(dialog.ui.n.text())
         
     def ShowUndParams(self, dialog):
         dialog.ui.numper.setText(str(self.up.numPer))
@@ -102,6 +120,7 @@ class rbsrw(QtGui.QWidget):
         dialog.ui.xcid.setText(str(self.up.xcID))
         dialog.ui.ycid.setText(str(self.up.ycID))
         dialog.ui.zcid.setText(str(self.up.zcID))
+        dialog.ui.n.setText(str(self.up.n))
         
         
     def GetBeamParams(self,dialog):
@@ -113,7 +132,26 @@ class rbsrw(QtGui.QWidget):
         self.beam.partStatMom1.xp = float(dialog.ui.partstatmom1xp.text())
         self.beam.partStatMom1.yp = float(dialog.ui.partstatmom1yp.text()) 
         self.beam.partStatMom1.gamma = float(dialog.ui.partstatmom1gamma.text())
-        
+        '''
+        sigEperE = 0.00089 #relative RMS energy spread
+        sigX = 33.33e-06 #horizontal RMS size of e-beam [m]
+        sigXp = 16.5e-06 #horizontal RMS angular divergence [rad]
+        sigY = 2.912e-06 #vertical RMS size of e-beam [m]
+        sigYp = 2.7472e-06 #vertical RMS angular divergence [rad]
+        '''
+        sigEperE = float(dialog.ui.sige.text())
+        sigX = float(dialog.ui.sigx.text())
+        sigXp = float(dialog.ui.sigxp.text())
+        sigY = float(dialog.ui.sigy.text())
+        sigYp = float(dialog.ui.sigyp.text())
+        #2nd order stat. moments:
+        self.beam.arStatMom2[0] = sigX*sigX #<(x-<x>)^2> 
+        self.beam.arStatMom2[1] = 0 #<(x-<x>)(x'-<x'>)>
+        self.beam.arStatMom2[2] = sigXp*sigXp #<(x'-<x'>)^2> 
+        self.beam.arStatMom2[3] = sigY*sigY #<(y-<y>)^2>
+        self.beam.arStatMom2[4] = 0 #<(y-<y>)(y'-<y'>)>
+        self.beam.arStatMom2[5] = sigYp*sigYp #<(y'-<y'>)^2>
+        self.beam.arStatMom2[10] = sigEperE*sigEperE #<(E-<E>)^2>/<E>^2
         
     def ShowBeamParams(self, dialog):
         dialog.ui.iavg.setText(str(self.beam.Iavg))
@@ -123,7 +161,11 @@ class rbsrw(QtGui.QWidget):
         dialog.ui.partstatmom1xp.setText(str(self.beam.partStatMom1.xp))
         dialog.ui.partstatmom1yp.setText(str(self.beam.partStatMom1.yp))
         dialog.ui.partstatmom1gamma.setText(str(self.beam.partStatMom1.gamma))
-        
+        dialog.ui.sige.setText(str(sqrt(self.beam.arStatMom2[10])))
+        dialog.ui.sigx.setText(str(sqrt(self.beam.arStatMom2[0])))
+        dialog.ui.sigy.setText(str(sqrt(self.beam.arStatMom2[3])))
+        dialog.ui.sigxp.setText(str(sqrt(self.beam.arStatMom2[2])))
+        dialog.ui.sigyp.setText(str(sqrt(self.beam.arStatMom2[5])))
         
     def WfrSetUpE(self,wfrE):
         #wfrE = SRWLWfr() this is the waveform class
@@ -206,7 +248,8 @@ class rbsrw(QtGui.QWidget):
             self.ui.status.setText(str1+str2+str3)
             #time.sleep(1)
             self.ui.status.repaint()
-            uti_plot1d(arI1, [wfrE.mesh.eStart, wfrE.mesh.eFin, wfrE.mesh.ne],['label','label','label'])
+            uti_plot1d(arI1, [wfrE.mesh.eStart, wfrE.mesh.eFin, wfrE.mesh.ne],
+            ['Photon energy, eV','Spectral intensity, ph/s/0.1%BW','Intensity vs photon energy'])
 
         elif DependArg == 1:
             str1='* Performing Electric Field (intensity vs x-coordinate) calculation ... \n \n'
@@ -220,7 +263,8 @@ class rbsrw(QtGui.QWidget):
             str3='* Plotting the results ...\n'
             self.ui.status.setText(str1+str2+str3)
             self.ui.status.repaint()
-            uti_plot1d(arI1, [wfrXY.mesh.xStart, wfrXY.mesh.xFin, wfrXY.mesh.nx],['label','label','label'])
+            uti_plot1d(arI1, [wfrXY.mesh.xStart, wfrXY.mesh.xFin, wfrXY.mesh.nx],
+            ['Horizontal Position [m]','Spectral intensity, ph/s/0.1%BW','Intensity vs x-coordinate'])
 
         elif DependArg == 2:
             str1='* Performing Electric Field (intensity vs y-coordinate) calculation ... \n \n'
@@ -235,7 +279,8 @@ class rbsrw(QtGui.QWidget):
             str3='* Plotting the results ...\n'
             self.ui.status.setText(str1+str2+str3)
             self.ui.status.repaint()
-            uti_plot1d(arI1, [wfrXY.mesh.yStart, wfrXY.mesh.yFin, wfrXY.mesh.ny],['label','label','label'])
+            uti_plot1d(arI1, [wfrXY.mesh.yStart, wfrXY.mesh.yFin, wfrXY.mesh.ny],
+            ['Vertical Position [m]','Spectral intensity, ph/s/0.1%BW','Intensity vs y-coordinate'])
        
         elif DependArg == 3:
             str1='* Performing Electric Field (intensity vs x- and y-coordinate) calculation ... \n \n'
@@ -250,9 +295,9 @@ class rbsrw(QtGui.QWidget):
             str3='* Plotting the results ...\n'
             self.ui.status.setText(str1+str2+str3)
             self.ui.status.repaint()
-            uti_plot2d(arI1, [1000*wfrXY.mesh.xStart, 1000*wfrXY.mesh.xFin, wfrXY.mesh.nx], 
-            [1000*wfrXY.mesh.yStart, 1000*wfrXY.mesh.yFin, wfrXY.mesh.ny], 
-            ['Horizontal Position [mm]', 'Vertical Position [mm]', 'Intensity at ' + str(wfrXY.mesh.eStart) + ' eV'])
+            uti_plot2d(arI1, [1*wfrXY.mesh.xStart, 1*wfrXY.mesh.xFin, wfrXY.mesh.nx], 
+            [1*wfrXY.mesh.yStart, 1*wfrXY.mesh.yFin, wfrXY.mesh.ny], 
+            ['Horizontal Position [m]', 'Vertical Position [m]', 'Intensity at ' + str(wfrXY.mesh.eStart) + ' eV'])
 
         elif DependArg == 4:
             str1='* Performing Electric Field (intensity vs energy- and x-coordinate) calculation ... \n \n '
@@ -267,9 +312,9 @@ class rbsrw(QtGui.QWidget):
             str3='* Plotting the results ...\n'
             self.ui.status.setText(str1+str2+str3)
             self.ui.status.repaint()
-            uti_plot2d(arI1, [1000*wfrXY.mesh.eStart, 1000*wfrXY.mesh.eFin, wfrXY.mesh.ne], 
-            [1000*wfrXY.mesh.xStart, 1000*wfrXY.mesh.xFin, wfrXY.mesh.nx], 
-            ['Energy [eV]', 'Horizontal Position [mm]', 'Intensity at ' + str(wfrXY.mesh.eStart) + ' eV'])
+            uti_plot2d(arI1, [1*wfrXY.mesh.eStart, 1*wfrXY.mesh.eFin, wfrXY.mesh.ne], 
+            [1*wfrXY.mesh.xStart, 1*wfrXY.mesh.xFin, wfrXY.mesh.nx], 
+            ['Energy [eV]', 'Horizontal Position [m]', 'Intensity integrated from ' + str(wfrXY.mesh.yStart) + ' to ' + str(wfrXY.mesh.yFin) + ' ,m in y-coordinate'])
 
         elif DependArg == 5:
             str1='* Performing Electric Field (intensity vs energy- and y-coordinate) calculation ... \n \n'
@@ -284,22 +329,21 @@ class rbsrw(QtGui.QWidget):
             str3='* Plotting the results ...\n'
             self.ui.status.setText(str1+str2+str3)
             self.ui.status.repaint()
-            uti_plot2d(arI1, [1000*wfrXY.mesh.eStart, 1000*wfrXY.mesh.eFin, wfrXY.mesh.ne], 
-            [1000*wfrXY.mesh.yStart, 1000*wfrXY.mesh.yFin, wfrXY.mesh.ny], 
-            ['Energy [eV]', 'Vertical Position [mm]', 'Intensity at ' + str(wfrXY.mesh.eStart) + ' eV'])
-
+            uti_plot2d(arI1, [1*wfrXY.mesh.eStart, 1*wfrXY.mesh.eFin, wfrXY.mesh.ne], 
+            [1*wfrXY.mesh.yStart, 1*wfrXY.mesh.yFin, wfrXY.mesh.ny], 
+            ['Energy [eV]', 'Vertical Position [m]', 'Intensity integrated from ' + str(wfrXY.mesh.xStart) + ' to ' + str(wfrXY.mesh.xFin)+ ' ,m in x-coordinate'])
         else:
             print 'Error'
     
         uti_plot_show()
           
     def thin(self,i):
-        thintable = [[10000,1,1,20,10,3000,0,0,0,0],
-                     [1,100,3,20,685,685,0,0,0,0],
-                     [1,3,100,20,685,685,0,0,0,0],
-                     [1,100,100,20,685,685,0,0,0,0],
-                     [1000,100,3,20,10,3000,0,0,0,0],
-                     [1000,3,100,20,10,3000,0,0,0,0],
+        thintable = [[10000,1,1,20,10,3000,0,0,0,0], 
+                     [1,100,3,20,395,395,-0.0025,0,0.0025,0],
+                     [1,3,100,20,395,395,0,-0.0025,0,0.0025],
+                     [1,100,100,20,395,395,-0.0025,-0.0025,0.0025,0.0025],
+                     [1000,100,3,20,10,3000,-0.0025,-0.0025,0.0025,0.0025],
+                     [1000,3,100,20,10,3000,-0.0025,-0.0025,0.0025,0.0025],
                      [1000,30,30,20,10,3000,0,0,0,0]]
                      
         for n,x in enumerate(thintable[i]):
@@ -364,6 +408,7 @@ class DialogU(QtGui.QDialog):
         self.ui.xcid.setText('0')       #Misaligment. Horizontal Coordinate of Undulator Center 
         self.ui.ycid.setText('0')       #Misaligment. Vertical Coordinate of Undulator Center 
         self.ui.zcid.setText('0')       #Misaligment. Longitudinal Coordinate of Undulator Center
+        self.ui.n.setText('1')
                 
 class DialogB(QtGui.QDialog):
     def __init__(self, parent=None):
@@ -377,7 +422,12 @@ class DialogB(QtGui.QDialog):
         self.ui.partstatmom1xp.setText('0') #self.beam.partStatMom1.xp, initial x angle offset
         self.ui.partstatmom1yp.setText('0') #self.beam.partStatMom1.yp, initial y angle offset
         self.ui.partstatmom1gamma.setText('5870.925') # electron beam relative energy, gamma
-
+        self.ui.sige.setText('0.00089')
+        self.ui.sigx.setText('33.33e-06')
+        self.ui.sigy.setText('2.912e-06')
+        self.ui.sigxp.setText('16.5e-06')
+        self.ui.sigyp.setText('2.7472e-06')
+        
 class DialogP(QtGui.QDialog):
     def __init__(self, parent=None):
         QtGui.QDialog.__init__(self,parent)
