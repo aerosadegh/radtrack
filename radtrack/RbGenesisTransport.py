@@ -10,7 +10,7 @@ class RbGenesisTransport(rbcbt.RbCbt):
 
 def main():
     app = QtGui.QApplication(sys.argv)
-    myapp = RbBunchTransport()
+    myapp = RbGenesisTransport()
     myapp.show()
     sys.exit(app.exec_())
 
