@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'globalgu.ui'
 #
-# Created: Tue Apr 14 00:00:11 2015
+# Created: Tue Apr 14 19:20:49 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -41,8 +41,10 @@ class Ui_globalgu(object):
         self.menuFile = QtGui.QMenu(self.menubar)
         self.menuFile.setObjectName(_fromUtf8("menuFile"))
         self.menuRecent_Projects = QtGui.QMenu(self.menuFile)
+        self.menuRecent_Projects.setEnabled(False)
         self.menuRecent_Projects.setObjectName(_fromUtf8("menuRecent_Projects"))
         self.menuRecent_Files = QtGui.QMenu(self.menuFile)
+        self.menuRecent_Files.setEnabled(False)
         self.menuRecent_Files.setObjectName(_fromUtf8("menuRecent_Files"))
         self.menuEdit = QtGui.QMenu(self.menubar)
         self.menuEdit.setObjectName(_fromUtf8("menuEdit"))

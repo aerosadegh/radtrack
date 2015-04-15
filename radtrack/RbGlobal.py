@@ -55,8 +55,6 @@ class RbGlobal(QtGui.QMainWindow):
                     self.addToRecentMenu(line.strip())
         except IOError: # self.recentFile doesn't exist
             pass
-        for menu in [self.ui.menuRecent_Projects, self.ui.menuRecent_Files]:
-            menu.setEnabled(len(menu.actions()) > 0)
 
         session = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         self.sessionDirectory = os.path.join(os.path.expanduser('~'), 'RadTrack', session)
