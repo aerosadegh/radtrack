@@ -286,26 +286,26 @@ class RbGlobal(QtGui.QMainWindow):
         # Check if a tab of this type is already open
         openWidgetIndexes = [i for i in range(self.tabWidget.count()) if type(getRealWidget(self.tabWidget.widget(i))) == destinationType]
         if openWidgetIndexes:
-            choices = [self.tabWidget.tabText(i) for i in openWidgetIndexes] + ['New Tab']
+            newTabLabel = 'New Tab'
+            choices = [self.tabWidget.tabText(i) for i in openWidgetIndexes] + [newTabLabel]
             box = QtGui.QMessageBox(QtGui.QMessageBox.Question, 'Choose Import Destination', 'Which tab should receive the data?')
             responses = [box.addButton(widgetType, QtGui.QMessageBox.ActionRole) for widgetType in choices] + [box.addButton(QtGui.QMessageBox.Cancel)]
 
             box.exec_()
             destinationIndex = responses.index(box.clickedButton())
             try:
-                if choices[destinationIndex] != 'New Tab': # Pre-existing tab
+                if choices[destinationIndex] == newTabLabel: # Make a new tab
+                    self.newTab(destinationType)
+                    getRealWidget(self.tabWidget.currentWidget()).importFile(openFile)
+                else: # Pre-existing tab
                     destination = getRealWidget(self.tabWidget.widget(openWidgetIndexes[destinationIndex]))
                     destination.importFile(openFile)
                     self.tabWidget.setCurrentWidget(destination)
-                    self.addToRecentMenu(openFile)
-                    return
+                self.addToRecentMenu(openFile)
+                shutil.copy2(openFile, self.sessionDirectory)
             except IndexError: # Cancel was pressed
-                return
+                pass
 
-        # Make a new tab
-        self.newTab(destinationType)
-        getRealWidget(self.tabWidget.currentWidget()).importFile(openFile)
-        self.addToRecentMenu(openFile)
 
     def setProjectLocation(self):
         directory = QtGui.QFileDialog.getExistingDirectory(self,
