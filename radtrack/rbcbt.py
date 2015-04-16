@@ -376,7 +376,7 @@ class RbCbt(QtGui.QWidget):
 
     def elementPreview(self):
         item = self.ui.treeWidget.currentItem()
-        if item is not None:
+        if item:
             try:
                 self.drawElement(self.elementDictionary[item.text(0)])
             except KeyError:
@@ -393,16 +393,21 @@ class RbCbt(QtGui.QWidget):
         self.drawElement(bl)
 
     def drawElement(self, element = None):
-        if element is None:
-            element = self.lastDrawnElement
-        else:
+        drawMessage = QtGui.QProgressDialog('Drawing beam line ...', 'Cancel', 0, 5, self.parent)
+        drawMessage.setMinimumDuration(500)
+        drawMessage.setValue(0)
+        if element:
             self.lastDrawnElement = element
+        else:
+            element = self.lastDrawnElement
 
         scene = self.ui.graphicsView.scene()
         scene.clear()
         element.picture(scene)
         sceneRect = scene.itemsBoundingRect()
         scene.setSceneRect(sceneRect)
+
+        drawMessage.setValue(1)
 
         sx = sceneRect.width()
         sy = sceneRect.height()
@@ -416,15 +421,19 @@ class RbCbt(QtGui.QWidget):
 
         scale = min([vx/sx, vy/sy, 1.0])
 
+        drawMessage.setValue(2)
         self.ui.graphicsView.resetTransform()
+        drawMessage.setValue(3)
         self.ui.graphicsView.scale(scale, scale)
+        drawMessage.setValue(4)
         self.zoomScale = scale
 
         self.drawLengthScale()
+        drawMessage.setValue(drawMessage.maximum())
 
     def visibleSceneRect(self):
-        viewportRect= QtCore.QRect(0,0,self.ui.graphicsView.viewport().width(),
-                                       self.ui.graphicsView.viewport().height())
+        viewportRect = QtCore.QRect(0,0,self.ui.graphicsView.viewport().width(),
+                                        self.ui.graphicsView.viewport().height())
         return self.ui.graphicsView.mapToScene(viewportRect).boundingRect()
 
     def drawLengthScale(self):
@@ -613,6 +622,13 @@ class RbCbt(QtGui.QWidget):
 
         self.exporter(outputFileName, self.elementDictionary, self.defaultBeamline)
 
+    def closeEvent(self, event):
+        # Large pictures seem to crash python on exiting RadTrack,
+        # so clear the picture before exiting.
+        self.ui.graphicsView.scene().clear()
+        QtGui.QWidget.closeEvent(self, event)
+
+
         
 def populateTreeItem(item, element):
     item.setText(0, element.name)
@@ -732,7 +748,7 @@ class commandLoadElements(QtGui.QUndoCommand):
                 None, # Don't show a cancel button
                 0,
                 len(self.createdElements)-1)
-        treeAddProgress.setMinimumDuration(0)
+        treeAddProgress.setMinimumDuration(500)
         treeAddProgress.setValue(0)
         for i, element in enumerate(self.createdElements):
             element.name = self.widget.uniqueName(element.name)
@@ -748,7 +764,6 @@ class commandLoadElements(QtGui.QUndoCommand):
         self.widget.fitColumns()
         if len(self.createdElements) > 0:
             self.widget.ui.treeWidget.setCurrentItem(self.items[i])
-        self.widget.elementPreview()
         if self.createdBeam:
             self.widget.ui.workingBeamline.clear()
             self.widget.workingBeamlineName = ''
@@ -772,6 +787,7 @@ class commandLoadElements(QtGui.QUndoCommand):
             self.widget.workingBeamlinePreview()
         else:
             self.widget.elementPreview()
+
             
 class commandRemoveFromBeam(QtGui.QUndoCommand):
     def __init__(self, widget):

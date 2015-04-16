@@ -38,13 +38,14 @@ class RbGlobal(QtGui.QMainWindow):
 
         self.lastUsedDirectory = os.path.expanduser('~').replace('\\', '\\\\')
 
-        if sys.platform == 'win32':
+        # Create configuration directory
+        if sys.platform == 'win32': # Windows
             self.configDirectory = os.path.join(os.getenv('APPDATA'), 'RadTrack')
-        else:
+        else: # Mac/Linux
             self.configDirectory = os.path.join(os.path.expanduser('~'), '.radtrack')
         try:
             os.makedirs(self.configDirectory)
-        except OSError:
+        except OSError: # directory already exists or can't be created
             pass
 
         # Read recent files and projects
@@ -65,6 +66,7 @@ class RbGlobal(QtGui.QMainWindow):
 
         self.setTitleBar("RadTrack - " + self.sessionDirectory)
 
+        # Create tab widget and all tabs
         self.tabWidget = QtGui.QTabWidget()
         self.ui.verticalLayout.addWidget(self.tabWidget)
         self.tabWidget.setTabsClosable(True)
@@ -152,7 +154,7 @@ class RbGlobal(QtGui.QMainWindow):
 
         self.ui.actionOpen_Project.triggered.connect(lambda : self.openProject())
         self.ui.actionSet_Current_Project_Location.triggered.connect(self.setProjectLocation)
-        self.ui.actionOpen_New_RadTrack_Window.triggered.connect(lambda : RbGlobal().show())
+        self.ui.actionOpen_New_RadTrack_Window.triggered.connect(self.openNewWindow)
         self.ui.actionImport_File.triggered.connect(lambda : self.importFile())
         self.ui.actionExport_Current_Tab.triggered.connect(self.exportCurrentTab)
         self.ui.actionExit.triggered.connect(self.close)
@@ -175,7 +177,7 @@ class RbGlobal(QtGui.QMainWindow):
     def setTitleBar(self, text):
         self.setWindowTitle(_translate("globalgu", text, None))
 
-    def addToRecentMenu(self, name):
+    def addToRecentMenu(self, name, addToTop = False):
         if not name:
             return
 
@@ -191,11 +193,14 @@ class RbGlobal(QtGui.QMainWindow):
         else:
             return
 
-        oldList = menu.actions()
-        menu.clear()
-        menu.addAction(menuSelect)
-        for action in [a for a in oldList if a.objectName() != name]:
-            menu.addAction(action)
+        if addToTop:
+            oldList = menu.actions()
+            menu.clear()
+            menu.addAction(menuSelect)
+            for action in [a for a in oldList if a.objectName() != name]:
+                menu.addAction(action)
+        else:
+            menu.addAction(menuSelect)
         menu.setEnabled(True)
 
     def togglesrw(self):
@@ -300,9 +305,9 @@ class RbGlobal(QtGui.QMainWindow):
                     getRealWidget(self.tabWidget.currentWidget()).importFile(openFile)
                 else: # Pre-existing tab
                     destination = getRealWidget(self.tabWidget.widget(openWidgetIndexes[destinationIndex]))
-                    destination.importFile(openFile)
                     self.tabWidget.setCurrentWidget(destination)
-                self.addToRecentMenu(openFile)
+                    destination.importFile(openFile)
+                self.addToRecentMenu(openFile, True)
                 shutil.copy2(openFile, self.sessionDirectory)
             except IndexError: # Cancel was pressed
                 pass
@@ -356,7 +361,7 @@ class RbGlobal(QtGui.QMainWindow):
 
         self.saveProject()
 
-        self.addToRecentMenu(self.sessionDirectory)
+        self.addToRecentMenu(self.sessionDirectory, True)
 
         self.sessionDirectory = directory
         self.lastUsedDirectory = directory
@@ -380,7 +385,7 @@ class RbGlobal(QtGui.QMainWindow):
             if fileName.startswith(self.tabPrefix):
                 os.remove(os.path.join(self.sessionDirectory, fileName))
 
-        saveProgress = QtGui.QProgressDialog('Saving project ...', 'Cancel', 0, self.tabWidget.count()-1)
+        saveProgress = QtGui.QProgressDialog('Saving project ...', 'Cancel', 0, self.tabWidget.count()-1, self)
         saveProgress.setValue(0)
         padding = len(str(self.tabWidget.count()))
         for i in range(self.tabWidget.count()):
@@ -389,6 +394,7 @@ class RbGlobal(QtGui.QMainWindow):
 
             widget = getRealWidget(self.tabWidget.widget(i))
             try:
+                saveProgress.setValue(i)
                 subExtension = widget.acceptsFileTypes[0]
                 subFileName  = os.path.join(self.sessionDirectory,
                     '_'.join([self.tabPrefix,
@@ -396,12 +402,9 @@ class RbGlobal(QtGui.QMainWindow):
                               self.tabTypeToOriginalName[type(widget)],
                               self.tabWidget.tabText(i) + '.' + subExtension]))
                 widget.exportToFile(subFileName)
-                saveProgress.setValue(saveProgress.value()+1)
-            except AttributeError as e: # skip tabs without file extensions
+            except AttributeError as e:
                 print 'ERROR: Skipping ' + self.tabWidget.tabText(i)
                 print e
-                saveProgress.setValue(saveProgress.value()+1)
-                continue
 
     def exportCurrentTab(self):
         getRealWidget(self.tabWidget.currentWidget()).exportToFile()
