@@ -51,6 +51,9 @@ class RbDcp(QtGui.QWidget):
         self.ui.param.setHorizontalHeaderItem(2, QtGui.QTableWidgetItem('Unit'))
         self.ui.param.setHorizontalHeaderItem(3, QtGui.QTableWidgetItem('Name'))
 
+        self.container = self
+        self.defaultTitle = self.parent.tr('Data Visualization')
+
     def setcurrentFile(self, type):
         self.currentFiletype = type
 

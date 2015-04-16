@@ -182,6 +182,10 @@ class LaserTab(QtGui.QWidget):
         # try to make the blank plotting regions look nice
         self.erasePlots()
 
+        self.container = QtGui.QScrollArea(parent)
+        self.container.setWidget(self)
+        self.defaultTitle = self.parent.tr('Laser')
+
     def paraxialGaussian(self):
 
         # get input from text boxes

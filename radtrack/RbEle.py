@@ -88,6 +88,9 @@ class RbEle(QtGui.QWidget):
         self.status_mode = 'summary'
         self.summary_html = ''
 
+        self.container = self
+        self.defaultTitle = self.parent.tr('Elegant')
+
     def append_status(self, line):
         """Formats and appends the line to the status field"""
         status = self.ui.simulationStatusTextEdit

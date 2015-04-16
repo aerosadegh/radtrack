@@ -6,7 +6,8 @@ import radtrack.beamlines.RbElegantElements as module
 class RbBunchTransport(rbcbt.RbCbt):
     def __init__(self, parent = None):
         rbcbt.RbCbt.__init__(self, module, parent)
-
+        self.container = self
+        self.defaultTitle = parent.tr('Bunch Transport')
 
 def main():
     app = QtGui.QApplication(sys.argv)

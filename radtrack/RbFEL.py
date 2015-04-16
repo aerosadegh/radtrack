@@ -222,6 +222,8 @@ class RbFEL(QtGui.QWidget):
         self.calculate()
         self.plot()
 
+        self.container = self
+        self.defaultTitle = self.parent.tr('FEL')
  
     def calculate(self, writeToTextBoxes = True):
         # Every time the user changes the text in an input text box,

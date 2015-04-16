@@ -256,6 +256,10 @@ class BunchTab(QtGui.QWidget):
         # instantiate an object for doing statistics
         self.myStat = stat.RbStatistics6D()
 
+        self.container = QtGui.QScrollArea(self.parent)
+        self.container.setWidget(self)
+        self.defaultTitle = parent.tr('Bunch')
+
     def radtrackGaussian(self):
         self.distributionFlag = 'gaussian'
         self.generateBunchRT()

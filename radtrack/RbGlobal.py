@@ -22,8 +22,7 @@ from radtrack.RbFEL import RbFEL
 from radtrack.RbSimulations import RbSimulations
 from radtrack.srw.RbSrwUndulator import srwund
 from radtrack.genesis.rbgenesis2 import RbGenesis2
-from radtrack.RbSrwsingleA import rbsrw as rbsrwsingle
-from radtrack.RbSrwmultiA import rbsrw as rbsrwmulti
+from radtrack.RbSrwTab import RbSrwTab
 from radtrack.RbUtility import getRealWidget
 
 class RbGlobal(QtGui.QMainWindow):
@@ -72,70 +71,33 @@ class RbGlobal(QtGui.QMainWindow):
         self.tabWidget.setTabsClosable(True)
         self.tabPrefix = '###Tab###' # used to identify files that are the saved data from tabs
 
-        if not beta_test:
-            scrollArea = QtGui.QScrollArea(self)
-            scrollArea.setWidget(LaserTab(self))
-            self.tabWidget.addTab(scrollArea, self.tr('Laser'))
+        if self.beta_test:
+            originalTabs = [ BunchTab(self),
+                             RbBunchTransport(self),
+                             RbEle(self),
+                             RbDcp(self) ]
+        else:
+            originalTabs = [ LaserTab(self),
+                             RbLaserTransport(self),
+                             BunchTab(self),
+                             RbBunchTransport(self),
+                             #RbSimulations(self),
+                             RbEle(self),
+                             RbDcp(self),
+                             RbFEL(self),
+                             RbGenesis2(self),
+                             RbGenesisTransport(self),
+                             RbSrwTab(self) ]
 
-            self.tabWidget.addTab(RbLaserTransport(self), self.tr('Laser Transport'))
-
-        scrollArea = QtGui.QScrollArea(self)
-        scrollArea.setWidget(BunchTab(self))
-        self.tabWidget.addTab(scrollArea, self.tr('Bunch'))
-
-        self.tabWidget.addTab(RbBunchTransport(self), self.tr('Bunch Transport'))
-
-        #if not beta_test:
-        #    scrollArea = QtGui.QScrollArea(self)
-        #    scrollArea.setWidget(RbSimulations(self))
-        #    self.tabWidget.addTab(scrollArea,self.tr('Interactions'))
-
-        self.tabWidget.addTab(RbEle(self), self.tr('Elegant'))
-
-        self.tabWidget.addTab(RbDcp(self), self.tr('Data Visualization'))
-        
-
-        if not beta_test:
-            self.tabWidget.addTab(RbFEL(self), self.tr('FEL'))
-
-            scrollArea = QtGui.QScrollArea(self)
-            scrollArea.setWidget(RbGenesis2(self))
-            self.tabWidget.addTab(scrollArea, self.tr('Genesis'))
-
-            self.tabWidget.addTab(RbGenesisTransport(self), self.tr('Genesis Transport'))
-            
-            self.stackwidget = QtGui.QStackedWidget(self)
-            self.stackwidget.addWidget(rbsrwmulti(self))
-            self.stackwidget.addWidget(rbsrwsingle(self))
-            self.srw_particle = QtGui.QCheckBox(self)
-            self.srw_particle.setText('Single-Particle')
-            srwidget = QtGui.QWidget(self)
-            layout = QtGui.QVBoxLayout(srwidget)
-            srwidget.setLayout(layout)
-            layout.addWidget(self.srw_particle)
-            layout.addWidget(self.stackwidget)
-            self.tabWidget.addTab(srwidget, self.tr('SRW'))
-            self.srw_particle.stateChanged.connect(self.togglesrw)
-
-        # Information for making new tabs and importing files
         self.originalNameToTabType = dict()
-        self.tabTypeToOriginalName = dict()
-        self.usesScrollArea = dict()
-        self.widgetChoices = []
-        for index in range(self.tabWidget.count()):
-            widget = self.tabWidget.widget(index)
-            realWidget = getRealWidget(widget)
-            widgetType = type(realWidget)
-            originalTitle = self.tabWidget.tabText(index)
-            self.originalNameToTabType[originalTitle] = widgetType
-            self.tabTypeToOriginalName[widgetType] = originalTitle
-            self.usesScrollArea[type(realWidget)] = (widget != realWidget)
-            self.widgetChoices.append(type(realWidget))
+        for tab in originalTabs:
+            self.tabWidget.addTab(tab.container, tab.defaultTitle)
+            self.originalNameToTabType[tab.defaultTitle] = type(tab)
 
             # populate New Tab Menu
             actionNew_Tab = QtGui.QAction(self)
-            actionNew_Tab.setObjectName('new ' + originalTitle)
-            actionNew_Tab.setText(originalTitle)
+            actionNew_Tab.setObjectName('new ' + tab.defaultTitle)
+            actionNew_Tab.setText(tab.defaultTitle)
 
             # The next line has some weirdness that needs explaining:
             #  1. "ignore" is a variable that receives the boolean returned
@@ -148,7 +110,7 @@ class RbGlobal(QtGui.QMainWindow):
             #     replaced every iteration, so that every selection in the
             #     Tabs->New Tab menu would result in a new copy of the last
             #     tab added.
-            actionNew_Tab.triggered.connect(lambda ignore, t = widgetType : self.newTab(t))
+            actionNew_Tab.triggered.connect(lambda ignore, t = type(tab) : self.newTab(t))
 
             self.ui.menuNew_Tab.addAction(actionNew_Tab)
 
@@ -203,19 +165,10 @@ class RbGlobal(QtGui.QMainWindow):
             menu.addAction(menuSelect)
         menu.setEnabled(True)
 
-    def togglesrw(self):
-        self.stackwidget.setCurrentIndex(int(self.srw_particle.isChecked()))
-        print self.stackwidget.currentIndex()
-        print int(self.srw_particle.isChecked())
-
     def newTab(self, newTabType):
-        newTitle = self.uniqueTabTitle(self.tabTypeToOriginalName[newTabType])
-        if self.usesScrollArea[newTabType]:
-            scrollArea = QtGui.QScrollArea(self)
-            scrollArea.setWidget(newTabType(self))
-            self.tabWidget.addTab(scrollArea, newTitle)
-        else:
-            self.tabWidget.addTab(newTabType(self), newTitle)
+        newWidget = newTabType(self)
+        newTitle = self.uniqueTabTitle(newWidget.defaultTitle)
+        self.tabWidget.addTab(newWidget, newTitle)
         self.tabWidget.setCurrentIndex(self.tabWidget.count()-1)
         self.checkMenus()
 
@@ -268,7 +221,7 @@ class RbGlobal(QtGui.QMainWindow):
 
         # Find all types of tabs that accept file type "ext"
         choices = []
-        for widgetType in self.widgetChoices:
+        for widgetType in [type(tab) for tab in self.originalTabs]:
             try:
                 if ext in widgetType().acceptsFileTypes:
                     choices.append(widgetType)
@@ -399,7 +352,7 @@ class RbGlobal(QtGui.QMainWindow):
                 subFileName  = os.path.join(self.sessionDirectory,
                     '_'.join([self.tabPrefix,
                               str(i).rjust(padding, '0'),
-                              self.tabTypeToOriginalName[type(widget)],
+                              widget.defaultTitle,
                               self.tabWidget.tabText(i) + '.' + subExtension]))
                 widget.exportToFile(subFileName)
             except AttributeError as e:

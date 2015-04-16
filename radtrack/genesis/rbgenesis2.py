@@ -5,6 +5,7 @@ from genesispages import *
 
 class RbGenesis2(QtGui.QWidget):
     def __init__(self, parent=None):
+        self.parent = parent
         QtGui.QWidget.__init__(self,parent)
         self.ui = Ui_genesis()
         self.ui.setupUi(self)
@@ -19,6 +20,10 @@ class RbGenesis2(QtGui.QWidget):
         self.ui.scan.clicked.connect(self.scanpopup)
         self.ui.io.clicked.connect(self.iopopup)
         self.all_parameters = []
+
+        self.container = QtGui.QScrollArea(self.parent)
+        self.container.setWidget(self)
+        self.defaultTitle = self.parent.tr('Genesis')
 
 
     def makeinfile(self):

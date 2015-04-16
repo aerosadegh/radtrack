@@ -40,6 +40,9 @@ class RbSimulations(QtGui.QWidget):
         self.ui.pushButton.clicked.connect(self.runeverything)
         self.count = 0
 
+        self.container = QtGui.QScrollArea(parent)
+        self.container.setWidget(self)
+        self.defaultTitle = parent.tr('Interactions')
 
     def runeverything(self):
         if self.blocks['seed'].type == 'Elegant':
