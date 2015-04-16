@@ -72,25 +72,25 @@ class RbGlobal(QtGui.QMainWindow):
         self.tabPrefix = '###Tab###' # used to identify files that are the saved data from tabs
 
         if self.beta_test:
-            originalTabs = [ BunchTab(self),
-                             RbBunchTransport(self),
-                             RbEle(self),
-                             RbDcp(self) ]
+            self.originalTabs = [ BunchTab(self),
+                                  RbBunchTransport(self),
+                                  RbEle(self),
+                                  RbDcp(self) ]
         else:
-            originalTabs = [ LaserTab(self),
-                             RbLaserTransport(self),
-                             BunchTab(self),
-                             RbBunchTransport(self),
-                             #RbSimulations(self),
-                             RbEle(self),
-                             RbDcp(self),
-                             RbFEL(self),
-                             RbGenesis2(self),
-                             RbGenesisTransport(self),
-                             RbSrwTab(self) ]
+            self.originalTabs = [ LaserTab(self),
+                                  RbLaserTransport(self),
+                                  BunchTab(self),
+                                  RbBunchTransport(self),
+                                  #RbSimulations(self),
+                                  RbEle(self),
+                                  RbDcp(self),
+                                  RbFEL(self),
+                                  RbGenesis2(self),
+                                  RbGenesisTransport(self),
+                                  RbSrwTab(self) ]
 
         self.originalNameToTabType = dict()
-        for tab in originalTabs:
+        for tab in self.originalTabs:
             self.tabWidget.addTab(tab.container, tab.defaultTitle)
             self.originalNameToTabType[tab.defaultTitle] = type(tab)
 
@@ -221,10 +221,10 @@ class RbGlobal(QtGui.QMainWindow):
 
         # Find all types of tabs that accept file type "ext"
         choices = []
-        for widgetType in [type(tab) for tab in self.originalTabs]:
+        for tab in self.originalTabs:
             try:
-                if ext in widgetType().acceptsFileTypes:
-                    choices.append(widgetType)
+                if ext in tab.acceptsFileTypes:
+                    choices.append(type(tab))
             except AttributeError:
                 pass
 
@@ -244,26 +244,30 @@ class RbGlobal(QtGui.QMainWindow):
 
         # Check if a tab of this type is already open
         openWidgetIndexes = [i for i in range(self.tabWidget.count()) if type(getRealWidget(self.tabWidget.widget(i))) == destinationType]
+        newTabLabel = 'New Tab'
         if openWidgetIndexes:
-            newTabLabel = 'New Tab'
             choices = [self.tabWidget.tabText(i) for i in openWidgetIndexes] + [newTabLabel]
             box = QtGui.QMessageBox(QtGui.QMessageBox.Question, 'Choose Import Destination', 'Which tab should receive the data?')
             responses = [box.addButton(widgetType, QtGui.QMessageBox.ActionRole) for widgetType in choices] + [box.addButton(QtGui.QMessageBox.Cancel)]
 
             box.exec_()
             destinationIndex = responses.index(box.clickedButton())
-            try:
-                if choices[destinationIndex] == newTabLabel: # Make a new tab
-                    self.newTab(destinationType)
-                    getRealWidget(self.tabWidget.currentWidget()).importFile(openFile)
-                else: # Pre-existing tab
-                    destination = getRealWidget(self.tabWidget.widget(openWidgetIndexes[destinationIndex]))
-                    self.tabWidget.setCurrentWidget(destination)
-                    destination.importFile(openFile)
-                self.addToRecentMenu(openFile, True)
-                shutil.copy2(openFile, self.sessionDirectory)
-            except IndexError: # Cancel was pressed
-                pass
+            choice = choices[destinationIndex]
+        else:
+            choice = newTabLabel
+
+        try:
+            if choice == newTabLabel: # Make a new tab
+                self.newTab(destinationType)
+                getRealWidget(self.tabWidget.currentWidget()).importFile(openFile)
+            else: # Pre-existing tab
+                destination = getRealWidget(self.tabWidget.widget(openWidgetIndexes[destinationIndex]))
+                self.tabWidget.setCurrentWidget(destination)
+                destination.importFile(openFile)
+            self.addToRecentMenu(openFile, True)
+            shutil.copy2(openFile, self.sessionDirectory)
+        except IndexError: # Cancel was pressed
+            pass
 
 
     def setProjectLocation(self):
