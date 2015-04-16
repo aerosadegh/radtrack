@@ -159,6 +159,7 @@ class RbGlobal(QtGui.QMainWindow):
         self.ui.actionUndo.triggered.connect(self.undo)
         self.ui.actionRedo.triggered.connect(self.redo)
         self.ui.actionClose_Current_Tab.triggered.connect(lambda : self.closeTab(None))
+        self.ui.actionOpen_Working_Directory.triggered.connect(self.openSessionDirectory)
         self.tabWidget.tabCloseRequested.connect(self.closeTab)
         self.ui.actionReopen_Closed_Tab.triggered.connect(self.undoCloseTab)
         self.ui.actionRename_Current_Tab.triggered.connect(self.renameTab)
@@ -432,12 +433,31 @@ class RbGlobal(QtGui.QMainWindow):
         self.saveProject()
         event.accept()
         QtGui.QMainWindow.closeEvent(self, event)
-        self.addToRecentMenu(self.sessionDirectory)
+        self.addToRecentMenu(self.sessionDirectory, True)
+        self.writeRecentFiles()
+        for tab in self.allWidgets():
+            tab.close()
 
+    def openNewWindow(self):
+        self.writeRecentFiles()
+        RbGlobal(self.beta_test).show()
+
+    def writeRecentFiles(self):
         with open(self.recentFile, 'w') as f:
             f.write('\n'.join([action.objectName() for action in \
                     self.ui.menuRecent_Projects.actions() + \
                     self.ui.menuRecent_Files.actions()]))
+
+    def openSessionDirectory(self):
+        if sys.platform == 'win32': # Windows
+            os.startfile(self.sessionDirectory)
+        elif sys.platform == 'darwin': # Mac
+            subprocess.Popen(['open', self.sessionDirectory])
+        else: # Linux
+            try:
+                subprocess.Popen(['xdg-open', self.sessionDirectory])
+            except OSError: # Unknown OS
+                print 'Failed to open session directory'
 
 
 @argh.arg('project_file', nargs='?', default=None, help='project file to open at startup')
