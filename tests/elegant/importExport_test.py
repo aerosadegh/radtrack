@@ -20,6 +20,11 @@ exportEnd = '_export.lte'
 elegantFilesLocation = os.path.join(os.getcwd(), 'deprecated', 'elegant')
 elegantTestFile = os.path.join(elegantFilesLocation, 'elegantTest.ele')
 particleFileList = glob.glob(os.path.join(elegantFilesLocation, 'beamlines', '*.lte'))
+excludedList = ['dtSweep.lte',
+                'fourDipoleCSR.lte',
+                'lattice.lte',
+                'multiple.lte',
+                'mv15-c5-v2-ring.lte']
 
 opticalFileList = glob.glob(
         os.path.join(os.getcwd(), 'deprecated', 'laser_transport', '*.rad'))
@@ -97,13 +102,18 @@ def test_import_export():
                     izip_longest(elementDictionary1.values(), elementDictionary2.values())])
 
             # Test elegant simulation on exported file
+            # Choose the beam line with the most elements for testing
             try:
+                if os.path.basename(fileName) in excludedList:
+                    continue
+
                 longestLength = 0
                 longest = None
                 for beamline in [el for el in elementDictionary2.values() if el.isBeamline()]:
-                    if len(beamline.data) > longestLength:
+                    length = beamline.getNumberOfElements()
+                    if length > longestLength:
                         longest = beamline
-                        longestLength = len(beamline.data)
+                        longestLength = length
                 if fileList == particleFileList:
                     with open(elegantTestFile, 'w') as f:
                         f.write(elegantSimTemplate % (exportFileName, longest.name, sddsFileName))
