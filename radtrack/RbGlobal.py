@@ -145,6 +145,7 @@ class RbGlobal(QtGui.QMainWindow):
 
         menuSelect = QtGui.QAction(os.path.basename(name), self)
         menuSelect.setObjectName(name)
+        menuSelect.setStatusTip(name)
 
         if os.path.isdir(name):
             menu = self.ui.menuRecent_Projects
@@ -153,6 +154,9 @@ class RbGlobal(QtGui.QMainWindow):
             menu = self.ui.menuRecent_Files
             menuSelect.triggered.connect(lambda ignore, f = name : self.importFile(f))
         else:
+            return
+
+        if len(menu.actions()) >= 20:
             return
 
         if addToTop:
@@ -168,7 +172,7 @@ class RbGlobal(QtGui.QMainWindow):
     def newTab(self, newTabType):
         newWidget = newTabType(self)
         newTitle = self.uniqueTabTitle(newWidget.defaultTitle)
-        self.tabWidget.addTab(newWidget, newTitle)
+        self.tabWidget.addTab(newWidget.container, newTitle)
         self.tabWidget.setCurrentIndex(self.tabWidget.count()-1)
         self.checkMenus()
 
