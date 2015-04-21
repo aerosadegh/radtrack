@@ -1,4 +1,4 @@
-import os.path
+import os, shutil
 from collections import OrderedDict
 import sip
 sip.setapi('QString', 2)
@@ -595,6 +595,7 @@ class RbCbt(QtGui.QWidget):
         return [self.ui.workingBeamline.item(i).text() for i in range(self.ui.workingBeamline.count())]
 
     def importFile(self, fileName):
+        ignoreMissingImportFiles = False
         importedData = self.importer(fileName)
         if importedData is not None:
             newElements, defaultBeamline = importedData
@@ -607,9 +608,22 @@ class RbCbt(QtGui.QWidget):
                 for element in [e for e in newElements.values() if not e.isBeamline()]:
                     for parameter in element.inputFileParameters:
                         index = element.parameterNames.index(parameter)
-                        path = os.path.join(os.path.dirname(fileName), element.data[index])
-                        if os.path.isfile(path):
-                            shutil.copy2(path, self.parent.sessionDirectory)
+                        if element.data[index]:
+                            path = os.path.join(os.path.dirname(fileName), element.data[index])
+                            try:
+                                shutil.copy2(path, self.parent.sessionDirectory)
+                            except IOError:
+                                if not ignoreMissingImportFiles:
+                                    box = QtGui.QMessageBox(QtGui.QMessageBox.Warning,
+                                                            'Missing File Reference',
+                                                            'The file "' + path + '" specified by element "' + \
+                                                            element.name + '" cannot be found.\n\n' +\
+                                                            'Do you wish to ignore future warnings of this type?',
+                                                            QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, self)
+                                    box.exec_()
+                                    if box.standardButton(box.clickedButton()) == QtGui.QMessageBox.Yes:
+                                        ignoreMissingImportFiles = True
+
             if defaultBeamline is not None:
                 self.defaultBeamline = defaultBeamline
 
