@@ -12,6 +12,15 @@ from radtrack.RbUtility import insideQuote
 # Note: make sure this is only called once during the entire test
 # run. If more than one QApplications are created, python will
 # crash at the end of the test suite.
+
+def test_inside_quote():
+    s = '"abc"def"hij"klm'
+    test = [insideQuote(s, i) for i in range(len(s))]
+    #           "     a     b     c     "      d      e      f      "     h     i     j     "      k      l      m
+    expected = [True, True, True, True, False, False, False, False, True, True, True, True, False, False, False, False]
+    assert test == expected
+
+
 from PyQt4 import QtGui
 app = QtGui.QApplication(sys.argv)
 
@@ -94,7 +103,7 @@ def test_import_export():
             with open(exportFileName) as f:
                 # Check that lines are not split inside quotes
                 for lineNumber, line in enumerate(f.readlines()):
-                    assert not insideQuote(line, len(line))
+                    assert not insideQuote(line, len(line) - 1)
 
             elementDictionary2, _ = fileHandler.fileImporter(exportFileName)
 

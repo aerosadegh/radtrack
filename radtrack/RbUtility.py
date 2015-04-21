@@ -309,7 +309,7 @@ def wordwrap(line, lineWidth, endLine = '', indenting = 0):
 
 def insideQuote(line, position):
     quoted = False
-    for index in range(position):
+    for index in range(position + 1):
         if line[index] == '"' and (index == 0 or line[index-1] != '\\'):
             quoted = not quoted
     return quoted
