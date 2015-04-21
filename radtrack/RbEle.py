@@ -221,11 +221,9 @@ class RbEle(QtGui.QWidget):
         for element in loader.elementDictionary.values():
             if element.isBeamline():
                 continue
-            for i in range(len(element.data)):
-                if element.data[i] and re.search(
-                        r'output file',
-                        element.parameterDescription[i],
-                        re.IGNORECASE):
+            for output_parameter in element.outputFileParameters:
+                i = element.parameterNames.index(output_parameter)
+                if element.data[i]:
                     self._add_result_file(
                         '{}: {}'.format(element.name, type(element).__name__),
                         self._autocomplete_file_name(element.data[i]))

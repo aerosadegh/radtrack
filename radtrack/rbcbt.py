@@ -605,7 +605,9 @@ class RbCbt(QtGui.QWidget):
 
                 # Copy files referenced by the elements into the current working directory
                 for element in [e for e in newElements.values() if not e.isBeamline()]:
-                    for path in [os.path.join(os.path.dirname(fileName), datum) for datum in element.data if datum]:
+                    for parameter in element.inputFileParameters:
+                        index = element.parameterNames.index(parameter)
+                        path = os.path.join(os.path.dirname(fileName), element.data[index])
                         if os.path.isfile(path):
                             shutil.copy2(path, self.parent.sessionDirectory)
             if defaultBeamline is not None:

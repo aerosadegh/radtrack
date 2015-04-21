@@ -51,6 +51,9 @@ def drawPath(element, x, y, pen, transform, scene):
 class elementCommon(object):
     _pixPerMeter = 200
 
+    inputFileParameters = []
+    outputFileParameters = []
+
     def __init__(self, inputData = None):
         if inputData is None:
             # one more [''] for the name

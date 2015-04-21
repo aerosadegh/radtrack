@@ -189,9 +189,9 @@ class ElegantBeamline(BeamlineCommon):
         line = declaration + self.displayLine() + ')'
         return wordwrap(line, 80, ' &', len(declaration))
 
-    # Shorten beamline descriptions by finding repetitions
+# Shorten beamline descriptions by finding repetitions
 # Example input: ["a", "b", "a", "a", "b", "a", "c", "c", "c", "c", "c"] (list of strings)
-# Result:  "2*(a, b, a), 5*(c)" (string)
+# Result:  "2*(a, b, a), 5*c" (string)
 def collapseBeamline(nameList):
     # Start with the largest group that can have a repetition in the list
     # (namely, length/2), and work down, searching for repeated segments
@@ -334,15 +334,14 @@ class ALPH(elegantElement, alphaPic):
     dataType = ['double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'long', 'long', 'string']
     parameterDescription = ['size of alpha', 'inner scraper position relative to XMAX', 'outer scraper position relative to XMAX', 'inner scraper fractional momentum deviation', 'outer scraper fractional momentum deviation', 'position of scraper puck', 'size of scraper puck', 'misalignment', 'misalignment', 'misalignment', 'rotation about incoming longitudinal axis', '0=full, 1=first half, 2=second half', 'matrix order [1,3]', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
 
-
 class BMAPXY(elegantElement, magnetPic):
     elementDescription = 'A map of Bx and By vs x and y.'
     parameterNames = ['L', 'ANGLE', 'TILT', 'DX', 'DY', 'DZ', 'B2', 'TIME_OFFSET', 'PERIODIC', 'PHASE_REFERENCE', 'FIRE_ON_PASS', 'N_KICKS', 'WAVEFORM', 'DEFLECTION_MAP', 'GROUP']
     units = ['M', 'RAD', 'RAD', 'M', 'M', 'M', '1/M^2', 'S', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
     dataType = ['double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'long', 'long', 'long', 'long', 'STRING', 'STRING', 'string']
     parameterDescription = ['length', 'kick angle', 'rotation about longitudinal axis', 'misalignment', 'misalignment', 'misalignment', 'Sextupole term: By=Bo*(1+b2*x2)', 'time offset of waveform', 'is waveform periodic?', 'phase reference number (to link with other time-dependent elements)', 'pass number to fire on', 'Number of kicks to use for simulation. 0 uses an exact result but ignores b2.', '<filename>=<x>+<y> form specification of input file giving kick factor vs time', 'optional filename giving the spatial variation of the deflection', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
+    inputFileParameters = ['WAVEFORM', 'DEFLECTION_MAP']
     color = Qt.magenta
-
 
 class BUMPER(elegantElement, bendPic):
     elementDescription = 'A time-dependent kicker magnet with optional spatial dependence of the kick and no fringe effects. The waveform is in SDDS format, with time in seconds and amplitude normalized to 1. The optional spatial dependence is also specified as an SDDS file.'
@@ -350,7 +349,7 @@ class BUMPER(elegantElement, bendPic):
     units = ['M', 'RAD', 'RAD', 'M', 'M', 'M', '1/M^2', 'S', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
     dataType = ['double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'long', 'long', 'long', 'long', 'STRING', 'STRING', 'string']
     parameterDescription = ['length', 'kick angle', 'rotation about longitudinal axis', 'misalignment', 'misalignment', 'misalignment', 'Sextupole term: By=Bo*(1+b2*x2)', 'time offset of waveform', 'is waveform periodic?', 'phase reference number (to link with other time-dependent elements)', 'pass number to fire on', 'Number of kicks to use for simulation. 0 uses an exact result but ignores b2.', '<filename>=<x>+<y> form specification of input file giving kick factor vs time', 'optional filename giving the spatial variation of the deflection', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
-
+    inputFileParameters = ['WAVEFORM', 'DEFLECTION_MAP']
 
 class CENTER(elegantElement, zeroLengthPic):
     elementDescription = 'An element that centers the beam transversely on the ideal trajectory.'
@@ -359,14 +358,12 @@ class CENTER(elegantElement, zeroLengthPic):
     dataType = ['long', 'long', 'long', 'long', 'long', 'long', 'long', 'long', 'long', 'string']
     parameterDescription = ['center x coordinates?', "center x' coordinates?", 'center y coordinates?', "center y' coordinates?", 'center s coordinates?', 'center delta coordinates?', 'center t coordinates?', 'compute centering offsets for first beam only, apply to all?', 'If nonnegative, do centering on the nth pass only.', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
 
-
 class CEPL(elegantElement, rfPic):
     elementDescription = 'A numerically-integrated linearly-ramped electric field deflector.'
     parameterNames = ['L', 'RAMP_TIME', 'TIME_OFFSET', 'VOLTAGE', 'GAP', 'STATIC_VOLTAGE', 'TILT', 'ACCURACY', 'X_MAX', 'Y_MAX', 'DX', 'DY', 'PHASE_REFERENCE', 'N_STEPS', 'METHOD', 'FIDUCIAL', 'GROUP']
     units = ['M', 'S', 'S', 'V', 'M', 'V', 'RAD', ' ', 'M', 'M', 'M', 'M', ' ', ' ', ' ', ' ', ' ']
     dataType = ['double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'long', 'long', 'STRING', 'STRING', 'string']
     parameterDescription = ['length', 'time to ramp to full strenth', 'offset of ramp-start time', 'maximum voltage between plates due to ramp', 'gap between plates', 'static component of voltage', 'rotation about longitudinal axis', 'integration accuracy', 'x half-aperture', 'y half-aperture', 'misalignment', 'misalignment', 'phase reference number (to link with other time-dependent elements)', 'number of steps (for nonadaptive integration)', 'integration method (runge-kutta, bulirsch-stoer, non-adaptive runge-kutta, modified midpoint)', '{t\\vertp},{median\\vertmin\\vertmax\\vertave\\vertfirst\\vertlight} (e.g., "t,median")', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
-
 
 class CHARGE(elegantElement, zeroLengthPic):
     elementDescription = 'An element to establish the total charge of a beam. Active on first pass only. If given, overrides all charge specifications on other elements.'
@@ -375,14 +372,12 @@ class CHARGE(elegantElement, zeroLengthPic):
     dataType = ['double', 'double', 'string']
     parameterDescription = ['total charge in beam', 'charge per macroparticle', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
 
-
 class CLEAN(elegantElement, aperturePic, particleDrift):
     elementDescription = 'Cleans the beam by removing outlier particles.'
     parameterNames = ['MODE', 'XLIMIT', 'XPLIMIT', 'YLIMIT', 'YPLIMIT', 'TLIMIT', 'DELTALIMIT', 'GROUP']
     units = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
     dataType = ['STRING', 'double', 'double', 'double', 'double', 'double', 'double', 'string']
     parameterDescription = ['stdeviation, absdeviation, or absvalue', 'Limit for x', "Limit for x'", 'Limit for y', "Limit for y'", 'Limit for t', 'Limit for (p-p0)/p0', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
-
 
 class CORGPIPE(elegantElement, undulatorPic):
     elementDescription = 'A corrugated round pipe, commonly used as a dechirper in linacs.'
@@ -391,7 +386,6 @@ class CORGPIPE(elegantElement, undulatorPic):
     dataType = ['double', 'double', 'double', 'double', 'double', 'double', 'double', 'long', 'long', 'long', 'long', 'long', 'long', 'long', 'long', 'string']
     parameterDescription = ['length', 'pipe radius', 'period of corrugations (<< radius recommended)', 'gap in corrugations (< period required)', 'depth of corrugations (<< radius, >  period recommended)', 'maximum time duration of wake (0 for autoscale)', 'maximum time duration of wake (0 for autoscale)', 'number of bins for charge histogram (0 for autoscale)', 'interpolate wake?', 'Use Savitzky-Golay filter to smooth current histogram?', 'Savitzky-Golay filter half-width for smoothing', 'Savitzky-Golay filter order for smoothing', 'change central momentum?', 'allow beam longer than wake data?', 'Number of passes over which to linearly ramp up the wake to full strength.', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
 
-
 class CSBEND(elegantElement, bendPic):
     elementDescription = 'A canonical kick sector dipole magnet.'
     parameterNames = ['L', 'ANGLE', 'K1', 'K2', 'K3', 'K4', 'K5', 'K6', 'K7', 'K8', 'E1', 'E2', 'TILT', 'H1', 'H2', 'HGAP', 'FINT', 'DX', 'DY', 'DZ', 'FSE', 'ETILT', 'N_KICKS', 'NONLINEAR', 'SYNCH_RAD', 'EDGE1_EFFECTS', 'EDGE2_EFFECTS', 'EDGE_ORDER', 'FRINGE', 'INTEGRATION_ORDER', 'EDGE1_KICK_LIMIT', 'EDGE2_KICK_LIMIT', 'KICK_LIMIT_SCALING', 'USE_BN', 'EXPANSION_ORDER', 'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'ISR', 'ISR1PART', 'SQRT_ORDER', 'USE_RAD_DIST', 'ADD_OPENING_ANGLE', 'GROUP']
@@ -399,14 +393,14 @@ class CSBEND(elegantElement, bendPic):
     dataType = ['double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'long', 'long', 'long', 'long', 'long', 'long', 'long', 'long', 'double', 'double', 'long', 'long', 'long', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'long', 'long', 'long', 'long', 'long', 'string']
     parameterDescription = ['arc length', 'bend angle', 'geometric quadrupole strength', 'geometric sextupole strength', 'geometric octupole strength', 'geometric decapole strength', 'geometric 12-pole strength', 'geometric 14-pole strength', 'geometric 16-pole strength', 'geometric 18-pole strength', 'entrance edge angle', 'exit edge angle', 'rotation about incoming longitudinal axis', 'entrance pole-face curvature', 'exit pole-face curvature', 'half-gap between poles', 'edge-field integral', 'misalignment', 'misalignment', 'misalignment', 'fractional strength error', 'error rotation about incoming longitudinal axis', 'number of kicks', 'include nonlinear field components?', 'include classical synchrotron radiation?', 'include entrance edge effects?', 'include exit edge effects?', 'order to which to include edge effects', 'Include fringe effects (1=linear, 2=higher order)', 'integration order (2 or 4)', 'maximum kick entrance edge can deliver', 'maximum kick exit edge can deliver', 'scale maximum edge kick with FSE?', 'use b<n> instead of K<n>?', 'Order of field expansion. (0=auto)', 'K1 = b1/rho, where rho is bend radius', 'K2 = b2/rho', 'K3 = b3/rho', 'K4 = b4/rho', 'K5 = b5/rho', 'K6 = b6/rho', 'K7 = b7/rho', 'K8 = b8/rho', 'include incoherent synchrotron radiation (scattering)?', 'Include ISR for single-particle beam only if ISR=1 and ISR1PART=1', 'Order of expansion of square-root in Hamiltonian. 0 means no expansion.', 'If nonzero, overrides SYNCH_RAD and ISR, causing simulation of radiation from distributions, optionally including opening angle.', 'If nonzero, radiation opening angle effects are add if USE_RAD_DIST is nonzero.', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
 
-
 class CSRCSBEND(elegantElement, bendPic):
     elementDescription = 'Like CSBEND, but incorporates a simulation of Coherent Synchrotron radiation.'
     parameterNames = ['L', 'ANGLE', 'K1', 'K2', 'K3', 'K4', 'K5', 'K6', 'K7', 'K8', 'E1', 'E2', 'TILT', 'H1', 'H2', 'HGAP', 'FINT', 'DX', 'DY', 'DZ', 'FSE', 'ETILT', 'N_KICKS', 'NONLINEAR', 'LINEARIZE', 'SYNCH_RAD', 'EDGE1_EFFECTS', 'EDGE2_EFFECTS', 'EDGE_ORDER', 'INTEGRATION_ORDER', 'BINS', 'BIN_ONCE', 'BIN_RANGE_FACTOR', 'SG_HALFWIDTH', 'SG_ORDER', 'SGDERIV_HALFWIDTH', 'SGDERIV_ORDER', 'TRAPAZOID_INTEGRATION', 'OUTPUT_FILE', 'OUTPUT_INTERVAL', 'OUTPUT_LAST_WAKE_ONLY', 'STEADY_STATE', 'IGF', 'USE_BN', 'EXPANSION_ORDER', 'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'ISR', 'ISR1PART', 'CSR', 'BLOCK_CSR', 'DERBENEV_CRITERION_MODE', 'PARTICLE_OUTPUT_FILE', 'PARTICLE_OUTPUT_INTERVAL', 'SLICE_ANALYSIS_INTERVAL', 'LOW_FREQUENCY_CUTOFF0', 'LOW_FREQUENCY_CUTOFF1', 'HIGH_FREQUENCY_CUTOFF0', 'HIGH_FREQUENCY_CUTOFF1', 'CLIP_NEGATIVE_BINS', 'WAKE_FILTER_FILE', 'WFF_FREQ_COLUMN', 'WFF_REAL_COLUMN', 'WFF_IMAG_COLUMN', 'GROUP']
     units = ['M', 'RAD', '1/M^{2}', '1/M^{3}', '1/M^{4}', '1/M^{5}', '1/M^{6}', '1/M^{7}', '1/M^{8}', '1/M^{9}', 'RAD', 'RAD', 'RAD', '1/M', '1/M', 'M', ' ', 'M', 'M', 'M', ' ', 'RAD', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '1/M', '1/M^{2}', '1/M^{3}', '1/M^{4}', '1/M^{5}', '1/M^{6}', '1/M^{7}', '1/M^{8}', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
     dataType = ['double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'long', 'long', 'long', 'long', 'long', 'long', 'long', 'long', 'long', 'long', 'double', 'long', 'long', 'long', 'long', 'long', 'STRING', 'long', 'long', 'long', 'long', 'long', 'long', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'long', 'long', 'long', 'long', 'STRING', 'STRING', 'long', 'long', 'double', 'double', 'double', 'double', 'long', 'STRING', 'STRING', 'STRING', 'STRING', 'string']
     parameterDescription = ['arc length', 'bend angle', 'geometric quadrupole strength', 'geometric sextupole strength', 'geometric octupole strength', 'geometric decapole strength', 'geometric 12-pole strength', 'geometric 14-pole strength', 'geometric 16-pole strength', 'geometric 18-pole strength', 'entrance edge angle', 'exit edge angle', 'rotation about incoming longitudinal axis', 'entrance pole-face curvature', 'exit pole-face curvature', 'half-gap between poles', 'edge-field integral', 'misalignment', 'misalignment', 'misalignment', 'fractional strength error', 'error rotation about incoming longitudinal axis', 'number of kicks', 'include nonlinear field components?', 'use linear matrix instead of symplectic integrator?', 'include classical synchrotron radiation?', 'include entrance edge effects?', 'include exit edge effects?', 'order to which to include edge effects', 'integration order (2 or 4)', 'number of bins for CSR wake', 'bin only at the start of the dipole?', 'Factor by which to increase the range of histogram compared to total bunch length. Large value eliminates binning problems in CSRDRIFTs.', 'Savitzky-Golay filter half-width for smoothing current histogram. If less than 1, no SG smoothing is performed.', 'Savitzky-Golay filter order for smoothing current histogram', 'Savitzky-Golay filter half-width for taking derivative of current histogram. Defaults to SG_HALFWIDTH (if positive) or else 1.', 'Savitzky-Golay filter order for taking derivative of current histogram', 'Select whether to use trapazoid-rule integration (default) or a simple sum.', 'output file for CSR wakes', 'interval (in kicks) of output to OUTPUT_FILE', 'output final wake only?', 'use steady-state wake equations?', 'use integrated Greens function (requires STEADY_STATE=1)?', 'use b<n> instead of K<n>?', 'Order of field expansion. (0=auto)', 'K1 = b1/rho, where rho is bend radius', 'K2 = B2/rho', 'K3 = B3/rho', 'K4 = B4/rho', 'K5 = B5/rho', 'K6 = B6/rho', 'K7 = B7/rho', 'K8 = B8/rho', 'include incoherent synchrotron radiation (scattering)?', 'Include ISR for single-particle beam only if ISR=1 and ISR1PART=1', 'enable CSR computations?', 'block CSR from entering CSRDRIFT?', 'disable, evaluate, or enforce', 'name of file for phase-space output', 'interval (in kicks) of output to PARTICLE_OUTPUT_FILE', 'interval (in kicks) of output to slice analysis file (from slice_analysis command)', 'Highest spatial frequency at which low-frequency cutoff filter is zero. If not positive, no low-frequency cutoff filter is applied. Frequency is in units of Nyquist (0.5/binsize).', 'Lowest spatial frequency at which low-frequency cutoff filter is 1. If not given, defaults to LOW_FREQUENCY_CUTOFF1.', 'Spatial frequency at which smoothing (high-frequency cutoff) filter begins. If not positive, no frequency filter smoothing is done. Frequency is in units of Nyquist (0.5/binsize).', 'Spatial frequency at which smoothing (high-frequency cutoff) filter is 0. If not given, defaults to HIGH_FREQUENCY_CUTOFF0.', 'If non-zero, then any bins with negative counts after the filters are applied have the counts set to zero.', 'Name of file supplying wakefield filtering data.', 'Name of column supplying frequency values for wakefield filtering data.', 'Name of column supplying real values for wakefield filtering data.', 'Name of column supplying imaginary values for wakefield filtering data.', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
-
+    inputFileParameters = ['WAKE_FILTER_FILE']
+    outputFileParameters = ['OUTPUT_FILE', 'PARTICLE_OUTPUT_FILE']
 
 class CSRDRIFT(particleDrift, elegantElement):
     elementDescription = 'A follow-on element for CSRCSBEND that applies the CSR wake over a drift.'
@@ -415,14 +409,14 @@ class CSRDRIFT(particleDrift, elegantElement):
     dataType = ['double', 'double', 'double', 'long', 'long', 'long', 'double', 'long', 'long', 'long', 'STRING', 'STRING', 'STRING', 'STRING', 'STRING', 'long', 'STRING', 'long', 'long', 'long', 'string']
     parameterDescription = ['length', 'exponential attenuation length for wake', 'interval between kicks', 'number of kicks (if DZ is zero)', 'use spreading function?', 'use overtaking length for ATTENUATION_LENGTH?', 'factor by which to multiply the overtaking length to get the attenuation length', 'Use Saldin et al eq. 54 (NIM A 398 (1997) 373-394 for decay vs z?', 'Number of values of position inside bunch to average for Saldin eq 54.', 'do CSR calcuations', 'peak or first', 'full, simple, or radiation-only', 'sigmaz or peak-to-peak', 'rms, 68-percentile, or 90-percentile', 'Filename for output of CSR intensity vs. z as computed using Saldin eq 54.', "Use treatment from G. Stupakov's note of 9/12/2001?", "Filename for output of CSR wake vs. s as computed using Stupakov's equations.", 'Interval (in kicks) between output of Stupakov wakes.', 'interval (in kicks) of output to slice analysis file (from slice_analysis command)', 'use linear optics for drift pieces?', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
 
-
 class CWIGGLER(elegantElement, undulatorPic):
     elementDescription = 'Tracks through a wiggler using canonical integration routines of Y. Wu (Duke University).'
     parameterNames = ['L', 'B_MAX', 'BX_MAX', 'BY_MAX', 'DX', 'DY', 'DZ', 'TILT', 'PERIODS', 'STEPS_PER_PERIOD', 'INTEGRATION_ORDER', 'BY_FILE', 'BX_FILE', 'BY_SPLIT_POLE', 'BX_SPLIT_POLE', 'SYNCH_RAD', 'ISR', 'ISR1PART', 'SINUSOIDAL', 'VERTICAL', 'HELICAL', 'FORCE_MATCHED', 'FIELD_OUTPUT', 'VERBOSITY', 'GROUP']
     units = ['M', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
     dataType = ['double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'long', 'long', 'long', 'STRING', 'STRING', 'long', 'long', 'long', 'long', 'long', 'long', 'long', 'long', 'long', 'STRING', 'long', 'string']
     parameterDescription = ['Total length', 'Maximum on-axis magnetic field.', 'Maximum on-axis magnetic field. Ignored if B_MAX is nonzero.', 'Maximum on-axis magnetic field. Ignored if B_MAX is nonzero.', 'Misaligment.', 'Misaligment.', 'Misaligment.', 'Rotation about beam axis.', 'Number of wiggler periods.', 'Integration steps per period.', 'Integration order (2 or 4).', 'Name of SDDS file with By harmonic data.', 'Name of SDDS file with Bx harmonic data.', 'Use "split-pole" expansion for By?', 'Use "split-pole" expansion for Bx?', 'Include classical synchrotron radiation?', 'Include incoherent synchrotron radiation (scattering)?', 'Include ISR for single-particle beam only if ISR=1 and ISR1PART=1', 'Ideal sinusoidal wiggler? If non-zero, BX_FILE and BY_FILE are not used.', 'If SINUSOIDAL is non-zero, then setting this to non-zero gives a vertical wiggler. Default is horizontal.', 'Ideal helical wiggler? If non-zero and SINUSOIDAL is also non-zero, BX_FILE and BY_FILE are not used.', 'Force matched dispersion for first harmonics? If non-zero, start and end of magnetic field will be inset from the ends of the device if phase is not 0 or \\pi.', 'Name of file to which field samples will be written. Slow, so use only for debugging.', 'A higher value requires more detailed printouts related to computations.', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
-
+    inputFileParameters = ['BY_FILE', 'BX_FILE']
+    outputFileParameters = ['FIELD_OUTPUT']
 
 class DRIF(particleDrift, elegantElement):
     elementDescription = 'A drift space implemented as a matrix, up to 2nd order'
@@ -437,7 +431,7 @@ class DSCATTER(elegantElement, zeroLengthPic):
     units = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
     dataType = ['STRING', 'STRING', 'STRING', 'STRING', 'STRING', 'long', 'double', 'double', 'long', 'long', 'long', 'long', 'long', 'long', 'string']
     parameterDescription = ['Plane to scatter: xp, yp, dp (dp is deltaP/P)', 'Name of SDDS file containing distribution function.', 'Name of column containing the independent variable for the distribution function data.', 'Name of column containing the cumulative distribution function data.', 'Name of column containing the probability distribution function data.', 'If nonzero, each particle can only get scattered once by this element.', 'Factor by which to multiply the independent variable values.', 'Probability that any particle will be selected for scattering.', 'Group ID number (nonnegative integer) for linking once-per-particle behavior of multiple elements.', 'If non-zero, then the scatter is given a random sign. Useful if distribution data is one-sided.', 'Maximum number of particles that will be scattered on each pass.', 'Maximum number of particles that will be scatter for each step.', 'Pass number to start on.', 'Pass number to end on (inclusive). Ignored if negative.', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
-
+    inputFileParameters = ['FILENAME']
 
 class ECOL(elegantElement, aperturePic, particleDrift):
     elementDescription = 'An elliptical collimator.'
@@ -446,14 +440,12 @@ class ECOL(elegantElement, aperturePic, particleDrift):
     dataType = ['double', 'double', 'double', 'double', 'double', 'STRING', 'long', 'long', 'string']
     parameterDescription = ['length', 'half-axis in x', 'half-axis in y', 'misalignment', 'misalignment', 'which side, if any, is open (+x, -x, +y, -y)', 'Exponent for boundary equation. 2 is ellipse.', 'y exponent for boundary equation. 2 is ellipse. If 0, defaults to EXPONENT', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
 
-
 class EDRIFT(particleDrift, elegantElement):
     elementDescription = 'Tracks through a drift with no approximations (Exact DRIFT).'
     parameterNames = ['L', 'GROUP']
     units = ['M', ' ']
     dataType = ['double', 'string']
     parameterDescription = ['length', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
-
 
 class ELSE(elegantElement, zeroLengthPic):
     elementDescription = 'Not implemented.'
@@ -462,14 +454,12 @@ class ELSE(elegantElement, zeroLengthPic):
     dataType = ['string']
     parameterDescription = ['Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
 
-
 class EMATRIX(elegantElement, zeroLengthPic):
     elementDescription = 'Explicit matrix input with data in the element definition, rather than in a file.'
     parameterNames = ['L', 'ANGLE', 'DX', 'DY', 'DZ', 'TILT', 'YAW', 'PITCH', 'ORDER', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'DELTAP', 'R11', 'R12', 'R13', 'R14', 'R15', 'R16', 'R21', 'R22', 'R23', 'R24', 'R25', 'R26', 'R31', 'R32', 'R33', 'R34', 'R35', 'R36', 'R41', 'R42', 'R43', 'R44', 'R45', 'R46', 'R51', 'R52', 'R53', 'R54', 'R55', 'R56', 'R61', 'R62', 'R63', 'R64', 'R65', 'R66', 'T111', 'T121', 'T122', 'T131', 'T132', 'T133', 'T141', 'T142', 'T143', 'T144', 'T151', 'T152', 'T153', 'T154', 'T155', 'T161', 'T162', 'T163', 'T164', 'T165', 'T166', 'T211', 'T221', 'T222', 'T231', 'T232', 'T233', 'T241', 'T242', 'T243', 'T244', 'T251', 'T252', 'T253', 'T254', 'T255', 'T261', 'T262', 'T263', 'T264', 'T265', 'T266', 'T311', 'T321', 'T322', 'T331', 'T332', 'T333', 'T341', 'T342', 'T343', 'T344', 'T351', 'T352', 'T353', 'T354', 'T355', 'T361', 'T362', 'T363', 'T364', 'T365', 'T366', 'T411', 'T421', 'T422', 'T431', 'T432', 'T433', 'T441', 'T442', 'T443', 'T444', 'T451', 'T452', 'T453', 'T454', 'T455', 'T461', 'T462', 'T463', 'T464', 'T465', 'T466', 'T511', 'T521', 'T522', 'T531', 'T532', 'T533', 'T541', 'T542', 'T543', 'T544', 'T551', 'T552', 'T553', 'T554', 'T555', 'T561', 'T562', 'T563', 'T564', 'T565', 'T566', 'T611', 'T621', 'T622', 'T631', 'T632', 'T633', 'T641', 'T642', 'T643', 'T644', 'T651', 'T652', 'T653', 'T654', 'T655', 'T661', 'T662', 'T663', 'T664', 'T665', 'T666', 'GROUP']
     units = ['M', 'RAD', 'M', 'M', 'M', 'RAD', 'RAD', 'RAD', ' ', 'M', ' ', 'M', ' ', 'M', ' ', ' ', ' ', 'M', ' ', 'M', ' ', 'M', '1/M', ' ', '1/M', ' ', '1/M', ' ', ' ', 'M', ' ', 'M', ' ', 'M', '1/M', ' ', '1/M', ' ', '1/M', ' ', ' ', 'M', ' ', 'M', ' ', 'M', '1/M', ' ', '1/M', ' ', '1/M', ' ', '1/M', ' ', 'M', '1/M', ' ', '1/M', ' ', 'M', ' ', 'M', '1/M', ' ', '1/M', ' ', '1/M', ' ', 'M', ' ', 'M', ' ', 'M', '1/M^2', '1/M', ' ', '1/M^2', '1/M', '1/M^2', '1/M', ' ', '1/M', ' ', '1/M^2', '1/M', '1/M^2', '1/M', '1/M^2', '1/M', ' ', '1/M', '1', '1/M', ' ', '1/M', ' ', 'M', '1/M', ' ', '1/M', ' ', 'M', ' ', 'M', '1/M', ' ', '1/M', ' ', '1/M', ' ', 'M', ' ', 'M', ' ', 'M', '1/M^2', '1/M', ' ', '1/M^2', '1/M', '1/M^2', '1/M', ' ', '1/M', ' ', '1/M^2', '1/M', '1/M^2', '1/M', '1/M^2', '1/M', ' ', '1/M', '1', '1/M', ' ', '1/M', ' ', 'M', '1/M', ' ', '1/M', ' ', 'M', ' ', 'M', '1/M', ' ', '1/M', ' ', '1/M', ' ', 'M', ' ', 'M', ' ', 'M', '1/M^2', '1/M', ' ', '1/M^2', '1/M', '1/M^2', '1/M', ' ', '1/M', ' ', '1/M^2', '1/M', '1/M^2', '1/M', '1/M^2', '1/M', ' ', '1/M', '1', '1/M', ' ', ' ']
     dataType = ['double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'long', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'string']
     parameterDescription = ['Length (used only for position computation)', 'Angle (used only for position computation)', 'misalignment', 'misalignment', 'misalignment', 'Tilt angle', 'Yaw angle', 'Pitch angle', ' ', ' ', ' ', ' ', ' ', ' ', 'Change in momentum offset', 'Change in central momentum (beta*gamma)', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
-
 
 class EMITTANCE(elegantElement, zeroLengthPic):
     elementDescription = 'Applies a linear transformation to the beam to force the emittance to given values.'
@@ -478,14 +468,12 @@ class EMITTANCE(elegantElement, zeroLengthPic):
     dataType = ['double', 'double', 'double', 'double', 'string']
     parameterDescription = ['horizontal emittance', 'vertical emittance', 'horizontal normalized emittance', 'vertical normalized emittance', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
 
-
 class ENERGY(elegantElement, zeroLengthPic):
     elementDescription = 'An element that matches the central momentum to the beam momentum, or changes the central momentum or energy to a specified value.'
     parameterNames = ['CENTRAL_ENERGY', 'CENTRAL_MOMENTUM', 'MATCH_BEAMLINE', 'MATCH_PARTICLES', 'GROUP']
     units = ['MC^{2}', 'MC', ' ', ' ', ' ']
     dataType = ['double', 'double', 'long', 'long', 'string']
     parameterDescription = ['desired central gamma', 'desired central beta*gamma', 'if nonzero, beamline reference momentum is set to beam average momentum', 'if nonzero, beam average momentum is set to beamline reference momentum', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
-
 
 class FLOOR(elegantElement, zeroLengthPic):
     elementDescription = 'Sets floor coordinates'
@@ -494,14 +482,13 @@ class FLOOR(elegantElement, zeroLengthPic):
     dataType = ['double', 'double', 'double', 'double', 'double', 'double', 'string']
     parameterDescription = ['X coordinate', 'Y coordinate', 'Z coordinate', 'theta value', 'phi value', 'psi value', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
 
-
 class FMULT(elegantElement, bendPic):
     elementDescription = 'Multipole kick element with coefficient input from an SDDS file.'
     parameterNames = ['L', 'TILT', 'DX', 'DY', 'DZ', 'FSE', 'N_KICKS', 'SYNCH_RAD', 'FILENAME', 'SQRT_ORDER', 'GROUP']
     units = ['M', 'RAD', 'M', 'M', 'M', ' ', ' ', ' ', ' ', ' ', ' ']
     dataType = ['double', 'double', 'double', 'double', 'double', 'double', 'long', 'long', 'STRING', 'long', 'string']
     parameterDescription = ['length', 'rotation about longitudinal axis', 'misalignment', 'misalignment', 'misalignment', 'fractional strength error', 'number of kicks', 'include classical synchrotron radiation?', 'name of file containing multipole data', 'Order of expansion of square-root in Hamiltonian. 0 means no expansion.', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
-
+    inputFileParameters = ['FILENAME']
 
 class FRFMODE(elegantElement, rfPic):
     elementDescription = 'One or more beam-driven TM monopole modes of an RF cavity, with data from a file.'
@@ -509,7 +496,8 @@ class FRFMODE(elegantElement, rfPic):
     units = [' ', 'S', ' ', ' ', ' ', ' ', 'HZ', ' ', ' ', ' ', ' ', ' ', ' ']
     dataType = ['STRING', 'double', 'long', 'long', 'long', 'double', 'double', 'STRING', 'long', 'long', 'long', 'long', 'string']
     parameterDescription = ['input file', 'bin size for current histogram (use 0 for autosize)', 'number of bins for current histogram', "don't affect the beam until this pass", 'use "Symm" columns from URMEL output file?', 'factor by which to multiply shunt impedances', 'If >0, cutoff frequency. Modes above this frequency are ignored.', 'Output file for voltage in each mode.', 'Interval in passes at which to flush output data.', 'Number of passes over which to linearly ramp up the impedance to full strength.', 'If nonzero, voltage and phase are reset for each simulation step.', 'If nonzero, induced voltage from present turn does not affect bunch. Short range wake should be included via WAKE or ZLONGIT element.', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
-
+    inputFileParameters = ['FILENAME']
+    outputFileParameters = ['OUTPUT_FILE']
 
 class FTABLE(elegantElement, magnetPic):
     elementDescription = 'Tracks through a magnetic field which is expressed by a SDDS table.'
@@ -517,6 +505,7 @@ class FTABLE(elegantElement, magnetPic):
     units = ['M', 'RAD', 'M', 'M', 'M', ' ', ' ', ' ', ' ', ' ', ' ']
     dataType = ['double', 'double', 'double', 'double', 'double', 'double', 'long', 'long', 'STRING', 'long', 'string']
     parameterDescription = ['length', 'rotation about longitudinal axis', 'misalignment', 'misalignment', 'misalignment', 'fractional strength error', 'number of kicks', 'include classical synchrotron radiation?', 'name of file containing multipole data', 'Order of expansion of square-root in Hamiltonian. 0 means no expansion.', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
+    inputFileParameters = ['FILENAME']
     color = Qt.magenta
 
 class FTRFMODE(elegantElement, rfPic):
@@ -525,6 +514,8 @@ class FTRFMODE(elegantElement, rfPic):
     units = [' ', 'S', ' ', ' ', ' ', 'M', 'M', ' ', ' ', 'HZ', ' ', ' ', ' ', ' ', ' ', ' ']
     dataType = ['STRING', 'double', 'long', 'long', 'long', 'double', 'double', 'double', 'double', 'double', 'STRING', 'long', 'long', 'long', 'long', 'string']
     parameterDescription = ['input file', 'bin size for current histogram (use 0 for autosize)', 'number of bins for current histogram', "don't affect the beam until this pass", 'use "Symm" columns from URMEL output file?', 'misalignment', 'misalignment', 'factor by which to multiply shunt impedances', 'factor by which to multiply shunt impedances', 'If >0, cutoff frequency. Modes above this frequency are ignored.', 'Output file for voltage in each mode.', 'Interval in passes at which to flush output data.', 'Number of passes over which to linearly ramp up the impedance to full strength.', 'If nonzero, voltage and phase are reset for each simulation step.', 'If nonzero, induced voltage from present turn does not affect bunch. Short range wake should be included via WAKE or ZLONGIT element.', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
+    inputFileParameters = ['FILENAME']
+    outputFileParameters = ['OUTPUT_FILE']
 
 class GFWIGGLER(elegantElement, undulatorPic):
     elementDescription = 'Tracks through a wiggler using generate function method of J. Bahrdt and G. Wuestefeld (BESSY, Berlin, Germany).'
@@ -532,6 +523,7 @@ class GFWIGGLER(elegantElement, undulatorPic):
     units = ['M', 'T', ' ', 'M', 'M', 'M', 'RAD', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'M', 'M', 'M', 'RAD', 'RAD', 'RAD', 'RAD', ' ', ' ']
     dataType = ['double', 'double', 'double', 'double', 'double', 'double', 'double', 'long', 'long', 'long', 'long', 'long', 'STRING', 'STRING', 'long', 'long', 'long', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'long', 'string']
     parameterDescription = ['Total length', 'Maximum on-axis magnetic field at gap=GAP0 and equal longitudinal phases of PHASE_1,2,3,4', 'Scaling factor of shim correction field.', 'Misaligment.', 'Misaligment.', 'Misaligment.', 'Rotation about beam axis.', 'Total number of wiggler periods. Include end poles', 'Number of normal periods to track for each step', 'Order=3 including the 3rd order terms. Otherwise using 2nd order formula.', 'The ending poles are treated as 2 half periods at each sides of the wiggler with reducing field strength, such as 0.25, -0.75, ..., 0.75, -0.25. Periods has to > 2', 'Include shim correction', 'Name of SDDS file with By harmonic data given at GAP0 and equal longitudinal phases.', 'Name of SDDS file with shim field integral harmonic data given at GAP0.', 'Include classical synchrotron radiation?', 'Include incoherent synchrotron radiation (scattering)?', 'Include ISR for single-particle beam only if ISR=1 and ISR1PART=1', 'Offset of magnet row center in meter.', 'Nominal magnetic gap.', 'Delta gap: actual gap - nominal gap', 'Longitudinal phase of the first row (top right)', 'Longitudinal phase of the second row (top left)', 'Longitudinal phase of the third row (bottom left)', 'Longitudinal phase of the fourth row (bottom right)', 'A higher value requires more detailed printouts related to computations.', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
+    inputFileParameters = ['INPUT_FILE', 'SHIM_INPUT']
 
 class HISTOGRAM(elegantElement, zeroLengthPic):
     elementDescription = 'Request for histograms of particle coordinates to be output to SDDS file.'
@@ -539,6 +531,7 @@ class HISTOGRAM(elegantElement, zeroLengthPic):
     units = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
     dataType = ['STRING', 'long', 'long', 'long', 'long', 'long', 'long', 'long', 'double', 'long', 'long', 'string']
     parameterDescription = ['filename for histogram output, possibly incomplete (see below)', 'interval in passes between output', 'starting pass for output', 'number of bins', 'if nonzero, bin size is fixed after the first histogram is made', "histogram x and x'?", "histogram y and y'?", 'histogram t and p?', 'multiply computed bin size by this factor before histogramming', 'normalize histogram with bin size and number of particles?', 'If nonzero, no output will be generated.', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
+    outputFileParameters = ['FILENAME']
 
 class HKICK(elegantElement, bendPic):
     elementDescription = 'A horizontal steering dipole implemented as a matrix, up to 2nd order.'
@@ -560,6 +553,7 @@ class IBSCATTER(elegantElement, zeroLengthPic):
     units = [' ', 'C', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
     dataType = ['double', 'double', 'long', 'long', 'long', 'long', 'long', 'long', 'long', 'long', 'STRING', 'string']
     parameterDescription = ['factor by which to multiply growth rates before using', 'beam charge (or use CHARGE element)', 'do x-plane scattering?', 'do y-plane scattering?', 'do z-plane scattering?', 'The number of slices per bunch', 'Use smooth method instead of random numbers?', 'Force computations to be done with twiss parameters of the beamline, not the beam.', 'Is it storage ring?', 'Interval in passes at which to update output file.', 'Output filename.', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
+    outputFileParameters = ['FILENAME']
 
 class ILMATRIX(elegantElement, zeroLengthPic):
     elementDescription = 'An Individualized Linear Matrix for each particle for fast symplectic tracking with chromatic and amplitude-dependent effects'
@@ -581,6 +575,7 @@ class KOCT(elegantElement, magnetPic):
     units = ['M', '1/M^{4}', 'RAD', 'M', 'T', 'M', 'M', 'M', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
     dataType = ['double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'long', 'long', 'STRING', 'STRING', 'long', 'long', 'long', 'long', 'string']
     parameterDescription = ['length', 'geometric strength', 'rotation about longitudinal axis', 'bore radius', 'field at pole tip (used if bore nonzero)', 'misalignment', 'misalignment', 'misalignment', 'fractional strength error', 'number of kicks', 'include classical synchrotron radiation?', 'input file for systematic multipoles', 'input file for random multipoles', 'integration order (2 or 4)', 'Order of expansion of square-root in Hamiltonian. 0 means no expansion.', 'include incoherent synchrotron radiation (scattering)?', 'Include ISR for single-particle beam only if ISR=1 and ISR1PART=1', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
+    inputFileParameters = ['SYSTEMATIC_MULTIPOLES', 'RANDOM_MULTIPOLES']
     color = QColor(Qt.yellow).lighter()
 
 class KPOLY(elegantElement, bendPic):
@@ -596,6 +591,7 @@ class KQUAD(elegantElement, magnetPic):
     units = ['M', '1/M^{2}', 'RAD', 'M', 'T', 'M', 'M', 'M', ' ', 'RAD', 'RAD', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'M', 'M^{2}', 'M^{3}', 'M^{4}', 'M^{3}', 'M', 'M^{2}', 'M^{3}', 'M^{4}', 'M^{3}', ' ', ' ']
     dataType = ['double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'long', 'long', 'long', 'long', 'STRING', 'STRING', 'STRING', 'long', 'long', 'long', 'long', 'long', 'long', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'long', 'string']
     parameterDescription = ['length', 'geometric strength', 'rotation about longitudinal axis', 'bore radius', 'pole tip field (used if bore nonzero)', 'misalignment', 'misalignment', 'misalignment', 'fractional strength error', 'horizontal correction kick', 'vertical correction kick', 'calibration factor for horizontal correction kick', 'calibration factor for vertical correction kick', 'use for horizontal correction?', 'use for vertical correction?', 'number of kicks', 'include classical synchrotron radiation?', 'input file for systematic multipoles', 'input file for random multipoles', 'input file for multipole content of steering kicks', 'integration order (2 or 4)', 'Order of expansion of square-root in Hamiltonian. 0 means no expansion.', 'include incoherent synchrotron radiation (scattering)?', 'Include ISR for single-particle beam only if ISR=1 and ISR1PART=1', 'include entrance edge effects?', 'include exit edge effects?', 'i0+ fringe integral', 'i1+ fringe integral', 'i2+ fringe integral', 'i3+ fringe integral', 'lambda2+ fringe integral', 'i0- fringe integral', 'i1- fringe integral', 'i2- fringe integral', 'i3- fringe integral', 'lambda2- fringe integral', 'If non-zero, converts the quadrupole into a radially-focusing lens', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
+    inputFileParameters = ['SYSTEMATIC_MULTIPOLES', 'RANDOM_MULTIPOLES', 'STEERING_MULTIPOLES']
     color = QColor(Qt.red).lighter()
 
 class KQUSE(elegantElement, bendPic):
@@ -618,6 +614,7 @@ class KSEXT(elegantElement, magnetPic):
     units = ['M', '1/M^{3}', 'RAD', 'M', 'T', 'M', 'M', 'M', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
     dataType = ['double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'long', 'long', 'STRING', 'STRING', 'long', 'long', 'long', 'long', 'string']
     parameterDescription = ['length', 'geometric strength', 'rotation about longitudinal axis', 'bore radius', 'field at pole tip (used if bore nonzero)', 'misalignment', 'misalignment', 'misalignment', 'fractional strength error', 'number of kicks', 'include classical synchrotron radiation?', 'input file for systematic multipoles', 'input file for random multipoles', 'integration order (2 or 4)', 'Order of expansion of square-root in Hamiltonian. 0 means no expansion.', 'include incoherent synchrotron radiation (scattering)?', 'Include ISR for single-particle beam only if ISR=1 and ISR1PART=1', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
+    inputFileParameters = ['SYSTEMATIC_MULTIPOLES', 'RANDOM_MULTIPOLES']
     color = QColor(Qt.green).lighter()
 
 class LMIRROR(elegantElement, mirrorPic):
@@ -640,6 +637,7 @@ class LSRMDLTR(elegantElement, undulatorPic):
     units = ['M', 'T', ' ', 'NULL', 'NULL', 'NULL', ' ', ' ', ' ', ' ', 'M', 'W', 'M', 'RAD', 'M', 'M', 'M', 'RAD', ' ', ' ', ' ', ' ', 'NULL', 'S', ' ']
     dataType = ['double', 'double', 'long', 'STRING', 'STRING', 'double', 'long', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'long', 'long', 'long', 'long', 'STRING', 'double', 'string']
     parameterDescription = ['length', 'Undulator peak field', 'Number of undulator periods.', 'integration method (runge-kutta, bulirsch-stoer, modified-midpoint, two-pass modified-midpoint, leap-frog, non-adaptive runge-kutta)', 'ideal, exact, or "leading terms"', 'Integration accuracy for adaptive integration. (Not recommended)', 'Number of integration steps for non-adaptive integration.', 'Strength factor for the first and last pole.', 'Strength factor for the second and second-to-last pole.', 'Strength factor for the third and third-to-last pole.', 'Laser wavelength. If zero, the wavelength is calculated from the resonance condition.', 'laser peak power', 'laser spot size at waist, w_0 = \\sqrt{2}\\sigma_x = \\sqrt{2}\\sigma_y', 'laser phase', 'laser horizontal offset at center of wiggler', 'laser vertical offset at center of wiggler', 'offset of waist position from center of wiggler', 'laser tilt', 'laser horizontal mode number (<5)', 'laser vertical mode number (<5)', 'Include classical synchrotron radiation?', 'Include quantum excitation?', '<filename>=<x>+<y> form specification of input file giving time-dependent modulation of the laser electric and magnetic fields.', 'Time offset of the laser profile.', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
+    inputFileParameters = ['TIME_PROFILE']
 
 class LTHINLENS(elegantElement, lensPic):
     elementDescription = 'A thin lens for light optics'
@@ -676,6 +674,7 @@ class MAPSOLENOID(elegantElement, solenoidPic):
     units = ['M', 'M', 'M', 'RAD', 'RAD', 'RAD', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
     dataType = ['double', 'double', 'double', 'double', 'double', 'double', 'long', 'STRING', 'STRING', 'STRING', 'STRING', 'STRING', 'double', 'double', 'double', 'double', 'double', 'STRING', 'string']
     parameterDescription = ['length', 'misalignment', 'misalignment', 'misalignment', 'misalignment', 'misalignment', 'number of steps (for nonadaptive integration)', 'SDDS file containing (Br, Bz) vs (r, z). Each page should have values for a fixed r.', 'column containing r values', 'column containing z values', 'column containing Br values', 'column containing Bz values', 'factor by which to multiply fields in file', 'uniform horizontal field to superimpose on solenoid field', 'uniform vertical field to superimpose on solenoid field', 'length of uniform field superimposed on solenoid field', 'integration accuracy', 'integration method (runge-kutta, bulirsch-stoer, non-adaptive runge-kutta, modified midpoint)', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
+    inputFileParameters = ['INPUTFILE']
 
 class MARK(elegantElement, particleWatch):
     elementDescription = 'A marker, equivalent to a zero-length drift space.'
@@ -690,6 +689,7 @@ class MATR(elegantElement, zeroLengthPic):
     units = ['M', ' ', ' ', ' ']
     dataType = ['double', 'STRING', 'long', 'string']
     parameterDescription = ['length', 'input file', 'matrix order', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
+    inputFileParameters = ['FILENAME']
 
 class MATTER(elegantElement, magnetPic):
     elementDescription = 'A Coulomb-scattering and energy-absorbing element simulating material in the beam path.'
@@ -712,6 +712,7 @@ class MBUMPER(elegantElement, bendPic):
     units = ['M', ' ', 'RAD', 'M', 'M', 'M', 'S', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
     dataType = ['double', 'double', 'double', 'double', 'double', 'double', 'double', 'long', 'long', 'long', 'long', 'long', 'STRING', 'string']
     parameterDescription = ['length', 'geometric strength in 1/m\xf4rder', 'rotation about longitudinal axis', 'misalignment', 'misalignment', 'misalignment', 'time offset of waveform', 'multipole order, where 1 is quadrupole, 2 is sextupole, etc.', 'is waveform periodic?', 'phase reference number (to link with other time-dependent elements)', 'pass number to fire on', 'Number of kicks to use for simulation.', '<filename>=<x>+<y> form specification of input file giving kick factor vs time', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
+    inputFileParameters = ['WAVEFORM']
 
 class MHISTOGRAM(elegantElement, zeroLengthPic):
     elementDescription = 'Request for multiple dimensions (1, 2, 4 or 6) histogram output of particle coordinates.'
@@ -719,6 +720,8 @@ class MHISTOGRAM(elegantElement, zeroLengthPic):
     units = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
     dataType = ['STRING', 'STRING', 'STRING', 'STRING', 'STRING', 'STRING', 'STRING', 'long', 'long', 'long', 'long', 'long', 'string']
     parameterDescription = ['filename for 1d histogram output, possibly incomplete (see below)', "filename for 2d x-x' histogram output, possibly incomplete (see below)", "filename for 2d y-y' histogram output, possibly incomplete (see below)", 'filename for 2d dt-deltaP histogram output, possibly incomplete (see below)', "filename for 4d x-x'-y-y' histogram output, possibly incomplete (see below)", "filename for 6d x-x'-y-y'-dt-deltaP histogram output, possibly incomplete (see below)", 'Name of SDDS file contains input bin number.', 'interval in passes between output.', 'starting pass for output', 'normalize histogram with number of particles?', 'If nonzero, no output will be generated.', 'If nonzero, then results at elements with same name will be output to a single multipage SDDS file.', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
+    inputFileParameters = ['INPUT_BINS']
+    outputFileParameters = ['FILE1D', 'FILE2DH', 'FILE2DV', 'FILE2DL', 'FILE4D', 'FILE6D']
 
 class MODRF(elegantElement, rfPic):
     elementDescription = 'A first-order matrix RF cavity with exact phase dependence, plus optional amplitude and phase modulation.'
@@ -809,6 +812,7 @@ class RAMPP(elegantElement, rfPic):
     units = [' ', ' ']
     dataType = ['STRING', 'string']
     parameterDescription = ['<filename>=<x>+<y> form specification of input file giving momentum factor vs time', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
+    inputFileParameters = ['WAVEFORM']
 
 class RAMPRF(elegantElement, rfPic):
     elementDescription = 'A voltage-, phase-, and/or frequency-ramped RF cavity, implemented like RFCA.'
@@ -816,6 +820,7 @@ class RAMPRF(elegantElement, rfPic):
     units = ['M', 'V', 'DEG', 'Hz', ' ', ' ', ' ', ' ', ' ', ' ']
     dataType = ['double', 'double', 'double', 'double', 'long', 'STRING', 'STRING', 'STRING', 'STRING', 'string']
     parameterDescription = ['length', 'nominal voltage', 'nominal phase', 'nominal frequency', 'phase reference number (to link with other time-dependent elements)', '<filename>=<x>+<y> form specification of input file giving voltage waveform factor vs time', '<filename>=<x>+<y> form specification of input file giving phase offset vs time (requires FREQ_WAVEFORM)', '<filename>=<x>+<y> form specification of input file giving frequency factor vs time (requires PHASE_WAVEFORM)', 'mode for determining fiducial arrival time (light, tmean, first, pmaximum)', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
+    inputFileParameters = ['VOLT_WAVEFORM', 'PHASE_WAVEFORM', 'FREQ_WAVEFORM']
 
 class RBEN(elegantElement, bendPic):
     elementDescription = 'A rectangular dipole, implemented as a SBEND with edge angles, up to 2nd order.'
@@ -865,6 +870,7 @@ class RFCW(elegantElement, rfPic):
     units = ['M', 'M', 'V', 'DEG', 'Hz', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'M', 'M', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
     dataType = ['double', 'double', 'double', 'double', 'double', 'double', 'long', 'long', 'long', 'STRING', 'long', 'long', 'STRING', 'long', 'long', 'long', 'STRING', 'STRING', 'STRING', 'STRING', 'STRING', 'STRING', 'STRING', 'long', 'long', 'long', 'long', 'long', 'double', 'double', 'long', 'long', 'long', 'long', 'double', 'double', 'double', 'double', 'double', 'long', 'string']
     parameterDescription = ['length', 'cell length (used to scale wakes, which are assumed to be given for a cell)', 'voltage', 'phase', 'frequency', 'cavity Q (for cavity that charges up to voltage from 0)', 'phase reference number (to link with other time-dependent elements)', 'does element change central momentum?', 'see RFCA documentation', 'mode for determining fiducial arrival time (light, tmean, first, pmaximum)', 'include focusing at entrance?', 'include focusing at exit?', 'None (default) or SRS (simplified Rosenzweig/Serafini for standing wave)', 'Number of kicks to use for kick method. Set to zero for matrix method.', 'If zero, longitudinal wake is turned off.', 'If zero, transverse wakes are turned off.', 'name of file containing Green functions', 'if WAKEFILE=NULL, optional name of file containing longitudinal Green function', 'if WAKEFILE=NULL, optional name of file containing transverse Green functions', 'column containing time data', 'column containing x Green function', 'column containing y Green function', 'column containing longitudinal Green function', 'number of bins for current histogram', 'interpolate wake?', 'Use Savitzky-Golay filter to smooth current histogram?', 'Savitzky-Golay filter half-width for smoothing', 'Savitzky-Golay filter order for smoothing', 'misalignment', 'misalignment', 'Linearize phase dependence?', 'Include longitudinal space-charge impedance?', 'Number of bins for LSC calculations', 'Interpolate computed LSC wake?', 'Highest spatial frequency at which low-frequency cutoff filter is zero. If not positive, no low-frequency cutoff filter is applied. Frequency is in units of Nyquist (0.5/binsize).', 'Lowest spatial frequency at which low-frequency cutoff filter is 1. If not given, defaults to LOW_FREQUENCY_CUTOFF1.', 'Spatial frequency at which smoothing filter begins for LSC. If not positive, no frequency filter smoothing is done. Frequency is in units of Nyquist (0.5/binsize).', 'Spatial frequency at which smoothing filter is 0 for LSC. If not given, defaults to HIGH_FREQUENCY_CUTOFF0.', 'LSC radius is (Sx+Sy)/2*RADIUS_FACTOR', 'Do wake kicks at end of segment (for backward compatibility)?', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
+    inputFileParameters = ['WAKEFILE', 'ZWAKEFILE', 'TRWAKEFILE']
 
 class RFDF(elegantElement, rfPic):
     elementDescription = 'A simple traveling or standing wave deflecting RF cavity.'
@@ -872,6 +878,7 @@ class RFDF(elegantElement, rfPic):
     units = ['M', 'DEG', 'RAD', 'HZ', 'V', ' ', ' ', 'S', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'DEG', ' ', 'DEG', ' ', ' ', ' ', ' ', ' ', 'M', 'M', 'M', ' ', ' ']
     dataType = ['double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'long', 'long', 'long', 'STRING', 'long', 'long', 'double', 'double', 'double', 'double', 'long', 'long', 'long', 'long', 'long', 'double', 'double', 'double', 'long', 'string']
     parameterDescription = ['length', 'phase', 'rotation about longitudinal axis', 'frequency', 'voltage', 'Fractional Strength Error', 'Normalized sextupole strength, kick=(1+b2*(x2-y2)/2)...', 'time offset (adds to phase)', 'number of kicks (0=autoscale)', 'phase reference number (to link with other time-dependent elements)', 'If nonzero, then cavity is standing wave.', '<filename>=<x>+<y> form specification of input file giving voltage waveform factor vs time', 'If non-zero, voltage waveform is periodic with period given by time span.', "If non-zero, waveforms' t=0 is aligned with first bunch arrival time.", 'Rms fractional noise level for voltage.', 'Rms noise level for phase.', 'Rms fractional noise level for voltage linked to group.', 'Rms noise level for phase linked to group.', 'Group number for voltage noise.', 'Group number for phase noise.', 'If non-negative, pass on which to start modeling cavity.', 'If non-negative, pass on which to end modeling cavity.', 'If non-zero, calculations involving matrices assume this element is a drift space.', 'misalignment', 'misalignment', 'misalignment', 'If non-zero, deflection is assumed to be performed by a magnetic field, rather than electric field (default).', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
+    inputFileParameters = ['VOLTAGE_WAVEFORM']
 
 class RFMODE(elegantElement, rfPic):
     elementDescription = 'A simulation of a beam-driven TM monopole mode of an RF cavity.'
@@ -879,6 +886,8 @@ class RFMODE(elegantElement, rfPic):
     units = ['Ohm', 'Ohm', ' ', 'Hz', 'C', 'V', 'RAD', 'S', ' ', 'S', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
     dataType = ['double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'long', 'long', 'double', 'long', 'long', 'long', 'STRING', 'long', 'long', 'STRING', 'STRING', 'long', 'long', 'long', 'long', 'string']
     parameterDescription = ['shunt impedance', 'shunt impedance (Ra=2*Rs)', 'cavity Q', 'frequency', 'beam charge (or use CHARGE element)', 'initial voltage', 'initial phase', 'time at which INITIAL_V and INITIAL_PHASE held', 'normalized load impedance', 'bin size for current histogram (use 0 for autosize)', 'number of bins for current histogram', 'preload cavity with steady-state field', 'multiply preloaded field by this value', "don't affect the beam until this pass", 'cavity is completely detuned until this pass', 'passes between output to RECORD file', 'output file for cavity fields', "if nonzero, don't accumulate field from pass to pass", 'interval in passes at which to apply PASS_INTERVAL times the field (may increase speed)', '<filename>=<x>+<y> form specification of input file giving frequency/f0 vs time, where f0 is the frequency given with the FREQ parameter', '<filename>=<x>+<y> form specification of input file giving qualityFactor/Q0 vs time, where Q0 is the quality factor given the the Q parameter.', 'Number of passes over which to linearly ramp up the impedance to full strength.', "If nonzero, use algorithm that doesn't requiring binning. Best for few particles, widely spaced.", 'If nonzero, voltage and phase are reset for each simulation step.', 'If nonzero, induced voltage from present turn does not affect bunch. Short range wake should be included via WAKE or ZLONGIT element.', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
+    inputFileParameters = ['FREQ_WAVEFORM', 'Q_WAVEFORM']
+    outputFileParameters = ['RECORD']
 
 class RFTM110(elegantElement, rfPic):
     elementDescription = 'Tracks through a TM110-mode (deflecting) rf cavity with all magnetic and electric field components. NOT RECOMMENDED--See below.'
@@ -886,6 +895,7 @@ class RFTM110(elegantElement, rfPic):
     units = ['DEG', 'RAD', 'HZ', 'V', ' ', ' ', ' ', ' ', ' ', 'DEG', ' ', 'DEG', ' ', ' ', ' ', ' ', ' ']
     dataType = ['double', 'double', 'double', 'double', 'long', 'STRING', 'long', 'long', 'double', 'double', 'double', 'double', 'long', 'long', 'long', 'long', 'string']
     parameterDescription = ['phase', 'rotation about longitudinal axis', 'frequency', 'peak deflecting voltage', 'phase reference number (to link with other time-dependent elements)', '<filename>=<x>+<y> form specification of input file giving voltage waveform factor vs time', 'If non-zero, voltage waveform is periodic with period given by time span.', "If non-zero, waveforms' t=0 is aligned with first bunch arrival time.", 'Rms fractional noise level for voltage.', 'Rms noise level for phase.', 'Rms fractional noise level for voltage linked to group.', 'Rms noise level for phase linked to group.', 'Group number for voltage noise.', 'Group number for phase noise.', 'If non-negative, pass on which to start modeling cavity.', 'If non-negative, pass on which to end modeling cavity.', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
+    inputFileParameters = ['VOLTAGE_WAVEFORM']
 
 class RFTMEZ0(elegantElement, rfPic):
     elementDescription = 'A TM-mode RF cavity specified by the on-axis Ez field.'
@@ -893,6 +903,8 @@ class RFTMEZ0(elegantElement, rfPic):
     units = ['M', 'HZ', 'RAD', 'V', 'S', ' ', 'M', 'M', 'M', 'RAD', 'RAD', 'RAD', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'M', 'M', 'M', 'RAD', 'RAD', 'RAD', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
     dataType = ['double', 'double', 'double', 'double', 'double', 'long', 'double', 'double', 'double', 'double', 'double', 'double', 'long', 'long', 'long', 'STRING', 'STRING', 'STRING', 'STRING', 'STRING', 'STRING', 'STRING', 'STRING', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'STRING', 'STRING', 'STRING', 'string']
     parameterDescription = ['length', 'frequency', 'phase', 'Peak on-axis longitudinal electric field', 'time offset (adds to phase)', 'phase reference number (to link to other time-dependent elements)', 'misalignment', 'misalignment', 'misalignment', 'misalignment', 'misalignment', 'misalignment', 'number of steps (for nonadaptive integration)', 'highest order in off-axis expansion', 'does element change central momentum?', 'file containing Ez vs z at r=0', 'column containing z values', 'column containing Ez values', 'file containing map of Bz and Br vs z and r. Each page contains values for a single r.', 'column containing z values for solenoid map.', 'column containing r values for solenoid map. If omitted, data is assumed to be for r=0 and an on-axis expansion is performed.', 'column containing Bz values for solenoid map.', 'column containing Br values for solenoid map. If omitted, data is assumed to be for r=0 and an on-axis expansion is performed.', 'factor by which to multiply solenoid fields.', 'misalignment', 'misalignment', 'misalignment', 'misalignment', 'misalignment', 'misalignment', 'Uniform stray horizontal field', 'Uniform stray vertical field', 'integration accuracy', 'integration method (runge-kutta, bulirsch-stoer, non-adaptive runge-kutta, modified midpoint)', '{t\\vertp},{median\\vertmin\\vertmax\\vertave\\vertfirst\\vertlight} (e.g., "t,median")', 'filename for output of test fields (r=0)', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
+    inputFileParameters = ['INPUTFILE', 'SOLENOID_FILE']
+    outputFileParameters = ['FIELD_TEST_FILE']
 
 class RIMULT(elegantElement, zeroLengthPic):
     elementDescription = 'Multiplies radiation integrals by a given factor. Use to compute emittance for collection of various types of cells.'
@@ -1020,6 +1032,7 @@ class TRFMODE(elegantElement, rfPic):
     units = ['Ohm/m', 'Ohm/m', ' ', 'Hz', 'C', ' ', 'S', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'M', 'M', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
     dataType = ['double', 'double', 'double', 'double', 'double', 'double', 'double', 'long', 'STRING', 'long', 'long', 'STRING', 'long', 'long', 'double', 'double', 'double', 'double', 'long', 'long', 'long', 'long', 'string']
     parameterDescription = ['shunt impedance', 'shunt impedance (Ra=2*Rs)', 'cavity Q', 'frequency', 'beam charge (or use CHARGE element)', 'normalized load impedance', 'bin size for current histogram (use 0 for autosize)', 'number of bins for current histogram', 'x, y, or both', 'passes between output to RECORD file', 'If non-zero, then in BINLESS mode, provides per-particle output of RECORD data.', 'output file for cavity data', "if nonzero, don't accumulate field from pass to pass", "don't affect the beam until this pass", 'misalignment', 'misalignment', 'factor by which to multiply shunt impedances', 'factor by which to multiply shunt impedances', 'Number of passes over which to linearly ramp up the impedance to full strength.', "If nonzero, use algorithm that doesn't requiring binning. Best for few particles, widely spaced.", 'If nonzero, voltage and phase are reset for each simulation step.', 'If nonzero, induced voltage from present turn does not affect bunch. Short range wake should be included via TRWAKE or ZTRANSVERSE element.', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
+    outputFileParameters = ['RECORD']
 
 class TRWAKE(elegantElement, zeroLengthPic):
     elementDescription = 'Transverse wake specified as a function of time lag behind the particle.'
@@ -1027,6 +1040,7 @@ class TRWAKE(elegantElement, zeroLengthPic):
     units = [' ', ' ', ' ', ' ', 'C', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'M', 'M', 'RAD', ' ', ' ', ' ', ' ']
     dataType = ['STRING', 'STRING', 'STRING', 'STRING', 'double', 'double', 'double', 'double', 'long', 'long', 'long', 'long', 'long', 'double', 'double', 'double', 'long', 'long', 'long', 'long']
     parameterDescription = ['name of file giving Green functions', 'column in INPUTFILE containing time data', 'column in INPUTFILE containing x Green function', 'column in INPUTFILE containing y Green function', 'beam charge (or use CHARGE element)', 'factor by which to multiply both wakes', 'factor by which to multiply x wake', 'factor by which to multiply y wake', 'number of bins for current histogram', 'interpolate wake?', 'Use Savitzky-Golay filter to smooth current histogram?', 'Savitzky-Golay filter half-width for smoothing', 'Savitzky-Golay filter order for smoothing', 'misalignment', 'misalignment', 'rotation about longitudinal axis', 'Exponent applied to x coordinates of drive particles', 'Exponent applied to y coordinates of drive particles', 'Exponent applied to x coordinates of probe particles', 'Exponent applied to y coordinates of probe particles']
+    inputFileParameters = ['INPUTFILE']
 
 class TUBEND(elegantElement, bendPic):
     elementDescription = 'A special rectangular bend element for top-up backtracking.'
@@ -1069,6 +1083,7 @@ class UKICKMAP(elegantElement, undulatorPic):
     units = ['M', 'RAD', 'M', 'M', 'M', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
     dataType = ['double', 'double', 'double', 'double', 'double', 'double', 'double', 'STRING', 'long', 'long', 'double', 'long', 'long', 'string']
     parameterDescription = ['length', 'rotation about longitudinal axis', 'misalignment', 'misalignment', 'misalignment', 'Factor by which to multiply the magnetic fields.', 'Factor by which to multiply the x and y values in the input file.', 'Name of SDDS file with undulator kickmap data.', 'Number of kicks into which to split the element.', 'Number of periods (for radiation integral computations only).', 'Reference value of undulator parameter. K=KREF*FIELD_FACTOR is used for radiation integral calculations only assuming period=L/PERIODS.', 'include classical synchrotron radiation?', 'include incoherent synchrotron radiation (scattering)?', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
+    inputFileParameters = ['INPUT_FILE']
 
 class VKICK(elegantElement, magnetPic):
     elementDescription = 'A vertical steering dipole implemented as a matrix, up to 2nd order.'
@@ -1091,6 +1106,7 @@ class WAKE(elegantElement, zeroLengthPic):
     units = [' ', ' ', ' ', 'C', 'C', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
     dataType = ['STRING', 'STRING', 'STRING', 'double', 'double', 'long', 'long', 'long', 'long', 'long', 'long', 'long', 'long', 'string']
     parameterDescription = ['name of file giving Green function', 'column in INPUTFILE containing time data', 'column in INPUTFILE containing Green function', 'beam charge (or use CHARGE element)', 'factor to multiply wake by', 'number of bins for current histogram', 'interpolate wake?', 'Use Savitzky-Golay filter to smooth current histogram?', 'Savitzky-Golay filter half-width for smoothing', 'Savitzky-Golay filter order for smoothing', 'change central momentum?', 'allow beam longer than wake data?', 'Number of passes over which to linearly ramp up the wake to full strength.', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
+    inputFileParameters = ['INPUTFILE']
 
 class WATCH(elegantElement, particleWatch):
     elementDescription = 'A beam property/motion monitor-allowed modes are centroid, parameter, coordinate, and fft.'
@@ -1098,6 +1114,7 @@ class WATCH(elegantElement, particleWatch):
     units = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
     dataType = ['double', 'long', 'long', 'long', 'STRING', 'STRING', 'STRING', 'long', 'long', 'long', 'long', 'long', 'long', 'long', 'long', 'string']
     parameterDescription = ['fraction of particles to dump (coordinate mode)', 'interval for data output (in turns)', 'pass on which to start', 'pass on which to end (inclusive). Ignored if negative.', 'output filename, possibly incomplete (see below)', 'output label', 'coordinate, parameter, centroid, or fft. For fft mode, you may add a space and a qualifer giving the window type: hanning (default), parzen, welch, or uniform.', 'include x data in coordinate mode?', 'include y data in coordinate mode?', 'include longitudinal data in coordinate mode?', 'exclude slopes in coordinate mode?', 'file flushing interval (parameter or centroid mode)', 'If nonzero, no output will be generated.', 'If nonzero, files are disconnected between each write operation. May be useful for parallel operation. Ignored otherwise.', 'Offset for file indices for sequential file naming.', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
+    outputFileParameters = ['FILENAME']
 
 class WIGGLER(elegantElement, undulatorPic):
     elementDescription = 'A wiggler or undulator for damping or excitation of the beam.'
@@ -1112,6 +1129,8 @@ class ZLONGIT(elegantElement, zeroLengthPic):
     units = ['C', ' ', 'Ohm', 'Ohm', ' ', 'Hz', ' ', ' ', 'S', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
     dataType = ['double', 'long', 'double', 'double', 'double', 'double', 'STRING', 'STRING', 'double', 'long', 'long', 'STRING', 'long', 'long', 'long', 'long', 'long', 'long', 'long', 'long', 'long', 'double', 'long', 'long', 'double', 'double', 'string']
     parameterDescription = ['beam charge (or use CHARGE element)', 'broad-band impedance?', 'shunt impedance', 'shunt impedance (Ra=2*Rs)', 'cavity Q', 'frequency (BROAD_BAND=1)', '<filename>=<x>+<y> form specification of input file giving real part of impedance vs f (BROAD_BAND=0)', '<filename>=<x>+<y> form specification of input file giving imaginary part of impedance vs f (BROAD_BAND=0)', 'bin size for current histogram (use 0 for autosize)', 'number of bins for current histogram', 'Maximum number of bins for current histogram', 'filename for output of wake', 'interval in passes at which to output wake', 'pass at which to start to output wake', 'pass at which to stop to output wake', 'use area-weighting in assigning charge to histogram?', 'interpolate wake?', 'Use Savitzky-Golay filter to smooth current histogram?', 'Savitzky-Golay filter order for smoothing', 'Savitzky-Golay filter halfwidth for smoothing', 'Reverse time-order of particles for wake computation?', 'Factor by which to multiply impedance.', 'The pass on which the impedance effects start.', 'Number of passes over which to linearly ramp up the impedance to full strength.', 'Frequency at which smoothing filter begins. If not positive, no frequency filter smoothing is done. Frequency is in units of Nyquist (0.5/binsize).', 'Frequency at which smoothing filter is 0. If not given, defaults to HIGH_FREQUENCY_CUTOFF0.', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
+    inputFileParameters = ['ZREAL', 'ZIMAG']
+    outputFileParameters = ['WAKES']
 
 class ZTRANSVERSE(elegantElement, zeroLengthPic):
     elementDescription = 'A simulation of a single-pass broad-band or functionally-specified transverse dipole impedance.'
@@ -1119,6 +1138,8 @@ class ZTRANSVERSE(elegantElement, zeroLengthPic):
     units = ['C', ' ', 'Ohm', ' ', 'Hz', ' ', ' ', ' ', ' ', ' ', ' ', 'S', ' ', ' ', ' ', ' ', ' ', ' ', 'M', 'M', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
     dataType = ['double', 'long', 'double', 'double', 'double', 'STRING', 'STRING', 'STRING', 'STRING', 'STRING', 'STRING', 'double', 'long', 'long', 'long', 'long', 'long', 'long', 'double', 'double', 'double', 'double', 'double', 'STRING', 'long', 'long', 'long', 'long', 'long', 'double', 'double', 'long', 'long', 'long', 'long', 'string']
     parameterDescription = ['beam charge (or use CHARGE element)', 'broad-band impedance?', 'shunt impedance (Ra=2*Rs)', 'cavity Q', 'frequency (BROAD_BAND=1)', 'name of file giving impedance (BROAD_BAND=0)', 'column in INPUTFILE containing frequency', 'column in INPUTFILE containing real impedance for x plane', 'column in INPUTFILE containing imaginary impedance for x plane', 'column in INPUTFILE containing real impedance for y plane', 'column in INPUTFILE containing imaginary impedance for y plane', 'bin size for current histogram (use 0 for autosize)', 'interpolate wake?', 'number of bins for current histogram', 'Maximum number of bins for current histogram', 'Use Savitzky-Golay filter to smooth current histogram?', 'Savitzky-Golay filter order for smoothing', 'Savitzky-Golay filter halfwidth for smoothing', 'misalignment', 'misalignment', 'Factor by which to multiply x and y impedances.', 'Factor by which to multiply x impedance.', 'Factor by which to multiply y impedance.', 'filename for output of wake', 'interval in passes at which to output wake', 'pass at which to start to output wake', 'pass at which to stop to output wake', 'The pass on which the impedance effects start.', 'Number of passes over which to linearly ramp up the impedance to full strength.', 'Frequency at which smoothing filter begins. If not positive, no frequency filter smoothing is done. Frequency is in units of Nyquist (0.5/binsize).', 'Frequency at which smoothing filter is 0. If not given, defaults to HIGH_FREQUENCY_CUTOFF0.', 'Exponent applied to x coordinates of drive particles', 'Exponent applied to y coordinates of drive particles', 'Exponent applied to x coordinates of probe particles', 'Exponent applied to y coordinates of probe particles', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
+    inputFileParameters = ['INPUTFILE']
+    outputFileParameters = ['WAKES']
 
 
 def nameMangler(name):
