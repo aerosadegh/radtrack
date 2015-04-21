@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'undulatorforthicksrw.ui'
 #
-# Created: Wed Mar 25 13:16:10 2015
+# Created: Tue Apr 21 00:16:56 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!

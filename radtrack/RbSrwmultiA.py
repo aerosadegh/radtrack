@@ -32,9 +32,9 @@ class rbsrw(QtGui.QWidget):
         self.workbook = open_workbook(resource.filename('SRWinitialvalues.xls'))
         self.thick(self.ui.deparg.currentIndex())
         #disable/remove broken simulation argument
-        self.ui.deparg.removeItem(4)
-        self.ui.deparg.removeItem(5)
         self.ui.deparg.removeItem(6)
+        self.ui.deparg.removeItem(5)
+        self.ui.deparg.removeItem(4)
         #set srw initial values
         column = self.workbook.sheet_by_name('thick undulator').col(0)
         units = self.workbook.sheet_by_name('thick undulator').col(1)
@@ -46,6 +46,7 @@ class rbsrw(QtGui.QWidget):
         self.GetBeamParams(DialogB(self,units,column))
         column = self.workbook.sheet_by_name('thick precision').col(0)
         units = self.workbook.sheet_by_name('thick precision').col(1)
+        print column
         units = self.unitstr(units)
         self.GetPrecision(DialogP(self,units,column))
         
@@ -61,7 +62,8 @@ class rbsrw(QtGui.QWidget):
         self.ui.analytic.setText('No calculations performed...Yet')
         
     def AnalyticA(self):
-        (Kx,Ky,lam_rn,e_phn)=IDWaveLengthPhotonEnergy(self.up.undPer,self.up.Bx,self.up.By,self.beam.partStatMom1.gamma)
+#        (Kx,Ky,lam_rn,e_phn)=IDWaveLengthPhotonEnergy(self.up.undPer,self.up.Bx,self.up.By,self.beam.partStatMom1.gamma)
+        (Kx,Ky,lam_rn,e_phn)=IDWaveLengthPhotonEnergy(self.up.undPer,0,self.up.By,self.beam.partStatMom1.gamma)
         #Outputs: (UP.Kx=0.934*UP.By*UP.undPer, UP.K, RAD.ephn, UP.WorU)=
         #1. derived Kx from UP.By and UP.undPer
         #2. Introduced new class RAD.ephn = radiation class, variable phot energy of nth harmonics
@@ -132,17 +134,17 @@ class rbsrw(QtGui.QWidget):
 
         if dialog.ui.vh.isChecked():
             self.up.By = convertUnitsStringToNumber(dialog.ui.b.text(),units[2])
-            self.up.Bx = None
+            self.up.Bx = 0
         else:
             self.up.Bx = convertUnitsStringToNumber(dialog.ui.b.text(),units[2])
-            self.up.By = None
+            self.up.By = 0
 
         
     def ShowUndParams(self, dialog):
         units = dialog.u
         dialog.ui.numper.setText(displayWithUnitsNumber(self.up.numPer,units[0]))
         dialog.ui.undper.setText(displayWithUnitsNumber(self.up.undPer,units[1]))
-        if self.up.By is None:
+        if self.up.By is 0:
             dialog.ui.b.setText(displayWithUnitsNumber(self.up.Bx,units[2]))
             dialog.ui.vh.setChecked(False)
         else:
@@ -198,9 +200,12 @@ class rbsrw(QtGui.QWidget):
         
     def WfrSetUpE(self,wfrE):
         #wfrE = SRWLWfr() this is the waveform class
-        Nenergy = int(float(self.ui.tableWidget.item(0,0).text()))#float?
-        Nx = int(float(self.ui.tableWidget.item(1,0).text()))
-        Ny = int(float(self.ui.tableWidget.item(2,0).text()))
+#        Nenergy = float(self.ui.tableWidget.item(0,0).text())#float?
+        Nenergy = int(convertUnitsStringToNumber(self.ui.tableWidget.item(0,0).text(),''))
+#        Nx = int(self.ui.tableWidget.item(1,0).text())
+        Nx = int(convertUnitsStringToNumber(self.ui.tableWidget.item(1,0).text(),''))
+#        Ny = int(self.ui.tableWidget.item(2,0).text())
+        Ny = int(convertUnitsStringToNumber(self.ui.tableWidget.item(2,0).text(),''))
         wfrE.allocate(Nenergy,Nx,Ny)
         wfrE.mesh.zStart = float(self.ui.tableWidget.item(3,0).text())
         wfrE.mesh.eStart = float(self.ui.tableWidget.item(4,0).text())
@@ -281,6 +286,7 @@ class rbsrw(QtGui.QWidget):
         #self.BeamParams(self.beam)
 
         #self.AnalyticA(self.beam)
+        self.AnalyticA()
 
         #(self.arPrecF, self.arPrecP)=self.PrecisionThick()     
         
@@ -455,8 +461,8 @@ class DialogU(QtGui.QDialog):
         if column is not None:
             self.ui.numper.setText(str(column[0].value)+' '+units[0])  #Number of ID Periods (without accounting for terminations)
             self.ui.undper.setText(str(column[1].value)) #Period Length
-            self.ui.n.setText(str(column[2].value))
-            self.ui.b.setText(str(column[3].value)+' '+units[2])
+            self.ui.n.setText(str(column[3].value))
+            self.ui.b.setText(str(column[2].value)+' '+units[2])
             self.ui.vh.setChecked(column[4].value is unicode('v'))             
             
                 

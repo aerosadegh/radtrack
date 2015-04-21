@@ -43,6 +43,8 @@ class rbsrw(QtGui.QWidget):
         units = self.workbook.sheet_by_name('thin precision').col(1)
         units =self.unitstr(units)
         self.GetPrecision(DialogP(self,units,column))
+        #removed exy option
+        self.ui.deparg.removeItem(6)
         
         #connections
         self.ui.undulator.clicked.connect(self.makeund)
