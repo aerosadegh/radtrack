@@ -44,7 +44,7 @@ class dlistWidget(QtGui.QListWidget):
         self.setAcceptDrops(True)
         self.setDragEnabled(True)
         self.setFlow(QtGui.QListView.LeftToRight)
-        self.setMaximumSize(QtCore.QSize(16777215, 40))
+        self.setMaximumSize(QtCore.QSize(16777215, 60))
         self.setSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Fixed)
 
     def dropEvent(self, event):
@@ -52,8 +52,7 @@ class dlistWidget(QtGui.QListWidget):
         self.lengthChange.emit()
 
     def mouseDoubleClickEvent(self, event):
-        item = self.itemAt(self.viewport()\
-                .mapFromGlobal(event.globalPos()))
+        item = self.itemAt(self.viewport().mapFromGlobal(event.globalPos()))
         if item is not None:
             self.itemDoubleClicked.emit(item.text())
 
@@ -62,18 +61,27 @@ class dlistWidget(QtGui.QListWidget):
         if item is not None:
             self.contextMenuClicked.emit(item.text(), "list", event.globalPos())
 
+# Needed so QGraphicsScene can accept drops
+class beamGraphicsScene(QtGui.QGraphicsScene):
+    def __init__(self):
+        super(beamGraphicsScene, self).__init__()
+
+    def dragMoveEvent(self, event):
+        event.accept()
 
 class beamGraphicsWindow(QtGui.QGraphicsView):
     itemDoubleClicked = QtCore.pyqtSignal(str)
     wheelZoom = QtCore.pyqtSignal(int)
     contextMenuClicked = QtCore.pyqtSignal(str,str,QtCore.QPoint)
     dragDone = QtCore.pyqtSignal()
+    itemDropped = QtCore.pyqtSignal()
 
     def __init__(self, layoutWidget):
         super(beamGraphicsWindow, self).__init__(layoutWidget)
         self.setObjectName("graphicsView")
         self.setDragMode(QtGui.QGraphicsView.ScrollHandDrag)
-        self.setScene(QtGui.QGraphicsScene())
+        self.setScene(beamGraphicsScene())
+        self.setAcceptDrops(True)
 
     def mouseDoubleClickEvent(self, event):
         item = self.itemAt(self.viewport()\
@@ -94,6 +102,10 @@ class beamGraphicsWindow(QtGui.QGraphicsView):
             self.contextMenuClicked.emit(item.toolTip().split()[0], "picture", event.globalPos())
         else:
             self.contextMenuClicked.emit(None, "picture", event.globalPos())
+
+    def dropEvent(self, event):
+        super(beamGraphicsWindow, self).dropEvent(event)
+        self.itemDropped.emit()
 
 class Ui_tree(QtCore.QObject):
     contextMenuClicked = QtCore.pyqtSignal(str,str,QtCore.QPoint)
@@ -177,8 +189,8 @@ class Ui_tree(QtCore.QObject):
             button.setText(self.translateUTF8(str(button.objectName())))
         if len(self.advancedNames) > 0:
             self.advanced.setText(self.translateUTF8("ADVANCED"))
-        self.clearBeamlineButton.setText(self.translateUTF8("Clear Beamline"))
-        self.saveBeamlineButton.setText(self.translateUTF8("Save Beamline"))
+        self.clearBeamlineButton.setText(self.translateUTF8("Clear\nBeamline"))
+        self.saveBeamlineButton.setText(self.translateUTF8("Save\nBeamline"))
         self.label.setText(self.translateUTF8("Working Beamline: "))
 
     def translateUTF8(self, string):

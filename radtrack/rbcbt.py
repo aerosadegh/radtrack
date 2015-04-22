@@ -52,6 +52,7 @@ class RbCbt(QtGui.QWidget):
         self.ui.graphicsView.scene().selectionChanged.connect(self.picClick)
         self.ui.graphicsView.horizontalScrollBar().valueChanged.connect(self.drawLengthScale)
         self.ui.graphicsView.verticalScrollBar().valueChanged.connect(self.drawLengthScale)
+        self.ui.graphicsView.itemDropped.connect(self.droppedOnGraphicsWindow)
         self.ui.contextMenuClicked.connect(self.createContextMenu)
 
         #### Keyboard shortcuts
@@ -106,6 +107,11 @@ class RbCbt(QtGui.QWidget):
             self.ui.workingBeamline.clear()
             self.ui.workingBeamline.addItem(self.emptyBeamlineMessage)
 
+    def droppedOnGraphicsWindow(self):
+        if self.ui.treeWidget.currentItem():
+            self.ui.workingBeamline.addItem(self.ui.treeWidget.currentItem().text(0))
+            self.postListDrop()
+
     def postListDrop(self):
         try:
             self.fixWorkingBeamline()
@@ -125,8 +131,9 @@ class RbCbt(QtGui.QWidget):
     def treeClick(self):
         # Draw element currently selected
         self.elementPreview()
-        # Allow workingBeamline list to accept drops from treeWidget
+        # Allow workingBeamline list and beamline preview to accept drops from treeWidget
         self.ui.workingBeamline.setDragDropMode(QtGui.QAbstractItemView.DropOnly)
+        self.ui.graphicsView.setAcceptDrops(True)
         # Deselect everything in the list and preview
         for item in self.ui.workingBeamline.selectedItems() + \
                 self.ui.graphicsView.scene().selectedItems():
@@ -138,6 +145,8 @@ class RbCbt(QtGui.QWidget):
         self.workingBeamlinePreview()
         # Allow workingBeamline elements to be moved around without copying
         self.ui.workingBeamline.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
+        # Don't allow drags to beamline preview
+        self.ui.graphicsView.setAcceptDrops(False)
         # Deselect everything in the tree and preview
         for item in self.ui.treeWidget.selectedItems() + \
                 self.ui.graphicsView.scene().selectedItems():
@@ -394,7 +403,7 @@ class RbCbt(QtGui.QWidget):
 
     def drawElement(self, element = None):
         drawMessage = QtGui.QProgressDialog('Drawing beam line ...', 'Cancel', 0, 5, self.parent)
-        drawMessage.setMinimumDuration(500)
+        drawMessage.setMinimumDuration(100)
         drawMessage.setValue(0)
         if element:
             self.lastDrawnElement = element
@@ -413,6 +422,7 @@ class RbCbt(QtGui.QWidget):
         sy = sceneRect.height()
 
         if sx == 0 or sy == 0:
+            drawMessage.setValue(drawMessage.maximum())
             return
 
         viewSize = self.ui.graphicsView.size()
