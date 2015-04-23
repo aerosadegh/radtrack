@@ -213,12 +213,8 @@ def collapseBeamline(nameList):
                     while subListCollapse.startswith('(') and subListCollapse.endswith(')'):
                         subListCollapse = subListCollapse[1:-1]
                 count += removeRepetitions(nameList, expandBeamline(subListCollapse), startIndex)
-                if ',' in subListCollapse:
-                    beginParen = '('
-                    endParen = ')'
-                else:
-                    beginParen = ''
-                    endParen = ''
+                beginParen = '(' if ',' in subListCollapse else ''
+                endParen = ')' if beginParen == '(' else ''
                 nameList.insert(startIndex, str(count) + '*' + beginParen + subListCollapse + endParen)
             startIndex += 1
     return ', '.join(nameList)
