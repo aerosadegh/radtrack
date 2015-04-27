@@ -254,7 +254,7 @@ def isSingleGroup(lineString):
 
 # Creates a list of strings (beamlines element names)
 # after expanding all of the groups and repetitions.
-# Example input:  "(2*(a, b, a), 5*(c))" (string)
+# Example input:  "(2*(a, b, a), 5*c)" (string)
 # Result: ["a", "b", "a", "a", "b", "a", "c", "c", "c", "c", "c"] (list of strings)
 def expandBeamline(beamString):
     # Remove all whitespace
