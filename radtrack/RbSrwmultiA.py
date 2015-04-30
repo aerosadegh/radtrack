@@ -56,10 +56,10 @@ class rbsrw(QtGui.QWidget):
         self.ui.precision.clicked.connect(self.setprec)
         self.ui.deparg.currentIndexChanged.connect(self.thick)
         self.ui.sim.clicked.connect(self.srwbuttonThick)
-        self.ui.plot.clicked.connect(self.check)
+        self.ui.analyze.clicked.connect(self.AnalyticA)
         #indicators
         self.ui.status.setText('Initiated')
-        self.ui.analytic.setText('No calculations performed...Yet')
+        self.ui.analytic.setText('No calculations performed...As of Yet')
         
     def AnalyticA(self):
 #        (Kx,Ky,lam_rn,e_phn)=IDWaveLengthPhotonEnergy(self.up.undPer,self.up.Bx,self.up.By,self.beam.partStatMom1.gamma)
@@ -286,7 +286,7 @@ class rbsrw(QtGui.QWidget):
         #self.BeamParams(self.beam)
 
         #self.AnalyticA(self.beam)
-        self.AnalyticA()
+        #self.AnalyticA()
 
         #(self.arPrecF, self.arPrecP)=self.PrecisionThick()     
         

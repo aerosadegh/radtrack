@@ -52,10 +52,10 @@ class rbsrw(QtGui.QWidget):
         self.ui.precision.clicked.connect(self.setprec)
         self.ui.deparg.currentIndexChanged.connect(self.thin)
         self.ui.sim.clicked.connect(self.srwbuttonThin)
-        #self.ui.plot.clicked.connect(self.check)
+        self.ui.analyze.clicked.connect(self.AnalyticA)
         #indicators
         self.ui.status.setText('Initiated')
-        self.ui.analytic.setText('No calculations performed...Yet')
+        self.ui.analytic.setText('No calculations performed...As of Yet')
         
         
     def AnalyticA(self):
@@ -202,7 +202,7 @@ class rbsrw(QtGui.QWidget):
         #elecBeam = SRWLPartBeam()
         #self.BeamParams(elecBeam)
 
-        self.AnalyticA()
+        #self.AnalyticA()
 
         #precis = self.Precision()
         arPrecPar = [self.precis.meth, self.precis.relPrec, self.precis.zStartInteg, self.precis.zEndInteg, self.precis.npTraj, self.precis.useTermin, self.precis.sampFactNxNyForProp]
