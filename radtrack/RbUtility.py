@@ -306,21 +306,22 @@ def wordwrap(line, lineWidth, endLine = '', indenting = 0):
 
     return line
 
-
 def insideQuote(line, position):
     quoted = False
     for index in range(position + 1):
-        if line[index] == '"' and (index == 0 or line[index-1] != '\\'):
+        if line[index] == '"' and not characterEscaped(line, index):
             quoted = not quoted
     return quoted
 
 
 def stripComments(line, commentCharacter):
     for i in range(len(line)):
-        if line[i] == commentCharacter and not insideQuote(line, i):
+        if line[i] == commentCharacter and not insideQuote(line, i) and not characterEscaped(line, i):
             return line[:i].strip()
     return line.strip()
 
+def characterEscaped(line, position):
+    return position != 0 and line[position - 1] == '\\'
 
 def removeWhitespace(string):
     return ''.join(string)
