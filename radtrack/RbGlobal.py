@@ -177,7 +177,7 @@ class RbGlobal(QtGui.QMainWindow):
     def uniqueTabTitle(self, title, ignoreIndex = -1):
         originalTitle = title
         number = 0
-        currentTitles = [self.tabWidget.tabText(i).replace("&", "") for i in range(self.tabWidget.count()) if i != ignoreIndex]
+        currentTitles = [self.tabWidget.tabText(i) for i in range(self.tabWidget.count()) if i != ignoreIndex]
         while title in currentTitles:
             number = number + 1
             title = originalTitle + ' ' + str(number)
