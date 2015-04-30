@@ -1145,7 +1145,7 @@ def nameMangler(name):
     # drift
     # driffjknadfjd
     # DrIfTeR
-    # Are all interpretted the same
+    # Are all interpretted as DRIF
     name = name.upper()
     while name not in classDictionary and len(name) > 0:
         name = name[:-1]
