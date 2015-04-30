@@ -19,7 +19,6 @@ from radtrack.RbGenesisTransport import RbGenesisTransport
 from radtrack.BunchTab import BunchTab
 from radtrack.RbEle import RbEle
 from radtrack.RbFEL import RbFEL
-from radtrack.RbSimulations import RbSimulations
 from radtrack.srw.RbSrwUndulator import srwund
 from radtrack.genesis.rbgenesis2 import RbGenesis2
 from radtrack.RbSrwTab import RbSrwTab
@@ -81,7 +80,6 @@ class RbGlobal(QtGui.QMainWindow):
                                   RbLaserTransport(self),
                                   BunchTab(self),
                                   RbBunchTransport(self),
-                                  #RbSimulations(self),
                                   RbEle(self),
                                   RbDcp(self),
                                   RbFEL(self),
