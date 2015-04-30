@@ -45,7 +45,7 @@ class BunchTab(QtGui.QWidget):
 
         # set default values for flags
         self.numTicks = 5
-        self.plotFlag = 'combo'
+        self.plotFlag = 'scatter'
         self.axisFlag = 'symmetric'
         self.plotTitles = True
         self.longTwissFlag = 'alpha-bct-dp'
@@ -102,15 +102,15 @@ class BunchTab(QtGui.QWidget):
         bunchMenu = QtGui.QMenu(self)
         radtrackGaussian = QtGui.QAction("RadTrack - gaussian",self)
         bunchMenu.addAction(radtrackGaussian)
-        radtrackUniform = QtGui.QAction("RadTrack - uniform",self)
-        bunchMenu.addAction(radtrackUniform)
-        elegantGaussian = QtGui.QAction("Elegant - gaussian",self)
-        bunchMenu.addAction(elegantGaussian)
+#        radtrackUniform = QtGui.QAction("RadTrack - uniform",self)
+#        bunchMenu.addAction(radtrackUniform)
+#        elegantGaussian = QtGui.QAction("Elegant - gaussian",self)
+#        bunchMenu.addAction(elegantGaussian)
 
         # associate these actions with class methods
         radtrackGaussian.triggered.connect(self.radtrackGaussian)
-        radtrackUniform.triggered.connect(self.radtrackUniform)
-        elegantGaussian.triggered.connect(self.elegantGaussian)
+ #       radtrackUniform.triggered.connect(self.radtrackUniform)
+ #       elegantGaussian.triggered.connect(self.elegantGaussian)
 
         # grab an existing button & insert the menu
         bunchButton = self.ui.generateBunch
@@ -207,7 +207,7 @@ class BunchTab(QtGui.QWidget):
         self.eMassEV = self.eMass*self.cSq/self.eCharge  # eMass [eV]
 
         # specify default values for all input fields
-        numParticles = 4000
+        numParticles = 800
         self.designMomentumEV = 2.e+8
         self.totalCharge = 1.e-9
         self.ui.numPtcls.setText("{:d}".format(numParticles))
@@ -264,15 +264,15 @@ class BunchTab(QtGui.QWidget):
         self.distributionFlag = 'gaussian'
         self.generateBunchRT()
 
-    def radtrackUniform(self):
-        msgBox = QtGui.QMessageBox()
-        msgBox.setText("This feature has not yet been implemented. Coming soon!")
-        msgBox.exec_()
+#    def radtrackUniform(self):
+#        msgBox = QtGui.QMessageBox()
+#        msgBox.setText("This feature has not yet been implemented. Coming soon!")
+#        msgBox.exec_()
 
-    def elegantGaussian(self):
-        msgBox = QtGui.QMessageBox()
-        msgBox.setText("This feature has not yet been implemented. Coming soon!")
-        msgBox.exec_()
+#    def elegantGaussian(self):
+#        msgBox = QtGui.QMessageBox()
+#        msgBox.setText("This feature has not yet been implemented. Coming soon!")
+#        msgBox.exec_()
 
     def generateBunchRT(self):
         # get input from text boxes
@@ -940,17 +940,17 @@ class BunchTab(QtGui.QWidget):
         base, ext = splitext(fileName)
 
         # throw exception for bad extensions
-        if ext != '.sdds':
-            msgBox = QtGui.QMessageBox()
-            message  = 'ERROR --\n\n'
-            message += '  The selected file extension "' + ext + '" is invalid.\n'
-            message += '  Please select a file with extension ".sdds" - thanks!'
-            msgBox.setText(message)
-            msgBox.exec_()
+#        if ext != '.sdds':
+#            msgBox = QtGui.QMessageBox()
+#            message  = 'ERROR --\n\n'
+#            message += '  The selected file extension "' + ext + '" is invalid.\n'
+#            message += '  Please select a file with extension ".sdds" - thanks!'
+#            msgBox.setText(message)
+#            msgBox.exec_()
 
-        if False:
-            print ' '
-            print ' File to be parsed: ', fileName
+#        if False:
+#            print ' '
+#            print ' File to be parsed: ', fileName
 
         # index is always zero...?
         sddsIndex = 0
@@ -997,9 +997,9 @@ class BunchTab(QtGui.QWidget):
             message += 'The parameter definitions in the file are: \n'
             for iLoop in range(numParams):
                 message += '    ' + str(paramDefs[iLoop]) + '\n\n'
-            message += 'WARNING --\n'
-            message += '  Logic for extracting the design momentum, total beam\n'
-            message += '  charge, etc. has not yet been implemented!'
+#            message += 'WARNING --\n'
+#            message += '  Logic for extracting the design momentum, total beam\n'
+#            message += '  charge, etc. has not yet been implemented!'
         msgBox.setText(message)
         msgBox.exec_()
 
@@ -1049,17 +1049,17 @@ class BunchTab(QtGui.QWidget):
         # logic for deciphering and making use of parameter data goes here!
 
         # check whether the particle data is 6D
-        if numColumns != 6:
-            msgBox = QtGui.QMessageBox()
-            message  = 'ERROR --\n\n'
-            message += '  Particle data in the selected SDDS file is not 6D!\n\n'
-            message += '  Column names are: \n'
-            message += '    ' + str(columnNames) + '\n\n'
-            message += 'Please select another file.\n'
-            message += 'Thanks!'
-            msgBox.setText(message)
-            msgBox.exec_()
-            return
+#        if numColumns != 6:
+#            msgBox = QtGui.QMessageBox()
+#            message  = 'ERROR --\n\n'
+#            message += '  Particle data in the selected SDDS file is not 6D!\n\n'
+#            message += '  Column names are: \n'
+#            message += '    ' + str(columnNames) + '\n\n'
+#            message += 'Please select another file.\n'
+#            message += 'Thanks!'
+#            msgBox.setText(message)
+#            msgBox.exec_()
+#            return
 
         # get column definitions
         # units are in the 2nd column
