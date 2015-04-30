@@ -71,10 +71,11 @@ class RbGlobal(QtGui.QMainWindow):
         self.tabPrefix = '###Tab###' # used to identify files that are the saved data from tabs
 
         if self.beta_test:
-            self.originalTabs = [ BunchTab(self),
-                                  RbBunchTransport(self),
-                                  RbEle(self),
-                                  RbDcp(self) ]
+#            self.originalTabs = [ BunchTab(self),
+#                                  RbBunchTransport(self),
+#                                  RbEle(self),
+#                                  RbDcp(self) ]
+            self.originalTabs = [ RbEle(self) ]
         else:
             self.originalTabs = [ LaserTab(self),
                                   RbLaserTransport(self),
