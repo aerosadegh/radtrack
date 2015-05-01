@@ -29,7 +29,6 @@ class RbEle(QtGui.QWidget):
     centroid = %s.cen,
     sigma = %s.sig,
     parameters = %s.param,
-    magnets = %s.mag,
     random_number_seed = 987654321,
     combine_bunch_statistics = 0,
     concat_order = 2,
@@ -55,12 +54,6 @@ class RbEle(QtGui.QWidget):
 
 &sdds_beam
     input = "{bunchFileName}",
-&end
-
-&matrix_output
-    SDDS_output = %s.mat,
-    SDDS_output_order = 3,
-    output_at_each_step = 1,
 &end
 
 &track
