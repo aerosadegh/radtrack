@@ -13,6 +13,7 @@ Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 
 # system imports
 import sys
+import re
 from os.path import expanduser, dirname, splitext
 import subprocess
 
@@ -248,7 +249,6 @@ class BunchTab(QtGui.QWidget):
             self.parent.lastUsedDirectory = expanduser('~')
         self.fileExtension = '.sdds'
         self.exportToFile = self.saveToSDDS
-        self.importFile = self.readFromSDDS
 
         # try to make the blank plotting regions look nice
         self.erasePlots()
@@ -926,6 +926,13 @@ class BunchTab(QtGui.QWidget):
 
         # indicate that tab data has changed
         self.globalHasChanged = True
+
+    def importFile(self, fileName = None):
+        """Allow importing from CSV or SDDS"""
+        if fileName and re.search('\.csv$', fileName, re.IGNORECASE):
+            self.readFromCSV(fileName)
+        else:
+            self.readFromSDDS(fileName)
 
     def readFromSDDS(self, fileName = None):
         # use Qt file dialog
