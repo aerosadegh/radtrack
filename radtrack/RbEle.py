@@ -28,7 +28,6 @@ class RbEle(QtGui.QWidget):
     output = %s.out,
     centroid = %s.cen,
     sigma = %s.sig,
-    final = %s.fin,
     parameters = %s.param,
     magnets = %s.mag,
     random_number_seed = 987654321,
@@ -271,7 +270,11 @@ class RbEle(QtGui.QWidget):
             w.setEnabled(True)
         self._enable_parameters(False)
 
-    def _is_bunch_sdds_file(self, file_name):
+    def _is_bunch_file(self, file_name):
+        if re.search('\.csv$', file_name, re.IGNORECASE):
+            return True
+        if not self._is_sdds_file(file_name):
+            return False
         """Scans the SDDS header for the 6D field names"""
         search_columns = ['x', 'xp', 'y', 'yp', 't', 'p']
         for line in self._read_sdds_header(file_name):
@@ -382,8 +385,8 @@ class RbEle(QtGui.QWidget):
             elif self._is_sdds_file(file_name):
                 self._add_menu_actions(
                     menu, file_name, RbDcp, 'Data Visualization')
-                if self._is_bunch_sdds_file(file_name):
-                    self._add_menu_actions(menu, file_name, BunchTab, 'Bunch')
+            if self._is_bunch_file(file_name):
+                self._add_menu_actions(menu, file_name, BunchTab, 'Bunch')
             menu.exec_(results.mapToGlobal(position))
 
     def _run_simulation(self):
@@ -597,6 +600,12 @@ class BunchSourceManager(ComboManager):
             self.get_tab_widget().saveToSDDS(bunch_file_name)
         else:
             bunch_file_name = self.get_file_name()
+            # convert CSV files to SDDS
+            if re.search('\.csv$', bunch_file_name, re.IGNORECASE):
+                loader = BunchTab(parent=self.rbele.parent)
+                loader.readFromCSV(bunch_file_name)
+                bunch_file_name = self.rbele.session_file(suffix='sdds')
+                loader.saveToSDDS(bunch_file_name)
         return bunch_file_name
 
     def is_momentum_required(self):
@@ -604,7 +613,7 @@ class BunchSourceManager(ComboManager):
 
     def _bunch_source_changed(self):
         """Load bunch file if selected"""
-        if self.is_select_file_choice('*.sdds'):
+        if self.is_select_file_choice('SDDS files (*.sdds);;CSV files (*.csv)'):
             return
         if self.is_new_tab_choice():
             return
