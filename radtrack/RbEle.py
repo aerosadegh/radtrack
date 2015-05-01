@@ -642,7 +642,7 @@ class BeamLineSourceManager(ComboManager):
         elif self.has_selection():
             fileName = self.get_file_name()
             if fileName not in self.loaderCache:
-                loader = RbBunchTransport()
+                loader = RbBunchTransport(parent=self.rbele.parent)
                 loader.importFile(fileName)
                 self.loaderCache[fileName] = loader
             loader = self.loaderCache[fileName]
