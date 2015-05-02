@@ -1,6 +1,6 @@
 #! /bin/bash
 
-elegant *.ele
+elegant fodo.ele
 
 sddsplot -unsup=y -col=s,betax -graphic=line,type=0 *.twi -col=s,betay -graphic=line,type=1 *.twi -col=s,Profile -overlay=xmode=norm,yfact=0.1 -graphic=line,type=2 *.mag   &
 

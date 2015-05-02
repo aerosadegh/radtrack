@@ -1,8 +1,8 @@
 &run_setup
         lattice = fodo.lte
         default_order = 2,
-        use_beamline = bl,
-        p_central = 127.2,
+        use_beamline = FODO_Beamline_x10,
+        p_central = 65.0,
 	final 			 = %s.fin,
 	output                   = %s.out,
         centroid                 = %s.cen,
