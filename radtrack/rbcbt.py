@@ -600,10 +600,10 @@ class RbCbt(QtGui.QWidget):
     def importFile(self, fileName):
         ignoreMissingImportFiles = False
         importedData = self.importer(fileName)
-        if importedData is not None:
+        if importedData:
             newElements, defaultBeamline = importedData
 
-            if newElements is not None:
+            if newElements:
                 undoAction = commandLoadElements(self, newElements.values())
                 self.undoStack.push(undoAction)
 
@@ -627,7 +627,7 @@ class RbCbt(QtGui.QWidget):
                                     if box.standardButton(box.clickedButton()) == QtGui.QMessageBox.Yes:
                                         ignoreMissingImportFiles = True
 
-            if defaultBeamline is not None:
+            if defaultBeamline:
                 self.defaultBeamline = defaultBeamline
 
     def exportToFile(self, outputFileName = None):
@@ -637,7 +637,8 @@ class RbCbt(QtGui.QWidget):
                 self.parent.lastUsedDirectory,
                 '*.' + self.acceptsFileTypes[0])
                 
-            self.parent.recentfile = outputFileName
+        if not outputFileName:
+            return # User cancelled
 
         self.exporter(outputFileName, self.elementDictionary, self.defaultBeamline)
 

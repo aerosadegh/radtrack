@@ -35,8 +35,7 @@ excludedList = ['dtSweep.lte',
                 'multiple.lte',
                 'mv15-c5-v2-ring.lte']
 
-opticalFileList = glob.glob(
-        os.path.join(os.getcwd(), 'deprecated', 'laser_transport', '*.rad'))
+opticalFileList = glob.glob(os.path.join(os.getcwd(), 'deprecated', 'laser_transport', '*.rad'))
 
 fileLists = [particleFileList, opticalFileList]
 fileHandlers = [ele, opt]
@@ -97,18 +96,18 @@ sddsFileName = os.path.join(elegantFilesLocation, 'bunches', 'elegantSimTest.sdd
 def test_import_export():
     for fileList, fileHandler in zip(fileLists, fileHandlers):
         for fileName in fileList:
-            elementDictionary1, _ = fileHandler.fileImporter(fileName)
+            elementDictionary1, default1 = fileHandler.fileImporter(fileName)
             exportFileName = os.path.splitext(fileName)[0] + exportEnd
-            fileHandler.exportToFile(exportFileName, elementDictionary1)
+            fileHandler.exportToFile(exportFileName, elementDictionary1, default1)
             with open(exportFileName) as f:
                 # Check that lines are not split inside quotes
-                for lineNumber, line in enumerate(f.readlines()):
+                for line in f:
                     assert not insideQuote(line, len(line) - 1)
 
-            elementDictionary2, _ = fileHandler.fileImporter(exportFileName)
+            elementDictionary2, default2 = fileHandler.fileImporter(exportFileName)
 
-            assert all([element1 == element2 for (element1, element2) in \
-                    izip_longest(elementDictionary1.values(), elementDictionary2.values())])
+            assert elementDictionary1 == elementDictionary2
+            assert default1 == default2
 
             # Test elegant simulation on exported file
             # Choose the beam line with the most elements for testing

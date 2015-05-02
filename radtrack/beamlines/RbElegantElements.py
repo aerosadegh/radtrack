@@ -173,7 +173,7 @@ def exportToFile(outputFileName, elementDictionary, defaultBeamline = ''):
             fileWriteProgress.setValue(fileWriteProgress.value()+1)
             if not element.name.startswith('-'):
                 outputFile.write(element.componentLine() + '\n')
-        if defaultBeamline != '':
+        if defaultBeamline:
             outputFile.write('\nUSE, ' + defaultBeamline + '\n')
         outputFile.write('\nRETURN')
 
