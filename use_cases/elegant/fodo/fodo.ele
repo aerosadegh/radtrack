@@ -1,5 +1,5 @@
 &run_setup
-        lattice = simple_fodo.lte
+        lattice = fodo.lte
         default_order = 2,
         use_beamline = bl,
         p_central = 127.2,

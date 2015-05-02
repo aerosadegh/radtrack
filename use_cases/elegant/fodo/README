@@ -1,0 +1,12 @@
+RadTrack use case:  create and study a simple FODO lattice.
+
+  fodo.pptx - defines the problem for users
+            - shows results to verify correct behavior
+
+  fodo.sh   - bash file to execute Elegant from cmd line
+  fodo.ele  - Elegant command file for running this example
+
+  fodo.lte      - Elegant lattice file wih a simple FODO cell
+  fodo_x10.lte  - Elegant lattice file with 10 FODO periods
+
+  
