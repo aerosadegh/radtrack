@@ -292,33 +292,34 @@ class BunchTab(QtGui.QWidget):
 
             self.twissEmitNZ = (self.bctRms/beta0) * self.dPopRms / math.sqrt(1.+self.twissAlphaZ**2)
             self.twissBetaZ  = (self.bctRms/beta0) / self.dPopRms * math.sqrt(1.+self.twissAlphaZ**2)
-        elif self.longTwissFlag == "coupling-bct-dp":
-            msgBox = QtGui.QMessageBox()
-            message  = 'Error --\n\n'
-            message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
-            message += '  This value is not yet supported, but is coming soon!\n\n'
-            message += 'Please go to the "Specification Type" button and choose "alpha-bct-dp".\n\n'
-            message += 'Thanks!'
-            msgBox.setText(message)
-            msgBox.exec_()
-        elif self.longTwissFlag == "alpha-beta-emit":
-            msgBox = QtGui.QMessageBox()
-            message  = 'Error --\n\n'
-            message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
-            message += '  This value is not yet supported, but is coming soon!\n\n'
-            message += 'Please go to the "Specification Type" button and choose "alpha-bct-dp".\n\n'
-            message += 'Thanks!'
-            msgBox.setText(message)
-            msgBox.exec_()
-        else:
-            msgBox = QtGui.QMessageBox()
-            message  = 'Error --\n\n'
-            message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
-            message += '  This choice is invalid!\n\n'
-            message += 'Please use the "Specification Type" button to choose a valid option.\n\n'
-            message += 'Thanks!'
-            msgBox.setText(message)
-            msgBox.exec_()
+
+        # elif self.longTwissFlag == "coupling-bct-dp":
+        #     msgBox = QtGui.QMessageBox()
+        #     message  = 'Error --\n\n'
+        #     message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
+        #     message += '  This value is not yet supported, but is coming soon!\n\n'
+        #     message += 'Please go to the "Specification Type" button and choose "alpha-bct-dp".\n\n'
+        #     message += 'Thanks!'
+        #     msgBox.setText(message)
+        #     msgBox.exec_()
+        # elif self.longTwissFlag == "alpha-beta-emit":
+        #     msgBox = QtGui.QMessageBox()
+        #     message  = 'Error --\n\n'
+        #     message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
+        #     message += '  This value is not yet supported, but is coming soon!\n\n'
+        #     message += 'Please go to the "Specification Type" button and choose "alpha-bct-dp".\n\n'
+        #     message += 'Thanks!'
+        #     msgBox.setText(message)
+        #     msgBox.exec_()
+        # else:
+        #     msgBox = QtGui.QMessageBox()
+        #     message  = 'Error --\n\n'
+        #     message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
+        #     message += '  This choice is invalid!\n\n'
+        #     message += 'Please use the "Specification Type" button to choose a valid option.\n\n'
+        #     message += 'Thanks!'
+        #     msgBox.setText(message)
+        #     msgBox.exec_()
 
         # Get input from the table of phase space offsets
         self.offsetX  = float(parseUnits(self.ui.offsetTable.item(0,0).text()))
@@ -342,9 +343,9 @@ class BunchTab(QtGui.QWidget):
 
         # specify the Twiss parameters
         self.myBunch.setTwissParamsByName2D(self.twissAlphaX,self.twissBetaX,
-                                            self.twissEmitNX,'twissX')
+                                            self.twissEmitNX/beta0gamma0,'twissX')
         self.myBunch.setTwissParamsByName2D(self.twissAlphaY,self.twissBetaY,
-                                            self.twissEmitNY,'twissY')
+                                            self.twissEmitNY/beta0gamma0,'twissY')
         self.myBunch.setTwissParamsByName2D(self.twissAlphaZ,self.twissBetaZ,
                                             self.twissEmitNZ,'twissZ')
 
@@ -841,21 +842,17 @@ class BunchTab(QtGui.QWidget):
         self.twissBetaY = self.twissY.getBetaRMS()
         self.twissBetaZ = self.twissZ.getBetaRMS()
 
-        self.twissEmitNX = self.twissX.getEmitRMS()
-        self.twissEmitNY = self.twissY.getEmitRMS()
-        self.twissEmitNZ = self.twissZ.getEmitRMS()
-
         # load Twiss parameters into window for user to see
         self.ui.twissTable.setItem(0,0,QtGui.QTableWidgetItem("{:.5e}".format(self.twissAlphaX)))
         self.ui.twissTable.setItem(1,0,QtGui.QTableWidgetItem("{:.5e}".format(self.twissAlphaY)))
         self.ui.twissTable.setItem(0,1,QtGui.QTableWidgetItem("{:.5e}".format(self.twissBetaX)))
         self.ui.twissTable.setItem(1,1,QtGui.QTableWidgetItem("{:.5e}".format(self.twissBetaY)))
-        self.ui.twissTable.setItem(0,2,QtGui.QTableWidgetItem("{:.5e}".format(self.twissEmitNX)))
-        self.ui.twissTable.setItem(1,2,QtGui.QTableWidgetItem("{:.5e}".format(self.twissEmitNY)))
 
         # need the design momentum in order to handle the longitudinal phase space
         self.designMomentumEV = self.myBunch.getDesignMomentumEV()
-        beta0 = self.myBunch.getBeta0()
+        beta0gamma0 = self.designMomentumEV / self.eMassEV
+        gamma0 = math.sqrt(beta0gamma0**2 + 1.)
+        beta0 = beta0gamma0 / gamma0
 
         if self.longTwissFlag == "alpha-bct-dp":
             self.twissAlphaZ = self.twissZ.getAlphaRMS()
@@ -870,33 +867,33 @@ class BunchTab(QtGui.QWidget):
             self.ui.twissTableZ.setItem(0,1,QtGui.QTableWidgetItem("{:.5e}".format(self.bctRms)))
             self.ui.twissTableZ.setItem(0,2,QtGui.QTableWidgetItem("{:.5e}".format(self.dPopRms)))
 
-        elif self.longTwissFlag == "coupling-bct-dp":
-            msgBox = QtGui.QMessageBox()
-            message  = 'Error --\n\n'
-            message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
-            message += '  This value is not yet supported, but is coming soon!\n\n'
-            message += 'Please go to the "Specification Type" button and choose "alpha-bct-dp".\n\n'
-            message += 'Thanks!'
-            msgBox.setText(message)
-            msgBox.exec_()
-        elif self.longTwissFlag == "alpha-beta-emit":
-            msgBox = QtGui.QMessageBox()
-            message  = 'Error --\n\n'
-            message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
-            message += '  This value is not yet supported, but is coming soon!\n\n'
-            message += 'Please go to the "Specification Type" button and choose "alpha-bct-dp".\n\n'
-            message += 'Thanks!'
-            msgBox.setText(message)
-            msgBox.exec_()
-        else:
-            msgBox = QtGui.QMessageBox()
-            message  = 'Error --\n\n'
-            message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
-            message += '  This choice is invalid!\n\n'
-            message += 'Please use the "Specification Type" button to choose a valid option.\n\n'
-            message += 'Thanks!'
-            msgBox.setText(message)
-            msgBox.exec_()
+        # elif self.longTwissFlag == "coupling-bct-dp":
+        #     msgBox = QtGui.QMessageBox()
+        #     message  = 'Error --\n\n'
+        #     message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
+        #     message += '  This value is not yet supported, but is coming soon!\n\n'
+        #     message += 'Please go to the "Specification Type" button and choose "alpha-bct-dp".\n\n'
+        #     message += 'Thanks!'
+        #     msgBox.setText(message)
+        #     msgBox.exec_()
+        # elif self.longTwissFlag == "alpha-beta-emit":
+        #     msgBox = QtGui.QMessageBox()
+        #     message  = 'Error --\n\n'
+        #     message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
+        #     message += '  This value is not yet supported, but is coming soon!\n\n'
+        #     message += 'Please go to the "Specification Type" button and choose "alpha-bct-dp".\n\n'
+        #     message += 'Thanks!'
+        #     msgBox.setText(message)
+        #     msgBox.exec_()
+        # else:
+        #     msgBox = QtGui.QMessageBox()
+        #     message  = 'Error --\n\n'
+        #     message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
+        #     message += '  This choice is invalid!\n\n'
+        #     message += 'Please use the "Specification Type" button to choose a valid option.\n\n'
+        #     message += 'Thanks!'
+        #     msgBox.setText(message)
+        #     msgBox.exec_()
 
         # get average values
         avgArray = self.myStat.calcAverages6D(self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D())
@@ -917,6 +914,13 @@ class BunchTab(QtGui.QWidget):
         self.ui.numPtcls.setText("{:d}".format(numParticles))
         self.ui.designMomentum.setText("{:.0f}".format(self.designMomentumEV*1.e-6) + ' MeV')
         self.ui.totalCharge.setText("{:.0f}".format(self.totalCharge*1.e9) + ' nC')
+
+        # normalize the emittance here
+        self.twissEmitNX = self.twissX.getEmitRMS() * beta0gamma0
+        self.twissEmitNY = self.twissY.getEmitRMS() * beta0gamma0
+        self.twissEmitNZ = self.twissZ.getEmitRMS() * beta0gamma0
+        self.ui.twissTable.setItem(0,2,QtGui.QTableWidgetItem("{:.5e}".format(self.twissEmitNX)))
+        self.ui.twissTable.setItem(1,2,QtGui.QTableWidgetItem("{:.5e}".format(self.twissEmitNY)))
 
         # indicate that tab data has changed
         self.globalHasChanged = True
@@ -1218,13 +1222,13 @@ class BunchTab(QtGui.QWidget):
         base, ext = splitext(fileName)
 
         # notify user about bad extensions
-        if ext != '.csv':
-            msgBox = QtGui.QMessageBox()
-            message  = 'ERROR --\n\n'
-            message += '  The selected file extension "' + ext + '" is invalid.\n'
-            message += '  Please select a file with extension ".csv" - thanks!'
-            msgBox.setText(message)
-            msgBox.exec_()
+        # if ext != '.csv':
+        #     msgBox = QtGui.QMessageBox()
+        #     message  = 'ERROR --\n\n'
+        #     message += '  The selected file extension "' + ext + '" is invalid.\n'
+        #     message += '  Please select a file with extension ".csv" - thanks!'
+        #     msgBox.setText(message)
+        #     msgBox.exec_()
 
         # check whether this is a RadTrack generated CSV file
         fileObject = open(fileName)
