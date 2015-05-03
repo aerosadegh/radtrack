@@ -38,8 +38,7 @@ import sdds
 
 class BunchTab(QtGui.QWidget):
 
-    def __init__(self,parent=None):
-        # initialization
+    def __init__(self,parent=None):       # initialization
         super(BunchTab, self).__init__()
         self.ui = Ui_bunchInterface()
         self.ui.setupUi(self)
@@ -66,20 +65,19 @@ class BunchTab(QtGui.QWidget):
         exportMenu.addAction(saveToCSV)
         saveToSDDS = QtGui.QAction("Elegant SDDS format",self)
         exportMenu.addAction(saveToSDDS)
-        convertToSDDS = QtGui.QAction("Convert CSV to SDDS",self)
-        exportMenu.addAction(convertToSDDS)
+#        convertToSDDS = QtGui.QAction("Convert CSV to SDDS",self)
+#        exportMenu.addAction(convertToSDDS)
 
         # associate these actions with class methods
         # The ignore variable catches the bool returned from the PyQt signal
         # and, as the name implies, ignores it.
-        saveToCSV.triggered.connect(lambda ignore : self.saveToCSV())
-        saveToSDDS.triggered.connect(lambda ignore : self.saveToSDDS())
-        convertToSDDS.triggered.connect(lambda ignore : self.convertToSDDS())
+        #  Deprecated -- need to delete soon
+#        saveToCSV.triggered.connect(lambda ignore : self.saveToCSV())
+#        saveToSDDS.triggered.connect(lambda ignore : self.saveToSDDS())
+#        convertToSDDS.triggered.connect(lambda ignore : self.convertToSDDS())
 
-        # grab an existing button & insert the menu
-        saveToFileButton = self.ui.saveToFile
-        saveToFileButton.setMenu(exportMenu)
-        saveToFileButton.setPopupMode(QtGui.QToolButton.InstantPopup)
+        # define the generateBunch button
+        self.ui.generateBunch.clicked.connect(self.generateBunch)
 
         # create a menu for importing particle data
         importMenu = QtGui.QMenu(self)
@@ -88,18 +86,15 @@ class BunchTab(QtGui.QWidget):
         readFromSDDS = QtGui.QAction("Elegant SDDS format",self)
         importMenu.addAction(readFromSDDS)
 
-        self.acceptsFileTypes = ['sdds', 'csv']
+        # define the file extensions that can (hopefully) be parsed
+        self.acceptsFileTypes = ['sdds', 'csv', 'out', 'bun']
 
         # associate these actions with class methods
-        readFromCSV.triggered.connect(lambda ignore : self.readFromCSV())
-        readFromSDDS.triggered.connect(lambda ignore : self.readFromSDDS())
+        # deprecated -- should delete soon
+#        readFromCSV.triggered.connect(lambda ignore : self.readFromCSV())
+#        readFromSDDS.triggered.connect(lambda ignore : self.readFromSDDS())
 
-        # grab an existing button & insert the menu
-        importFileButton = self.ui.importFile
-        importFileButton.setMenu(importMenu)
-        importFileButton.setPopupMode(QtGui.QToolButton.InstantPopup)
-
-        # create a menu for bunch generation
+        # create a menu for defining the distribution type (need to rename)
         bunchMenu = QtGui.QMenu(self)
         radtrackGaussian = QtGui.QAction("RadTrack - gaussian",self)
         bunchMenu.addAction(radtrackGaussian)
@@ -113,10 +108,10 @@ class BunchTab(QtGui.QWidget):
  #       radtrackUniform.triggered.connect(self.radtrackUniform)
  #       elegantGaussian.triggered.connect(self.elegantGaussian)
 
-        # grab an existing button & insert the menu
-        bunchButton = self.ui.generateBunch
-        bunchButton.setMenu(bunchMenu)
-        bunchButton.setPopupMode(QtGui.QToolButton.InstantPopup)
+        # define the distribTypeButton
+        distribTypeButton = self.ui.distribType
+        distribTypeButton.setMenu(bunchMenu)
+        distribTypeButton.setPopupMode(QtGui.QToolButton.InstantPopup)
 
         # create a menu for plot type
         plotsMenu = QtGui.QMenu(self)
@@ -163,15 +158,15 @@ class BunchTab(QtGui.QWidget):
         perpTwissMenu = QtGui.QMenu(self)
         rmsNormalized = QtGui.QAction("rms, normalized",self)
         perpTwissMenu.addAction(rmsNormalized)
-        ninetyNormalized = QtGui.QAction("90%, normalized",self)
-        perpTwissMenu.addAction(ninetyNormalized)
-        rmsGeometric = QtGui.QAction("rms, geometric",self)
-        perpTwissMenu.addAction(rmsGeometric)
+#        ninetyNormalized = QtGui.QAction("90%, normalized",self)
+#        perpTwissMenu.addAction(ninetyNormalized)
+#        rmsGeometric = QtGui.QAction("rms, geometric",self)
+#        perpTwissMenu.addAction(rmsGeometric)
 
         # associate these actions with class methods
         rmsNormalized.triggered.connect(self.rmsNormalized)
-        ninetyNormalized.triggered.connect(self.ninetyNormalized)
-        rmsGeometric.triggered.connect(self.rmsGeometric)
+#        ninetyNormalized.triggered.connect(self.ninetyNormalized)
+#        rmsGeometric.triggered.connect(self.rmsGeometric)
 
         # grab an existing button & insert the menu
         perpTwissButton = self.ui.perpTwissSpec
@@ -182,15 +177,15 @@ class BunchTab(QtGui.QWidget):
         longTwissMenu = QtGui.QMenu(self)
         alphaBctDp = QtGui.QAction("alpha-bct-dp",self)
         longTwissMenu.addAction(alphaBctDp)
-        couplingBctDp = QtGui.QAction("coupling-bct-dp",self)
-        longTwissMenu.addAction(couplingBctDp)
-        alphaBetaEmit = QtGui.QAction("alpha-beta-emit",self)
-        longTwissMenu.addAction(alphaBetaEmit)
+#        couplingBctDp = QtGui.QAction("coupling-bct-dp",self)
+#        longTwissMenu.addAction(couplingBctDp)
+#        alphaBetaEmit = QtGui.QAction("alpha-beta-emit",self)
+#        longTwissMenu.addAction(alphaBetaEmit)
 
         # associate these actions with class methods
         alphaBctDp.triggered.connect(self.alphaBctDp)
-        couplingBctDp.triggered.connect(self.couplingBctDp)
-        alphaBetaEmit.triggered.connect(self.alphaBetaEmit)
+#        couplingBctDp.triggered.connect(self.couplingBctDp)
+#        alphaBetaEmit.triggered.connect(self.alphaBetaEmit)
 
         # grab an existing button & insert the menu
         longTwissButton = self.ui.longTwissSpec
@@ -262,7 +257,6 @@ class BunchTab(QtGui.QWidget):
 
     def radtrackGaussian(self):
         self.distributionFlag = 'gaussian'
-        self.generateBunchRT()
 
 #    def radtrackUniform(self):
 #        msgBox = QtGui.QMessageBox()
@@ -274,7 +268,7 @@ class BunchTab(QtGui.QWidget):
 #        msgBox.setText("This feature has not yet been implemented. Coming soon!")
 #        msgBox.exec_()
 
-    def generateBunchRT(self):
+    def generateBunch(self):
         # get input from text boxes
         numParticles = int(self.ui.numPtcls.text())
         self.designMomentumEV = float(parseUnits(self.ui.designMomentum.text()))
@@ -779,23 +773,23 @@ class BunchTab(QtGui.QWidget):
         # indicate that tab data has changed
         self.globalHasChanged = True
 
-    def rmsGeometric(self):
-        # specify the perpendicular Twiss conventions
-#        self.perpTwissFlag = 'rms-geometric'
-
-        # not yet implemented...
-        msgBox = QtGui.QMessageBox()
-        msgBox.setText("This feature has not yet been implemented. Coming soon!")
-        msgBox.exec_()
-
-    def ninetyNormalized(self):
-        # specify the perpendicular Twiss conventions
-#        self.perpTwissFlag = '90%-normalized'
-
-        # not yet implemented...
-        msgBox = QtGui.QMessageBox()
-        msgBox.setText("This feature has not yet been implemented. Coming soon!")
-        msgBox.exec_()
+#     def rmsGeometric(self):
+#         # specify the perpendicular Twiss conventions
+# #        self.perpTwissFlag = 'rms-geometric'
+#
+#         # not yet implemented...
+#         msgBox = QtGui.QMessageBox()
+#         msgBox.setText("This feature has not yet been implemented. Coming soon!")
+#         msgBox.exec_()
+#
+#     def ninetyNormalized(self):
+#         # specify the perpendicular Twiss conventions
+# #        self.perpTwissFlag = '90%-normalized'
+#
+#         # not yet implemented...
+#         msgBox = QtGui.QMessageBox()
+#         msgBox.setText("This feature has not yet been implemented. Coming soon!")
+#         msgBox.exec_()
 
     def alphaBctDp(self):
         # specify the longitudinal Twiss conventions
@@ -809,21 +803,21 @@ class BunchTab(QtGui.QWidget):
         # indicate that tab data has changed
         self.globalHasChanged = True
 
-    def couplingBctDp(self):
-        # specify the longitudinal Twiss conventions
-#        self.longTwissFlag = 'coupling-bct-dp'
-
-        msgBox = QtGui.QMessageBox()
-        msgBox.setText("This feature has not yet been implemented. Coming soon!")
-        msgBox.exec_()
-
-    def alphaBetaEmit(self):
-        # specify the longitudinal Twiss conventions
-#        self.longTwissFlag = 'alpha-beta-emit'
-
-        msgBox = QtGui.QMessageBox()
-        msgBox.setText("This feature has not yet been implemented. Coming soon!")
-        msgBox.exec_()
+#     def couplingBctDp(self):
+#         # specify the longitudinal Twiss conventions
+# #        self.longTwissFlag = 'coupling-bct-dp'
+#
+#         msgBox = QtGui.QMessageBox()
+#         msgBox.setText("This feature has not yet been implemented. Coming soon!")
+#         msgBox.exec_()
+#
+#     def alphaBetaEmit(self):
+#         # specify the longitudinal Twiss conventions
+# #        self.longTwissFlag = 'alpha-beta-emit'
+#
+#         msgBox = QtGui.QMessageBox()
+#         msgBox.setText("This feature has not yet been implemented. Coming soon!")
+#         msgBox.exec_()
 
     # calculate the Twiss parameters
     def calculateTwiss(self):
@@ -1149,7 +1143,7 @@ class BunchTab(QtGui.QWidget):
                 unitStrings[iLoop] = defaultUnits[dataIndex[iLoop]]
 #            print ' after: unitStrings[', iLoop, '] = ', unitStrings[iLoop]
 
-        if True:
+        if False:
             print ' '
             print ' Here is columnData[:]:'
             print columnData
@@ -1435,36 +1429,36 @@ class BunchTab(QtGui.QWidget):
                                    ["","m_ec","","",mySDDS.SDDS_DOUBLE,0]]
         mySDDS.save(sddsFileName)
 
-    def convertToSDDS(self):
-        # use Qt file dialog
-        csvFileName = QtGui.QFileDialog.getOpenFileName(self, 'Choose CSV file to be converted...',
-                         self.parent.lastUsedDirectory, "*.csv")
-
-        # if user cancels out, do nothing
-        if csvFileName == '':
-            return
-
-        self.parent.lastUsedDirectory = dirname(csvFileName)
-        base, ext = splitext(csvFileName)
-
-        # check for bad extensions
-        if ext != '.csv':
-            msgBox = QtGui.QMessageBox()
-            message  = 'ERROR --\n\n'
-            message += '  The specified file extension "' + ext + '" is not ".csv"!\n'
-            message += '  Please try again, but be sure to specify a ".csv" extension.\n\n'
-            message += 'Thanks!'
-            msgBox.setText(message)
-            msgBox.exec_()
-            return
-
-        # convert SDDS format to CSV
-        sddsFileName = base + '.sdds'
-        cmdLineOptions  = '-col=name=x,type=float,units=m -col=name=xp,type=float '
-        cmdLineOptions += '-col=name=y,type=float,units=m -col=name=yp,type=float '
-        cmdLineOptions += '-col=name=s,type=float,units=m -col=name=dp,type=float '
-        cmdLineOptions += '-skiplines=5'
-        subprocess.call('csv2sdds '+csvFileName+' '+sddsFileName+' '+ cmdLineOptions)
+    # def convertToSDDS(self):
+    #     # use Qt file dialog
+    #     csvFileName = QtGui.QFileDialog.getOpenFileName(self, 'Choose CSV file to be converted...',
+    #                      self.parent.lastUsedDirectory, "*.csv")
+    #
+    #     # if user cancels out, do nothing
+    #     if csvFileName == '':
+    #         return
+    #
+    #     self.parent.lastUsedDirectory = dirname(csvFileName)
+    #     base, ext = splitext(csvFileName)
+    #
+    #     # check for bad extensions
+    #     if ext != '.csv':
+    #         msgBox = QtGui.QMessageBox()
+    #         message  = 'ERROR --\n\n'
+    #         message += '  The specified file extension "' + ext + '" is not ".csv"!\n'
+    #         message += '  Please try again, but be sure to specify a ".csv" extension.\n\n'
+    #         message += 'Thanks!'
+    #         msgBox.setText(message)
+    #         msgBox.exec_()
+    #         return
+    #
+    #     # convert SDDS format to CSV
+    #     sddsFileName = base + '.sdds'
+    #     cmdLineOptions  = '-col=name=x,type=float,units=m -col=name=xp,type=float '
+    #     cmdLineOptions += '-col=name=y,type=float,units=m -col=name=yp,type=float '
+    #     cmdLineOptions += '-col=name=s,type=float,units=m -col=name=dp,type=float '
+    #     cmdLineOptions += '-skiplines=5'
+    #     subprocess.call('csv2sdds '+csvFileName+' '+sddsFileName+' '+ cmdLineOptions)
 
 def main():
     app = QtGui.QApplication(sys.argv)

@@ -31,7 +31,7 @@ class RbGlobal(QtGui.QMainWindow):
         self.ui = Ui_globalgu()
         self.ui.setupUi(self)
 
-        default_font = QtGui.QFont("Times", 12)
+        default_font = QtGui.QFont("Times", 10)
         QtGui.QApplication.setFont(default_font)
 
         self.lastUsedDirectory = os.path.expanduser('~').replace('\\', '\\\\')
@@ -68,25 +68,25 @@ class RbGlobal(QtGui.QMainWindow):
         self.tabWidget = QtGui.QTabWidget()
         self.ui.verticalLayout.addWidget(self.tabWidget)
         self.tabWidget.setTabsClosable(True)
-        self.tabPrefix = 'tab_' # used to identify files that are the saved data from tabs
+        self.tabPrefix = '###Tab###' # used to identify files that are the saved data from tabs
 
         if self.beta_test:
-            self.originalTabs = [ RbEle(self),
-                                  BunchTab(self),
-                                  RbBunchTransport(self),
-                                  RbDcp(self),
-                                  RbFEL(self) ]
+             self.originalTabs = [ RbEle(self),
+                                   BunchTab(self),
+                                   RbBunchTransport(self),
+                                   RbDcp(self),
+                                   RbFEL(self) ]
         else:
-            self.originalTabs = [ LaserTab(self),
-                                  RbLaserTransport(self),
-                                  BunchTab(self),
-                                  RbBunchTransport(self),
-                                  RbEle(self),
-                                  RbDcp(self),
-                                  RbFEL(self),
-                                  RbGenesis2(self),
-                                  RbGenesisTransport(self),
-                                  RbSrwTab(self) ]
+             self.originalTabs = [ LaserTab(self),
+                                   RbLaserTransport(self),
+                                   BunchTab(self),
+                                   RbBunchTransport(self),
+                                   RbEle(self),
+                                   RbDcp(self),
+                                   RbFEL(self),
+                                   RbGenesis2(self),
+                                   RbGenesisTransport(self),
+                                   RbSrwTab(self) ]
 
         self.originalNameToTabType = dict()
         for tab in self.originalTabs:
