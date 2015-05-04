@@ -406,10 +406,14 @@ class RbGlobal(QtGui.QMainWindow):
         RbGlobal(self.beta_test).show()
 
     def writeRecentFiles(self):
+        loadedRecentFiles = [action.objectName() for action in \
+                             self.ui.menuRecent_Projects.actions() + \
+                             self.ui.menuRecent_Files.actions()]
+        if self.sessionDirectory not in loadedRecentFiles:
+            loadedRecentFiles.insert(0, self.sessionDirectory)
+
         with open(self.recentFile, 'w') as f:
-            f.write('\n'.join([action.objectName() for action in \
-                    self.ui.menuRecent_Projects.actions() + \
-                    self.ui.menuRecent_Files.actions()]))
+            f.write('\n'.join(loadedRecentFiles))
 
     def openSessionDirectory(self):
         if sys.platform == 'win32': # Windows
