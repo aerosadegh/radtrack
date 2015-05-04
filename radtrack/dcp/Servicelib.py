@@ -1,25 +1,31 @@
 # Timur Shaftan
 # Library -- service functions
 
-import string, sys 
+import os
 import numpy as np
 
 def IFileTypeCheck(IFileName):
     with open(IFileName,"r",0) as f:
         line = f.readline()
-        if string.find(line,"SDDS1") == 0:
+
+        if line.startswith("SDDS1"):
             return "sdds"
-        elif string.find(line,"#") == 0:
+
+        if line.startswith("#"):
             return "srw"
-        elif is_number(line.split()[0]):
-            return "ff"
-        else:
-            return "unknown"
+
+        try:
+            if is_number(line.split()[0]):
+                return "ff"
+        except IndexError:
+            pass
+
+        base, ext = os.path.splitext(IFileName)
+        return ext[1:] # remove leading period
 
 def SDDSreshape(x,ColumnXAxis,ColumnPicked,NumPage):
     print np.shape(x.columnData)
     if len(np.shape(x.columnData)) < 3:
-        #sys.exit("Empty SDDS File")
         raise Exception('Empty SDDS File') 
     Npar=np.shape(x.parameterData)[0]
     Ncol=np.shape(x.columnData)[0]
@@ -49,7 +55,6 @@ def SDDSreshape(x,ColumnXAxis,ColumnPicked,NumPage):
         Xrvec=np.reshape(Xvec,-1,'C')
         Yrvec=np.reshape(Yvec,[len(ColumnPicked),NElemCol],'C')
     else:
-        #sys.exit("Input parameter exceeds the number of columns or pages")
         raise Exception("Input parameter exceeds the number of columns or pages")           
     return (Xrvec,Yrvec,YLab,Npar,Ncol,NcolPicked,NElemCol,NPage)
     
@@ -77,7 +82,6 @@ def SRWreshape(x,ColumnXAxis,ColumnPicked):
             Yvec.append(x.columnData[ColumnPicked[i]][:])
         print np.shape(Yvec)
     else:
-        #sys.exit("Input parameter exceeds the number of columns")
         raise Exception("Input parameter exceeds the number of columns or pages")
     return (Xvec,Yvec,Npar,Ncol,NcolPicked,NElemCol)
     
@@ -103,7 +107,6 @@ def FFreshape(x,ColumnXAxis,ColumnPicked):
             Yvec.append(x.columnData[ColumnPicked[i]][:])
         print np.shape(Yvec)
     else:
-        #sys.exit("Input parameter exceeds the number of columns")
         raise Exception("Input parameter exceeds the number of columns or pages")
     return (Xvec,Yvec,Ncol,NcolPicked,NElemCol)
 
@@ -118,5 +121,4 @@ def is_number(s):
         float(s)
         return True
     except ValueError:
-        print "Not a number"
         return False

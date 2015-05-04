@@ -33,7 +33,7 @@ class RbDcp(QtGui.QWidget):
         if self.parent is None:
             self.parent = self
             self.parent.lastUsedDirectory = expanduser('~')
-        self.acceptsFileTypes = ['sdds', 'srw', 'ff', 'out', 'mag',
+        self.acceptsFileTypes = ['save', 'sdds', 'srw', 'ff', 'out', 'mag',
                                  'twi', 'fin', 'sig', 'cen']
         self.ui.widget.canvas.ax2.set_visible(False)
         self.ui.page.activated.connect(self.sddspreview)
@@ -55,12 +55,13 @@ class RbDcp(QtGui.QWidget):
         self.container = self
         self.defaultTitle = self.parent.tr('Data Visualization')
 
-        self.acceptsFileTypes = ['']
-
     # This tab is only for reading files. It has no
-    # data of its own to save.
+    # data of its own to save. This creates a dummy
+    # file to that the tab is reopened when the project
+    # that contained this tab is reopened.
     def exportToFile(self, fileName):
-        pass
+        with open(fileName, 'w'):
+            pass
 
     def setcurrentFile(self, type):
         self.currentFiletype = type
@@ -81,6 +82,8 @@ class RbDcp(QtGui.QWidget):
             self.showDCP_srw(fnfromglobal)
         elif filetype == 'ff':
             self.showDCP_ff(fnfromglobal)
+        elif filetype == 'save':
+            pass
         else:
             raise Exception("Could not open " + fnfromglobal)
 

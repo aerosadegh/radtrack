@@ -86,8 +86,14 @@ class RbEle(QtGui.QWidget):
         self.acceptsFileTypes = ['']
 
     # This tab only pulls together data from other sources.
-    # It has no information to save.
+    # It has no information to save. exportToFile() creates
+    # an empty file to signal to RadTrack to create a new
+    # tab when a project is opened that had this tab.
     def exportToFile(self, fileName):
+        with open(fileName, 'w'):
+            pass
+
+    def importFile(self, fileName):
         pass
 
     def append_status(self, line):
@@ -176,16 +182,15 @@ class RbEle(QtGui.QWidget):
                     return None
         else:
             bunchTab = self.bunch_source_manager.get_tab_widget()
-            if hasattr(bunchTab, 'myBunch'):
-                try:
-                    momentum = convertUnitsNumber(
-                        bunchTab.myBunch.getDesignMomentumEV(), 'eV', 'MeV')
-                except ValueError:
-                    self.show_warning_box(
-                        'Invalid momentum value on Bunch Tab')
-                    return None
-            else:
-                self.show_warning_box('Missing momentum value on Bunch Tab')
+            if not hasattr(bunchTab, 'myBunch'):
+                bunchTab.generateBunch()
+
+            try:
+                momentum = convertUnitsNumber(
+                    bunchTab.myBunch.getDesignMomentumEV(), 'eV', 'MeV')
+            except ValueError:
+                self.show_warning_box(
+                    'Invalid momentum value on Bunch Tab')
                 return None
         return momentum
 
