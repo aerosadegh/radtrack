@@ -64,6 +64,8 @@ class RbFEL(QtGui.QWidget):
                                     self.ui.y,
                                     self.ui.z]
 
+        self.inputBoxes = self.userInputTextBoxes + self.plotInputBoxes + self.plotInputBoxChoices
+
         self.ui.charge.setObjectName("Charge")
         self.ui.charge.unit = 'C'
         self.ui.slicemit.setObjectName("Normalized slice emittance")
@@ -140,11 +142,13 @@ class RbFEL(QtGui.QWidget):
         self.valueFromTextBox = dict()
 
         maxLength = 0
+        self.boxesToSave = []
         white = "background-color: rgb(255, 255, 255);"
         gray = "background-color: rgb(225, 225, 225);"
         for thing in [getattr(self.ui, name) for name in sorted(dir(self.ui))]:
             if not hasattr(thing, 'unit'):
                 continue
+            self.boxesToSave.append(thing)
             length = QtGui.QFontMetrics(self.ui.x.font()).boundingRect(thing.objectName()).width()
             if length > maxLength:
                 maxLength = length
@@ -167,9 +171,10 @@ class RbFEL(QtGui.QWidget):
                 self.ui.target.addItem(thing.objectName())
                 thing.setStyleSheet(gray)
 
-            self.ui.lineEdit_4.setAlignment(QtCore.Qt.AlignHCenter)
-            self.ui.lineEdit_4.setStyleSheet(gray)
-            self.ui.lineEdit_4.setReadOnly(True)
+        self.boxesToSave.extend([self.ui.x, self.ui.y, self.ui.z])
+        self.ui.lineEdit_4.setAlignment(QtCore.Qt.AlignHCenter)
+        self.ui.lineEdit_4.setStyleSheet(gray)
+        self.ui.lineEdit_4.setReadOnly(True)
 
         scrollBarWidth = self.style().pixelMetric(QtGui.QStyle.PM_ScrollBarExtent)
         extraSpace = 10
@@ -209,15 +214,11 @@ class RbFEL(QtGui.QWidget):
 
  
         self.defaultValues = dict()
-        for thing in self.userInputTextBoxes \
-                + self.plotInputBoxes \
-                + self.plotInputBoxChoices:
+        for thing in self.inputBoxes:
             try:
                 self.defaultValues[thing] = thing.text()
             except AttributeError:
                 self.defaultValues[thing] = thing.currentText()
-
-        self.acceptsFileTypes = ['fel']
 
         self.calculate()
         self.plot()
@@ -588,15 +589,16 @@ class RbFEL(QtGui.QWidget):
             if fileName == '':
                 return
             self.parent.lastUsedDirectory = os.path.dirname(fileName)
-            if not fileName.endswith("." + self.acceptsFileTypes[0]):
-                fileName = fileName + "." + self.acceptsFileTypes[0] 
+
+        if not fileName.endswith("." + self.acceptsFileTypes[0]):
+            fileName = fileName + "." + self.acceptsFileTypes[0] 
 
         with open(fileName, 'w') as f:
-            for box in self.userInputTextBoxes + self.plotInputBoxChoices + self.plotInputBoxes:
+            for box in self.boxesToSave:
                 try:
-                    f.write(box.objectName() + ':' + box.text() + '\n')
+                    f.write(box.objectName() + ':' + box.text() + '\n') # text box
                 except AttributeError:
-                    f.write(box.objectName() + ':' + box.currentText() + '\n')
+                    f.write(box.objectName() + ':' + box.currentText() + '\n') # combo box
 
     def importFile(self, fileName = None):
         if not fileName:
@@ -608,19 +610,22 @@ class RbFEL(QtGui.QWidget):
             self.parent.lastUsedDirectory = os.path.dirname(fileName)
 
         with open(fileName, 'r') as f:
+            allInputBoxes = self.userInputTextBoxes + self.plotInputBoxes
+            allInputBoxNames = [box.objectName() for box in allInputBoxes]
+            comboBoxNames = [box.objectName() for box in self.plotInputBoxChoices]
             for line in f:
                 name, value = line.strip().split(':')
                 try:
-                    allInputBoxes = self.userInputTextBoxes + self.plotInputBoxes
-                    index = [box.objectName() for box in allInputBoxes].index(name)
+                    index = allInputBoxNames.index(name)
                     allInputBoxes[index].setText(value)
                 except ValueError:
-                    index = [comboBox.objectName() for comboBox in self.plotInputBoxChoices].index(name)
-                    box = self.plotInputBoxChoices[index]
-                    for i in range(box.count()):
-                        if box.itemText(i) == value:
-                            box.setCurrentIndex(i)
-                            break
+                    try:
+                        index = comboBoxNames.index(name)
+                        if index != -1:
+                            box = self.plotInputBoxChoices[index]
+                            box.setCurrentIndex(box.findText(name))
+                    except ValueError: # not a user input field (will be recalcualted)
+                        pass
 
         self.calculate()
         self.plot()
