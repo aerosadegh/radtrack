@@ -64,8 +64,6 @@ class RbFEL(QtGui.QWidget):
                                     self.ui.y,
                                     self.ui.z]
 
-        self.inputBoxes = self.userInputTextBoxes + self.plotInputBoxes + self.plotInputBoxChoices
-
         self.ui.charge.setObjectName("Charge")
         self.ui.charge.unit = 'C'
         self.ui.slicemit.setObjectName("Normalized slice emittance")
@@ -171,7 +169,6 @@ class RbFEL(QtGui.QWidget):
                 self.ui.target.addItem(thing.objectName())
                 thing.setStyleSheet(gray)
 
-        self.boxesToSave.extend([self.ui.x, self.ui.y, self.ui.z])
         self.ui.lineEdit_4.setAlignment(QtCore.Qt.AlignHCenter)
         self.ui.lineEdit_4.setStyleSheet(gray)
         self.ui.lineEdit_4.setReadOnly(True)
@@ -182,8 +179,11 @@ class RbFEL(QtGui.QWidget):
         comboHeight = 22
 
         for thing in [self.ui.x, self.ui.y, self.ui.z]:
+            self.boxesToSave.append(thing)
             thing.setGeometry(thing.x(), thing.y(), comboWidth, comboHeight)
             thing.setCurrentIndex(-1)
+        self.boxesToSave.extend([self.ui.xmin, self.ui.xmax,
+                                 self.ui.ymin, self.ui.ymax])
 
        # Get rid of second axis in the plotArea
         self.plotArea.canvas.ax2.clear()
@@ -208,13 +208,9 @@ class RbFEL(QtGui.QWidget):
         self.ui.radiatedwavelength.setText('13.5 nm')
         self.ui.ufield.setText('0.9 T')
         self.ui.beta.setText('1 m')
-        for thing in self.userInputTextBoxes:
-            thing.setCursorPosition(0)
 
-
- 
         self.defaultValues = dict()
-        for thing in self.inputBoxes:
+        for thing in self.userInputTextBoxes + self.plotInputBoxes + self.plotInputBoxChoices:
             try:
                 self.defaultValues[thing] = thing.text()
             except AttributeError:
@@ -610,22 +606,14 @@ class RbFEL(QtGui.QWidget):
             self.parent.lastUsedDirectory = os.path.dirname(fileName)
 
         with open(fileName, 'r') as f:
-            allInputBoxes = self.userInputTextBoxes + self.plotInputBoxes
-            allInputBoxNames = [box.objectName() for box in allInputBoxes]
-            comboBoxNames = [box.objectName() for box in self.plotInputBoxChoices]
+            allInputBoxNames = [box.objectName() for box in self.boxesToSave]
             for line in f:
                 name, value = line.strip().split(':')
+                box = self.boxesToSave[allInputBoxNames.index(name)]
                 try:
-                    index = allInputBoxNames.index(name)
-                    allInputBoxes[index].setText(value)
-                except ValueError:
-                    try:
-                        index = comboBoxNames.index(name)
-                        if index != -1:
-                            box = self.plotInputBoxChoices[index]
-                            box.setCurrentIndex(box.findText(name))
-                    except ValueError: # not a user input field (will be recalcualted)
-                        pass
+                    box.setText(value) # text box
+                except AttributeError:
+                    box.setCurrentIndex(box.findText(value)) # combo box
 
         self.calculate()
         self.plot()
