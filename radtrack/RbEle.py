@@ -83,6 +83,13 @@ class RbEle(QtGui.QWidget):
         self.container = self
         self.defaultTitle = self.parent.tr('Elegant')
 
+        self.acceptsFileTypes = ['']
+
+    # This tab only pulls together data from other sources.
+    # It has no information to save.
+    def exportToFile(self, fileName):
+        pass
+
     def append_status(self, line):
         """Formats and appends the line to the status field"""
         status = self.ui.simulationStatusTextEdit

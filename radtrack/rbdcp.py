@@ -55,6 +55,13 @@ class RbDcp(QtGui.QWidget):
         self.container = self
         self.defaultTitle = self.parent.tr('Data Visualization')
 
+        self.acceptsFileTypes = ['']
+
+    # This tab is only for reading files. It has no
+    # data of its own to save.
+    def exportToFile(self, fileName):
+        pass
+
     def setcurrentFile(self, type):
         self.currentFiletype = type
 
