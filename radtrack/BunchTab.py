@@ -1402,6 +1402,8 @@ class BunchTab(QtGui.QWidget):
         self.totalCharge = float(parseUnits(self.ui.totalCharge.text()))
 
         # create local pointer to particle array
+        if not hasattr(self, 'myBunch'):
+            self.generateBunch()
         tmp6 = self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D()
 
         mySDDS = sdds.SDDS(0)
