@@ -86,10 +86,12 @@ class RbCbt(QtGui.QWidget):
         self.lengthLegend = []
 
         # More columns for treeWidget
-        self.ui.treeWidget.setColumnCount(5)
+        self.ui.treeWidget.setColumnCount(7)
         self.ui.treeWidget.headerItem().setText(2, "Length")
         self.ui.treeWidget.headerItem().setText(3, "Bend")
         self.ui.treeWidget.headerItem().setText(4, "Element Count")
+        self.ui.treeWidget.headerItem().setText(5, "")
+        self.ui.treeWidget.headerItem().setText(6, "")
 
     def undo(self):
         self.undoStack.undo()
@@ -97,6 +99,10 @@ class RbCbt(QtGui.QWidget):
     def redo(self):
         self.undoStack.redo()
 
+    def addToEndOfWorkingBeamLine(self, element):
+        self.ui.workingBeamline.addItem(element.name)
+        self.postListDrop()
+        
     def emptyWorkingBeamlineCheck(self):
         isEmpty = self.ui.workingBeamline.count() == 0
         self.ui.clearBeamlineButton.setDisabled(isEmpty)
@@ -188,6 +194,10 @@ class RbCbt(QtGui.QWidget):
                 mouseMenu.addAction(self.ui.translateUTF8('Set as default'),
                     lambda: setattr(self, 'defaultBeamline', element.name))
             display = True
+
+        if location == 'tree':
+            mouseMenu.addAction(self.ui.translateUTF8('Add to current beam line'),
+                    lambda: self.addToEndOfWorkingBeamLine(element))
 
         if location == 'picture' and len(self.ui.graphicsView.scene().items()) > 0:
             # Add option for saving entire beamline preview as an image file
@@ -779,6 +789,10 @@ class commandLoadElements(QtGui.QUndoCommand):
             if self.createGroups[i]:
                 self.widget.ui.treeWidget.insertTopLevelItem(self.groupPositions[i], self.groups[i])
             self.groups[i].addChild(self.items[i])
+            addToBeamButton = QtGui.QPushButton('Add to current beam line', self.widget)
+            addToBeamButton.clicked.connect(
+                    lambda ignore, e = element : self.widget.addToEndOfWorkingBeamLine(e))
+            self.widget.ui.treeWidget.setItemWidget(self.items[i], 5, addToBeamButton)
             self.groups[i].setExpanded(True)
             treeAddProgress.setValue(i)
         self.widget.fitColumns()
