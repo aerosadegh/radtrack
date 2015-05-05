@@ -13,8 +13,8 @@ def test_fel():
     a.ui.beta.setText('1.0 m')
     a.ui.radiatedwavelength.setText('13.5 nm')
 
-    expectedAveragePower = '39.785 W'
-    expectedSaturationLength = '12.023 m'
+    expectedAveragePower = '39.783 W'
+    expectedSaturationLength = '12.024 m'
     expectedUndulatorPeriod = '1.7702 cm'
 
     assert a.ui.averagepower.text() == expectedAveragePower

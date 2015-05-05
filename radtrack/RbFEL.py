@@ -1,9 +1,11 @@
 from PyQt4 import QtGui, QtCore
-from radtrack.fel.mxcal import Ui_Form
+from radtrack.ui.fel import Ui_Form
 from  radtrack.RbUtility import displayWithUnitsNumber, \
                       displayWithUnitsString, \
                       convertUnitsNumber, \
                       convertUnitsStringToNumber, \
+                      convertUnitsNumberToString, \
+                      separateNumberUnit, \
                       roundSigFig
 from math import pi, sqrt, log10, floor, isinf, isnan
 import numpy
@@ -31,38 +33,15 @@ class RbFEL(QtGui.QWidget):
 
         self.ui = Ui_Form()
         self.ui.setupUi(self)
-        self.ui.formLayout.setFieldGrowthPolicy(QtGui.QFormLayout.ExpandingFieldsGrow)
-        self.ui.formLayout_2.setFieldGrowthPolicy(QtGui.QFormLayout.ExpandingFieldsGrow)
-        self.ui.formLayout_3.setFieldGrowthPolicy(QtGui.QFormLayout.ExpandingFieldsGrow)
-        self.ui.formLayout_4.setFieldGrowthPolicy(QtGui.QFormLayout.ExpandingFieldsGrow)
-        self.ui.formLayout_5.setFieldGrowthPolicy(QtGui.QFormLayout.ExpandingFieldsGrow)
-        self.ui.formLayout_6.setFieldGrowthPolicy(QtGui.QFormLayout.ExpandingFieldsGrow)
         self.setWindowTitle("RadTrack FEL Calculator")
 
         # Renames
-        self.mingXieMatrix = self.ui.tableWidget
-        self.plotArea = self.ui.widget
-        self.plotButton = self.ui.pushButton
-
-        # Boxes to write to file
-        self.userInputTextBoxes = [self.ui.charge,
-                                   self.ui.slicemit,
-                                   self.ui.ebeamenergy,
-                                   self.ui.energyspread,
-                                   self.ui.peakamp,
-                                   self.ui.reprate,
-                                   self.ui.radiatedwavelength,
-                                   self.ui.ufield,
-                                   self.ui.beta]
-
-        self.plotInputBoxes = [self.ui.xmin,
-                               self.ui.xmax,
-                               self.ui.ymin,
-                               self.ui.ymax]
-
-        self.plotInputBoxChoices = [self.ui.x,
-                                    self.ui.y,
-                                    self.ui.z]
+        self.mingXieMatrix = [[    0.55 , 0.0  , 1.6 , 0.0 ],
+                              [    3.0  , 0.0  , 0.0 , 2.0 ],
+                              [    0.35 , 0.0  , 2.9 , 2.4 ],
+                              [   51.0  , 0.95 , 0.0 , 3.0 ],
+                              [    5.4  , 0.7  , 1.9 , 0.0 ],
+                              [ 1140.0  , 2.2  , 2.9 , 3,2 ]]
 
         self.ui.charge.setObjectName("Charge")
         self.ui.charge.unit = 'C'
@@ -140,38 +119,27 @@ class RbFEL(QtGui.QWidget):
         self.valueFromTextBox = dict()
 
         maxLength = 0
-        self.boxesToSave = []
-        white = "background-color: rgb(255, 255, 255);"
-        gray = "background-color: rgb(225, 225, 225);"
         for thing in [getattr(self.ui, name) for name in sorted(dir(self.ui))]:
             if not hasattr(thing, 'unit'):
                 continue
-            self.boxesToSave.append(thing)
             length = QtGui.QFontMetrics(self.ui.x.font()).boundingRect(thing.objectName()).width()
             if length > maxLength:
                 maxLength = length
             self.textBox[thing.objectName()] = thing
-            if thing in self.userInputTextBoxes:
-                self.ui.x.addItem(thing.objectName())
-                self.ui.y.addItem(thing.objectName())
-                self.ui.vary.addItem(thing.objectName())
-                thing.setReadOnly(False)
-                thing.textEdited.connect(self.calculate)
-                thing.setStyleSheet(white)
-                thing.setToolTip(thing.unit)
-            else:
-                thing.setReadOnly(True)
-                if str(thing.objectName()).startswith("Bunch length"):
-                    thing.setToolTip("FWHM")
+            if hasattr(thing, 'isReadOnly'):
+                if thing.isReadOnly():
+                    if str(thing.objectName()).startswith("Bunch length"):
+                        thing.setToolTip("FWHM")
+                    else:
+                        thing.setToolTip('') 
+                    self.ui.z.addItem(thing.objectName())
+                    self.ui.target.addItem(thing.objectName())
                 else:
-                    thing.setToolTip('') 
-                self.ui.z.addItem(thing.objectName())
-                self.ui.target.addItem(thing.objectName())
-                thing.setStyleSheet(gray)
-
-        self.ui.lineEdit_4.setAlignment(QtCore.Qt.AlignHCenter)
-        self.ui.lineEdit_4.setStyleSheet(gray)
-        self.ui.lineEdit_4.setReadOnly(True)
+                    self.ui.x.addItem(thing.objectName())
+                    self.ui.y.addItem(thing.objectName())
+                    self.ui.vary.addItem(thing.objectName())
+                    thing.textEdited.connect(self.calculate)
+                    thing.setToolTip(thing.unit)
 
         scrollBarWidth = self.style().pixelMetric(QtGui.QStyle.PM_ScrollBarExtent)
         extraSpace = 10
@@ -179,24 +147,19 @@ class RbFEL(QtGui.QWidget):
         comboHeight = 22
 
         for thing in [self.ui.x, self.ui.y, self.ui.z]:
-            self.boxesToSave.append(thing)
+            self.textBox[thing.objectName()] = thing
             thing.setGeometry(thing.x(), thing.y(), comboWidth, comboHeight)
             thing.setCurrentIndex(-1)
-        self.boxesToSave.extend([self.ui.xmin, self.ui.xmax,
-                                 self.ui.ymin, self.ui.ymax])
+        for thing in [self.ui.xmin, self.ui.xmax, self.ui.ymin, self.ui.ymax]:
+            self.textBox[thing.objectName()] = thing
 
-       # Get rid of second axis in the plotArea
-        self.plotArea.canvas.ax2.clear()
-        self.plotArea.canvas.ax2.set_visible(False)
+       # Get rid of second axis in the ui.plotWidget
+        self.ui.plotWidget.canvas.ax2.clear()
+        self.ui.plotWidget.canvas.ax2.set_visible(False)
 
         # Connections
-        self.mingXieMatrix.cellChanged.connect(self.calculate)
-        self.ui.pushButton.clicked.connect(self.plot)
+        self.ui.plotButton.clicked.connect(self.plot)
         self.ui.solve.clicked.connect(self.goalSeek)
-
-        # Fit cells inside Ming Xie matrix
-        self.mingXieMatrix.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
-        self.mingXieMatrix.verticalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
 
         # Default/example values
         self.ui.charge.setText('300 pC')
@@ -208,13 +171,6 @@ class RbFEL(QtGui.QWidget):
         self.ui.radiatedwavelength.setText('13.5 nm')
         self.ui.ufield.setText('0.9 T')
         self.ui.beta.setText('1 m')
-
-        self.defaultValues = dict()
-        for thing in self.userInputTextBoxes + self.plotInputBoxes + self.plotInputBoxChoices:
-            try:
-                self.defaultValues[thing] = thing.text()
-            except AttributeError:
-                self.defaultValues[thing] = thing.currentText()
 
         self.calculate()
         self.plot()
@@ -345,8 +301,7 @@ class RbFEL(QtGui.QWidget):
 
         try:
             threeDEffectTotal = 0
-            for i in range(self.mingXieMatrix.rowCount()):
-                row = [float(self.mingXieMatrix.item(i,j).text()) for j in range(self.mingXieMatrix.columnCount())]
+            for row in self.mingXieMatrix:
                 threeDEffectTotal += row[0]*(diffractionFactor**row[1])*(emitanceFactor**row[2])*(energySpreadFactor**row[3])
             self.setResultBox(self.ui.total, threeDEffectTotal, writeToTextBoxes)
         except (UnboundLocalError, TypeError, ZeroDivisionError):
@@ -462,20 +417,20 @@ class RbFEL(QtGui.QWidget):
                 z[...] = convertUnitsNumber(z, zTextBox.unit, zUnit)
 
             # Plotting
-            self.plotArea.canvas.fig.clear()
-            self.plotArea.canvas.ax = self.plotArea.canvas.fig.add_subplot(111)
-            c = self.plotArea.canvas.ax.imshow(numpy.flipud(Z), cmap = 'hot', \
+            self.ui.plotWidget.canvas.fig.clear()
+            self.ui.plotWidget.canvas.ax = self.ui.plotWidget.canvas.fig.add_subplot(111)
+            c = self.ui.plotWidget.canvas.ax.imshow(numpy.flipud(Z), cmap = 'hot', \
                     extent = [min(xRangeUnits), max(xRangeUnits), \
                     min(yRangeUnits), max(yRangeUnits)],
                     aspect = 'auto')
-            self.plotArea.canvas.ax.set_xlabel(xAxisLabel)
-            self.plotArea.canvas.ax.set_ylabel(yAxisLabel)
-            cb = self.plotArea.canvas.fig.colorbar(c)
+            self.ui.plotWidget.canvas.ax.set_xlabel(xAxisLabel)
+            self.ui.plotWidget.canvas.ax.set_ylabel(yAxisLabel)
+            cb = self.ui.plotWidget.canvas.fig.colorbar(c)
             cb.set_label(zAxisLabel)
-            self.plotArea.canvas.ax.set_xlim(min(xRangeUnits), max(xRangeUnits))
-            self.plotArea.canvas.ax.set_ylim(min(yRangeUnits), max(yRangeUnits))
-            self.plotArea.canvas.fig.tight_layout()
-            self.plotArea.canvas.draw()
+            self.ui.plotWidget.canvas.ax.set_xlim(min(xRangeUnits), max(xRangeUnits))
+            self.ui.plotWidget.canvas.ax.set_ylim(min(yRangeUnits), max(yRangeUnits))
+            self.ui.plotWidget.canvas.fig.tight_layout()
+            self.ui.plotWidget.canvas.draw()
 
         finally:
             # Restore text boxes to original state
@@ -490,7 +445,7 @@ class RbFEL(QtGui.QWidget):
         # Newton's method
         variableTextBox = self.textBox[self.ui.vary.currentText()]
         resultTextBox = self.textBox[self.ui.target.currentText()]
-        self.ui.lineEdit_4.setText('Searching...')
+        self.ui.solverResult.setText('Searching...')
 
         maximumIterations = 1000
         success = False
@@ -553,12 +508,12 @@ class RbFEL(QtGui.QWidget):
 
         if success:
             value = x0
-            self.ui.lineEdit_4.setText('Done.')
-            self.ui.lineEdit_4.setToolTip('')
+            self.ui.solverResult.setText('Done.')
+            self.ui.solverResult.setToolTip('')
         else:
             value = bestX
-            self.ui.lineEdit_4.setText('Failed.')
-            self.ui.lineEdit_4.setToolTip('Could not find a solution. Try adjusting\n' + \
+            self.ui.solverResult.setText('Failed.')
+            self.ui.solverResult.setToolTip('Could not find a solution. Try adjusting\n' + \
                                           'the variable parameter to a different value.')
 
         variableTextBox.setText(displayWithUnitsNumber(roundSigFig(value, 5), variableTextBox.unit))
@@ -589,12 +544,20 @@ class RbFEL(QtGui.QWidget):
         if not fileName.endswith("." + self.acceptsFileTypes[0]):
             fileName = fileName + "." + self.acceptsFileTypes[0] 
 
-        with open(fileName, 'w') as f:
-            for box in self.boxesToSave:
+        fileLines = []
+        for box in self.textBox.values():
+            try:
                 try:
-                    f.write(box.objectName() + ':' + box.text() + '\n') # text box
-                except AttributeError:
-                    f.write(box.objectName() + ':' + box.currentText() + '\n') # combo box
+                    _, unit = separateNumberUnit(box.text())
+                    value = convertUnitsNumberToString(self.valueFromTextBox[box], box.unit, unit)
+                except (ValueError, KeyError):
+                    value = box.text()
+                fileLines.append(box.objectName() + ':' + value) # text box
+            except AttributeError:
+                fileLines.append(box.objectName() + ':' + box.currentText()) # combo box
+
+        with open(fileName, 'w') as f:
+            f.write('\n'.join(sorted(fileLines)))
 
     def importFile(self, fileName = None):
         if not fileName:
@@ -606,10 +569,9 @@ class RbFEL(QtGui.QWidget):
             self.parent.lastUsedDirectory = os.path.dirname(fileName)
 
         with open(fileName, 'r') as f:
-            allInputBoxNames = [box.objectName() for box in self.boxesToSave]
             for line in f:
                 name, value = line.strip().split(':')
-                box = self.boxesToSave[allInputBoxNames.index(name)]
+                box = self.textBox[name]
                 try:
                     box.setText(value) # text box
                 except AttributeError:
