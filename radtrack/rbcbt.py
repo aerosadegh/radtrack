@@ -46,6 +46,7 @@ class RbCbt(QtGui.QWidget):
         self.ui.saveBeamlineButton.clicked.connect(self.addBeam)
         self.ui.treeWidget.itemSelectionChanged.connect(self.treeClick)
         self.ui.treeWidget.itemDoubleClicked.connect(self.editElement)
+        self.ui.treeWidget.itemClicked.connect(self.elementTreeClicked)
         self.ui.graphicsView.itemDoubleClicked.connect(self.editElement)
         self.ui.graphicsView.wheelZoom.connect(self.zoomPreview)
         self.ui.graphicsView.dragDone.connect(self.drawLengthScale)
@@ -99,8 +100,8 @@ class RbCbt(QtGui.QWidget):
     def redo(self):
         self.undoStack.redo()
 
-    def addToEndOfWorkingBeamLine(self, element):
-        self.ui.workingBeamline.addItem(element.name)
+    def addToEndOfWorkingBeamLine(self, elementName):
+        self.ui.workingBeamline.addItem(elementName)
         self.postListDrop()
         
     def emptyWorkingBeamlineCheck(self):
@@ -140,6 +141,9 @@ class RbCbt(QtGui.QWidget):
                 self.ui.graphicsView.scene().selectedItems():
             item.setSelected(False)
 
+    def elementTreeClicked(self, item, column):
+        if column == 5:
+            self.addToEndOfWorkingBeamLine(item.text(0))
 
     def listClick(self):
         # Draw current working beamline
@@ -197,7 +201,7 @@ class RbCbt(QtGui.QWidget):
 
         if location == 'tree':
             mouseMenu.addAction(self.ui.translateUTF8('Add to current beam line'),
-                    lambda: self.addToEndOfWorkingBeamLine(element))
+                    lambda: self.addToEndOfWorkingBeamLine(element.name))
 
         if location == 'picture' and len(self.ui.graphicsView.scene().items()) > 0:
             # Add option for saving entire beamline preview as an image file
@@ -666,6 +670,7 @@ def populateTreeItem(item, element):
     item.setText(2, displayWithUnitsNumber(roundSigFig(element.getLength(), 4), 'm'))
     item.setText(3, str(roundSigFig(convertUnitsNumber(element.getAngle(), 'rad', 'deg'), 4))+' deg')
     item.setText(4, str(element.getNumberOfElements()) if element.isBeamline() else '')
+    item.setText(5, 'Add to current beam line')
 
 def itemsInGroup(group):
     return [group.child(i) for i in range(group.childCount())]
@@ -789,10 +794,6 @@ class commandLoadElements(QtGui.QUndoCommand):
             if self.createGroups[i]:
                 self.widget.ui.treeWidget.insertTopLevelItem(self.groupPositions[i], self.groups[i])
             self.groups[i].addChild(self.items[i])
-            addToBeamButton = QtGui.QPushButton('Add to current beam line', self.widget)
-            addToBeamButton.clicked.connect(
-                    lambda ignore, e = element : self.widget.addToEndOfWorkingBeamLine(e))
-            self.widget.ui.treeWidget.setItemWidget(self.items[i], 5, addToBeamButton)
             self.groups[i].setExpanded(True)
             treeAddProgress.setValue(i)
         self.widget.fitColumns()
