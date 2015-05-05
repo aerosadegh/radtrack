@@ -508,13 +508,10 @@ class RbFEL(QtGui.QWidget):
 
         if success:
             value = x0
-            self.ui.solverResult.setText('Done.')
-            self.ui.solverResult.setToolTip('')
+            self.ui.solverResult.setText('Success.')
         else:
             value = bestX
-            self.ui.solverResult.setText('Failed.')
-            self.ui.solverResult.setToolTip('Could not find a solution. Try adjusting\n' + \
-                                          'the variable parameter to a different value.')
+            self.ui.solverResult.setText('Failed. Could not find a solution.')
 
         variableTextBox.setText(displayWithUnitsNumber(roundSigFig(value, 5), variableTextBox.unit))
         variableTextBox.setCursorPosition(0)
