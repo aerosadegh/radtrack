@@ -53,7 +53,6 @@ class RbCbt(QtGui.QWidget):
         self.ui.graphicsView.itemDoubleClicked.connect(self.editElement)
         self.ui.graphicsView.wheelZoom.connect(self.zoomPreview)
         self.ui.graphicsView.dragDone.connect(self.drawLengthScale)
-        self.ui.graphicsView.scene().selectionChanged.connect(self.picClick)
         self.ui.graphicsView.horizontalScrollBar().valueChanged.connect(self.drawLengthScale)
         self.ui.graphicsView.verticalScrollBar().valueChanged.connect(self.drawLengthScale)
         self.ui.graphicsView.itemDropped.connect(self.droppedOnGraphicsWindow)
@@ -140,10 +139,6 @@ class RbCbt(QtGui.QWidget):
         # Allow workingBeamline list and beamline preview to accept drops from treeWidget
         self.ui.workingBeamline.setDragDropMode(QtGui.QAbstractItemView.DropOnly)
         self.ui.graphicsView.setAcceptDrops(True)
-        # Deselect everything in the list and preview
-        for item in self.ui.workingBeamline.selectedItems() + \
-                self.ui.graphicsView.scene().selectedItems():
-            item.setSelected(False)
 
     def elementTreeClicked(self, item, column):
         if item.text(column) == self.addToBeamClickText:
@@ -165,18 +160,6 @@ class RbCbt(QtGui.QWidget):
         self.ui.workingBeamline.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
         # Don't allow drags to beamline preview
         self.ui.graphicsView.setAcceptDrops(False)
-        # Deselect everything in the tree and preview
-        for item in self.ui.treeWidget.selectedItems() + \
-                self.ui.graphicsView.scene().selectedItems():
-            item.setSelected(False)
-        self.ui.treeWidget.setCurrentItem(None)
-
-    def picClick(self):
-        # Deselect everything in the tree and preview
-        for item in self.ui.treeWidget.selectedItems() + \
-                self.ui.workingBeamline.selectedItems():
-            item.setSelected(False)
-
 
     # Context menus
     def createContextMenu(self, name, location, globalPos):
