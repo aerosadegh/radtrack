@@ -49,7 +49,6 @@ class RbCbt(QtGui.QWidget):
         self.ui.treeWidget.itemClicked.connect(self.elementTreeClicked)
         self.ui.treeWidget.itemEntered.connect(self.elementTreeHovered)
         self.ui.treeWidget.itemExited.connect(self.elementTreeExit)
-        self.ui.treeWidget.setMouseTracking(True)
         self.ui.graphicsView.itemDoubleClicked.connect(self.editElement)
         self.ui.graphicsView.wheelZoom.connect(self.zoomPreview)
         self.ui.graphicsView.dragDone.connect(self.drawLengthScale)
