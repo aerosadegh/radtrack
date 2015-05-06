@@ -213,7 +213,7 @@ class RbGlobal(QtGui.QMainWindow):
             openFile = QtGui.QFileDialog.getOpenFileName(self, 'Open file', self.lastUsedDirectory,
                     "All Files (*.*);;" +
                     "Laser Transport (*.rad);;" +
-                    "Charged Beam Transport (*.lte);;" +
+                    "Bunch Transport (*.lte);;" +
                     "SDDS (*.sdds);;" +
                     "SRW (*.srw)")
             if not openFile:
@@ -255,7 +255,10 @@ class RbGlobal(QtGui.QMainWindow):
 
             box.exec_()
             destinationIndex = responses.index(box.clickedButton())
-            choice = choices[destinationIndex]
+            try:
+                choice = choices[destinationIndex]
+            except IndexError: # Cancel was pressed
+                return
         else:
             choice = newTabLabel
 
