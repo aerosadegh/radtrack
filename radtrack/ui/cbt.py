@@ -12,9 +12,10 @@ from PyQt4 import QtCore, QtGui
 class dtreeWidget(QtGui.QTreeWidget):
     itemDoubleClicked = QtCore.pyqtSignal(str)
     contextMenuClicked = QtCore.pyqtSignal(str,str,QtCore.QPoint)
+    itemExited = QtCore.pyqtSignal()
 
-    def __init__(self):
-        super(dtreeWidget, self).__init__()
+    def __init__(self, parent):
+        super(dtreeWidget, self).__init__(parent)
         self.setGeometry(QtCore.QRect(9, 90, 831, 181))
         self.setAcceptDrops(True)
         self.setDragEnabled(True)
@@ -22,17 +23,30 @@ class dtreeWidget(QtGui.QTreeWidget):
         self.setDefaultDropAction(QtCore.Qt.CopyAction)
         self.setColumnCount(2)
         self.setObjectName("treeWidget")
+        self.lastIndex = QtCore.QPersistentModelIndex()
+        self.viewport().installEventFilter(self)
 
     def mouseDoubleClickEvent(self, event):
-        item = self.itemAt(self.viewport()\
-                .mapFromGlobal(event.globalPos()))
+        item = self.itemAt(event.pos())
         if item is not None:
             self.itemDoubleClicked.emit(item.text(0))
 
     def contextMenuEvent(self, event):
-        item = self.itemAt(self.viewport().mapFromGlobal(event.globalPos()))
+        item = self.itemAt(event.pos())
         if item is not None:
             self.contextMenuClicked.emit(item.text(0), "tree", event.globalPos())
+
+    def eventFilter(self, widget, event):
+        if widget is self.viewport():
+            index = self.lastIndex
+            if event.type() == QtCore.QEvent.MouseMove:
+                index = self.indexAt(event.pos())
+            elif event.type() == QtCore.QEvent.Leave:
+                index = QtCore.QModelIndex()
+            if index != self.lastIndex:
+                self.itemExited.emit()
+                self.lastIndex = index
+        return QtGui.QTreeWidget.eventFilter(self, widget, event)
 
 class dlistWidget(QtGui.QListWidget):
     lengthChange = QtCore.pyqtSignal()
@@ -121,7 +135,7 @@ class Ui_tree(QtCore.QObject):
         self.treeObjectName = "tree"
         tree.setObjectName(self.treeObjectName)
         tree.resize(856, 490)
-        self.treeWidget = dtreeWidget()
+        self.treeWidget = dtreeWidget(tree)
         self.horizontalLayoutWidget = QtGui.QWidget(tree)
         self.horizontalLayoutWidget.setGeometry(QtCore.QRect(10, 10, 831, 81))
         self.horizontalLayoutWidget.setObjectName("horizontalLayoutWidget")
