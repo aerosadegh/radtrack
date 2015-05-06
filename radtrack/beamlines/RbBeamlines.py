@@ -94,7 +94,8 @@ class ReverseBeamline(object):
         return beamPosition, angle
 
     def contains(self, searchElement):
-        return self.originalBeamline.contains(searchElement)
+        return self is searchElement or \
+                self.originalBeamline.contains(searchElement)
 
     def getLength(self):
         return self.originalBeamline.getLength()
@@ -106,7 +107,10 @@ class ReverseBeamline(object):
         return self.originalBeamline.getNumberOfElements()
 
     def __eq__(self, other):
-        return self.originalBeamline == other.originalBeamline
+        try:
+            return self.originalBeamline == other.originalBeamline
+        except AttributeError:
+            return False
 
     def __ne__(self, other):
         return not self == other
