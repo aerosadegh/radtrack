@@ -36,6 +36,8 @@ class dtreeWidget(QtGui.QTreeWidget):
         if item is not None:
             self.contextMenuClicked.emit(item.text(0), "tree", event.globalPos())
 
+    # Inspired by:
+    # http://stackoverflow.com/questions/20064975/how-to-catch-mouse-over-event-of-qtablewidget-item-in-pyqt
     def eventFilter(self, widget, event):
         if widget is self.viewport():
             index = self.lastIndex
