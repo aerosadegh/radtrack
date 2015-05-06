@@ -8,6 +8,7 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
+from math import sqrt
 
 class dtreeWidget(QtGui.QTreeWidget):
     itemDoubleClicked = QtCore.pyqtSignal(str)
@@ -68,12 +69,12 @@ class dlistWidget(QtGui.QListWidget):
         self.lengthChange.emit()
 
     def mouseDoubleClickEvent(self, event):
-        item = self.itemAt(self.viewport().mapFromGlobal(event.globalPos()))
+        item = self.itemAt(event.pos())
         if item is not None:
             self.itemDoubleClicked.emit(item.text())
 
     def contextMenuEvent(self, event):
-        item = self.itemAt(self.viewport().mapFromGlobal(event.globalPos()))
+        item = self.itemAt(event.pos())
         if item is not None:
             self.contextMenuClicked.emit(item.text(), "list", event.globalPos())
 
@@ -301,8 +302,14 @@ class advDialog(QtGui.QDialog):
         grid = QtGui.QGridLayout()
         encyclopedia = parent.classDictionary
         nameMangler = parent.nameMangler
-        columns = 6
-        for k, name in enumerate(parent.ui.advancedNames):
+        numberElements = len(parent.ui.advancedNames)
+        for columns in range(int(round(sqrt(numberElements))) + 1, 0, -1):
+            if numberElements % columns == 0:
+                break
+        else:
+            columns = int(round(sqrt(numberElements)))
+
+        for k, name in enumerate(sorted(parent.ui.advancedNames)):
             row = k // columns
             col = k % columns
             button = QtGui.QPushButton(name)
