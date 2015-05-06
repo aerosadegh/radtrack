@@ -93,6 +93,7 @@ class RbCbt(QtGui.QWidget):
         self.ui.treeWidget.headerItem().setText(4, "Element Count")
         self.ui.treeWidget.headerItem().setText(5, "")
         self.ui.treeWidget.headerItem().setText(6, "")
+        self.addToBeamClickText = 'Add to current beam line'
 
     def undo(self):
         self.undoStack.undo()
@@ -142,7 +143,7 @@ class RbCbt(QtGui.QWidget):
             item.setSelected(False)
 
     def elementTreeClicked(self, item, column):
-        if column == 5:
+        if item.text(column) == self.addToBeamClickText:
             self.addToEndOfWorkingBeamLine(item.text(0))
 
     def listClick(self):
@@ -302,7 +303,7 @@ class RbCbt(QtGui.QWidget):
         # Update element list
         for group in self.topLevelTreeItems():
             for item in itemsInGroup(group):
-                populateTreeItem(item, self.elementDictionary[item.text(0)])
+                populateTreeItem(self, item, self.elementDictionary[item.text(0)])
         self.fitColumns()
 
         # Update Working Beamline
@@ -664,13 +665,13 @@ class RbCbt(QtGui.QWidget):
 
 
         
-def populateTreeItem(item, element):
+def populateTreeItem(widget, item, element):
     item.setText(0, element.name)
     item.setText(1, element.displayLine())
     item.setText(2, displayWithUnitsNumber(roundSigFig(element.getLength(), 4), 'm'))
     item.setText(3, str(roundSigFig(convertUnitsNumber(element.getAngle(), 'rad', 'deg'), 4))+' deg')
     item.setText(4, str(element.getNumberOfElements()) if element.isBeamline() else '')
-    item.setText(5, 'Add to current beam line')
+    item.setText(5, widget.addToBeamClickText)
 
 def itemsInGroup(group):
     return [group.child(i) for i in range(group.childCount())]
@@ -713,7 +714,7 @@ class commandEditElement(QtGui.QUndoCommand):
 
         # Propagate name changes to tree and working beamline
         treeItem = self.widget.findElementInTreeByName(oldName)
-        populateTreeItem(treeItem, source)
+        populateTreeItem(self, treeItem, source)
         for i, name in enumerate(self.widget.workingBeamlineElementNames()):
             if name == oldName:
                 self.widget.ui.workingBeamline.item(i).setText(source.name)
@@ -748,7 +749,7 @@ class commandLoadElements(QtGui.QUndoCommand):
                 self.groupPositions.append(None)
                 newGroups.append(None)
                 continue
-            populateTreeItem(self.items[-1], element)
+            populateTreeItem(self.widget, self.items[-1], element)
 
             if element.isBeamline():
                 typeName = self.widget.beamlineTreeLabel
