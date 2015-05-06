@@ -304,13 +304,9 @@ class advDialog(QtGui.QDialog):
         grid = QtGui.QGridLayout()
         encyclopedia = parent.classDictionary
         nameMangler = parent.nameMangler
-        numberElements = len(parent.ui.advancedNames)
-        for columns in range(int(round(sqrt(numberElements))) + 1, 0, -1):
-            if numberElements % columns == 0:
-                break
-        else:
-            columns = int(round(sqrt(numberElements)))
 
+        # Choose grid dimensions to be closest to a square
+        columns = int(round(sqrt(len(parent.ui.advancedNames))))
         for k, name in enumerate(sorted(parent.ui.advancedNames)):
             row = k // columns
             col = k % columns
