@@ -94,7 +94,7 @@ class RbCbt(QtGui.QWidget):
         self.ui.treeWidget.headerItem().setText(4, "Element Count")
         self.ui.treeWidget.headerItem().setText(5, "")
         self.ui.treeWidget.headerItem().setText(6, "")
-        self.addToBeamClickText = 'Add to current beam line'
+        self.addToBeamClickText = self.ui.translateUTF8('Add to current beam line')
 
     def undo(self):
         self.undoStack.undo()
@@ -102,9 +102,16 @@ class RbCbt(QtGui.QWidget):
     def redo(self):
         self.undoStack.redo()
 
-    def addToEndOfWorkingBeamLine(self, elementName):
-        self.ui.workingBeamline.addItem(elementName)
-        self.postListDrop()
+    def addToEndOfWorkingBeamLine(self, elementName, copies = None):
+        if not copies:
+            copies, ok = self.getNumberOfCopies(elementName)
+        else:
+            ok = True
+
+        if ok:
+            for i in range(copies):
+                self.ui.workingBeamline.addItem(elementName)
+            self.postListDrop()
         
     def emptyWorkingBeamlineCheck(self):
         isEmpty = self.ui.workingBeamline.count() == 0
@@ -141,7 +148,7 @@ class RbCbt(QtGui.QWidget):
 
     def elementTreeClicked(self, item, column):
         if item.text(column) == self.addToBeamClickText:
-            self.addToEndOfWorkingBeamLine(item.text(0))
+            self.addToEndOfWorkingBeamLine(item.text(0), 1)
 
     def elementTreeHovered(self, item, column):
         if item.text(column) == self.addToBeamClickText:
@@ -182,7 +189,7 @@ class RbCbt(QtGui.QWidget):
             display = True
  
         if location in ['tree', 'picture'] and element is not None:
-            mouseMenu.addAction(self.ui.translateUTF8('Edit'),
+            mouseMenu.addAction(self.ui.translateUTF8('Edit ...'),
                     lambda: self.editElement(element.name))
             mouseMenu.addAction(self.ui.translateUTF8('New copy'),
                     lambda: self.copyElement(element.name))
@@ -195,7 +202,9 @@ class RbCbt(QtGui.QWidget):
             display = True
 
         if location == 'tree':
-            mouseMenu.addAction(self.ui.translateUTF8('Add to current beam line'),
+            mouseMenu.addAction(self.addToBeamClickText,
+                    lambda: self.addToEndOfWorkingBeamLine(element.name, 1))
+            mouseMenu.addAction('Add multiple copies ...',
                     lambda: self.addToEndOfWorkingBeamLine(element.name))
 
         if location == 'picture' and len(self.ui.graphicsView.scene().items()) > 0:
@@ -212,7 +221,7 @@ class RbCbt(QtGui.QWidget):
                 mouseMenu.addAction(self.ui.translateUTF8('Edit'),
                         lambda: self.editElement(element.name))
 
-            mouseMenu.addAction(self.ui.translateUTF8('Add another'), self.listCopy)
+                mouseMenu.addAction(self.ui.translateUTF8('Add another'), lambda : self.listCopy)
             mouseMenu.addAction(self.ui.translateUTF8('Add multiple copies ...'), self.listMultipleCopy)
             display = True
 
@@ -273,13 +282,15 @@ class RbCbt(QtGui.QWidget):
         undoAction = commandLoadElements(self, [newElement])
         self.undoStack.push(undoAction)
 
+    def getNumberOfCopies(self, elementName):
+        return QtGui.QInputDialog.getInt(self, \
+                "Add multiple copies", \
+                "Number of copies of " \
+                + elementName + " to add:", \
+                1,1)
 
     def listMultipleCopy(self):
-        copies, ok = QtGui.QInputDialog.getInt(self, \
-                "Add multiple copies", \
-                "Number of additional copies of " \
-                + self.ui.workingBeamline.currentItem().text() + ":", \
-                1,1)
+        copies, ok = self.getNumberOfCopies(self.ui.workingBeamline.currentItem().text())
         if ok:
             for i in range(copies):
                 self.listCopy(False)
@@ -713,7 +724,7 @@ class commandEditElement(QtGui.QUndoCommand):
 
         # Propagate name changes to tree and working beamline
         treeItem = self.widget.findElementInTreeByName(oldName)
-        populateTreeItem(self.addToBeamClickText, treeItem, source)
+        populateTreeItem(self.widget.addToBeamClickText, treeItem, source)
         for i, name in enumerate(self.widget.workingBeamlineElementNames()):
             if name == oldName:
                 self.widget.ui.workingBeamline.item(i).setText(source.name)
