@@ -11,7 +11,7 @@ import string
 # displayWithUnitsString("5000 m") returns "5 km"
 #
 # The above functions should be used instead of __parseUnits
-# or the unitConversion dictionary
+# or the __unitConversion dictionary
 #
 # __parseUnits("km") returns 1000
 
@@ -30,7 +30,7 @@ def __parseUnits(unit):
             else:
                 exponent = 1.0
             exponent = exponent if multiply else -exponent
-            convertValue = convertValue*(unitConversion[currentUnit]**exponent)
+            convertValue = convertValue*(__unitConversion[currentUnit]**exponent)
             multiply = (char == '*')
             currentUnit = ''
         else:
@@ -127,9 +127,9 @@ def displayWithUnitsString(inputString):
     return displayWithUnitsNumber(value, unit)
 
 # Unit Conversions
-unitConversion = dict()
-unitConversion[''] = 1 # unitless unit
-unitConversion['1'] = 1 # for inverse units (1/s = Hz)
+__unitConversion = dict()
+__unitConversion[''] = 1 # unitless unit
+__unitConversion['1'] = 1 # for inverse units (1/s = Hz)
 unitTable = dict()
 prefixes = ['P', 'T', 'G', 'M', 'k', '', 'm', 'u', 'n', 'p', 'f', 'a']
 firstMultiplier = 1.0e15 # value of first unit prefix in prefixes
@@ -141,7 +141,7 @@ def addMetricUnit(unit, first = prefixes[0], last = prefixes[-1], addRow = True)
         if prefix == first:
             add = True
         if add:
-            unitConversion[prefix + unit] = multiplier
+            __unitConversion[prefix + unit] = multiplier
             row.append(prefix + unit)
         if prefix == last:
             break
@@ -152,7 +152,7 @@ def addMetricUnit(unit, first = prefixes[0], last = prefixes[-1], addRow = True)
         addToUnitTable(row)
 
 def addToUnitConversion(unit, value, otherUnit):
-    unitConversion[unit] = value*unitConversion[otherUnit]
+    __unitConversion[unit] = value*__unitConversion[otherUnit]
 
 def addToUnitTable(row):
     for unit in row:
