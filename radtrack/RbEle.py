@@ -182,8 +182,7 @@ class RbEle(QtGui.QWidget):
                     return None
         else:
             bunchTab = self.bunch_source_manager.get_tab_widget()
-            if not hasattr(bunchTab, 'myBunch'):
-                bunchTab.generateBunch()
+            bunchTab.generateBunch() # make sure any new settings get read
 
             try:
                 momentum = convertUnitsNumber(
