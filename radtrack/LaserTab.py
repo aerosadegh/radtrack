@@ -36,7 +36,7 @@ from PyQt4 import QtGui
 # RadTrack imports
 import radtrack.fields.RbGaussHermiteMN as hermite
 from radtrack.ui.LaserInterface import Ui_LaserInterface
-from radtrack.RbUtility import parseUnits, unitConversion
+from radtrack.RbUtility import convertUnitsStringToNumber, convertUnitsNumber
 import radtrack.plot.RbPlotUtils as plotutils
 import sys
 
@@ -189,9 +189,9 @@ class LaserTab(QtGui.QWidget):
     def paraxialGaussian(self):
 
         # get input from text boxes
-        self.lambda0 = float(parseUnits(self.ui.wavelength.text()))
-        self.w0 = float(parseUnits(self.ui.waistSize.text()))
-        self.w0_z = float(parseUnits(self.ui.waistPosition.text()))
+        self.lambda0 = convertUnitsStringToNumber(self.ui.wavelength.text(), 'm')
+        self.w0 = convertUnitsStringToNumber(self.ui.waistSize.text(), 'm')
+        self.w0_z = convertUnitsStringToNumber(self.ui.waistPosition.text(), 'm')
         self.zR = math.pi*self.w0**2/self.lambda0    # horiz. Rayleigh range [m]
 
         # instantiate the laser pulse
@@ -281,20 +281,20 @@ class LaserTab(QtGui.QWidget):
         canvas.ax.clear()
 
         levels = myPlotUtils.generateContourLevels(zxEData)
-        canvas.ax.contourf(zArr/unitConversion[self.unitsZ],
-                           xArr/unitConversion[self.unitsXY],
+        canvas.ax.contourf(zArr*convertUnitsNumber(1, 'm', self.unitsZ),
+                           xArr*convertUnitsNumber(1, 'm', self.unitsXY),
                            zxEData, levels, extent='none', aspect='equal')
 
-        canvas.ax.axis([self.minZ/unitConversion[self.unitsZ],
-                        self.maxZ/unitConversion[self.unitsZ],
-                        self.minX/unitConversion[self.unitsXY],
-                        self.maxX/unitConversion[self.unitsXY]])
+        canvas.ax.axis([self.minZ*convertUnitsNumber(1, 'm', self.unitsZ),
+                        self.maxZ*convertUnitsNumber(1, 'm', self.unitsZ),
+                        self.minX*convertUnitsNumber(1, 'm', self.unitsXY),
+                        self.maxX*convertUnitsNumber(1, 'm', self.unitsXY)])
         canvas.ax.xaxis.set_major_locator(plt.MaxNLocator(self.numTicks))
         canvas.ax.yaxis.set_major_locator(plt.MaxNLocator(self.numTicks))
         canvas.ax.set_xlabel('z ['+self.unitsZ+']')
         canvas.ax.set_ylabel('x ['+self.unitsXY+']')
         if self.plotTitles == True:
-            canvas.ax.set_title('ZX slice, at  y={0:4.2f} [{1}]'.format(yValue/unitConversion[self.unitsXY],
+            canvas.ax.set_title('ZX slice, at  y={0:4.2f} [{1}]'.format(yValue*convertUnitsNumber(1, 'm', self.unitsXY),
                                                                         self.unitsXY))
         canvas.fig.tight_layout()
         canvas.fig.set_facecolor('w')
@@ -346,22 +346,22 @@ class LaserTab(QtGui.QWidget):
         canvas.ax.clear()
 
         levels = myPlotUtils.generateContourLevels(zyEData)
-        canvas.ax.contourf(zArr/unitConversion[self.unitsZ],
-                           yArr/unitConversion[self.unitsXY],
+        canvas.ax.contourf(zArr*convertUnitsNumber(1, 'm', self.unitsZ),
+                           yArr*convertUnitsNumber(1, 'm', self.unitsXY),
                            zyEData, levels, extent='none', aspect='equal')
         # plt.colorbar(cs1, format='%3.2e')
         # plt.gcf().colorbar(contours, format='%3.2e')
 
-        canvas.ax.axis([self.zyMinH/unitConversion[self.unitsZ],
-                        self.zyMaxH/unitConversion[self.unitsZ],
-                        self.zyMinV/unitConversion[self.unitsXY],
-                        self.zyMaxV/unitConversion[self.unitsXY]])
+        canvas.ax.axis([self.zyMinH*convertUnitsNumber(1, 'm', self.unitsZ),
+                        self.zyMaxH*convertUnitsNumber(1, 'm', self.unitsZ),
+                        self.zyMinV*convertUnitsNumber(1, 'm', self.unitsXY),
+                        self.zyMaxV*convertUnitsNumber(1, 'm', self.unitsXY)])
         canvas.ax.xaxis.set_major_locator(plt.MaxNLocator(self.numTicks))
         canvas.ax.yaxis.set_major_locator(plt.MaxNLocator(self.numTicks))
         canvas.ax.set_xlabel('z ['+self.unitsZ+']')
         canvas.ax.set_ylabel('y ['+self.unitsXY+']')
         if self.plotTitles == True:
-            canvas.ax.set_title('ZY slice, at  x={0:4.2f} [{1}]'.format(xValue/unitConversion[self.unitsXY],
+            canvas.ax.set_title('ZY slice, at  x={0:4.2f} [{1}]'.format(xValue*convertUnitsNumber(1, 'm', self.unitsXY),
                                                                         self.unitsXY))
         canvas.fig.tight_layout()
         canvas.fig.set_facecolor('w')
@@ -406,24 +406,24 @@ class LaserTab(QtGui.QWidget):
         canvas.ax.clear()
 
         levels = myPlotUtils.generateContourLevels(xyEData)
-        canvas.ax.contourf(xArr/unitConversion[self.unitsXY],
-                           yArr/unitConversion[self.unitsXY],
+        canvas.ax.contourf(xArr*convertUnitsNumber(1, 'm', self.unitsXY),
+                           yArr*convertUnitsNumber(1, 'm', self.unitsXY),
                            xyEData, levels, extent='none', aspect='equal')
 
         # For some reason, I can't get the color bar to appear...
         #        contours = canvas.ax.contourf(xArr, yArr, xyEData, levels, extent='none', aspect='equal')
         #        plt.gcf().colorbar(contours, format='%3.2e')
 
-        canvas.ax.axis([self.xyMinH/unitConversion[self.unitsXY],
-                        self.xyMaxH/unitConversion[self.unitsXY],
-                        self.xyMinV/unitConversion[self.unitsXY],
-                        self.xyMaxV/unitConversion[self.unitsXY]])
+        canvas.ax.axis([self.xyMinH*convertUnitsNumber(1, 'm', self.unitsXY),
+                        self.xyMaxH*convertUnitsNumber(1, 'm', self.unitsXY),
+                        self.xyMinV*convertUnitsNumber(1, 'm', self.unitsXY),
+                        self.xyMaxV*convertUnitsNumber(1, 'm', self.unitsXY)])
         canvas.ax.xaxis.set_major_locator(plt.MaxNLocator(self.numTicks))
         canvas.ax.yaxis.set_major_locator(plt.MaxNLocator(self.numTicks))
         canvas.ax.set_xlabel('x ['+self.unitsXY+']')
         canvas.ax.set_ylabel('y ['+self.unitsXY+']')
         if self.plotTitles == True:
-            canvas.ax.set_title('XY slice, at  z={0:4.2f} [{1}]'.format(self.w0_z/unitConversion[self.unitsZ],
+            canvas.ax.set_title('XY slice, at  z={0:4.2f} [{1}]'.format(self.w0_z*convertUnitsNumber(1, 'm', self.unitsZ),
                                                                         self.unitsZ))
         canvas.fig.tight_layout()
         canvas.fig.set_facecolor('w')
@@ -434,9 +434,9 @@ class LaserTab(QtGui.QWidget):
         self.externalFields = True
 
         # get input from text boxes
-        self.lambda0 = float(parseUnits(self.ui.wavelength.text()))
-        self.w0 = float(parseUnits(self.ui.waistSize.text()))
-        self.w0_z = float(parseUnits(self.ui.waistPosition.text()))
+        self.lambda0 = convertUnitsStringToNumber(self.ui.wavelength.text(), 'm')
+        self.w0 = convertUnitsStringToNumber(self.ui.waistSize.text(), 'm')
+        self.w0_z = convertUnitsStringToNumber(self.ui.waistPosition.text(), 'm')
         self.zR = math.pi*self.w0**2/self.lambda0    # horiz. Rayleigh range [m]
 
         # load up the x,y locations of the mesh
@@ -488,18 +488,18 @@ class LaserTab(QtGui.QWidget):
 
         myPlotUtils = plotutils.RbPlotUtils()
         levels = myPlotUtils.generateContourLevels(self.ExGridExternal)
-        canvas.ax.contourf(self.xGrid/unitConversion[self.unitsXY],
-                           self.yGrid/unitConversion[self.unitsXY],
+        canvas.ax.contourf(self.xGrid*convertUnitsNumber(1, 'm', self.unitsXY),
+                           self.yGrid*convertUnitsNumber(1, 'm', self.unitsXY),
                            self.ExGridExternal, levels,
                            extent='none', aspect='equal')
         canvas.ax.xaxis.set_major_locator(plt.MaxNLocator(self.numTicks))
         canvas.ax.yaxis.set_major_locator(plt.MaxNLocator(self.numTicks))
         canvas.ax.set_xlabel('x ['+self.unitsXY+']')
         canvas.ax.set_ylabel('y ['+self.unitsXY+']')
-        canvas.ax.axis([self.xMin/unitConversion[self.unitsXY],
-                        self.xMax/unitConversion[self.unitsXY],
-                        self.yMin/unitConversion[self.unitsXY],
-                        self.yMax/unitConversion[self.unitsXY]])
+        canvas.ax.axis([self.xMin*convertUnitsNumber(1, 'm', self.unitsXY),
+                        self.xMax*convertUnitsNumber(1, 'm', self.unitsXY),
+                        self.yMin*convertUnitsNumber(1, 'm', self.unitsXY),
+                        self.yMax*convertUnitsNumber(1, 'm', self.unitsXY)])
         if self.plotTitles == True:
             canvas.ax.set_title('slice: quadratic square; at z={0:4.2f} [{1}]'.format(0.,self.unitsZ))
 
@@ -1060,8 +1060,8 @@ class LaserTab(QtGui.QWidget):
             return
 
         # make sure the top-level parameters are up-to-date
-        self.designMomentumEV = float(parseUnits(self.ui.designMomentum.text()))
-        self.totalCharge = float(parseUnits(self.ui.totalCharge.text()))
+        self.designMomentumEV = convertUnitsStringToNumber(self.ui.designMomentum.text(), 'eV')
+        self.totalCharge = convertUnitsStringToNumber(self.ui.totalCharge.text(), 'C')
 
         # create local pointer to particle array
         tmp6 = self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D()
@@ -1115,8 +1115,8 @@ class LaserTab(QtGui.QWidget):
             return
 
         # make sure the top-level parameters are up-to-date
-        self.designMomentumEV = float(parseUnits(self.ui.designMomentum.text()))
-        self.totalCharge = float(parseUnits(self.ui.totalCharge.text()))
+        self.designMomentumEV =convertUnitsStringToNumber(self.ui.designMomentum.text(), 'eV')
+        self.totalCharge = convertUnitsStringToNumber(self.ui.totalCharge.text(), 'C')
 
         # create local pointer to particle array
         tmp6 = self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D()

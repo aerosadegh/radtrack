@@ -29,7 +29,7 @@ def test_unit_conversion():
     # Higher dimension test
     a = 16.7 # km^2, 
     ac = convertUnitsNumberToString(a, 'km^2', 'mi^2')
-    b = '6.44790604765 mi^2'
+    b = '6.44790604766 mi^2'
     bc = convertUnitsString(b, 'mi^2')
     assert ac == bc
 
@@ -44,4 +44,15 @@ def test_unit_conversion():
     a = "9.8 m/s^2"
     ac = roundSigFig(convertUnitsStringToNumber(a, "ft/ms^2"), 6)
     b = 3.21522e-5 # ft / (ms^2)
+    assert ac == b
+
+    # Inverse units
+    a = "10 1/s"
+    ac = convertUnitsString(a, 'Hz')
+    b = "10.0 Hz"
+    assert ac == b
+
+    a = "1 1/ns"
+    ac = convertUnitsString(a, 'GHz')
+    b = "1.0 GHz"
     assert ac == b

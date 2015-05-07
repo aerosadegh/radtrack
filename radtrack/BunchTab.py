@@ -32,7 +32,7 @@ from PyQt4 import QtGui
 import radtrack.bunch.RbParticleBeam6D as beam
 import radtrack.statistics.RbStatistics6D as stat
 from radtrack.ui.BunchInterface import Ui_bunchInterface
-from radtrack.RbUtility import parseUnits, unitConversion
+from radtrack.RbUtility import convertUnitsStringToNumber, convertUnitsNumber
 
 import sdds
 
@@ -271,23 +271,23 @@ class BunchTab(QtGui.QWidget):
     def generateBunch(self):
         # get input from text boxes
         numParticles = int(self.ui.numPtcls.text())
-        self.designMomentumEV = float(parseUnits(self.ui.designMomentum.text()))
-        self.totalCharge = float(parseUnits(self.ui.totalCharge.text()))
+        self.designMomentumEV = convertUnitsStringToNumber(self.ui.designMomentum.text(), 'eV')
+        self.totalCharge = convertUnitsStringToNumber(self.ui.totalCharge.text(), 'C')
         beta0gamma0 = self.designMomentumEV / self.eMassEV
         gamma0 = math.sqrt(beta0gamma0**2 + 1.)
         beta0 = beta0gamma0 / gamma0
 
         # get input from the table of Twiss parameters
-        self.twissAlphaX = float(parseUnits(self.ui.twissTable.item(0,0).text()))
-        self.twissAlphaY = float(parseUnits(self.ui.twissTable.item(1,0).text()))
-        self.twissBetaX  = float(parseUnits(self.ui.twissTable.item(0,1).text()))
-        self.twissBetaY  = float(parseUnits(self.ui.twissTable.item(1,1).text()))
-        self.twissEmitNX = float(parseUnits(self.ui.twissTable.item(0,2).text()))
-        self.twissEmitNY = float(parseUnits(self.ui.twissTable.item(1,2).text()))
+        self.twissAlphaX = convertUnitsStringToNumber(self.ui.twissTable.item(0,0).text(), '')
+        self.twissAlphaY = convertUnitsStringToNumber(self.ui.twissTable.item(1,0).text(), '')
+        self.twissBetaX  = convertUnitsStringToNumber(self.ui.twissTable.item(0,1).text(), 'm/rad')
+        self.twissBetaY  = convertUnitsStringToNumber(self.ui.twissTable.item(1,1).text(), 'm/rad')
+        self.twissEmitNX = convertUnitsStringToNumber(self.ui.twissTable.item(0,2).text(), 'm*rad')
+        self.twissEmitNY = convertUnitsStringToNumber(self.ui.twissTable.item(1,2).text(), 'm*rad')
 
         if self.longTwissFlag == "alpha-bct-dp":
-            self.twissAlphaZ = float(parseUnits(self.ui.twissTableZ.item(0,0).text()))
-            self.bctRms = float(parseUnits(self.ui.twissTableZ.item(0,1).text()))
+            self.twissAlphaZ = convertUnitsStringToNumber(self.ui.twissTableZ.item(0,0).text(), '')
+            self.bctRms = convertUnitsStringToNumber(self.ui.twissTableZ.item(0,1).text(), 'm')
             self.dPopRms  = float(self.ui.twissTableZ.item(0,2).text())
 
             self.twissEmitNZ = (self.bctRms/beta0) * self.dPopRms / math.sqrt(1.+self.twissAlphaZ**2)
@@ -322,12 +322,12 @@ class BunchTab(QtGui.QWidget):
         #     msgBox.exec_()
 
         # Get input from the table of phase space offsets
-        self.offsetX  = float(parseUnits(self.ui.offsetTable.item(0,0).text()))
-        self.offsetY  = float(parseUnits(self.ui.offsetTable.item(1,0).text()))
-        self.offsetT  = float(parseUnits(self.ui.offsetTable.item(2,0).text()))
-        self.offsetXP = float(parseUnits(self.ui.offsetTable.item(0,1).text()))
-        self.offsetYP = float(parseUnits(self.ui.offsetTable.item(1,1).text()))
-        self.offsetPT = float(parseUnits(self.ui.offsetTable.item(2,1).text()))
+        self.offsetX  = convertUnitsStringToNumber(self.ui.offsetTable.item(0,0).text(), 'm')
+        self.offsetY  = convertUnitsStringToNumber(self.ui.offsetTable.item(1,0).text(), 'm')
+        self.offsetT  = convertUnitsStringToNumber(self.ui.offsetTable.item(2,0).text(), 'm')
+        self.offsetXP = convertUnitsStringToNumber(self.ui.offsetTable.item(0,1).text(), 'rad')
+        self.offsetYP = convertUnitsStringToNumber(self.ui.offsetTable.item(1,1).text(), 'rad')
+        self.offsetPT = convertUnitsStringToNumber(self.ui.offsetTable.item(2,1).text(), 'rad')
 
         # instantiate the particle bunch
         self.myBunch = beam.RbParticleBeam6D(numParticles)
@@ -431,24 +431,21 @@ class BunchTab(QtGui.QWidget):
         nDivs = 10 + int(math.pow(numParticles, 0.2))
 
         # generate the four plots
-        self.plotXY( tmp6[0,:]/unitConversion[self.unitsPos],
-                     tmp6[2,:]/unitConversion[self.unitsPos],
+        self.plotXY( tmp6[0,:]*convertUnitsNumber(1, 'm', self.unitsPos),
+                     tmp6[2,:]*convertUnitsNumber(1, 'rad', self.unitsAngle),
                      self.ui.xyPlot.canvas, nDivs, nLevels)
 
-        self.plotXPX(tmp6[0,:]/unitConversion[self.unitsPos],
-                     tmp6[1,:]/unitConversion[self.unitsAngle],
+        self.plotXPX(tmp6[0,:]*convertUnitsNumber(1, 'm', self.unitsPos),
+                     tmp6[1,:]*convertUnitsNumber(1, 'rad', self.unitsAngle),
                      self.ui.xpxPlot.canvas, nDivs, nLevels)
 
-        self.plotYPY(tmp6[2,:]/unitConversion[self.unitsPos],
-                     tmp6[3,:]/unitConversion[self.unitsAngle],
+        self.plotYPY(tmp6[2,:]*convertUnitsNumber(1, 'm', self.unitsPos),
+                     tmp6[3,:]*convertUnitsNumber(1, 'rad', self.unitsAngle),
                      self.ui.ypyPlot.canvas, nDivs, nLevels)
 
-        self.plotSDP(tmp6[4,:]/unitConversion[self.unitsPos],
-                     tmp6[5,:]/unitConversion[self.unitsAngle],
+        self.plotSDP(tmp6[4,:]*convertUnitsNumber(1, 'm', self.unitsPos),
+                     tmp6[5,:]*convertUnitsNumber(1, 'rad', self.unitsAngle),
                      self.ui.tpzPlot.canvas, nDivs, nLevels)
-
-        # indicate that tab data has changed
-        self.globalHasChanged = True
 
     def calculateLimits(self, _arr):
         # nothing to do, if beam hasn't been initialized
@@ -470,11 +467,11 @@ class BunchTab(QtGui.QWidget):
         # now switch based on the specified axis flag
         # specify plot limits, symmetric around the zero axis
         if self.axisFlag == 'symmetric':
-            self.xMax  = (abs(avgArray[0])+diffZero[0])/unitConversion[self.unitsPos]
-            self.xpMax = (abs(avgArray[1])+diffZero[1])/unitConversion[self.unitsAngle]
-            self.yMax  = (abs(avgArray[2])+diffZero[2])/unitConversion[self.unitsPos]
-            self.ypMax = (abs(avgArray[3])+diffZero[3])/unitConversion[self.unitsAngle]
-            self.ptMax = (abs(avgArray[5])+diffZero[5])/unitConversion[self.unitsAngle]
+            self.xMax  = (abs(avgArray[0])+diffZero[0])*convertUnitsNumber(1, 'm', self.unitsPos)
+            self.xpMax = (abs(avgArray[1])+diffZero[1])*convertUnitsNumber(1, 'rad', self.unitsAngle)
+            self.yMax  = (abs(avgArray[2])+diffZero[2])*convertUnitsNumber(1, 'm', self.unitsPos)
+            self.ypMax = (abs(avgArray[3])+diffZero[3])*convertUnitsNumber(1, 'rad', self.unitsAngle)
+            self.ptMax = (abs(avgArray[5])+diffZero[5])*convertUnitsNumber(1, 'rad', self.unitsAngle)
 
             self.xMin  = -self.xMax
             self.xpMin = -self.xpMax
@@ -484,44 +481,41 @@ class BunchTab(QtGui.QWidget):
 
         # specify plot limits, symmetric around the bunch (confined to 3 rms)
         elif self.axisFlag == 'compact':
-            self.xMin  = (avgArray[0]-3.*rmsArray[0])/unitConversion[self.unitsPos]
-            self.xpMin = (avgArray[1]-3.*rmsArray[1])/unitConversion[self.unitsAngle]
-            self.yMin  = (avgArray[2]-3.*rmsArray[2])/unitConversion[self.unitsPos]
-            self.ypMin = (avgArray[3]-3.*rmsArray[3])/unitConversion[self.unitsAngle]
-            self.ptMin = (avgArray[5]-3.*rmsArray[5])/unitConversion[self.unitsAngle]
+            self.xMin  = (avgArray[0]-3.*rmsArray[0])*convertUnitsNumber(1, 'm', self.unitsPos)
+            self.xpMin = (avgArray[1]-3.*rmsArray[1])*convertUnitsNumber(1, 'rad', self.unitsAngle)
+            self.yMin  = (avgArray[2]-3.*rmsArray[2])*convertUnitsNumber(1, 'm', self.unitsPos)
+            self.ypMin = (avgArray[3]-3.*rmsArray[3])*convertUnitsNumber(1, 'rad', self.unitsAngle)
+            self.ptMin = (avgArray[5]-3.*rmsArray[5])*convertUnitsNumber(1, 'rad', self.unitsAngle)
 
-            self.xMax  = (avgArray[0]+3.*rmsArray[0])/unitConversion[self.unitsPos]
-            self.xpMax = (avgArray[1]+3.*rmsArray[1])/unitConversion[self.unitsAngle]
-            self.yMax  = (avgArray[2]+3.*rmsArray[2])/unitConversion[self.unitsPos]
-            self.ypMax = (avgArray[3]+3.*rmsArray[3])/unitConversion[self.unitsAngle]
-            self.ptMax = (avgArray[5]+3.*rmsArray[5])/unitConversion[self.unitsAngle]
+            self.xMax  = (avgArray[0]+3.*rmsArray[0])*convertUnitsNumber(1, 'm', self.unitsPos)
+            self.xpMax = (avgArray[1]+3.*rmsArray[1])*convertUnitsNumber(1, 'rad', self.unitsAngle)
+            self.yMax  = (avgArray[2]+3.*rmsArray[2])*convertUnitsNumber(1, 'm', self.unitsPos)
+            self.ypMax = (avgArray[3]+3.*rmsArray[3])*convertUnitsNumber(1, 'rad', self.unitsAngle)
+            self.ptMax = (avgArray[5]+3.*rmsArray[5])*convertUnitsNumber(1, 'rad', self.unitsAngle)
 
         # symmetric around the bunch
         elif self.axisFlag == 'bunch-centered':
-            self.xMin  = (avgArray[0]-diffZero[0])/unitConversion[self.unitsPos]
-            self.xpMin = (avgArray[1]-diffZero[1])/unitConversion[self.unitsAngle]
-            self.yMin  = (avgArray[2]-diffZero[2])/unitConversion[self.unitsPos]
-            self.ypMin = (avgArray[3]-diffZero[3])/unitConversion[self.unitsAngle]
-            self.ptMin = (avgArray[5]-diffZero[5])/unitConversion[self.unitsAngle]
+            self.xMin  = (avgArray[0]-diffZero[0])*convertUnitsNumber(1, 'm', self.unitsPos)
+            self.xpMin = (avgArray[1]-diffZero[1])*convertUnitsNumber(1, 'rad', self.unitsAngle)
+            self.yMin  = (avgArray[2]-diffZero[2])*convertUnitsNumber(1, 'm', self.unitsPos)
+            self.ypMin = (avgArray[3]-diffZero[3])*convertUnitsNumber(1, 'rad', self.unitsAngle)
+            self.ptMin = (avgArray[5]-diffZero[5])*convertUnitsNumber(1, 'rad', self.unitsAngle)
 
-            self.xMax  = (avgArray[0]+diffZero[0])/unitConversion[self.unitsPos]
-            self.xpMax = (avgArray[1]+diffZero[1])/unitConversion[self.unitsAngle]
-            self.yMax  = (avgArray[2]+diffZero[2])/unitConversion[self.unitsPos]
-            self.ypMax = (avgArray[3]+diffZero[3])/unitConversion[self.unitsAngle]
-            self.ptMax = (avgArray[5]+diffZero[5])/unitConversion[self.unitsAngle]
+            self.xMax  = (avgArray[0]+diffZero[0])*convertUnitsNumber(1, 'm', self.unitsPos)
+            self.xpMax = (avgArray[1]+diffZero[1])*convertUnitsNumber(1, 'rad', self.unitsAngle)
+            self.yMax  = (avgArray[2]+diffZero[2])*convertUnitsNumber(1, 'm', self.unitsPos)
+            self.ypMax = (avgArray[3]+diffZero[3])*convertUnitsNumber(1, 'rad', self.unitsAngle)
+            self.ptMax = (avgArray[5]+diffZero[5])*convertUnitsNumber(1, 'rad', self.unitsAngle)
 
         if self.axisFlag=='compact' or self.axisFlag=='symmetric-compact':
             # sMin / sMax always have to be 'bunch centered'
-            self.sMin  = (avgArray[4]-3.*rmsArray[4])/unitConversion[self.unitsPos]
-            self.sMax  = (avgArray[4]+3.*rmsArray[4])/unitConversion[self.unitsPos]
+            self.sMin  = (avgArray[4]-3.*rmsArray[4])*convertUnitsNumber(1, 'm', self.unitsPos)
+            self.sMax  = (avgArray[4]+3.*rmsArray[4])*convertUnitsNumber(1, 'm', self.unitsPos)
 
         if self.axisFlag=='symmetric' or self.axisFlag=='bunch-centered':
             # sMin / sMax always have to be 'bunch centered'
-            self.sMin  = (avgArray[4]-diffZero[4])/unitConversion[self.unitsPos]
-            self.sMax  = (avgArray[4]+diffZero[4])/unitConversion[self.unitsPos]
-
-        # indicate that tab data has changed
-        self.globalHasChanged = True
+            self.sMin  = (avgArray[4]-diffZero[4])*convertUnitsNumber(1, 'm', self.unitsPos)
+            self.sMax  = (avgArray[4]+diffZero[4])*convertUnitsNumber(1, 'm', self.unitsPos)
 
     def plotXY(self, hData, vData, _canvas, nDivs, nLevels):
         _canvas.ax.clear()
@@ -771,9 +765,6 @@ class BunchTab(QtGui.QWidget):
         # In the future, the 'Twiss Parameters' input box will
         #   be appropriately modified.
 
-        # indicate that tab data has changed
-        self.globalHasChanged = True
-
 #     def rmsGeometric(self):
 #         # specify the perpendicular Twiss conventions
 # #        self.perpTwissFlag = 'rms-geometric'
@@ -800,9 +791,6 @@ class BunchTab(QtGui.QWidget):
         #   and alternate choices haven't yet been implemented.
         # In the future, the 'Longitudinal phase space' input box will
         #   be appropriately modified.
-
-        # indicate that tab data has changed
-        self.globalHasChanged = True
 
 #     def couplingBctDp(self):
 #         # specify the longitudinal Twiss conventions
@@ -921,9 +909,6 @@ class BunchTab(QtGui.QWidget):
         self.twissEmitNZ = self.twissZ.getEmitRMS() * beta0gamma0
         self.ui.twissTable.setItem(0,2,QtGui.QTableWidgetItem("{:.5e}".format(self.twissEmitNX)))
         self.ui.twissTable.setItem(1,2,QtGui.QTableWidgetItem("{:.5e}".format(self.twissEmitNY)))
-
-        # indicate that tab data has changed
-        self.globalHasChanged = True
 
     def importFile(self, fileName = None):
         """Allow importing from CSV or SDDS"""
@@ -1343,8 +1328,8 @@ class BunchTab(QtGui.QWidget):
             return
 
         # make sure the top-level parameters are up-to-date
-        self.designMomentumEV = float(parseUnits(self.ui.designMomentum.text()))
-        self.totalCharge = float(parseUnits(self.ui.totalCharge.text()))
+        self.designMomentumEV = convertUnitsStringToNumber(self.ui.designMomentum.text(), 'eV')
+        self.totalCharge = convertUnitsStringToNumber(self.ui.totalCharge.text(), 'C')
 
         # create local pointer to particle array
         tmp6 = self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D()
@@ -1398,12 +1383,11 @@ class BunchTab(QtGui.QWidget):
             return
 
         # make sure the top-level parameters are up-to-date
-        self.designMomentumEV = float(parseUnits(self.ui.designMomentum.text()))
-        self.totalCharge = float(parseUnits(self.ui.totalCharge.text()))
+        self.designMomentumEV = convertUnitsStringToNumber(self.ui.designMomentum.text(), 'eV')
+        self.totalCharge = convertUnitsStringToNumber(self.ui.totalCharge.text(), 'C')
 
         # create local pointer to particle array
-        if not hasattr(self, 'myBunch'):
-            self.generateBunch()
+        self.generateBunch()
         tmp6 = self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D()
 
         mySDDS = sdds.SDDS(0)

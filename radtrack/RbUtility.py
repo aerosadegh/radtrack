@@ -10,49 +10,33 @@ import string
 # displayWithUnitsNumber(5000, "m") returns "5 km"
 # displayWithUnitsString("5000 m") returns "5 km"
 #
-# Leaving the new unit argument blank in the
-# convertUnits*() functions converts to the
-# unit which has unitConversion[unit] = 1
-# (usually corresponding to the SI base unit)
-#
-# The above functions should be used instead of parseUnits
+# The above functions should be used instead of __parseUnits
 # or the unitConversion dictionary
 #
-# parseUnits("5 km") returns "5000"
+# __parseUnits("km") returns 1000
 
 
-def parseUnits(inputString):
-    try:
-        number, unit = separateNumberUnit(inputString)
-        if unit == '':
-            # no unit specified, return original string to not
-            # lose precision in converting to and from float
-            return inputString
-    except ValueError:
-        return inputString # number is not a number
-
+def __parseUnits(unit):
     # Attempt parsing of compound unit (e.g., 'm/s^2')
     convertValue = 1.0
     currentUnit = ''
     multiply = True
-    try:
-        for char in (unit + '*'): # add extra '*' to process last unit
-            if char in ['/', '*']:
-                if '^' in currentUnit:
-                    currentUnit, exponent = currentUnit.split('^')
-                    exponent = float(exponent)
-                else:
-                    exponent = 1.0
-                exponent = exponent if multiply else -exponent
-                convertValue = convertValue*(unitConversion[currentUnit]**exponent)
-                multiply = (char == '*')
-                currentUnit = ''
-            else:
-                currentUnit = currentUnit + char
-    except KeyError:
-        return inputString # unit is not valid
 
-    return str(number*convertValue)
+    for char in (unit + '*'): # add extra '*' to process last unit
+        if char in ['/', '*']:
+            if '^' in currentUnit:
+                currentUnit, exponent = currentUnit.split('^')
+                exponent = float(exponent)
+            else:
+                exponent = 1.0
+            exponent = exponent if multiply else -exponent
+            convertValue = convertValue*(unitConversion[currentUnit]**exponent)
+            multiply = (char == '*')
+            currentUnit = ''
+        else:
+            currentUnit = currentUnit + char
+
+    return convertValue
 
 def separateNumberUnit(inputString):
     # How this works: after stripping all whitespace, the functions looks for
@@ -64,11 +48,14 @@ def separateNumberUnit(inputString):
     for numLength in range(len(parse),-1,-1):
         try:
             number = float(parse[:numLength])
+            unit = parse[numLength:]
+            if unit.startswith('/'):
+                unit = '1' + unit
+                number = float(parse[:(numLength-1)])
         except ValueError:
-            pass
+            continue
         else:
             break
-    unit = parse[numLength:]
 
     try:
         return number, unit
@@ -84,16 +71,18 @@ def convertUnitsNumber(number, oldUnit, newUnit):
         return number # values without units don't get converted
 
     try:
-        return number*float(parseUnits('1' + oldUnit))/float(parseUnits('1' + newUnit))
-    except ValueError: # float(...) failed
+        return number*__parseUnits(oldUnit)/__parseUnits(newUnit)
+    except (ValueError, KeyError):
         raise ValueError('Cannot convert "' + oldUnit + '" to "' + newUnit + '".')
 
 def convertUnitsString(inputString, newUnit):
     number, unit = separateNumberUnit(inputString)
+    if not unit:
+        return inputString
     return convertUnitsNumberToString(number, unit, newUnit)
 
 def convertUnitsNumberToString(number, oldUnit, newUnit):
-    return str(convertUnitsNumber(number, oldUnit, newUnit)) + ' ' + removeWhitespace(newUnit)
+    return (str(convertUnitsNumber(number, oldUnit, newUnit)) + ' ' + removeWhitespace(newUnit)).strip()
 
 def convertUnitsStringToNumber(inputString, newUnit):
     value, unit = separateNumberUnit(inputString)
@@ -139,7 +128,8 @@ def displayWithUnitsString(inputString):
 
 # Unit Conversions
 unitConversion = dict()
-unitConversion[''] = 1
+unitConversion[''] = 1 # unitless unit
+unitConversion['1'] = 1 # for inverse units (1/s = Hz)
 unitTable = dict()
 prefixes = ['P', 'T', 'G', 'M', 'k', '', 'm', 'u', 'n', 'p', 'f', 'a']
 firstMultiplier = 1.0e15 # value of first unit prefix in prefixes
@@ -192,6 +182,7 @@ addToUnitConversion('deg', pi/180, 'rad')
 
 #temporal frequency -> Hz
 addMetricUnit('Hz')
+addToUnitConversion('1/s', 1, 'Hz')
 
 #time -> seconds
 addMetricUnit('s', '', 'f', False)
@@ -219,6 +210,15 @@ addMetricUnit('J')
 
 #power -> W
 addMetricUnit('W')
+
+#electrical resistance -> Ohm
+addMetricUnit('Ohm')
+
+#electrical potential -> V
+addMetricUnit('V')
+
+#mks mass -> g
+addMetricUnit('g', 'k')
 
 
 # Round number x to sig significant figures

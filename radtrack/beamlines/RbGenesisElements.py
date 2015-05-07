@@ -8,12 +8,13 @@ from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QProgressDialog
 from RbElementCommon import *
 from RbBeamlines import BeamlineCommon
-from radtrack.RbUtility import convertUnitsStringToNumber, parseUnits
+from radtrack.RbUtility import convertUnitsStringToNumber, convertUnitsString
 
 class genesisElement(elementCommon):
     def componentLine(self):
-        sentence = [(param, parseUnits(datum)) for param, datum in \
-                zip(self.parameterNames, self.data) if datum != '']
+        sentence = [(param, convertUnitsString(datum, unit)) \
+                for param, datum, unit in \
+                zip(self.parameterNames, self.data, self.units) if datum]
 
         sentence = '   '.join(self.data)
         #sentence = ', '.join(['='.join(phrase) for phrase in sentence])
@@ -31,7 +32,7 @@ fileExtension = 'lat'
 class QF(genesisElement, magnetPic):
     elementDescription = 'A quadrupole'
     parameterNames = ['K', 'L', 'D']
-    units = ['T/M', 'M', 'M']
+    units = ['T/m', 'm', 'm']
     dataType = ['double', 'double', 'double']
     parameterDescription = ['Field Gradient', 'Length','Spacing']
     color = Qt.red
@@ -39,20 +40,21 @@ class QF(genesisElement, magnetPic):
 class AW(genesisElement, undulatorPic):
     elementDescription = 'A wiggler or undulator for damping or excitation of the beam.'
     parameterNames = ['AW0', 'L','D']
-    units = ['', 'M','M','M']
+    units = ['', 'm','m','m']
     dataType = ['double', 'double', 'double']
     parameterDescription = ['Dimensionless strength parameter', 'Length','Spacing']
 
 class Unit_Length(genesisElement, driftPic):
     elementDescription = 'The length to which all Genesis elements are relative to'
     parameterNames = ['UNITLENGTH']
-    units = ['M']
+    units = ['m']
     dataType =['double']
     parameterDescription = ['length']
 
     def componentLine(self):
-        sentence = [(param, parseUnits(datum)) for param, datum in \
-                zip(self.parameterNames, self.data) if datum != '']
+        sentence = [(param, convertUnitsString(datum, unit)) \
+                for param, datum, unit in \
+                zip(self.parameterNames, self.data, self.units) if datum]
         sentence = ''.join(['='.join(phrase) for phrase in sentence])
         return '?'+sentence
 
@@ -93,14 +95,14 @@ def fileExporter(outputFileName, elementDictionary, defaultBeamline):
 class DRIF(particleDrift, genesisElement):
     elementDescription = 'A drift space'
     parameterNames = ['L']
-    units = ['M']
+    units = ['m']
     dataType = ['double']
     parameterDescription = ['length']
 
 class SOLE(elegantElement, solenoidPic):
     elementDescription = 'A solenoid.'
     parameterNames = ['L', 'KS', 'B', 'DX', 'DY', 'DZ']
-    units = ['M', 'RAD/M', 'T', 'M', 'M', 'M']
+    units = ['m', 'rad/m', 'T', 'm', 'm', 'm']
     dataType = ['double', 'double', 'double', 'double', 'double', 'double']
     parameterDescription = ['length', 'geometric strength, -Bs/(B*Rho)', 'field strength (used if KS is zero)', 'misalignment', 'misalignment', 'misalignment']
     '''
