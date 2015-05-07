@@ -107,7 +107,7 @@ class elementCommon(object):
         index = self.parameterNames.index(pName)
         val = self.data[index]
         try:
-            return convertUnitsStringToNumber(val, '')
+            return convertUnitsStringToNumber(val, self.units[index])
         except ValueError:
             return rpn(val)
 
