@@ -25,12 +25,22 @@ class dtreeWidget(QtGui.QTreeWidget):
         self.setObjectName("treeWidget")
         self.setMouseTracking(True)
         self.lastIndex = QtCore.QPersistentModelIndex()
+        self.viewport().installEventFilter(self) # see def eventFilter(...) below
 
     def contextMenuEvent(self, event):
         item = self.itemAt(event.pos())
         if item is not None:
             self.contextMenuClicked.emit(item.text(0), "tree", event.globalPos())
 
+    # Don't process right-clicks on element items as normal clicks
+    def mouseReleaseEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            super(dtreeWidget, self).mouseReleaseEvent(event)
+
+    # Emit signal when the mouse cursor leaves a QTreeWidgetItem.
+    # This is needed to change the cursor from a pointing hand back to an arrow
+    # when hovering over a blank area of the QTreeWidget after hovering over the
+    # add-to-beamline text link.
     # Inspired by:
     # http://stackoverflow.com/questions/20064975/how-to-catch-mouse-over-event-of-qtablewidget-item-in-pyqt
     def eventFilter(self, widget, event):
