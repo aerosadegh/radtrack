@@ -14,6 +14,7 @@ class RbCbt(QtGui.QWidget):
     def __init__(self, module, parent = None):
         QtGui.QWidget.__init__(self)
         
+        #customize for simulation type
         self.beamlineType = module.beamlineType
         self.classDictionary = module.classDictionary
         self.acceptsFileTypes = [module.fileExtension]
@@ -21,19 +22,16 @@ class RbCbt(QtGui.QWidget):
         self.importer = module.fileImporter
         self.exporter = module.fileExporter
 
-        self.resolution = self.classDictionary.values()[0]().getResolution()
         self.defaultBeamline = ''
+
         #set layout
         self.ui = Ui_tree(self, module)
-        self.verticalLayout = QtGui.QVBoxLayout(self)
-        self.verticalLayout.addWidget(self.ui.horizontalLayoutWidget)
-        self.verticalLayout.addWidget(self.ui.treeWidget)
-        self.verticalLayout.addWidget(self.ui.horizontalLayoutWidget_3)
-        self.verticalLayout.addWidget(self.ui.horizontalLayoutWidget_2)
+
         #undo/redo 
         self.undoStack = QtGui.QUndoStack()
+
         #connections
-        self.ui.workingBeamline.lengthChange.connect(self.postListDrop)
+        self.ui.workingBeamline.lengthChange.connect(self.callAfterWorkingBeamlineChanges)
         self.ui.workingBeamline.itemDoubleClicked.connect(self.editElement)
         self.ui.workingBeamline.itemPressed.connect(self.listClick)
         self.adv = advDialog(self)
@@ -57,7 +55,7 @@ class RbCbt(QtGui.QWidget):
         self.ui.graphicsView.itemDropped.connect(self.droppedOnGraphicsWindow)
         self.ui.contextMenuClicked.connect(self.createContextMenu)
 
-        #### Keyboard shortcuts
+        #### Keyboard shortcuts ####
         # Copy element in tree widget
         QtGui.QShortcut(QtGui.QKeySequence.Copy, self).activated.connect(lambda : self.copyElement(self.ui.treeWidget.currentItem()))
 
@@ -66,6 +64,7 @@ class RbCbt(QtGui.QWidget):
         QtGui.QShortcut(QtGui.QKeySequence.ZoomOut, self).activated.connect(lambda : self.zoomPreview(-1))
         
         #text
+        self.addToBeamClickText = self.ui.translateUTF8('Add to current beam line')
         self.beamlineTreeLabel = self.ui.translateUTF8('Beamlines')
         self.beamlineListLabelDefault = self.ui.translateUTF8('New Beamline: ')
         self.ui.label.setText(self.beamlineListLabelDefault)
@@ -87,15 +86,6 @@ class RbCbt(QtGui.QWidget):
         # Graphical length legend for preview
         self.lengthLegend = []
 
-        # More columns for treeWidget
-        self.ui.treeWidget.setColumnCount(7)
-        self.ui.treeWidget.headerItem().setText(2, "Length")
-        self.ui.treeWidget.headerItem().setText(3, "Bend")
-        self.ui.treeWidget.headerItem().setText(4, "Element Count")
-        self.ui.treeWidget.headerItem().setText(5, "")
-        self.ui.treeWidget.headerItem().setText(6, "")
-        self.addToBeamClickText = self.ui.translateUTF8('Add to current beam line')
-
     def undo(self):
         self.undoStack.undo()
 
@@ -111,8 +101,14 @@ class RbCbt(QtGui.QWidget):
         if ok:
             for i in range(copies):
                 self.ui.workingBeamline.addItem(elementName)
-            self.postListDrop()
+            self.callAfterWorkingBeamlineChanges()
         
+    def addReversedToEndOfWorkingBeamLine(self, elementName, copies = None):
+        bl = self.elementDictionary[elementName]
+        blr = bl.reverse()
+        self.elementDictionary[blr.name] = blr
+        self.addToEndOfWorkingBeamLine(blr.name, copies)
+
     def emptyWorkingBeamlineCheck(self):
         isEmpty = self.ui.workingBeamline.count() == 0
         self.ui.clearBeamlineButton.setDisabled(isEmpty)
@@ -121,23 +117,21 @@ class RbCbt(QtGui.QWidget):
     def droppedOnGraphicsWindow(self):
         if self.ui.treeWidget.currentItem():
             self.ui.workingBeamline.addItem(self.ui.treeWidget.currentItem().text(0))
-            self.postListDrop()
+            self.callAfterWorkingBeamlineChanges()
 
-    def postListDrop(self):
-        try:
-            self.fixWorkingBeamline()
-            self.postListSave = self.workingBeamlineElementNames()
-            if self.preListSave == self.postListSave:
-                return
-            self.postListNameSave = self.workingBeamlineName
-            self.postListLabelSave = self.ui.label.text()
-            undoAction = commandundoAdd2Beam(self)
-            self.undoStack.push(undoAction)
-            self.preListSave = self.postListSave
-            self.preListNameSave = self.postListNameSave
-            self.preListLabelSave = self.postListLabelSave
-        finally:
+    def callAfterWorkingBeamlineChanges(self):
+        self.fixWorkingBeamline()
+        self.postListSave = self.workingBeamlineElementNames()
+        if self.preListSave == self.postListSave:
             self.emptyWorkingBeamlineCheck()
+            return
+        self.postListNameSave = self.workingBeamlineName
+        self.postListLabelSave = self.ui.label.text()
+        undoAction = commandundoAdd2Beam(self)
+        self.undoStack.push(undoAction)
+        self.preListSave = self.postListSave
+        self.preListNameSave = self.postListNameSave
+        self.preListLabelSave = self.postListLabelSave
     
     def treeClick(self):
         # Draw element currently selected
@@ -171,72 +165,52 @@ class RbCbt(QtGui.QWidget):
         # Don't allow drags to beamline preview
         self.ui.graphicsView.setAcceptDrops(False)
 
-    # Context menus
     def createContextMenu(self, name, location, globalPos):
         element = self.elementDictionary.get(name)
 
-        # In the below functions, lambda: causes the function itself
-        # to be passed to addAction, rather than the result of the
-        # function
         mouseMenu = QtGui.QMenu(self)
-        display = False
 
-        if location == 'picture' and element is not None:
-            # When a user opens a context menu on the picture of an element,
-            # there's no indication of the name of the element.  The 
-            # commands above the separator put the name of the element at
-            # the top of the context menu.
-            menuTitle = QtGui.QAction(element.name, mouseMenu)
-            menuTitle.setEnabled(False)
-            mouseMenu.addAction(menuTitle)
-            mouseMenu.addSeparator()
-            display = True
- 
-        if location in ['tree', 'picture'] and element is not None:
-            mouseMenu.addAction(self.ui.translateUTF8('Edit ...'),
-                    lambda: self.editElement(element.name))
-            mouseMenu.addAction(self.ui.translateUTF8('New copy'),
-                    lambda: self.copyElement(element.name))
-            mouseMenu.addAction(self.ui.translateUTF8('Delete'),
-                    lambda: self.deleteElement(element.name))
-            if element.isBeamline():
+        if element:
+            if location == 'picture':
+                menuTitle = QtGui.QAction(element.name, mouseMenu)
+                menuTitle.setEnabled(False)
+                mouseMenu.addAction(menuTitle)
                 mouseMenu.addSeparator()
-                mouseMenu.addAction(self.ui.translateUTF8('Set as default'),
-                    lambda: setattr(self, 'defaultBeamline', element.name))
-            display = True
 
-        if location == 'tree':
-            mouseMenu.addAction(self.addToBeamClickText,
-                    lambda: self.addToEndOfWorkingBeamLine(element.name, 1))
-            mouseMenu.addAction('Add multiple copies ...',
-                    lambda: self.addToEndOfWorkingBeamLine(element.name))
+            mouseMenu.addAction(self.ui.translateUTF8('Edit ...'), lambda: self.editElement(element.name))
+            mouseMenu.addAction(self.ui.translateUTF8('New copy'), lambda: self.copyElement(element.name))
+            mouseMenu.addAction(self.ui.translateUTF8('Delete element'), lambda: self.deleteElement(element.name))
+            mouseMenu.addSeparator()
 
-        if location == 'picture' and len(self.ui.graphicsView.scene().items()) > 0:
-            # Add option for saving entire beamline preview as an image file
+            if location == 'tree':
+                mouseMenu.addAction(self.addToBeamClickText,
+                        lambda: self.addToEndOfWorkingBeamLine(element.name, 1))
+                mouseMenu.addAction('Add multiple copies ...',
+                        lambda: self.addToEndOfWorkingBeamLine(element.name))
+                mouseMenu.addAction('Add reversed',
+                        lambda: self.addReversedToEndOfWorkingBeamLine(element.name, 1))
+                mouseMenu.addAction('Add multiple reversed ..',
+                        lambda: self.addReversedToEndOfWorkingBeamLine(element.name))
+
+            if location == 'list':
+                if element.isBeamline():
+                    mouseMenu.addAction(self.ui.translateUTF8('Reverse'), self.convertToReversed)
+
+                mouseMenu.addAction(self.ui.translateUTF8('Add another'), lambda : self.listCopy)
+                mouseMenu.addAction(self.ui.translateUTF8('Add multiple copies ...'), self.listMultipleCopy)
+
+                mouseMenu.addAction(self.ui.translateUTF8('Remove from beam line'), self.removeFromWorkingBeamline)
+
+        if location == 'picture' and not self.ui.graphicsView.scene().zeroSized():
             mouseMenu.addSeparator()
             mouseMenu.addAction(self.ui.translateUTF8('Save preview image...'), \
                     self.savePreviewImage)
             mouseMenu.addAction(self.ui.translateUTF8('Reset zoom'), self.drawElement)
-            display = True
 
-        if location == 'list' and element is not None:
-            # user right/cmd-clicked in the workingBeamline list
-            if not element.isBeamline():
-                mouseMenu.addAction(self.ui.translateUTF8('Edit'),
-                        lambda: self.editElement(element.name))
+            # TODO: create menu for choosing picture resolution
 
-                mouseMenu.addAction(self.ui.translateUTF8('Add another'), lambda : self.listCopy)
-            mouseMenu.addAction(self.ui.translateUTF8('Add multiple copies ...'), self.listMultipleCopy)
-            display = True
-
-            if element.isBeamline():
-                mouseMenu.addAction(self.ui.translateUTF8('Reverse'), self.convertToReversed)
-
-            mouseMenu.addAction(self.ui.translateUTF8('Remove'), self.removeFromWorkingBeamline)
-
-        if display:
+        if mouseMenu.actions():
             mouseMenu.exec_(globalPos)
-
 
     def removeFromWorkingBeamline(self):
         undoAction = commandRemoveFromBeam(self)
@@ -254,7 +228,7 @@ class RbCbt(QtGui.QWidget):
             self.ui.label.setText('Editing element: ' + self.workingBeamlineName)
             self.ui.workingBeamline.clear()
             self.ui.workingBeamline.addItems([element.name for element in selectedElement.data])
-            self.postListDrop()
+            self.callAfterWorkingBeamlineChanges()
 
         else: # Selected item is an element of a beamline (drift, quad, etc.)
             dialog = genDialog(selectedElement)
@@ -298,14 +272,14 @@ class RbCbt(QtGui.QWidget):
         if ok:
             for i in range(copies):
                 self.listCopy(False)
-            self.postListDrop()
+            self.callAfterWorkingBeamlineChanges()
 
     def listCopy(self, postList = True):
         item = self.ui.workingBeamline.currentItem()
         row = self.ui.workingBeamline.row(item)
         self.ui.workingBeamline.insertItem(row, item.text())
         if postList:
-            self.postListDrop()
+            self.callAfterWorkingBeamlineChanges()
 
 
     def rewriteBeamlineTree(self):
@@ -363,7 +337,7 @@ class RbCbt(QtGui.QWidget):
         dialog = genDialog(beamline)
         if dialog.exec_():
             beamline.name = dialog.info[0][1].text()
-            if self.workingBeamlineName != '':
+            if self.workingBeamlineName:
                 oldBeam = self.elementDictionary[self.workingBeamlineName]
                 undoAction = commandEditElement(self, oldBeam, beamline)
                 self.undoStack.push(undoAction)
@@ -389,8 +363,7 @@ class RbCbt(QtGui.QWidget):
         self.workingBeamlineName = ''
         self.ui.label.setText(self.beamlineListLabelDefault)
         self.ui.workingBeamline.clear()
-        self.postListDrop()
-        self.emptyWorkingBeamlineCheck()
+        self.callAfterWorkingBeamlineChanges()
 
     def fixWorkingBeamline(self):
         beamline = self.elementDictionary.get(self.workingBeamlineName)
@@ -472,15 +445,17 @@ class RbCbt(QtGui.QWidget):
         # Determine a reasonable length to display
         length = 1.0 # meter
         widthFraction = 0.25 # maximum length of legend w.r.t. preview window
-        while length*self.resolution < float(vis.width())*widthFraction:
+        resolution = self.classDictionary.values()[0]().getResolution() # pixels per meter
+
+        while length*resolution < float(vis.width())*widthFraction:
             length = length*10.0
 
-        while length*self.resolution > float(vis.width())*widthFraction:
+        while length*resolution > float(vis.width())*widthFraction:
             length = length/10.0
 
         textItem = QtGui.QGraphicsTextItem(displayWithUnitsNumber(length, 'm'))
 
-        pixLength = int(length*self.resolution)
+        pixLength = int(length*resolution)
         if pixLength < 1:
             return
 
@@ -612,8 +587,11 @@ class RbCbt(QtGui.QWidget):
             self.drawLengthScale()
 
     def convertToReversed(self):
-        undoAction = commandReverse(self)
-        self.undoStack.push(undoAction)
+        beamlineName = self.ui.workingBeamline.currentItem().text()
+        reversedBeamline = self.elementDictionary[beamlineName].reverse()
+        self.elementDictionary[reversedBeamline.name] = reversedBeamline
+        self.ui.workingBeamline.currentItem().setText(reversedBeamline.name)
+        self.callAfterWorkingBeamlineChanges()
 
     def topLevelTreeItems(self):
         return [self.ui.treeWidget.topLevelItem(i) for i in range(self.ui.treeWidget.topLevelItemCount())]
@@ -631,28 +609,28 @@ class RbCbt(QtGui.QWidget):
                 undoAction = commandLoadElements(self, newElements.values())
                 self.undoStack.push(undoAction)
 
-                # Copy files referenced by the elements into the current working directory
-                for element in [e for e in newElements.values() if not e.isBeamline()]:
-                    for parameter in element.inputFileParameters:
-                        index = element.parameterNames.index(parameter)
-                        if element.data[index]:
-                            path = os.path.join(os.path.dirname(fileName), element.data[index])
-                            try:
-                                shutil.copy2(path, self.parent.sessionDirectory)
-                            except IOError:
-                                if not ignoreMissingImportFiles:
-                                    box = QtGui.QMessageBox(QtGui.QMessageBox.Warning,
-                                                            'Missing File Reference',
-                                                            'The file "' + path + '" specified by element "' + \
-                                                            element.name + '" cannot be found.\n\n' +\
-                                                            'Do you wish to ignore future warnings of this type?',
-                                                            QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, self)
-                                    box.exec_()
-                                    if box.standardButton(box.clickedButton()) == QtGui.QMessageBox.Yes:
-                                        ignoreMissingImportFiles = True
-
             if defaultBeamline:
                 self.defaultBeamline = defaultBeamline
+
+            # Copy files referenced by the elements into the current working directory
+            for element in [e for e in newElements.values() if not e.isBeamline()]:
+                for parameter in element.inputFileParameters:
+                    index = element.parameterNames.index(parameter)
+                    if element.data[index]:
+                        path = os.path.join(os.path.dirname(fileName), element.data[index])
+                        try:
+                            shutil.copy2(path, self.parent.sessionDirectory)
+                        except IOError:
+                            if not ignoreMissingImportFiles:
+                                box = QtGui.QMessageBox(QtGui.QMessageBox.Warning,
+                                                        'Missing File Reference',
+                                                        'The file "' + path + '" specified by element "' + \
+                                                        element.name + '" cannot be found.\n\n' +\
+                                                        'Do you wish to ignore future warnings of this type?',
+                                                        QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, self)
+                                box.exec_()
+                                if box.standardButton(box.clickedButton()) == QtGui.QMessageBox.Yes:
+                                    ignoreMissingImportFiles = True
 
     def exportToFile(self, outputFileName = None):
         if not outputFileName:
@@ -734,6 +712,7 @@ class commandEditElement(QtGui.QUndoCommand):
                 self.widget.ui.workingBeamline.item(i).setText(source.name)
         self.widget.rewriteBeamlineTree()
         self.widget.elementPreview()
+        self.widget.emptyWorkingBeamlineCheck()
 
 
 class commandLoadElements(QtGui.QUndoCommand):
@@ -816,8 +795,10 @@ class commandLoadElements(QtGui.QUndoCommand):
             self.widget.ui.treeWidget.setCurrentItem(self.items[i])
         if self.createdBeam:
             self.widget.ui.workingBeamline.clear()
+            self.widget.preListSave = []
             self.widget.workingBeamlineName = ''
             self.widget.ui.label.setText(self.widget.beamlineListLabelDefault)
+            self.widget.emptyWorkingBeamlineCheck()
 
     def undo(self):
         for i in range(len(self.createdElements)-1,-1,-1):
@@ -835,6 +816,8 @@ class commandLoadElements(QtGui.QUndoCommand):
             for element in self.createdElements[0].data:
                 self.widget.ui.workingBeamline.addItem(element.name)
             self.widget.workingBeamlinePreview()
+            self.widget.emptyWorkingBeamlineCheck()
+            self.widget.preListSave = self.widget.workingBeamlineElementNames()
         else:
             self.widget.elementPreview()
 
@@ -884,29 +867,6 @@ class commandundoAdd2Beam(QtGui.QUndoCommand):
         self.widget.workingBeamlineName = self.nextListName
         self.widget.ui.label.setText(self.nextListLabel)
         self.widget.emptyWorkingBeamlineCheck()
-        self.widget.workingBeamlinePreview()
-
-
-class commandReverse(QtGui.QUndoCommand):
-    def __init__(self, widget):
-        QtGui.QUndoCommand.__init__(self)
-        self.widget = widget
-        self.item = self.widget.ui.workingBeamline.currentItem()
-        elementName = self.item.text()
-        element = self.widget.elementDictionary[elementName]
-        self.reversedElement = element.reverse()
-        self.isNewElement = self.reversedElement.name not in self.widget.elementDictionary
-
-    def redo(self):
-        if self.isNewElement:
-            self.widget.elementDictionary[self.reversedElement.name] = self.reversedElement
-        self.item.setText(self.reversedElement.name)
-        self.widget.workingBeamlinePreview()
-
-    def undo(self):
-        if self.isNewElement:
-            del self.widget.elementDictionary[self.reversedElement.name]
-        self.item.setText(self.reversedElement.reverse().name)
         self.widget.workingBeamlinePreview()
 
 

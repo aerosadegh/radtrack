@@ -91,6 +91,9 @@ class beamGraphicsScene(QtGui.QGraphicsScene):
     def dragMoveEvent(self, event):
         event.accept()
 
+    def zeroSized(self):
+        return self.width() == 0 or self.height() == 0
+
 class beamGraphicsWindow(QtGui.QGraphicsView):
     itemDoubleClicked = QtCore.pyqtSignal(str)
     wheelZoom = QtCore.pyqtSignal(int)
@@ -195,6 +198,13 @@ class Ui_tree(QtCore.QObject):
         self.clearBeamlineButton.setObjectName("clearBeamlineButton")
         self.horizontalLayout_3.addWidget(self.clearBeamlineButton)
 
+        # Put it all together
+        tree.verticalLayout = QtGui.QVBoxLayout(tree)
+        tree.verticalLayout.addWidget(self.horizontalLayoutWidget)
+        tree.verticalLayout.addWidget(self.treeWidget)
+        tree.verticalLayout.addWidget(self.horizontalLayoutWidget_3)
+        tree.verticalLayout.addWidget(self.horizontalLayoutWidget_2)
+
         self.retranslateUi(tree)
         QtCore.QMetaObject.connectSlotsByName(tree)
 
@@ -207,13 +217,18 @@ class Ui_tree(QtCore.QObject):
         tree.setWindowTitle(self.translateUTF8("Form"))
         self.treeWidget.headerItem().setText(0, self.translateUTF8("Element"))
         self.treeWidget.headerItem().setText(1, self.translateUTF8("Description"))
+        self.treeWidget.headerItem().setText(2, self.translateUTF8("Length"))
+        self.treeWidget.headerItem().setText(3, self.translateUTF8("Bend"))
+        self.treeWidget.headerItem().setText(4, self.translateUTF8("Element Count"))
+        self.treeWidget.headerItem().setText(5, "")
+        self.treeWidget.headerItem().setText(6, "")
+
         for button in self.buttons:
             button.setText(self.translateUTF8(str(button.objectName())))
         if len(self.advancedNames) > 0:
             self.advanced.setText(self.translateUTF8("ADVANCED"))
         self.clearBeamlineButton.setText(self.translateUTF8("Clear\nBeamline"))
         self.saveBeamlineButton.setText(self.translateUTF8("Save\nBeamline"))
-        self.label.setText(self.translateUTF8("Working Beamline: "))
 
     def translateUTF8(self, string):
         return QtGui.QApplication.translate(self.treeObjectName, \
@@ -287,10 +302,11 @@ class genDialog(QtGui.QDialog):
         #set main layout
         mainlayout = QtGui.QGridLayout(self)
         mainlayout.setSizeConstraint(QtGui.QLayout.SetFixedSize)
-        mainlayout.addLayout(flayout,0,0)
-        mainlayout.addWidget(buttonBox,0,1)
-        mainlayout.addWidget(moreButton,1,1)
-        mainlayout.addWidget(scrollArea, 1,0)
+        mainlayout.addWidget(QtGui.QLabel('Blank cells will have default values.\n'), 0, 0)
+        mainlayout.addLayout(flayout,1,0)
+        mainlayout.addWidget(buttonBox,1,1)
+        mainlayout.addWidget(moreButton,2,1)
+        mainlayout.addWidget(scrollArea, 2,0)
         
         #connections
         moreButton.toggled.connect(scrollArea.setVisible)
