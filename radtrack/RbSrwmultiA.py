@@ -35,6 +35,11 @@ class rbsrw(QtGui.QWidget):
         self.ui.deparg.removeItem(6)
         self.ui.deparg.removeItem(5)
         self.ui.deparg.removeItem(4)
+        self.ui.intensity.hide()
+        self.ui.formLayout_4.labelForField(self.ui.intensity).hide()
+        self.ui.polar.hide()
+        self.ui.formLayout_4.labelForField(self.ui.polar).hide()
+        
         #set srw initial values
         column = self.workbook.sheet_by_name('thick undulator').col(0)
         units = self.workbook.sheet_by_name('thick undulator').col(1)

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'newsrw.ui'
 #
-# Created: Wed Apr 29 17:12:46 2015
+# Created: Fri May  8 14:02:42 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -93,9 +93,6 @@ class Ui_Form(object):
         self.intensity.addItem(_fromUtf8(""))
         self.intensity.addItem(_fromUtf8(""))
         self.intensity.addItem(_fromUtf8(""))
-        self.intensity.addItem(_fromUtf8(""))
-        self.intensity.addItem(_fromUtf8(""))
-        self.intensity.addItem(_fromUtf8(""))
         self.formLayout_4.setWidget(1, QtGui.QFormLayout.FieldRole, self.intensity)
         self.label_33 = QtGui.QLabel(self.formLayoutWidget_4)
         self.label_33.setObjectName(_fromUtf8("label_33"))
@@ -173,12 +170,9 @@ class Ui_Form(object):
         self.label_31.setText(_translate("Form", "Polarization", None))
         self.label_32.setText(_translate("Form", "Intensity", None))
         self.intensity.setItemText(0, _translate("Form", "Single Electron Intensity", None))
-        self.intensity.setItemText(1, _translate("Form", "Multi Electron Intensity", None))
-        self.intensity.setItemText(2, _translate("Form", "Single Electron Flux", None))
-        self.intensity.setItemText(3, _translate("Form", "Multi Electron Flux", None))
-        self.intensity.setItemText(4, _translate("Form", "Single Electron Radiation Phase", None))
-        self.intensity.setItemText(5, _translate("Form", "Real Part of Electron E-Field", None))
-        self.intensity.setItemText(6, _translate("Form", "Imaginary Part of Electron E-Field", None))
+        self.intensity.setItemText(1, _translate("Form", "Single Electron Flux", None))
+        self.intensity.setItemText(2, _translate("Form", "Real Part of Electron E-Field", None))
+        self.intensity.setItemText(3, _translate("Form", "Imaginary Part of Electron E-Field", None))
         self.label_33.setText(_translate("Form", "Dependent Argument", None))
         self.deparg.setItemText(0, _translate("Form", "e (energy)", None))
         self.deparg.setItemText(1, _translate("Form", "x (horizontal)", None))
@@ -192,7 +186,7 @@ class Ui_Form(object):
         self.polar.setItemText(2, _translate("Form", "Linear 45 Degrees", None))
         self.polar.setItemText(3, _translate("Form", "Linear 135 Degrees", None))
         self.polar.setItemText(4, _translate("Form", "Circular Right", None))
-        self.polar.setItemText(5, _translate("Form", "Circular", None))
+        self.polar.setItemText(5, _translate("Form", "Circular Left", None))
         self.polar.setItemText(6, _translate("Form", "Total", None))
         item = self.tableWidget.verticalHeaderItem(0)
         item.setText(_translate("Form", "Number of points along Energy", None))
@@ -201,21 +195,21 @@ class Ui_Form(object):
         item = self.tableWidget.verticalHeaderItem(2)
         item.setText(_translate("Form", "Number of points along Y", None))
         item = self.tableWidget.verticalHeaderItem(3)
-        item.setText(_translate("Form", "Positin to calculate SR", None))
+        item.setText(_translate("Form", "Distance to Window", None))
         item = self.tableWidget.verticalHeaderItem(4)
         item.setText(_translate("Form", "Inital Photon Energy", None))
         item = self.tableWidget.verticalHeaderItem(5)
         item.setText(_translate("Form", "Final Photon Energy", None))
         item = self.tableWidget.verticalHeaderItem(6)
-        item.setText(_translate("Form", "Inital X position", None))
+        item.setText(_translate("Form", "Window Left Edge", None))
         item = self.tableWidget.verticalHeaderItem(7)
-        item.setText(_translate("Form", "Inital Y position", None))
+        item.setText(_translate("Form", "Window Top Edge", None))
         item = self.tableWidget.verticalHeaderItem(8)
-        item.setText(_translate("Form", "Final X position", None))
+        item.setText(_translate("Form", "Window Right Edge", None))
         item = self.tableWidget.verticalHeaderItem(9)
-        item.setText(_translate("Form", "Final Y position", None))
+        item.setText(_translate("Form", "WIndow Bottom Edge", None))
         item = self.tableWidget.horizontalHeaderItem(0)
-        item.setText(_translate("Form", "Mesh", None))
+        item.setText(_translate("Form", "sampling", None))
         self.label.setText(_translate("Form", "Status", None))
         self.label_2.setText(_translate("Form", "Analytic Calculations", None))
 

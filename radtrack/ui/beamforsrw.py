@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'beamforsrw.ui'
 #
-# Created: Sat Feb 28 18:03:08 2015
+# Created: Fri May  8 13:31:28 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -117,13 +117,13 @@ class Ui_Dialog(object):
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
-        Dialog.setWindowTitle(_translate("Dialog", "Dialog", None))
+        Dialog.setWindowTitle(_translate("Dialog", "Beam", None))
         self.label_12.setText(_translate("Dialog", "Average Current", None))
         self.label_13.setText(_translate("Dialog", "Initial Horizontal Coordinate", None))
         self.label_14.setText(_translate("Dialog", "Inital Vertical Coordinate", None))
         self.label_15.setText(_translate("Dialog", "Inital Longitudinal Coordinate", None))
-        self.label_16.setText(_translate("Dialog", "Initial Relative Horizontal Velocity", None))
-        self.label_17.setText(_translate("Dialog", "Initial Relative Vertical Velocity", None))
+        self.label_16.setText(_translate("Dialog", "Initial Horizontal Angle", None))
+        self.label_17.setText(_translate("Dialog", "Initial Vertical Angle", None))
         self.label_18.setText(_translate("Dialog", "Relativistic Energy(gamma)", None))
         self.label.setText(_translate("Dialog", "RMS Energy Spread", None))
         self.label_2.setText(_translate("Dialog", "RMS Horizontal Width", None))

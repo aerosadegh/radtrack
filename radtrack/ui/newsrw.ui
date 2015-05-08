@@ -129,22 +129,7 @@
       </item>
       <item>
        <property name="text">
-        <string>Multi Electron Intensity</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
         <string>Single Electron Flux</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Multi Electron Flux</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Single Electron Radiation Phase</string>
        </property>
       </item>
       <item>
@@ -234,7 +219,7 @@
       </item>
       <item>
        <property name="text">
-        <string>Circular</string>
+        <string>Circular Left</string>
        </property>
       </item>
       <item>
@@ -272,7 +257,7 @@
    </row>
    <row>
     <property name="text">
-     <string>Positin to calculate SR</string>
+     <string>Distance to Window</string>
     </property>
    </row>
    <row>
@@ -287,27 +272,27 @@
    </row>
    <row>
     <property name="text">
-     <string>Inital X position</string>
+     <string>Window Left Edge</string>
     </property>
    </row>
    <row>
     <property name="text">
-     <string>Inital Y position</string>
+     <string>Window Top Edge</string>
     </property>
    </row>
    <row>
     <property name="text">
-     <string>Final X position</string>
+     <string>Window Right Edge</string>
     </property>
    </row>
    <row>
     <property name="text">
-     <string>Final Y position</string>
+     <string>WIndow Bottom Edge</string>
     </property>
    </row>
    <column>
     <property name="text">
-     <string>Mesh</string>
+     <string>sampling</string>
     </property>
    </column>
   </widget>

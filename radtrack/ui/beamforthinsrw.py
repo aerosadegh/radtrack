@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'beamforthinsrw.ui'
 #
-# Created: Tue Mar 24 19:37:43 2015
+# Created: Fri May  8 13:31:46 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -88,7 +88,7 @@ class Ui_Dialog(object):
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
-        Dialog.setWindowTitle(_translate("Dialog", "Dialog", None))
+        Dialog.setWindowTitle(_translate("Dialog", "Beam", None))
         self.label_12.setText(_translate("Dialog", "Average Current", None))
         self.label_13.setText(_translate("Dialog", "Initial Horizontal Coordinate", None))
         self.label_14.setText(_translate("Dialog", "Inital Vertical Coordinate", None))

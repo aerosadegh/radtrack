@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'precisionthicksrw.ui'
 #
-# Created: Thu Mar  5 15:18:28 2015
+# Created: Fri May  8 13:33:10 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,14 +26,14 @@ except AttributeError:
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName(_fromUtf8("Dialog"))
-        Dialog.resize(359, 468)
+        Dialog.resize(380, 468)
         self.buttonBox = QtGui.QDialogButtonBox(Dialog)
         self.buttonBox.setGeometry(QtCore.QRect(0, 420, 341, 32))
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
         self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName(_fromUtf8("buttonBox"))
         self.formLayoutWidget = QtGui.QWidget(Dialog)
-        self.formLayoutWidget.setGeometry(QtCore.QRect(30, 30, 301, 181))
+        self.formLayoutWidget.setGeometry(QtCore.QRect(30, 30, 321, 181))
         self.formLayoutWidget.setObjectName(_fromUtf8("formLayoutWidget"))
         self.formLayout = QtGui.QFormLayout(self.formLayoutWidget)
         self.formLayout.setFieldGrowthPolicy(QtGui.QFormLayout.FieldsStayAtSizeHint)
@@ -72,13 +72,13 @@ class Ui_Dialog(object):
         self.flux.addItem(_fromUtf8(""))
         self.formLayout.setWidget(4, QtGui.QFormLayout.FieldRole, self.flux)
         self.label = QtGui.QLabel(Dialog)
-        self.label.setGeometry(QtCore.QRect(150, 10, 91, 16))
+        self.label.setGeometry(QtCore.QRect(110, 10, 161, 20))
         self.label.setObjectName(_fromUtf8("label"))
         self.label_7 = QtGui.QLabel(Dialog)
-        self.label_7.setGeometry(QtCore.QRect(140, 230, 111, 20))
+        self.label_7.setGeometry(QtCore.QRect(110, 230, 161, 20))
         self.label_7.setObjectName(_fromUtf8("label_7"))
         self.formLayoutWidget_2 = QtGui.QWidget(Dialog)
-        self.formLayoutWidget_2.setGeometry(QtCore.QRect(30, 250, 301, 161))
+        self.formLayoutWidget_2.setGeometry(QtCore.QRect(30, 250, 318, 161))
         self.formLayoutWidget_2.setObjectName(_fromUtf8("formLayoutWidget_2"))
         self.formLayout_2 = QtGui.QFormLayout(self.formLayoutWidget_2)
         self.formLayout_2.setMargin(0)
@@ -122,16 +122,16 @@ class Ui_Dialog(object):
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
-        Dialog.setWindowTitle(_translate("Dialog", "Dialog", None))
+        Dialog.setWindowTitle(_translate("Dialog", "Precision", None))
         self.label_2.setText(_translate("Dialog", "Initial Harmonic:", None))
         self.label_3.setText(_translate("Dialog", "Final Harmonic:", None))
-        self.label_4.setText(_translate("Dialog", "Longitudinal Integartion Precision:", None))
+        self.label_4.setText(_translate("Dialog", "Longitudinal Integration Precision:", None))
         self.label_5.setText(_translate("Dialog", "Azimuthal Integration Precision:", None))
         self.label_6.setText(_translate("Dialog", "Flux Calculation:", None))
         self.flux.setItemText(0, _translate("Dialog", "Total", None))
         self.flux.setItemText(1, _translate("Dialog", "Per Unit Surface", None))
-        self.label.setText(_translate("Dialog", "Spectral Flux", None))
-        self.label_7.setText(_translate("Dialog", "Power Density", None))
+        self.label.setText(_translate("Dialog", "Spectral Flux Calculation", None))
+        self.label_7.setText(_translate("Dialog", "Power Density Calculation", None))
         self.label_8.setText(_translate("Dialog", "Precision Factor:", None))
         self.label_9.setText(_translate("Dialog", "Density Computation Method:", None))
         self.field.setItemText(0, _translate("Dialog", "Near Field", None))

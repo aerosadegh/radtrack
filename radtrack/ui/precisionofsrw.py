@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'precisionofsrw.ui'
 #
-# Created: Tue Feb 24 18:10:43 2015
+# Created: Fri May  8 13:32:39 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -92,7 +92,7 @@ class Ui_Dialog(object):
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
-        Dialog.setWindowTitle(_translate("Dialog", "Dialog", None))
+        Dialog.setWindowTitle(_translate("Dialog", "Precision", None))
         self.label_19.setText(_translate("Dialog", "SR calculation method", None))
         self.meth.setItemText(0, _translate("Dialog", "Manual", None))
         self.meth.setItemText(1, _translate("Dialog", "Auto-Undulator", None))

@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>359</width>
+    <width>380</width>
     <height>468</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Precision</string>
   </property>
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
@@ -34,7 +34,7 @@
     <rect>
      <x>30</x>
      <y>30</y>
-     <width>301</width>
+     <width>321</width>
      <height>181</height>
     </rect>
    </property>
@@ -65,7 +65,7 @@
     <item row="2" column="0">
      <widget class="QLabel" name="label_4">
       <property name="text">
-       <string>Longitudinal Integartion Precision:</string>
+       <string>Longitudinal Integration Precision:</string>
       </property>
      </widget>
     </item>
@@ -108,27 +108,27 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>150</x>
+     <x>110</x>
      <y>10</y>
-     <width>91</width>
-     <height>16</height>
+     <width>161</width>
+     <height>20</height>
     </rect>
    </property>
    <property name="text">
-    <string>Spectral Flux</string>
+    <string>Spectral Flux Calculation</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_7">
    <property name="geometry">
     <rect>
-     <x>140</x>
+     <x>110</x>
      <y>230</y>
-     <width>111</width>
+     <width>161</width>
      <height>20</height>
     </rect>
    </property>
    <property name="text">
-    <string>Power Density</string>
+    <string>Power Density Calculation</string>
    </property>
   </widget>
   <widget class="QWidget" name="formLayoutWidget_2">
@@ -136,7 +136,7 @@
     <rect>
      <x>30</x>
      <y>250</y>
-     <width>301</width>
+     <width>318</width>
      <height>161</height>
     </rect>
    </property>

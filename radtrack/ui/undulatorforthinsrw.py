@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'undulatorforthinsrw.ui'
 #
-# Created: Wed Mar 25 13:11:12 2015
+# Created: Fri May  8 13:35:19 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -112,7 +112,7 @@ class Ui_Dialog(object):
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
-        Dialog.setWindowTitle(_translate("Dialog", "Dialog", None))
+        Dialog.setWindowTitle(_translate("Dialog", "Undulator", None))
         self.label.setText(_translate("Dialog", "Number of Periods", None))
         self.label_2.setText(_translate("Dialog", "Period Length", None))
         self.label_3.setText(_translate("Dialog", "Peak Vertical Field", None))
