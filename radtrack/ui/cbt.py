@@ -11,7 +11,6 @@ from PyQt4 import QtCore, QtGui
 from math import sqrt
 
 class dtreeWidget(QtGui.QTreeWidget):
-    itemDoubleClicked = QtCore.pyqtSignal(str)
     contextMenuClicked = QtCore.pyqtSignal(str,str,QtCore.QPoint)
     itemExited = QtCore.pyqtSignal()
 
@@ -26,12 +25,6 @@ class dtreeWidget(QtGui.QTreeWidget):
         self.setObjectName("treeWidget")
         self.setMouseTracking(True)
         self.lastIndex = QtCore.QPersistentModelIndex()
-        self.viewport().installEventFilter(self)
-
-    def mouseDoubleClickEvent(self, event):
-        item = self.itemAt(event.pos())
-        if item is not None:
-            self.itemDoubleClicked.emit(item.text(0))
 
     def contextMenuEvent(self, event):
         item = self.itemAt(event.pos())

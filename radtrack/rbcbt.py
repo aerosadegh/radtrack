@@ -45,7 +45,7 @@ class RbCbt(QtGui.QWidget):
         self.ui.clearBeamlineButton.clicked.connect(self.newBeam)
         self.ui.saveBeamlineButton.clicked.connect(self.addBeam)
         self.ui.treeWidget.itemSelectionChanged.connect(self.treeClick)
-        self.ui.treeWidget.itemDoubleClicked.connect(self.editElement)
+        self.ui.treeWidget.itemDoubleClicked.connect(self.treeItemDoubleClicked)
         self.ui.treeWidget.itemClicked.connect(self.elementTreeClicked)
         self.ui.treeWidget.itemEntered.connect(self.elementTreeHovered)
         self.ui.treeWidget.itemExited.connect(self.elementTreeExit)
@@ -145,6 +145,10 @@ class RbCbt(QtGui.QWidget):
         # Allow workingBeamline list and beamline preview to accept drops from treeWidget
         self.ui.workingBeamline.setDragDropMode(QtGui.QAbstractItemView.DropOnly)
         self.ui.graphicsView.setAcceptDrops(True)
+
+    def treeItemDoubleClicked(self, item, column):
+        if item and item.text(column) != self.addToBeamClickText:
+            self.editElement(item.text(0))
 
     def elementTreeClicked(self, item, column):
         if item.text(column) == self.addToBeamClickText:
