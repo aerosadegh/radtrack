@@ -44,7 +44,7 @@ class RbCbt(QtGui.QWidget):
         self.ui.saveBeamlineButton.clicked.connect(self.addBeam)
         self.ui.treeWidget.itemSelectionChanged.connect(self.treeClick)
         self.ui.treeWidget.itemDoubleClicked.connect(self.treeItemDoubleClicked)
-        self.ui.treeWidget.itemClicked.connect(self.elementTreeClicked)
+        self.ui.treeWidget.itemClicked.connect(self.treeClick)
         self.ui.treeWidget.itemEntered.connect(self.elementTreeHovered)
         self.ui.treeWidget.itemExited.connect(self.elementTreeExit)
         self.ui.graphicsView.itemDoubleClicked.connect(self.editElement)
@@ -133,9 +133,12 @@ class RbCbt(QtGui.QWidget):
         self.preListNameSave = self.postListNameSave
         self.preListLabelSave = self.postListLabelSave
     
-    def treeClick(self):
+    def treeClick(self, item = None, column = None):
         # Draw element currently selected
-        self.elementPreview()
+        if item and item.text(column) == self.addToBeamClickText:
+            self.addToEndOfWorkingBeamLine(item.text(0), 1)
+        else:
+            self.elementPreview()
         # Allow workingBeamline list and beamline preview to accept drops from treeWidget
         self.ui.workingBeamline.setDragDropMode(QtGui.QAbstractItemView.DropOnly)
         self.ui.graphicsView.setAcceptDrops(True)
@@ -143,10 +146,6 @@ class RbCbt(QtGui.QWidget):
     def treeItemDoubleClicked(self, item, column):
         if item and item.text(column) != self.addToBeamClickText:
             self.editElement(item.text(0))
-
-    def elementTreeClicked(self, item, column):
-        if item.text(column) == self.addToBeamClickText:
-            self.addToEndOfWorkingBeamLine(item.text(0), 1)
 
     def elementTreeHovered(self, item, column):
         if item.text(column) == self.addToBeamClickText:
@@ -172,7 +171,7 @@ class RbCbt(QtGui.QWidget):
 
         if element:
             if location == 'picture':
-                menuTitle = QtGui.QAction(element.name, mouseMenu)
+                menuTitle = QtGui.QAction(element.toolTip(), mouseMenu)
                 menuTitle.setEnabled(False)
                 mouseMenu.addAction(menuTitle)
                 mouseMenu.addSeparator()
@@ -196,7 +195,7 @@ class RbCbt(QtGui.QWidget):
                 if element.isBeamline():
                     mouseMenu.addAction(self.ui.translateUTF8('Reverse'), self.convertToReversed)
 
-                mouseMenu.addAction(self.ui.translateUTF8('Add another'), lambda : self.listCopy)
+                mouseMenu.addAction(self.ui.translateUTF8('Add another'), self.listCopy)
                 mouseMenu.addAction(self.ui.translateUTF8('Add multiple copies ...'), self.listMultipleCopy)
 
                 mouseMenu.addAction(self.ui.translateUTF8('Remove from beam line'), self.removeFromWorkingBeamline)
@@ -206,8 +205,6 @@ class RbCbt(QtGui.QWidget):
             mouseMenu.addAction(self.ui.translateUTF8('Save preview image...'), \
                     self.savePreviewImage)
             mouseMenu.addAction(self.ui.translateUTF8('Reset zoom'), self.drawElement)
-
-            # TODO: create menu for choosing picture resolution
 
         if mouseMenu.actions():
             mouseMenu.exec_(globalPos)
@@ -376,13 +373,10 @@ class RbCbt(QtGui.QWidget):
         self.ui.workingBeamline.addItems(items)
 
     def elementPreview(self):
-        item = self.ui.treeWidget.currentItem()
-        if item:
-            try:
-                self.drawElement(self.elementDictionary[item.text(0)])
-            except KeyError:
-                self.ui.graphicsView.scene().clear()
-        else:
+        try:
+            item = self.ui.treeWidget.currentItem()
+            self.drawElement(self.elementDictionary[item.text(0)])
+        except (AttributeError, KeyError):
             self.ui.graphicsView.scene().clear()
 
     def workingBeamlinePreview(self):
@@ -445,7 +439,7 @@ class RbCbt(QtGui.QWidget):
         # Determine a reasonable length to display
         length = 1.0 # meter
         widthFraction = 0.25 # maximum length of legend w.r.t. preview window
-        resolution = self.classDictionary.values()[0]().getResolution() # pixels per meter
+        resolution = self.classDictionary.values()[0]().getResolution()
 
         while length*resolution < float(vis.width())*widthFraction:
             length = length*10.0
