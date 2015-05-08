@@ -390,10 +390,12 @@ class RbGlobal(QtGui.QMainWindow):
                 widget.update_sources_from_tabs()
 
     def undo(self):
-        getRealWidget(self.tabWidget.currentWidget()).undo()
+        if self.ui.actionUndo.isEnabled():
+            getRealWidget(self.tabWidget.currentWidget()).undo()
 
     def redo(self):
-        getRealWidget(self.tabWidget.currentWidget()).redo()
+        if self.ui.actionRedo.isEnabled():
+            getRealWidget(self.tabWidget.currentWidget()).redo()
 
     def closeEvent(self, event):
         self.saveProject()
