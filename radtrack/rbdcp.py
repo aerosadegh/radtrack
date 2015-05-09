@@ -1,12 +1,13 @@
 """
 Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 """
-import sys, math
-import numpy as np
 from __future__ import absolute_import, division, print_function, unicode_literals
-from PyQt4 import QtGui, QtCore
-from os.path import expanduser, dirname
+from os.path import expanduser
+import sdds
+from functools import partial
+
 import matplotlib
+
 from radtrack.dcp.Servicelib import *
 from radtrack.dcp.SRWlib import SRWFileRead1, SRW
 from radtrack.dcp.Flatfilelib import FF, FFColRead
@@ -14,10 +15,9 @@ from radtrack.dcp.Plotlib2axis import *
 from radtrack.dcp.moverage import *
 from radtrack.dcp.FourieT import *
 from radtrack.dcp.math_analyses import *
-import sdds
 from radtrack.dcp.dcpwidget import Ui_dcpwidget
-from functools import partial
-from numpy.fft import fft, fftshift, ifftshift, fftfreq
+
+
 ColumnPicked = [0]
 NumPage = 0
 ColumnXAxis =-1

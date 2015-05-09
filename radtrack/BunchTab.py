@@ -12,13 +12,13 @@ Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 """
 
 # system imports
+from __future__ import absolute_import, division, print_function, unicode_literals
 import sys
 import re
 from os.path import expanduser, dirname, splitext
 import subprocess
 
 # Python imports
-from __future__ import absolute_import, division, print_function, unicode_literals
 import math
 import csv
 
