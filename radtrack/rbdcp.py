@@ -3,6 +3,7 @@ Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 """
 import sys, math
 import numpy as np
+from __future__ import absolute_import, division, print_function, unicode_literals
 from PyQt4 import QtGui, QtCore
 from os.path import expanduser, dirname
 import matplotlib
