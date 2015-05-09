@@ -13,8 +13,7 @@ Copyright (c) 2014 RadiaBeam Technologies. All rights reserved
 
 # system imports
 from __future__ import absolute_import, division, print_function, unicode_literals
-import sys
-from os.path import expanduser, dirname, splitext
+import os.path
 #import subprocess
 
 # Python imports
@@ -22,9 +21,6 @@ import math
 
 # SciPy imports
 import numpy as np
-import matplotlib
-#matplotlib.use('Qt4Agg')
-#matplotlib.rcParams['backend.qt4']='PyQt4'
 import matplotlib.pyplot as plt
 from scipy.optimize import leastsq
 
@@ -37,7 +33,7 @@ from PyQt4 import QtGui
 import radtrack.fields.RbGaussHermiteMN as hermite
 from radtrack.ui.LaserInterface import Ui_LaserInterface
 from radtrack.RbUtility import convertUnitsStringToNumber, convertUnitsNumber
-import radtrack.plot.RbPlotUtils as plotutils
+import radtrack.plot.RbPlotUtils
 import sys
 
 import sdds
@@ -174,7 +170,7 @@ class LaserTab(QtGui.QWidget):
         self.parent = parent
         if self.parent is None:
             self.parent = self
-            self.parent.lastUsedDirectory = expanduser('~')
+            self.parent.lastUsedDirectory = os.path.expanduser('~')
         self.fileExtension = '.sdds'
         self.exportToFile = self.saveToSDDS
         self.importFile = self.readFromSDDS
@@ -253,7 +249,7 @@ class LaserTab(QtGui.QWidget):
 
     def plotZX(self):
         # instance of the plot utility class
-        myPlotUtils = plotutils.RbPlotUtils()
+        myPlotUtils = radtrack.plot.RbPlotUtils.RbPlotUtils()
 
         zArr  = np.zeros(self.numZ)
         xArr  = np.zeros(self.numX)
@@ -302,7 +298,7 @@ class LaserTab(QtGui.QWidget):
 
     def plotZY(self):
         # instance of the plot utility class
-        myPlotUtils = plotutils.RbPlotUtils()
+        myPlotUtils = radtrack.plot.RbPlotUtils.RbPlotUtils()
 
         freq0 = self.c / self.lambda0
         yLoc = 0.
@@ -369,7 +365,7 @@ class LaserTab(QtGui.QWidget):
 
     def plotXY(self):
         # instance of the plot utility class
-        myPlotUtils = plotutils.RbPlotUtils()
+        myPlotUtils = radtrack.plot.RbPlotUtils.RbPlotUtils()
 
         # Specify the desired grid size
         self.xyNumH = 64
@@ -486,7 +482,7 @@ class LaserTab(QtGui.QWidget):
         canvas = self.ui.xyPlotExtFields.canvas
         canvas.ax.clear()
 
-        myPlotUtils = plotutils.RbPlotUtils()
+        myPlotUtils = radtrack.plot.RbPlotUtils.RbPlotUtils()
         levels = myPlotUtils.generateContourLevels(self.ExGridExternal)
         canvas.ax.contourf(self.xGrid*convertUnitsNumber(1, 'm', self.unitsXY),
                            self.yGrid*convertUnitsNumber(1, 'm', self.unitsXY),
@@ -658,8 +654,8 @@ class LaserTab(QtGui.QWidget):
         if fileName == '':
             return
 
-        self.parent.lastUsedDirectory = dirname(fileName)
-        base, ext = splitext(fileName)
+        self.parent.lastUsedDirectory = os.path.dirname(fileName)
+        base, ext = os.path.splitext(fileName)
 
         # throw exception for bad extensions
         if ext != '.sdds':
@@ -934,9 +930,9 @@ class LaserTab(QtGui.QWidget):
                                                       self.parent.lastUsedDirectory, "*.csv")
             if fileName == '':
                 return
-            self.parent.lastUsedDirectory = dirname(fileName)
+            self.parent.lastUsedDirectory = os.path.dirname(fileName)
 
-        base, ext = splitext(fileName)
+        base, ext = os.path.splitext(fileName)
 
         # notify user about bad extensions
         if ext != '.csv':
@@ -1044,9 +1040,9 @@ class LaserTab(QtGui.QWidget):
                 return
             if not fileName.endswith('.csv'):
                 fileName = fileName + '.csv'
-            self.parent.lastUsedDirectory = dirname(fileName)
+            self.parent.lastUsedDirectory = os.path.dirname(fileName)
 
-        base, ext = splitext(fileName)
+        base, ext = os.path.splitext(fileName)
 
         # throw exception for bad extensions
         if ext != '.csv':
@@ -1099,9 +1095,9 @@ class LaserTab(QtGui.QWidget):
                 return
             if not sddsFileName.endswith(".sdds"):
                 sddsFileName = sddsFileName + ".sdds"
-            self.parent.lastUsedDirectory = dirname(sddsFileName)
+            self.parent.lastUsedDirectory = os.path.dirname(sddsFileName)
 
-        base, ext = splitext(sddsFileName)
+        base, ext = os.path.splitext(sddsFileName)
 
         # check for bad extensions
         if ext != '.sdds':
