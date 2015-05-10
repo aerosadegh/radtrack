@@ -135,7 +135,7 @@ class RbGlobal(QtGui.QMainWindow):
         self.closedTabs = []
 
         self.checkMenus()
-        
+
     def setTitleBar(self, text):
         self.setWindowTitle(_translate("globalgu", text, None))
 
@@ -367,8 +367,8 @@ class RbGlobal(QtGui.QMainWindow):
                               self.tabWidget.tabText(i) + '.' + subExtension]))
                 widget.exportToFile(subFileName)
             except AttributeError as e:
-                print 'ERROR: Skipping ' + self.tabWidget.tabText(i)
-                print e
+                print('ERROR: Skipping ' + self.tabWidget.tabText(i))
+                print(e)
 
     def exportCurrentTab(self):
         getRealWidget(self.tabWidget.currentWidget()).exportToFile()
@@ -430,7 +430,7 @@ class RbGlobal(QtGui.QMainWindow):
             try:
                 subprocess.Popen(['xdg-open', self.sessionDirectory])
             except OSError: # Unknown OS
-                print 'Failed to open session directory'
+                print('Failed to open session directory')
 
 
 @argh.arg('project_file', nargs='?', default=None, help='project file to open at startup')
