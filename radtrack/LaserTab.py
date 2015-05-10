@@ -256,11 +256,11 @@ class LaserTab(QtGui.QWidget):
 
         for iLoop in range(self.numZ):
             zArr[iLoop] = self.minZ + iLoop * (self.maxZ-self.minZ) / (self.numZ-1)
-#            print 'zArr[', iLoop, '] = ', zArr[iLoop]
+#            print('zArr[', iLoop, '] = ', zArr[iLoop])
 
         for jLoop in range(self.numX):
             xArr[jLoop] = self.minX + jLoop * (self.maxX-self.minX) / (self.numX-1)
-#            print 'xArr[', jLoop, '] = ', xArr[jLoop]
+#            print('xArr[', jLoop, '] = ', xArr[jLoop])
 
         # specify y position for plot
         yValue = 0.
@@ -270,7 +270,7 @@ class LaserTab(QtGui.QWidget):
         for iLoop in range(self.numZ):
             for jLoop in range(self.numX):
                 zxEData[jLoop, iLoop] = np.real(self.myPulse.evalEnvelopeEx(xArr[jLoop], yValue, zArr[iLoop]))
-#                print 'zxEData[', iLoop, jLoop, '] = ', zxEData[iLoop, jLoop]
+#                print('zxEData[', iLoop, jLoop, '] = ', zxEData[iLoop, jLoop]
 
         # generate the xy plot
         canvas = self.ui.zxPlot.canvas
@@ -320,11 +320,11 @@ class LaserTab(QtGui.QWidget):
 
         for iLoop in range(self.zyNumH):
             zArr[iLoop] = self.zyMinH + iLoop * (self.zyMaxH-self.zyMinH) / (self.zyNumH-1)
-#            print 'zArr[', iLoop, '] = ', zArr[iLoop]
+#            print('zArr[', iLoop, '] = ', zArr[iLoop])
 
         for jLoop in range(self.zyNumV):
             yArr[jLoop] = self.zyMinV + jLoop * (self.zyMaxV-self.zyMinV) / (self.zyNumV-1)
-#            print 'xArr[', jLoop, '] = ', xArr[jLoop]
+#            print('xArr[', jLoop, '] = ', xArr[jLoop])
 
         # Choose values of x,t for plot
         xValue = 0.
@@ -335,7 +335,7 @@ class LaserTab(QtGui.QWidget):
         for iLoop in range(self.zyNumH):
             for jLoop in range(self.zyNumV):
                 zyEData[jLoop, iLoop] = self.myPulse.evaluateEx(xValue, yArr[jLoop], zArr[iLoop], tValue)
-#                print 'zyEData[', iLoop, jLoop, '] = ', zyEData[iLoop, jLoop]
+#                print('zyEData[', iLoop, jLoop, '] = ', zyEData[iLoop, jLoop])
 
         # generate the xy plot
         canvas = self.ui.zyPlot.canvas
@@ -536,11 +536,11 @@ class LaserTab(QtGui.QWidget):
         message = result[3]
         iError  = result[4]
 
-        print ' '
-        print ' iError  = ', iError
-        print ' message = ', message
-        print ' nEvals  = ', nEvals
-        print ' resVals = ', resVals
+        print(' ')
+        print(' iError  = ', iError)
+        print(' message = ', message)
+        print(' nEvals  = ', nEvals)
+        print(' resVals = ', resVals)
 
         # load the results into named variables (for clarity)
         wxFit = parFit[0]
@@ -552,9 +552,9 @@ class LaserTab(QtGui.QWidget):
             nCFit[ii] = parFit[self.mMax+1+ii]
 
         # check the results
-        print ' '
-        print 'The least squares minimization has completed:'
-        print '  wx  = ', self.wx3, '; ', wxFit
+        print(' ')
+        print('The least squares minimization has completed:')
+        print('  wx  = ', self.wx3, '; ', wxFit)
         self.ui.ghTable.setItem(0,0,QTableWidgetItem(str(mCFit[0])))
         self.ui.ghTable.setItem(0,1,QTableWidgetItem(nCFit[0]))
 
@@ -599,11 +599,11 @@ class LaserTab(QtGui.QWidget):
 
         # let the user know what's going on if many function calls are required
         if self.numFuncCalls == 0:
-            print ' '
-            print 'Number of calls to method residual():'
+            print(' ')
+            print('Number of calls to method residual():')
         self.numFuncCalls += 1
         if 100*int(self.numFuncCalls/100.) == self.numFuncCalls:
-            print '  ', self.numFuncCalls
+            print('  ', self.numFuncCalls)
 
 #        xDum = np.real(self.myPulse.evalEnvelopeEx(xTmp, yArr, self.w0_z))
         return _e - np.real(self.hS1.evalEnvelopeEx(_x, _y, self.w0_z)) \
@@ -667,8 +667,8 @@ class LaserTab(QtGui.QWidget):
             msgBox.exec_()
 
         if False:
-            print ' '
-            print ' File to be parsed: ', fileName
+            print(' ')
+            print(' File to be parsed: ', fileName)
 
         # index is always zero...?
         sddsIndex = 0
@@ -680,26 +680,26 @@ class LaserTab(QtGui.QWidget):
         # get data storage mode...?
         sddsStorageMode = sdds.sddsdata.GetMode(sddsIndex)
         if False:
-            print ' Storage mode for index ', sddsIndex, ': ', sddsStorageMode
+            print(' Storage mode for index ', sddsIndex, ': ', sddsStorageMode)
 
         # get description text...?
         sddsDescription = sdds.sddsdata.GetDescription(sddsIndex)
         if False:
-            print ' Description for index ', sddsIndex, ': ', sddsDescription
+            print(' Description for index ', sddsIndex, ': ', sddsDescription)
 
         # get parameter names
         paramNames = sdds.sddsdata.GetParameterNames(sddsIndex)
         numParams = len(paramNames)
         if False:
-            print ' numParams = ', numParams
-            print ' Parameter names for index ', sddsIndex, ': \n', paramNames
+            print(' numParams = ', numParams)
+            print(' Parameter names for index ', sddsIndex, ': \n', paramNames)
 
         # get parameter definitions
         paramDefs = range(numParams)
         for iLoop in range(numParams):
             paramDefs[iLoop] = sdds.sddsdata.GetParameterDefinition(sddsIndex,paramNames[iLoop])
             if False:
-                print ' paramDefs[',iLoop,'] = ', paramDefs[iLoop]
+                print(' paramDefs[',iLoop,'] = ', paramDefs[iLoop])
 
         # give the user a look at the parameters (if any)
         msgBox = QtGui.QMessageBox()
@@ -725,8 +725,8 @@ class LaserTab(QtGui.QWidget):
         columnNames = sdds.sddsdata.GetColumnNames(sddsIndex)
         numColumns = len(columnNames)
         if False:
-            print ' numColumns = ', numColumns
-            print ' Column names for index ', sddsIndex, ': \n', columnNames
+            print(' numColumns = ', numColumns)
+            print(' Column names for index ', sddsIndex, ': \n', columnNames)
 
         # initialize the parameter arrays
         paramData = range(numParams)
@@ -740,8 +740,8 @@ class LaserTab(QtGui.QWidget):
         # read parameter data from the SDDS file
         # mus read particle data at the same time
         errorCode = sdds.sddsdata.ReadPage(sddsIndex)
-#        print ' '
-#        print ' errorCode = ', errorCode
+#        print(' ')
+#        print(' errorCode = ', errorCode)
         if errorCode != 1:
             sdds.sddsdata.PrintErrors(2)
         while errorCode > 0:
@@ -752,15 +752,15 @@ class LaserTab(QtGui.QWidget):
                 tmpData.append(sdds.sddsdata.GetColumn(sddsIndex,jLoop))
 
                 if False:
-                    print ' '
-                    print ' jLoop = ', jLoop
-                    print ' tmpData = ', tmpData
+                    print(' ')
+                    print(' jLoop = ', jLoop)
+                    print(' tmpData = ', tmpData)
 
                 columnData[jLoop] = np.array(tmpData[0])
 
                 if False:
-                    print ' '
-                    print ' columnData[', jLoop, '] = ', columnData[jLoop]
+                    print(' ')
+                    print(' columnData[', jLoop, '] = ', columnData[jLoop])
 
             errorCode = sdds.sddsdata.ReadPage(sddsIndex)
 
@@ -787,8 +787,8 @@ class LaserTab(QtGui.QWidget):
             columnDefs[iLoop] = sdds.sddsdata.GetColumnDefinition(sddsIndex,columnNames[iLoop])
             unitStrings[iLoop] = columnDefs[iLoop][1]
             if False:
-                print ' columnDefs[',iLoop,'] = ', columnDefs[iLoop]
-                print ' unitStrings[',iLoop,'] = ', unitStrings[iLoop]
+                print(' columnDefs[',iLoop,'] = ', columnDefs[iLoop])
+                print(' unitStrings[',iLoop,'] = ', unitStrings[iLoop])
 
         # begin deciphering the column data
         dataRead = [False, False, False, False, False, False]
@@ -855,21 +855,21 @@ class LaserTab(QtGui.QWidget):
         # if the units are specified, but incorrect, the problem is detected below
         defaultUnits = ['m', 'rad', 'm', 'rad', 'm', 'rad']
         for iLoop in range(6):
-#            print ' before: unitStrings[', iLoop, '] = ', unitStrings[iLoop]
+#            print(' before: unitStrings[', iLoop, '] = ', unitStrings[iLoop])
             if unitStrings[iLoop] == '':
                 unitStrings[iLoop] = defaultUnits[dataIndex[iLoop]]
-#            print ' after: unitStrings[', iLoop, '] = ', unitStrings[iLoop]
+#            print(' after: unitStrings[', iLoop, '] = ', unitStrings[iLoop])
 
         if False:
-            print ' '
-            print ' Here is columnData[:]:'
-            print columnData
+            print(' ')
+            print(' Here is columnData[:]:')
+            print(columnData)
 
         # check that all data columns are the same length
         numElements = [0, 0, 0, 0, 0, 0]
         for iLoop in range(6):
             numElements[iLoop] = len(columnData[iLoop])
-#            print ' size of column # ', iLoop, ' = ', numElements[iLoop]
+#            print(' size of column # ', iLoop, ' = ', numElements[iLoop])
 
         for iLoop in range(5):
             if numElements[iLoop+1] != numElements[0]:
@@ -886,8 +886,8 @@ class LaserTab(QtGui.QWidget):
 
         # now we know the number of macro-particles
         numParticles = numElements[0]
-#        print ' '
-#        print ' numParticles = ', numParticles
+#        print(' ')
+#        print(' numParticles = ', numParticles)
 
         # all seems to be well, so load particle data into local array,
         #   accounting for any non-standard physical units
@@ -897,8 +897,8 @@ class LaserTab(QtGui.QWidget):
 
         # another sanity check
 #        myShape = np.shape(tmp6)
-#        print ' '
-#        print ' myShape = ', myShape
+#        print(' ')
+#        print(' myShape = ', myShape)
 
         # close the SDDS particle file
         if sdds.sddsdata.Terminate(sddsIndex) != 1:
@@ -952,9 +952,9 @@ class LaserTab(QtGui.QWidget):
 
             # for testing purposes
             if False:
-                print ' '
-                print ' lineNumber = ', lineNumber
-                print ' rawData = ', rawData
+                print(' ')
+                print(' lineNumber = ', lineNumber)
+                print(' rawData = ', rawData)
 
             # make sure this file follows the RadTrack format
             if lineNumber == 1:
@@ -976,9 +976,9 @@ class LaserTab(QtGui.QWidget):
                 self.totalCharge = float(rawData[1])
                 # for testing only
                 if False:
-                    print ' '
-                    print ' p0 = ', self.designMomentumEV
-                    print ' Q  = ', self.totalCharge
+                    print(' ')
+                    print(' p0 = ', self.designMomentumEV)
+                    print(' Q  = ', self.totalCharge)
             # don't read beyond the first three lines
             elif lineNumber > 3:
                 break
@@ -1016,10 +1016,10 @@ class LaserTab(QtGui.QWidget):
 
         # for testing purposes only
         if False:
-            print ' '
-            print ' numParticles = ', numParticles
+            print(' ')
+            print(' numParticles = ', numParticles)
             q6 = self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D()
-            print ' 1st particle: ', q6[:,0]
+            print(' 1st particle: ', q6[:,0])
 
         # post top-level parameters to GUI
         self.ui.numPtcls.setText("{:d}".format(numParticles))
@@ -1133,9 +1133,9 @@ class LaserTab(QtGui.QWidget):
                              [list(tmp6[4,:])], [list(tmp6[5,:])]]
 
         if False:
-            print ' '
-            print ' Here is mySDDS.columnData[:]:'
-            print mySDDS.columnData
+            print(' ')
+            print(' Here is mySDDS.columnData[:]:')
+            print(mySDDS.columnData)
 
         mySDDS.columnDefinition = [["","m",  "","",mySDDS.SDDS_DOUBLE,0],
                                    ["","rad","","",mySDDS.SDDS_DOUBLE,0],

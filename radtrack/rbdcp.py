@@ -108,8 +108,8 @@ class RbDcp(QtGui.QWidget):
         self.x.load(fnfromglobal)
         #get # of pages and columns
         (_,_,_,_,self.Ncol,_,_,Npage)=SDDSreshape(self.x,ColumnXAxis,ColumnPicked,NumPage)
-#        print self.x.description[0]
-        print "%d %d %d" %(self.Ncol, Npage, np.shape(self.x.columnData)[2])
+#        print(self.x.description[0])
+        print("%d %d %d" %(self.Ncol, Npage, np.shape(self.x.columnData)[2]))
         stringOut=" Columns: "+str(self.Ncol)+" Pages: "+str(Npage)+" ColumnElements: "+\
         str(np.shape(self.x.columnData)[2])
         self.ui.textEdit.setText(QtGui.QApplication.translate("dcpwidget",\
@@ -405,7 +405,7 @@ class RbDcp(QtGui.QWidget):
             for i in a:
                 b.append(float(i.text()))
             t = scipy.linspace(0,Np,Np)
-            #print np.asarray(b) SHOULD USE FFTSHIFT!!!!!!!!!!!!!!!!!
+            #print(np.asarray(b) SHOULD USE FFTSHIFT!!!!!!!!!!!!!!!!!)
             (fft_c, freqs) = FourT(np.asarray(b),t,Np) #scipy.fftpack.rfft(b)
             self.ui.widget.canvas.ax.plot(freqs[0:Np/2],fft_c.real[0:Np/2], '-b.')
             self.ui.widget.canvas.ax2.plot(freqs[0:Np/2],fft_c.imag[0:Np/2], '-g.')

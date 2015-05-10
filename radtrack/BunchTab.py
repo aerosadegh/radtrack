@@ -936,8 +936,8 @@ class BunchTab(QtGui.QWidget):
 #            msgBox.exec_()
 
 #        if False:
-#            print ' '
-#            print ' File to be parsed: ', fileName
+#            print(' ')
+#            print(' File to be parsed: ', fileName)
 
         # index is always zero...?
         sddsIndex = 0
@@ -949,26 +949,26 @@ class BunchTab(QtGui.QWidget):
         # get data storage mode...?
         sddsStorageMode = sdds.sddsdata.GetMode(sddsIndex)
         if False:
-            print ' Storage mode for index ', sddsIndex, ': ', sddsStorageMode
+            print(' Storage mode for index ', sddsIndex, ': ', sddsStorageMode)
 
         # get description text...?
         sddsDescription = sdds.sddsdata.GetDescription(sddsIndex)
         if False:
-            print ' Description for index ', sddsIndex, ': ', sddsDescription
+            print(' Description for index ', sddsIndex, ': ', sddsDescription)
 
         # get parameter names
         paramNames = sdds.sddsdata.GetParameterNames(sddsIndex)
         numParams = len(paramNames)
         if False:
-            print ' numParams = ', numParams
-            print ' Parameter names for index ', sddsIndex, ': \n', paramNames
+            print(' numParams = ', numParams)
+            print(' Parameter names for index ', sddsIndex, ': \n', paramNames)
 
         # get parameter definitions
         paramDefs = range(numParams)
         for iLoop in range(numParams):
             paramDefs[iLoop] = sdds.sddsdata.GetParameterDefinition(sddsIndex,paramNames[iLoop])
             if False:
-                print ' paramDefs[',iLoop,'] = ', paramDefs[iLoop]
+                print(' paramDefs[',iLoop,'] = ', paramDefs[iLoop])
 
         # give the user a look at the parameters (if any)
         msgBox = QtGui.QMessageBox()
@@ -994,8 +994,8 @@ class BunchTab(QtGui.QWidget):
         columnNames = sdds.sddsdata.GetColumnNames(sddsIndex)
         numColumns = len(columnNames)
         if False:
-            print ' numColumns = ', numColumns
-            print ' Column names for index ', sddsIndex, ': \n', columnNames
+            print(' numColumns = ', numColumns)
+            print(' Column names for index ', sddsIndex, ': \n', columnNames)
 
         # initialize the parameter arrays
         paramData = range(numParams)
@@ -1009,8 +1009,8 @@ class BunchTab(QtGui.QWidget):
         # read parameter data from the SDDS file
         # mus read particle data at the same time
         errorCode = sdds.sddsdata.ReadPage(sddsIndex)
-#        print ' '
-#        print ' errorCode = ', errorCode
+#        print(' ')
+#        print(' errorCode = ', errorCode)
         if errorCode != 1:
             sdds.sddsdata.PrintErrors(2)
         while errorCode > 0:
@@ -1021,15 +1021,15 @@ class BunchTab(QtGui.QWidget):
                 tmpData.append(sdds.sddsdata.GetColumn(sddsIndex,jLoop))
 
                 if False:
-                    print ' '
-                    print ' jLoop = ', jLoop
-                    print ' tmpData = ', tmpData
+                    print(' ')
+                    print(' jLoop = ', jLoop)
+                    print(' tmpData = ', tmpData)
 
                 columnData[jLoop] = np.array(tmpData[0])
 
                 if False:
-                    print ' '
-                    print ' columnData[', jLoop, '] = ', columnData[jLoop]
+                    print(' ')
+                    print(' columnData[', jLoop, '] = ', columnData[jLoop])
 
             errorCode = sdds.sddsdata.ReadPage(sddsIndex)
 
@@ -1056,8 +1056,8 @@ class BunchTab(QtGui.QWidget):
             columnDefs[iLoop] = sdds.sddsdata.GetColumnDefinition(sddsIndex,columnNames[iLoop])
             unitStrings[iLoop] = columnDefs[iLoop][1]
             if False:
-                print ' columnDefs[',iLoop,'] = ', columnDefs[iLoop]
-                print ' unitStrings[',iLoop,'] = ', unitStrings[iLoop]
+                print(' columnDefs[',iLoop,'] = ', columnDefs[iLoop])
+                print(' unitStrings[',iLoop,'] = ', unitStrings[iLoop])
 
         # begin deciphering the column data
         dataRead = [False, False, False, False, False, False]
@@ -1124,21 +1124,21 @@ class BunchTab(QtGui.QWidget):
         # if the units are specified, but incorrect, the problem is detected below
         defaultUnits = ['m', 'rad', 'm', 'rad', 'm', 'rad']
         for iLoop in range(6):
-#            print ' before: unitStrings[', iLoop, '] = ', unitStrings[iLoop]
+#            print(' before: unitStrings[', iLoop, '] = ', unitStrings[iLoop])
             if unitStrings[iLoop] == '':
                 unitStrings[iLoop] = defaultUnits[dataIndex[iLoop]]
-#            print ' after: unitStrings[', iLoop, '] = ', unitStrings[iLoop]
+#            print(' after: unitStrings[', iLoop, '] = ', unitStrings[iLoop])
 
         if False:
-            print ' '
-            print ' Here is columnData[:]:'
-            print columnData
+            print(' ')
+            print(' Here is columnData[:]:')
+            print(columnData)
 
         # check that all data columns are the same length
         numElements = [0, 0, 0, 0, 0, 0]
         for iLoop in range(6):
             numElements[iLoop] = len(columnData[iLoop])
-#            print ' size of column # ', iLoop, ' = ', numElements[iLoop]
+#            print(' size of column # ', iLoop, ' = ', numElements[iLoop])
 
         for iLoop in range(5):
             if numElements[iLoop+1] != numElements[0]:
@@ -1155,8 +1155,8 @@ class BunchTab(QtGui.QWidget):
 
         # now we know the number of macro-particles
         numParticles = numElements[0]
-#        print ' '
-#        print ' numParticles = ', numParticles
+#        print(' ')
+#        print(' numParticles = ', numParticles)
 
         # all seems to be well, so load particle data into local array,
         #   accounting for any non-standard physical units
@@ -1166,8 +1166,8 @@ class BunchTab(QtGui.QWidget):
 
         # another sanity check
 #        myShape = np.shape(tmp6)
-#        print ' '
-#        print ' myShape = ', myShape
+#        print(' ')
+#        print(' myShape = ', myShape)
 
         # close the SDDS particle file
         if sdds.sddsdata.Terminate(sddsIndex) != 1:
@@ -1221,9 +1221,9 @@ class BunchTab(QtGui.QWidget):
 
             # for testing purposes
             if False:
-                print ' '
-                print ' lineNumber = ', lineNumber
-                print ' rawData = ', rawData
+                print(' ')
+                print(' lineNumber = ', lineNumber)
+                print(' rawData = ', rawData)
 
             # make sure this file follows the RadTrack format
             if lineNumber == 1:
@@ -1245,9 +1245,9 @@ class BunchTab(QtGui.QWidget):
                 self.totalCharge = float(rawData[1])
                 # for testing only
                 if False:
-                    print ' '
-                    print ' p0 = ', self.designMomentumEV
-                    print ' Q  = ', self.totalCharge
+                    print(' ')
+                    print(' p0 = ', self.designMomentumEV)
+                    print(' Q  = ', self.totalCharge)
             # don't read beyond the first three lines
             elif lineNumber > 3:
                 break
@@ -1285,10 +1285,10 @@ class BunchTab(QtGui.QWidget):
 
         # for testing purposes only
         if False:
-            print ' '
-            print ' numParticles = ', numParticles
+            print(' ')
+            print(' numParticles = ', numParticles)
             q6 = self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D()
-            print ' 1st particle: ', q6[:,0]
+            print(' 1st particle: ', q6[:,0])
 
         # post top-level parameters to GUI
         self.ui.numPtcls.setText("{:d}".format(numParticles))
@@ -1404,9 +1404,9 @@ class BunchTab(QtGui.QWidget):
                              [list(tmp6[4,:])], [list(tmp6[5,:])]]
 
         if False:
-            print ' '
-            print ' Here is mySDDS.columnData[:]:'
-            print mySDDS.columnData
+            print(' ')
+            print(' Here is mySDDS.columnData[:]:')
+            print(mySDDS.columnData)
 
         mySDDS.columnDefinition = [["","m",  "","",mySDDS.SDDS_DOUBLE,0],
                                    ["","","","",mySDDS.SDDS_DOUBLE,0],
