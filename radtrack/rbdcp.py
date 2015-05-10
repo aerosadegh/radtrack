@@ -109,7 +109,7 @@ class RbDcp(QtGui.QWidget):
         #get # of pages and columns
         (_,_,_,_,self.Ncol,_,_,Npage)=SDDSreshape(self.x,ColumnXAxis,ColumnPicked,NumPage)
 #        print self.x.description[0]
-        print "%d %d %d" %(self.Ncol, Npage, np.shape(self.x.columnData)[2])
+#        print "%d %d %d" %(self.Ncol, Npage, np.shape(self.x.columnData)[2])
         stringOut=" Columns: "+str(self.Ncol)+" Pages: "+str(Npage)+" ColumnElements: "+\
         str(np.shape(self.x.columnData)[2])
         self.ui.textEdit.setText(QtGui.QApplication.translate("dcpwidget",\
