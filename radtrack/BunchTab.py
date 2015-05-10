@@ -1,4 +1,4 @@
-"""
+u"""
 Module defining interactive window for bunch generation.
 
 Imports the auto-generated RbBunchInterface.py module, which is
@@ -10,8 +10,6 @@ Python code are established.
 moduleauthor:: David Bruhwiler <bruhwiler@radiasoft.net>
 Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 """
-
-# system imports
 from __future__ import absolute_import, division, print_function, unicode_literals
 import sys, re, os.path, subprocess
 
