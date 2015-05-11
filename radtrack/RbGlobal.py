@@ -448,7 +448,7 @@ def main(project_file, beta_test=False):
     app = QtGui.QApplication([sys.argv[0]])
     myapp = RbGlobal(beta_test=beta_test)
     if project_file:
-        myapp.openProjectFile(project_file)
+        myapp.openProject(project_file)
     myapp.show()
     sys.exit(app.exec_())
 
