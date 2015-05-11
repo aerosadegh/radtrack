@@ -21,9 +21,6 @@ def test_inside_quote():
     assert test == expected
 
 
-from PyQt4 import QtGui
-app = QtGui.QApplication(sys.argv)
-
 exportEnd = '_export.lte'
 
 elegantFilesLocation = os.path.join(os.getcwd(), 'deprecated', 'elegant')

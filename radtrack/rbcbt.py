@@ -595,7 +595,12 @@ class RbCbt(QtGui.QWidget):
 
     def importFile(self, fileName):
         ignoreMissingImportFiles = False
-        importedData = self.importer(fileName)
+        try:
+            importedData = self.importer(fileName)
+        except IOError as e:
+            QtGui.QMessageBox(QMessageBox.Warning, 'RadTrack', e.message).exec_()
+            return
+
         if importedData:
             newElements, defaultBeamline = importedData
 

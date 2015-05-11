@@ -5,7 +5,6 @@ classes for genesis propagation
 """
 
 from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QProgressDialog
 from RbElementCommon import *
 from RbBeamlines import BeamlineCommon
 from radtrack.RbUtility import convertUnitsStringToNumber, convertUnitsString
@@ -78,12 +77,6 @@ def fileExporter(outputFileName, elementDictionary, defaultBeamline):
         outputFile.write('# This Genesis file was created by RadTrack\n')
         outputFile.write('# RadTrack (c) 2013, RadiaSoft, LLC\n\n')
         outputFile.write('? VERSION = 1.0 \n')
-        fileWriteProgress = QProgressDialog('Writing to ' + outputFileName + ' ...',
-                'Cancel',
-                0,
-                len(elementDictionary)-1)
-        fileWriteProgress.setMinimumDuration(0)
-        fileWriteProgress.setValue(0)
         for element in elementDictionary.values():
              if element.isBeamline():
                  for part in element.data:

@@ -38,6 +38,7 @@ def test_rpn_files():
             for thing in element.data:
                 if thing in alreadySeen:
                     continue
+                alreadySeen.append(thing)
                 try:
                     answer = rpn(thing)
                     try:
@@ -54,4 +55,3 @@ def test_rpn_files():
                                 ['coord', '%', 'centroid', 'ideal', 'param', 'sdds']]) and \
                             thing.lower() not in ['"t"', '"w"']:
                         assert (fileName, ':', element.name, type(element), element.displayLine(), thing) == None
-                alreadySeen.append(thing)
