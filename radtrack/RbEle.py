@@ -694,3 +694,7 @@ class BeamLineSourceManager(ComboManager):
                 self.combo.removeItem(index)
             return
         self.rbele.set_beam_lines(beam_lines)
+
+    def update_sources_from_tabs(self):
+        ComboManager.update_sources_from_tabs(self)
+        self._beam_line_source_changed()
