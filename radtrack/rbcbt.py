@@ -624,7 +624,7 @@ class RbCbt(QtGui.QWidget):
                             if not ignoreMissingImportFiles:
                                 box = QtGui.QMessageBox(QtGui.QMessageBox.Warning,
                                                         'Missing File Reference',
-                                                        'The file "' + path + '" specified by element "' + \
+                                                        'The file "' + path.replace('\\', '/') + '" specified by element "' + \
                                                         element.name + '" cannot be found.\n\n' +\
                                                         'Do you wish to ignore future warnings of this type?',
                                                         QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, self)
