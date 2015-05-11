@@ -83,6 +83,7 @@ class RbCbt(QtGui.QWidget):
         self.preListNameSave = self.workingBeamlineName
         self.preListLabelSave = self.ui.label.text()
         self.zoomScale = 1
+        self.drawPreviewEnabled = True
 
         # Graphical length legend for preview
         self.lengthLegend = []
@@ -206,10 +207,16 @@ class RbCbt(QtGui.QWidget):
             mouseMenu.addAction(self.ui.translateUTF8('Save preview image...'), \
                     self.savePreviewImage)
             mouseMenu.addAction(self.ui.translateUTF8('Reset zoom'), self.drawElement)
+            mouseMenu.addAction(self.ui.translateUTF8('Turn ' + ('off' if self.drawPreviewEnabled else 'on') + \
+                    ' graphical preview'), self.toggleDrawPreview)
 
         if mouseMenu.actions():
             mouseMenu.exec_(globalPos)
 
+    def toggleDrawPreview(self):
+        self.drawPreviewEnabled = not self.drawPreviewEnabled
+        self.drawElement()
+        
     def removeFromWorkingBeamline(self):
         undoAction = commandRemoveFromBeam(self)
         self.undoStack.push(undoAction)
@@ -387,6 +394,12 @@ class RbCbt(QtGui.QWidget):
         self.drawElement(bl)
 
     def drawElement(self, element = None):
+        scene = self.ui.graphicsView.scene()
+        scene.clear()
+
+        if not self.drawPreviewEnabled:
+            return
+
         drawMessage = QtGui.QProgressDialog('Drawing beam line ...', 'Cancel', 0, 5, self.parent)
         drawMessage.setMinimumDuration(100)
         drawMessage.setValue(0)
@@ -395,8 +408,6 @@ class RbCbt(QtGui.QWidget):
         else:
             element = self.lastDrawnElement
 
-        scene = self.ui.graphicsView.scene()
-        scene.clear()
         element.picture(scene)
         sceneRect = scene.itemsBoundingRect()
         scene.setSceneRect(sceneRect)
