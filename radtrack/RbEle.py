@@ -152,6 +152,7 @@ class RbEle(QtGui.QWidget):
         bunch source and beam line source combo items."""
         self.bunch_source_manager.update_sources_from_tabs()
         self.beam_line_source_manager.update_sources_from_tabs()
+        self.beam_line_source_manager._beam_line_source_changed()
 
     def update_widget_state(self):
         """Set the enabled status on widgets based on current selections"""
@@ -694,7 +695,3 @@ class BeamLineSourceManager(ComboManager):
                 self.combo.removeItem(index)
             return
         self.rbele.set_beam_lines(beam_lines)
-
-    def update_sources_from_tabs(self):
-        ComboManager.update_sources_from_tabs(self)
-        self._beam_line_source_changed()
