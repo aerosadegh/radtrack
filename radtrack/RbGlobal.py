@@ -362,7 +362,7 @@ class RbGlobal(QtGui.QMainWindow):
                 subExtension = widget.acceptsFileTypes[0]
                 subFileName  = os.path.join(self.sessionDirectory,
                     '_'.join([self.tabPrefix,
-                              str(i).rjust(padding, '0'),
+                              unicode(i).rjust(padding, '0'),
                               widget.defaultTitle,
                               self.tabWidget.tabText(i) + '.' + subExtension]))
                 widget.exportToFile(subFileName)
