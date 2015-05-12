@@ -268,8 +268,9 @@ class RbGlobal(QtGui.QMainWindow):
                 self.newTab(destinationType)
                 getRealWidget(self.tabWidget.currentWidget()).importFile(openFile)
             else: # Pre-existing tab
-                destination = getRealWidget(self.tabWidget.widget(openWidgetIndexes[destinationIndex]))
-                self.tabWidget.setCurrentWidget(destination)
+                tabIndex = openWidgetIndexes[destinationIndex]
+                destination = getRealWidget(self.tabWidget.widget(tabIndex))
+                self.tabWidget.setCurrentIndex(tabIndex)
                 destination.importFile(openFile)
             self.addToRecentMenu(openFile, True)
             shutil.copy2(openFile, self.sessionDirectory)
@@ -342,7 +343,6 @@ class RbGlobal(QtGui.QMainWindow):
 
         self.setTitleBar('RadTrack - ' + self.sessionDirectory)
 
-
     def saveProject(self):
         # Delete previous tab data in self.sessionDirectory
         for fileName in os.listdir(self.sessionDirectory):
@@ -359,7 +359,7 @@ class RbGlobal(QtGui.QMainWindow):
             widget = getRealWidget(self.tabWidget.widget(i))
             try:
                 saveProgress.setValue(i)
-                subExtension = widget.acceptsFileTypes[0]
+                subExtension = widget.acceptsFileTypes[0] if widget.acceptsFileTypes else 'save'
                 subFileName  = os.path.join(self.sessionDirectory,
                     '_'.join([self.tabPrefix,
                               unicode(i).rjust(padding, '0'),
