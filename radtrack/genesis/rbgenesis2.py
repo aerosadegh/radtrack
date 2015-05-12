@@ -24,6 +24,7 @@ class RbGenesis2(QtGui.QWidget):
         self.container = QtGui.QScrollArea(self.parent)
         self.container.setWidget(self)
         self.defaultTitle = self.parent.tr('Genesis')
+        self.acceptsFileTypes = []
 
 
     def makeinfile(self):

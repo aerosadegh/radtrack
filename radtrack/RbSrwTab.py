@@ -25,6 +25,7 @@ class RbSrwTab(QtGui.QWidget):
 
         self.container = self
         self.defaultTitle = self.parent.tr('SRW')
+        self.acceptsFileTypes = []
 
     def togglesrw(self):
         self.stackwidget.setCurrentIndex(int(self.srw_particle.isChecked()))
