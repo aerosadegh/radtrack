@@ -689,15 +689,19 @@ class commandEditElement(QtGui.QUndoCommand):
         self.widget = widget
         self.activeElement = currentElement
         self.oldElement = type(self.activeElement)([self.activeElement.name] + self.activeElement.data[:])
+
+        # Make sure newElement doesn't have the same name as another existing element unless
+        # it is the name of the currentElement (editing in place).
+        if newElement.name in self.widget.elementDictionary and \
+                self.widget.elementDictionary[newElement.name] != currentElement:
+            newElement.name = self.widget.uniqueName(newElement.name)
         self.newElement = newElement
 
     def redo(self):
-        if self.newElement is not None:
-            self.replaceActive(self.newElement)
+        self.replaceActive(self.newElement)
        
     def undo(self):
-        if self.newElement is not None:
-            self.replaceActive(self.oldElement)
+        self.replaceActive(self.oldElement)
             
     def replaceActive(self, source):
         oldName = self.activeElement.name
