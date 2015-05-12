@@ -7,7 +7,7 @@ matplotlib>=1.4
 mock>=1.0
 nose>=1.3
 numpy>=1.7
-openpyxl>=2.1
+openpyxl>=2.0.2
 pockets>=0.2
 py>=1.4
 pybivio>=0.1
@@ -19,7 +19,7 @@ pytz>=2014
 requests>=2.5
 scipy>=0.12
 six>=1.9
-Sphinx==1.2
+Sphinx>=1.2
 sphinxcontrib-napoleon>=0.3
 tox>=1.8
 xlrd>=0.9
