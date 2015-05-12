@@ -286,7 +286,6 @@ class RbCbt(QtGui.QWidget):
         if postList:
             self.callAfterWorkingBeamlineChanges()
 
-
     def rewriteBeamlineTree(self):
         # Update element list
         for group in self.topLevelTreeItems():
@@ -297,12 +296,15 @@ class RbCbt(QtGui.QWidget):
         # Update Working Beamline
         self.fixWorkingBeamline()
 
-
     def fitColumns(self):
+        nonDescriptionWidth = 0
+        rightMargin = 40
         for i in range(self.ui.treeWidget.columnCount()):
-            if i != 1: # don't fit Description Column
-                self.ui.treeWidget.resizeColumnToContents(i)
-
+            self.ui.treeWidget.resizeColumnToContents(i)
+            if i != 1:
+                nonDescriptionWidth += self.ui.treeWidget.columnWidth(i)
+        self.ui.treeWidget.setColumnWidth(1, \
+                self.ui.treeWidget.width() - nonDescriptionWidth - rightMargin)
 
     def createNewElement(self):
         typeName = self.sender().text()
@@ -313,7 +315,6 @@ class RbCbt(QtGui.QWidget):
             element = elementType(data)
             undoAction = commandLoadElements(self, [element])
             self.undoStack.push(undoAction)
-
 
     def uniqueName(self, name):
         # Element name cannot match a type name
@@ -351,14 +352,11 @@ class RbCbt(QtGui.QWidget):
                 self.undoStack.push(undoAction)
         self.emptyWorkingBeamlineCheck()
 
-
-
     def findElementInTreeByName(self, name):
         for group in self.topLevelTreeItems():
             for item in itemsInGroup(group):
                 if item.text(0) == name:
                     return item
-
 
     def deleteElement(self, name):
         undoAction = commandDeleteElement(self, name)
