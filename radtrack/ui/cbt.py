@@ -302,7 +302,8 @@ class genDialog(QtGui.QDialog):
         #set main layout
         mainlayout = QtGui.QGridLayout(self)
         mainlayout.setSizeConstraint(QtGui.QLayout.SetFixedSize)
-        mainlayout.addWidget(QtGui.QLabel('Blank cells will have default values.\n'), 0, 0)
+        if not oldElement.isBeamline():
+            mainlayout.addWidget(QtGui.QLabel('Blank cells will have default values.\n'), 0, 0)
         mainlayout.addLayout(flayout,1,0)
         mainlayout.addWidget(buttonBox,1,1)
         mainlayout.addWidget(moreButton,2,1)
