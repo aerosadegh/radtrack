@@ -9,7 +9,6 @@ from pybivio.trace import trace
 from radtrack.BunchTab import BunchTab
 from radtrack.RbBunchTransport import RbBunchTransport
 from radtrack.RbUtility import convertUnitsStringToNumber, convertUnitsNumber
-from radtrack.rbdcp import RbDcp
 from radtrack.ui.rbele import Ui_ELE
 from radtrack.RbUtility import getRealWidget
 import radtrack.util.resource as resource
@@ -83,7 +82,7 @@ class RbEle(QtGui.QWidget):
         self.container = self
         self.defaultTitle = self.parent.tr('Elegant')
 
-        self.acceptsFileTypes = ['']
+        self.acceptsFileTypes = []
 
     # This tab only pulls together data from other sources.
     # It has no information to save. exportToFile() creates
@@ -384,14 +383,11 @@ class RbEle(QtGui.QWidget):
             file_name = results.currentItem().data(
                 QtCore.Qt.UserRole).toString()
             menu = QtGui.QMenu()
-            if re.search(r'\.lte$', file_name, re.IGNORECASE):
-                self._add_menu_actions(
-                    menu, file_name, RbBunchTransport, 'Bunch Transport')
-            elif self._is_sdds_file(file_name):
-                self._add_menu_actions(
-                    menu, file_name, RbDcp, 'Data Visualization')
-            if self._is_bunch_file(file_name):
-                self._add_menu_actions(menu, file_name, BunchTab, 'Bunch')
+            ext = os.path.splitext(file_name)[1].strip('.')
+            for tab in self.parent.originalTabs:
+                if ext in tab.acceptsFileTypes:
+                    self._add_menu_actions(
+                        menu, file_name, type(tab), tab.defaultTitle)
             menu.exec_(results.mapToGlobal(position))
 
     def _run_simulation(self):
