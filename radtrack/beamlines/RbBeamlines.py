@@ -5,10 +5,11 @@ Created on Wed Aug 28 18:35:56 2013
 @author: Steven Wu, Mark Harrison
 """
 
+from __future__ import print_function, division, unicode_literals, absolute_import
 from PyQt4.QtCore import QPointF
 import math
 
-from RbElementCommon import sanitizeName
+from radtrack.beamlines.RbElementCommon import sanitizeName
 
 class BeamlineCommon(object):
     def __init__(self, data = None):

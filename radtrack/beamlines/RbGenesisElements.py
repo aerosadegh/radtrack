@@ -4,9 +4,10 @@ Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 classes for genesis propagation
 """
 
+from __future__ import print_function, division, unicode_literals, absolute_import
 from PyQt4.QtCore import Qt
-from RbElementCommon import *
-from RbBeamlines import BeamlineCommon
+from radtrack.beamlines.RbElementCommon import *
+from radtrack.beamlines.RbBeamlines import BeamlineCommon
 from radtrack.RbUtility import convertUnitsStringToNumber, convertUnitsString
 
 class genesisElement(elementCommon):
