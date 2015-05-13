@@ -181,16 +181,13 @@ class RbDcp(QtGui.QWidget):
         self.preview()
         self.sddsprev()
 
-    #this method allows only one x and quickview selection at a time
+    #all axis selections must be unique (x, y0, y1, etc.)
     def action(self, i, n):
         self.ui.data.setFocus()
-        if n == 1 or n == 4:
-            for index, data in enumerate(self.select):
-                if index != i and self.select[index].currentIndex()==1:
-                    self.select[index].setCurrentIndex(0)
-                if index != i and self.select[index].currentIndex()==4:
-                    self.select[index].setCurrentIndex(0)
-                #make math functions one at a time?
+        for index in range(len(self.select)):
+            if index != i and self.select[index].currentIndex() == n:
+                self.select[index].setCurrentIndex(0)
+
         if n == 4:
             self.quickview()
         if n == 5:
@@ -273,9 +270,9 @@ class RbDcp(QtGui.QWidget):
         for i in range(self.Ncol):
             xin = QtGui.QComboBox()
             xin.addItem('<select>')
-            xin.addItem('X')
-            xin.addItem('Y0')
-            xin.addItem('Y1')
+            xin.addItem('X-axis')
+            xin.addItem('First Y-axis')
+            xin.addItem('Second Y-axis')
             xin.addItem('Quick View')
             xin.addItem('FFT')
             xin.addItem('Average')
