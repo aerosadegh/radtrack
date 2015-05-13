@@ -673,7 +673,7 @@ class LaserTab(QtGui.QWidget):
 
         # initialize sdds.sddsdata.pyd library (Windows only) with data file
         if sdds.sddsdata.InitializeInput(sddsIndex, fileName) != 1:
-            sdds.sddsdata.PrintErrors(2)
+            sdds.sddsdata.PrintErrors(1)
 
         # get data storage mode...?
         sddsStorageMode = sdds.sddsdata.GetMode(sddsIndex)
@@ -741,7 +741,7 @@ class LaserTab(QtGui.QWidget):
 #        print(' ')
 #        print(' errorCode = ', errorCode)
         if errorCode != 1:
-            sdds.sddsdata.PrintErrors(2)
+            sdds.sddsdata.PrintErrors(1)
         while errorCode > 0:
             for iLoop in range(numParams):
                 paramData[iLoop].append(sdds.sddsdata.GetParameter(sddsIndex,iLoop))
@@ -900,7 +900,7 @@ class LaserTab(QtGui.QWidget):
 
         # close the SDDS particle file
         if sdds.sddsdata.Terminate(sddsIndex) != 1:
-            sdds.sddsdata.PrintErrors(2)
+            sdds.sddsdata.PrintErrors(1)
 
         # instantiate the particle bunch
         self.myBunch = beam.RbParticleBeam6D(numParticles)
