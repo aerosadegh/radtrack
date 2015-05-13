@@ -336,11 +336,11 @@ class RbCbt(QtGui.QWidget):
             if self.workingBeamlineName:
                 oldBeam = self.elementDictionary[self.workingBeamlineName]
                 undoAction = commandEditElement(self, oldBeam, beamline)
-                self.undoStack.push(undoAction)
             else:
-                undoAction = commandLoadElements(self, [beamline], 'addBeam')
-                self.undoStack.push(undoAction)
+                undoAction = commandLoadElements(self, [beamline])
+            self.setWorkingBeamline()
             self.callAfterWorkingBeamlineChanges()
+            self.undoStack.push(undoAction)
         self.emptyWorkingBeamlineCheck()
 
     def findElementInTreeByName(self, name):
@@ -732,10 +732,9 @@ class commandEditElement(QtGui.QUndoCommand):
 
 
 class commandLoadElements(QtGui.QUndoCommand):
-    def __init__(self, widget, elements, origin = ''):
+    def __init__(self, widget, elements):
         QtGui.QUndoCommand.__init__(self)
         self.widget = widget
-        self.createdBeam = (origin == 'addBeam')
 
         self.createdElements = elements
         self.items = []
@@ -809,8 +808,6 @@ class commandLoadElements(QtGui.QUndoCommand):
         self.widget.fitColumns()
         if len(self.createdElements) > 0:
             self.widget.ui.treeWidget.setCurrentItem(self.items[i])
-        if self.createdBeam:
-            self.widget.setWorkingBeamline()
 
     def undo(self):
         for i in range(len(self.createdElements)-1,-1,-1):
@@ -824,10 +821,6 @@ class commandLoadElements(QtGui.QUndoCommand):
             # Delete group if adding element created a new group
             if self.createGroups[i]:
                 self.widget.ui.treeWidget.takeTopLevelItem(self.groupPositions[i])
-        if self.createdBeam:
-            self.widget.setWorkingBeamline(self.createdElements[0])
-            self.widget.preListSave = self.widget.workingBeamlineElementNames()
-        else:
             self.widget.elementPreview()
 
             
