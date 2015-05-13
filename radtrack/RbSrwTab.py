@@ -27,6 +27,13 @@ class RbSrwTab(QtGui.QWidget):
         self.defaultTitle = self.parent.tr('SRW')
         self.acceptsFileTypes = []
 
+    def exportToFile(self, fileName = None):
+        with open(fileName, 'w'):
+            pass
+
+    def importFile(self, fileName = None):
+        pass
+
     def togglesrw(self):
         self.stackwidget.setCurrentIndex(int(self.srw_particle.isChecked()))
         print self.stackwidget.currentIndex()

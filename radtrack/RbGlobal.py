@@ -357,18 +357,14 @@ class RbGlobal(QtGui.QMainWindow):
                 return
 
             widget = getRealWidget(self.tabWidget.widget(i))
-            try:
-                saveProgress.setValue(i)
-                subExtension = widget.acceptsFileTypes[0] if widget.acceptsFileTypes else 'save'
-                subFileName  = os.path.join(self.sessionDirectory,
-                    '_'.join([self.tabPrefix,
-                              unicode(i).rjust(padding, '0'),
-                              widget.defaultTitle,
-                              self.tabWidget.tabText(i) + '.' + subExtension]))
-                widget.exportToFile(subFileName)
-            except AttributeError as e:
-                print('ERROR: Skipping ' + self.tabWidget.tabText(i))
-                print(e)
+            saveProgress.setValue(i)
+            subExtension = widget.acceptsFileTypes[0] if widget.acceptsFileTypes else 'save'
+            subFileName  = os.path.join(self.sessionDirectory,
+                '_'.join([self.tabPrefix,
+                          unicode(i).rjust(padding, '0'),
+                          widget.defaultTitle,
+                          self.tabWidget.tabText(i) + '.' + subExtension]))
+            widget.exportToFile(subFileName)
 
     def exportCurrentTab(self):
         getRealWidget(self.tabWidget.currentWidget()).exportToFile()
@@ -427,10 +423,7 @@ class RbGlobal(QtGui.QMainWindow):
         elif sys.platform == 'darwin': # Mac
             subprocess.Popen(['open', self.sessionDirectory])
         else: # Linux
-            try:
-                subprocess.Popen(['xdg-open', self.sessionDirectory])
-            except OSError: # Unknown OS
-                print('Failed to open session directory')
+            subprocess.Popen(['xdg-open', self.sessionDirectory])
 
 
 @argh.arg('project_file', nargs='?', default=None, help='project file to open at startup')

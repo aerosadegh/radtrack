@@ -653,16 +653,6 @@ class LaserTab(QtGui.QWidget):
             return
 
         self.parent.lastUsedDirectory = os.path.dirname(fileName)
-        base, ext = os.path.splitext(fileName)
-
-        # throw exception for bad extensions
-        if ext != '.sdds':
-            msgBox = QtGui.QMessageBox()
-            message  = 'ERROR --\n\n'
-            message += '  The selected file extension "' + ext + '" is invalid.\n'
-            message += '  Please select a file with extension ".sdds" - thanks!'
-            msgBox.setText(message)
-            msgBox.exec_()
 
         if False:
             print(' ')
@@ -930,17 +920,6 @@ class LaserTab(QtGui.QWidget):
                 return
             self.parent.lastUsedDirectory = os.path.dirname(fileName)
 
-        base, ext = os.path.splitext(fileName)
-
-        # notify user about bad extensions
-        if ext != '.csv':
-            msgBox = QtGui.QMessageBox()
-            message  = 'ERROR --\n\n'
-            message += '  The selected file extension "' + ext + '" is invalid.\n'
-            message += '  Please select a file with extension ".csv" - thanks!'
-            msgBox.setText(message)
-            msgBox.exec_()
-
         # check whether this is a RadTrack generated CSV file
         fileObject = open(fileName)
         csvReader = csv.reader(fileObject, delimiter=',')
@@ -1036,21 +1015,12 @@ class LaserTab(QtGui.QWidget):
                              self.parent.lastUsedDirectory, "*.csv")
             if fileName == '':
                 return
-            if not fileName.endswith('.csv'):
-                fileName = fileName + '.csv'
-            self.parent.lastUsedDirectory = os.path.dirname(fileName)
 
-        base, ext = os.path.splitext(fileName)
+        if not fileName.endswith('.csv'):
+            fileName = fileName + '.csv'
+        self.parent.lastUsedDirectory = os.path.dirname(fileName)
 
-        # throw exception for bad extensions
-        if ext != '.csv':
-            msgBox = QtGui.QMessageBox()
-            message  = 'ERROR --\n\n'
-            message += '  The specified file extension "' + ext + '" is not ".csv"!\n'
-            message += '  Please try again, but be sure to specify a ".csv" extension.\n\n'
-            message += 'Thanks!'
-            msgBox.setText(message)
-            msgBox.exec_()
+        with open(fileName, 'w'):
             return
 
         # make sure the top-level parameters are up-to-date
@@ -1091,21 +1061,12 @@ class LaserTab(QtGui.QWidget):
                               self.parent.lastUsedDirectory, "*.sdds")
             if sddsFileName == '':
                 return
-            if not sddsFileName.endswith(".sdds"):
-                sddsFileName = sddsFileName + ".sdds"
-            self.parent.lastUsedDirectory = os.path.dirname(sddsFileName)
 
-        base, ext = os.path.splitext(sddsFileName)
+        if not sddsFileName.endswith(".sdds"):
+            sddsFileName = sddsFileName + ".sdds"
+        self.parent.lastUsedDirectory = os.path.dirname(sddsFileName)
 
-        # check for bad extensions
-        if ext != '.sdds':
-            msgBox = QtGui.QMessageBox()
-            message  = 'ERROR --\n\n'
-            message += '  The specified file extension "' + ext + '" is not ".sdds"!\n'
-            message += '  Please try again, but be sure to specify a ".sdds" extension.\n\n'
-            message += 'Thanks!'
-            msgBox.setText(message)
-            msgBox.exec_()
+        with open(sddsFileName, 'w'):
             return
 
         # make sure the top-level parameters are up-to-date

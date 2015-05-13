@@ -26,6 +26,12 @@ class RbGenesis2(QtGui.QWidget):
         self.defaultTitle = self.parent.tr('Genesis')
         self.acceptsFileTypes = []
 
+    def exportToFile(self, fileName = None):
+        with open(fileName, 'w'):
+            pass
+
+    def importFile(self, fileName = None):
+        pass
 
     def makeinfile(self):
         outputFileName, _ = QFileDialog.getSaveFileName(self,'Save As',os.path.expanduser('~'), '*'+'in')
