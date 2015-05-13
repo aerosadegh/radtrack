@@ -18,4 +18,3 @@ def test_conformance():
     # Would like to call_main, but that doesn't work, because Qt
     # does something strange that causes the application to exit
     # without being able to catch the exception.
-    radtrack.RbGlobal.call_main()
