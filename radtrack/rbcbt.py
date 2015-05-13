@@ -228,14 +228,9 @@ class RbCbt(QtGui.QWidget):
             return
 
         if selectedElement.isBeamline():
-            # restore selected beamline to Working Beamline list for further editing
-            self.workingBeamlineName = selectedElement.name
-            self.ui.label.setText('Editing element: ' + self.workingBeamlineName)
-            self.ui.workingBeamline.clear()
-            self.ui.workingBeamline.addItems([element.name for element in selectedElement.data])
+            self.setWorkingBeamline(selectedElement)
             self.callAfterWorkingBeamlineChanges()
-
-        else: # Selected item is an element of a beamline (drift, quad, etc.)
+        else:
             dialog = genDialog(selectedElement)
             if dialog.exec_():
                 data = dialog.info + dialog.more
@@ -286,7 +281,6 @@ class RbCbt(QtGui.QWidget):
         if postList:
             self.callAfterWorkingBeamlineChanges()
 
-
     def rewriteBeamlineTree(self):
         # Update element list
         for group in self.topLevelTreeItems():
@@ -297,12 +291,10 @@ class RbCbt(QtGui.QWidget):
         # Update Working Beamline
         self.fixWorkingBeamline()
 
-
     def fitColumns(self):
         for i in range(self.ui.treeWidget.columnCount()):
             if i != 1: # don't fit Description Column
                 self.ui.treeWidget.resizeColumnToContents(i)
-
 
     def createNewElement(self):
         typeName = self.sender().text()
@@ -313,7 +305,6 @@ class RbCbt(QtGui.QWidget):
             element = elementType(data)
             undoAction = commandLoadElements(self, [element])
             self.undoStack.push(undoAction)
-
 
     def uniqueName(self, name):
         # Element name cannot match a type name
@@ -333,7 +324,7 @@ class RbCbt(QtGui.QWidget):
 
     def addBeam(self):
         beamline = self.beamlineType()
-        if self.workingBeamlineName != '':
+        if self.workingBeamlineName:
             beamline.name = self.workingBeamlineName
 
         for name in self.workingBeamlineElementNames():
@@ -349,9 +340,8 @@ class RbCbt(QtGui.QWidget):
             else:
                 undoAction = commandLoadElements(self, [beamline], 'addBeam')
                 self.undoStack.push(undoAction)
+            self.callAfterWorkingBeamlineChanges()
         self.emptyWorkingBeamlineCheck()
-
-
 
     def findElementInTreeByName(self, name):
         for group in self.topLevelTreeItems():
@@ -359,16 +349,23 @@ class RbCbt(QtGui.QWidget):
                 if item.text(0) == name:
                     return item
 
-
     def deleteElement(self, name):
         undoAction = commandDeleteElement(self, name)
         self.undoStack.push(undoAction)
 
     def newBeam(self):
-        self.workingBeamlineName = ''
-        self.ui.label.setText(self.beamlineListLabelDefault)
-        self.ui.workingBeamline.clear()
+        self.setWorkingBeamline()
         self.callAfterWorkingBeamlineChanges()
+
+    def setWorkingBeamline(self, beamline = None):
+        self.workingBeamlineName = beamline.name if (beamline and beamline.name in self.elementDictionary) else ''
+        self.ui.label.setText(('Editing element: ' + self.workingBeamlineName) if self.workingBeamlineName else \
+                self.beamlineListLabelDefault)
+        self.ui.workingBeamline.clear()
+        if beamline:
+            self.ui.workingBeamline.addItems([element.name for element in beamline.data])
+        self.emptyWorkingBeamlineCheck()
+        self.workingBeamlinePreview()
 
     def fixWorkingBeamline(self):
         beamline = self.elementDictionary.get(self.workingBeamlineName)
@@ -699,9 +696,13 @@ class commandEditElement(QtGui.QUndoCommand):
 
     def redo(self):
         self.replaceActive(self.newElement)
+        if self.newElement.isBeamline():
+            self.widget.setWorkingBeamline()
        
     def undo(self):
         self.replaceActive(self.oldElement)
+        if self.oldElement.isBeamline():
+            self.widget.setWorkingBeamline(self.newElement)
             
     def replaceActive(self, source):
         oldName = self.activeElement.name
@@ -809,11 +810,7 @@ class commandLoadElements(QtGui.QUndoCommand):
         if len(self.createdElements) > 0:
             self.widget.ui.treeWidget.setCurrentItem(self.items[i])
         if self.createdBeam:
-            self.widget.ui.workingBeamline.clear()
-            self.widget.preListSave = []
-            self.widget.workingBeamlineName = ''
-            self.widget.ui.label.setText(self.widget.beamlineListLabelDefault)
-            self.widget.emptyWorkingBeamlineCheck()
+            self.widget.setWorkingBeamline()
 
     def undo(self):
         for i in range(len(self.createdElements)-1,-1,-1):
@@ -828,10 +825,7 @@ class commandLoadElements(QtGui.QUndoCommand):
             if self.createGroups[i]:
                 self.widget.ui.treeWidget.takeTopLevelItem(self.groupPositions[i])
         if self.createdBeam:
-            for element in self.createdElements[0].data:
-                self.widget.ui.workingBeamline.addItem(element.name)
-            self.widget.workingBeamlinePreview()
-            self.widget.emptyWorkingBeamlineCheck()
+            self.widget.setWorkingBeamline(self.createdElements[0])
             self.widget.preListSave = self.widget.workingBeamlineElementNames()
         else:
             self.widget.elementPreview()
