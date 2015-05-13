@@ -185,18 +185,32 @@ def collapseBeamline(nameList):
             else:
                 # Collapse the subList, look for repetitions of the collapsed list
                 subListCollapse = collapseBeamline(subList)
-                if subListCollapse[0] in string.digits and isSingleGroup(subListCollapse):
-                    numSplit = subListCollapse.split('*', 1)
-                    count = count*int(numSplit[0])
-                    subListCollapse = numSplit[1]
+                if '*' in subListCollapse and isSingleGroup(subListCollapse):
+                    countSub, subListCollapse = subListCollapse.split('*', 1)
+                    count = count*int(countSub)
                     while subListCollapse.startswith('(') and subListCollapse.endswith(')'):
                         subListCollapse = subListCollapse[1:-1]
-                count += removeRepetitions(nameList, expandBeamline(subListCollapse), startIndex)
+                if count > 0:
+                    count += removeRepetitions(nameList, expandBeamline(subListCollapse), startIndex)
+                else:
+                    count -= removeRepetitions(nameList, ['-' + subListCollapse], startIndex)
                 beginParen = '(' if ',' in subListCollapse else ''
                 endParen = ')' if beginParen == '(' else ''
                 nameList.insert(startIndex, str(count) + '*' + beginParen + subListCollapse + endParen)
             startIndex += 1
-    return ', '.join(nameList)
+    collapsedList = ', '.join(nameList)
+    collapsedListNegatives = collapsedList.split('*-')
+    collapsedList = collapsedListNegatives.pop(0)
+    while collapsedListNegatives:
+        nextPart = '*' + collapsedListNegatives.pop(0)
+        number = ''
+        while collapsedList and collapsedList[-1].isdigit():
+            nextPart = collapsedList[-1] + nextPart
+            collapsedList = collapsedList[:-1]
+        collapsedList = collapsedList + '-' + nextPart
+    return collapsedList
+
+
 
 # Removes from originalList ranges that start at index
 # and match subList. Returns number removed.
@@ -256,8 +270,16 @@ def expandBeamline(beamString):
 
     # check if beamString = "N*(...)"
     if isSingleGroup(beamString):
-        [count, beamString] = beamString.split("*", 1)
-        beamString = ','.join(int(count)*expandBeamline(beamString))
+        count, beamString = beamString.split("*", 1)
+        count = int(count)
+        if count < 0:
+            if ',' in beamString:
+                expandedBeamList = abs(count)*reversed(expandBeamline(beamString))
+            else:
+                expandedBeamList = abs(count)*['-' + beamString]
+        else:
+            expandedBeamList = count*expandBeamline(beamString)
+        beamString = ','.join(expandedBeamList)
 
     beamList = beamString.split(",")
 
