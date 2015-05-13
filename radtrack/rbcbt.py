@@ -19,7 +19,6 @@ class RbCbt(QtGui.QWidget):
         self.beamlineType = module.beamlineType
         self.classDictionary = module.classDictionary
         self.acceptsFileTypes = [module.fileExtension]
-        self.nameMangler = module.nameMangler
         self.importer = module.fileImporter
         self.exporter = module.fileExporter
 
@@ -38,7 +37,7 @@ class RbCbt(QtGui.QWidget):
         self.adv = advDialog(self)
         for button in self.ui.buttons + self.adv.buttons:
             button.clicked.connect(self.createNewElement)
-            button.setToolTip(self.classDictionary[self.nameMangler(button.text())].elementDescription)
+            button.setToolTip(self.classDictionary[button.text()].elementDescription)
         if len(self.ui.advancedNames) > 0:
             self.ui.advanced.clicked.connect(self.adv.show)
         self.ui.clearBeamlineButton.clicked.connect(self.newBeam)
@@ -298,7 +297,7 @@ class RbCbt(QtGui.QWidget):
 
     def createNewElement(self):
         typeName = self.sender().text()
-        elementType = self.classDictionary[self.nameMangler(typeName)]
+        elementType = self.classDictionary[typeName]
         dialog = genDialog(elementType())
         if dialog.exec_():
             data = [datum[1].text() for datum in dialog.info + dialog.more]

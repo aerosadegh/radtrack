@@ -140,8 +140,6 @@ class Ui_tree(QtCore.QObject):
 
         self.names = sorted(module.classDictionary.keys())
         self.advancedNames = sorted(module.advancedNames)
-        self.nameMangler = module.nameMangler
-        self.fileType = module.fileExtension.lstrip('.').upper()
 
         self.treeObjectName = "tree"
         tree.setObjectName(self.treeObjectName)
@@ -323,7 +321,6 @@ class advDialog(QtGui.QDialog):
         self.buttons = []
         grid = QtGui.QGridLayout()
         encyclopedia = parent.classDictionary
-        nameMangler = parent.nameMangler
 
         # Choose grid dimensions to be closest to a square
         columns = int(round(sqrt(len(parent.ui.advancedNames))))
@@ -331,7 +328,7 @@ class advDialog(QtGui.QDialog):
             row = k // columns
             col = k % columns
             button = QtGui.QPushButton(name)
-            button.setToolTip(encyclopedia[nameMangler(name)].elementDescription)
+            button.setToolTip(encyclopedia[name].elementDescription)
             grid.addWidget(button, row, col)
             self.buttons.append(button)
         self.setLayout(grid)

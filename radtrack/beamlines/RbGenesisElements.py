@@ -57,9 +57,6 @@ class Unit_Length(genesisElement, driftPic):
         sentence = ''.join(['='.join(phrase) for phrase in sentence])
         return '?'+sentence
 
-def nameMangler(name):
-    return name
-
 classDictionary = dict()
 
 for key in list(globals()):

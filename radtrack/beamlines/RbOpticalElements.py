@@ -106,9 +106,6 @@ class WATCH_POINT(opticalElement, watchPic):
     parameterDescription = []
     flagSize = .1
 
-def nameMangler(name):
-    return name
-
 classDictionary = dict()
 for key in list(globals()):
     if hasattr(globals()[key], 'elementDescription'):
@@ -116,6 +113,6 @@ for key in list(globals()):
 advancedNames = []
 
 fileImporter = lambda fileName, importDictionary = None : \
-        importFile(fileName, importDictionary, classDictionary, nameMangler)
+        importFile(fileName, importDictionary, classDictionary, lambda x : x.upper())
 
 fileExporter = exportToFile
