@@ -72,7 +72,7 @@ class rbsrw(QtGui.QWidget):
         '3rd harmonic '+'{:.3e}'.format(lam_rn/3.0)+' '+'{:.3f}'.format(e_phn*3.0)+'\n'+\
         '5th harmonic '+'{:.3e}'.format(lam_rn/5.0)+' '+'{:.3f}'.format(e_phn*5.0)+'\n' 
         
-        E_c=CriticalEnergyWiggler(self.up.By,self.beam.partStatMom1.gamma)
+        E_c=CriticalEnergyWiggler(self.up.By,self.up.Bx,self.beam.partStatMom1.gamma)
         #Outputs: (RAD.Ecrit,UPWorU) where RAD.Ecrit is critical energy of Wiggler Radiation
         #Inputs: (UP.Bx, self.beam.partStatMom1.gamma,UP.Kx)
         stra=stri+'# Critical energy:'+'{:.3e}'.format(E_c)+', eV'+'\n'+\
@@ -136,6 +136,9 @@ class rbsrw(QtGui.QWidget):
         
     def GetBeamParams(self,dialog):
         units = dialog.u
+#        (P_W, L_id)=RadiatedPowerPlanarWiggler(self.up.undPer,self.up.By,self.up.numPer,self.beam.partStatMom1.gamma,self.beam.Iavg)
+#        self.beam.partStatMom1.z=-L_id
+# z momentum has to equal length of insertion device which equals the length of the undulator??
         self.beam.Iavg = convertUnitsStringToNumber(dialog.ui.iavg.text(),units[0])
         self.beam.partStatMom1.x = convertUnitsStringToNumber(dialog.ui.partstatmom1x.text(),units[1])
         self.beam.partStatMom1.y = convertUnitsStringToNumber(dialog.ui.partstatmom1y.text(),units[2])
