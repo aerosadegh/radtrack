@@ -5,13 +5,12 @@
 :license: Apache, see LICENSE for more details.
 """
 
-from pybivio.b_setup import setup
+from pykern.setup import setup
 
 setup(
     name='radtrack',
-    version=0.1,
     description='RadTrack is an open source framework for working with codes that model particle dynamics and electromagnetic radiation.',
     author='RadiaBeam Technologies, LLC',
     author_email='pip@radtrack.org',
-    url='http://radiabeam.com',
+    url='http://radtrack.org',
 )

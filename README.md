@@ -15,8 +15,8 @@ mkdir src
 cd src
 mkdir biviosoftware
 cd biviosoftware
-git clone https://github.com/biviosoftware/pybivio
-cd pybivio
+git clone https://github.com/radiasoft/pykern.git
+cd pykern
 python setup.py develop
 cd ../..
 mkdir radiasoft

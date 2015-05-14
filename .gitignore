@@ -1,3 +1,6 @@
+.eggs
+MANIFEST.in
+pykern_setup.json
 RadTrack/dcp/sddsdata.pyd
 RadTrack/srw/srwlpy.pyd
 .idea/
