@@ -4,6 +4,10 @@ import radtrack.beamlines.RbElegantElements as ele
 import radtrack.beamlines.RbOpticalElements as opt
 from radtrack.RbUtility import insideQuote
 
+import radtrack.util.resource as resource
+if not os.getenv('RPN_DEFNS', None):
+    os.environ['RPN_DEFNS'] = resource.filename('defns.rpn')
+
 # QApplication needs to be instantiated to use QWidgets
 # that can't be isolated from the rest of the application.
 # If this isn't here, the test suite will simply halt with
