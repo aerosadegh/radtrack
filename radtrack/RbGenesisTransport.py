@@ -4,10 +4,13 @@ from PyQt4 import QtGui
 import radtrack.beamlines.RbGenesisElements as module
 
 class RbGenesisTransport(rbcbt.RbCbt):
+    defaultTitle = 'Genesis Bunch Transport'
+    acceptsFileTypes = [module.fileExtension]
+    task = 'Design a Genesis beam line'
+
     def __init__(self, parent = None):
         rbcbt.RbCbt.__init__(self, module, parent)
         self.container = self
-        self.defaultTitle = 'Genesis Bunch Transport'
 
 
 def main():

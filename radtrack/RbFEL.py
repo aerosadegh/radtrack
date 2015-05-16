@@ -22,10 +22,14 @@ e_mass_kg = e_mass*e_charge/(c**2) # kg
 e_radius = (e_charge**2)/(4*pi*e0*e_mass_kg*(c**2)) # m
 
 class RbFEL(QtGui.QWidget):
+    acceptsFileTypes = ['fel']
+    defaultTitle = 'FEL'
+    task = 'Experiment with FEL design parameters'
+    category = 'tools'
+
     def __init__(self, parent = None):
         QtGui.QWidget.__init__(self, parent)
         
-        self.acceptsFileTypes = ['fel']
         if parent == None:
             self.parent = self
             self.parent.lastUsedDirectory = os.path.expanduser('~')
@@ -177,7 +181,6 @@ class RbFEL(QtGui.QWidget):
         self.plot()
 
         self.container = self
-        self.defaultTitle = self.parent.tr('FEL')
  
     def calculate(self, writeToTextBoxes = True):
         # Every time the user changes the text in an input text box,

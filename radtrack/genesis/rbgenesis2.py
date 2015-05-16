@@ -4,6 +4,11 @@ from genesis import *
 from genesispages import *
 
 class RbGenesis2(QtGui.QWidget):
+    acceptsFileTypes = []
+    defaultTitle = 'Genesis'
+    task = 'Run a Genesis simulation'
+    category = 'simulations'
+
     def __init__(self, parent=None):
         self.parent = parent
         QtGui.QWidget.__init__(self,parent)
@@ -23,8 +28,6 @@ class RbGenesis2(QtGui.QWidget):
 
         self.container = QtGui.QScrollArea(self.parent)
         self.container.setWidget(self)
-        self.defaultTitle = self.parent.tr('Genesis')
-        self.acceptsFileTypes = []
 
     def exportToFile(self, fileName = None):
         with open(fileName, 'w'):

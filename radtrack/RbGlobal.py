@@ -23,6 +23,7 @@ from radtrack.RbFEL import RbFEL
 from radtrack.srw.RbSrwUndulator import srwund
 from radtrack.genesis.rbgenesis2 import RbGenesis2
 from radtrack.RbSrwTab import RbSrwTab
+from radtrack.RbIntroTab import RbIntroTab
 from radtrack.RbUtility import getRealWidget
 
 class RbGlobal(QtGui.QMainWindow):
@@ -66,38 +67,42 @@ class RbGlobal(QtGui.QMainWindow):
         self.setTitleBar("RadTrack - " + self.sessionDirectory)
 
         # Create tab widget and all tabs
+        self.closedTabs = []
         self.tabWidget = QtGui.QTabWidget()
         self.ui.verticalLayout.addWidget(self.tabWidget)
         self.tabWidget.setTabsClosable(True)
         self.tabPrefix = '###Tab###' # used to identify files that are the saved data from tabs
 
         if self.beta_test:
-            self.originalTabs = [ RbEle(self),
-                                  BunchTab(self),
-                                  RbBunchTransport(self),
-                                  RbDcp(self),
-                                  RbFEL(self) ]
+            self.availableTabTypes = [ RbEle,
+                                       BunchTab,
+                                       RbBunchTransport,
+                                       RbDcp,
+                                       RbFEL ]
         else:
-            self.originalTabs = [ LaserTab(self),
-                                  RbLaserTransport(self),
-                                  BunchTab(self),
-                                  RbBunchTransport(self),
-                                  RbEle(self),
-                                  RbDcp(self),
-                                  RbFEL(self),
-                                  RbGenesis2(self),
-                                  RbGenesisTransport(self),
-                                  RbSrwTab(self) ]
+            self.availableTabTypes = [ LaserTab,
+                                       RbLaserTransport,
+                                       BunchTab,
+                                       RbBunchTransport,
+                                       RbEle,
+                                       RbDcp,
+                                       RbFEL,
+                                       RbGenesis2,
+                                       RbGenesisTransport,
+                                       RbSrwTab ]
 
         self.originalNameToTabType = dict()
-        for tab in self.originalTabs:
-            self.tabWidget.addTab(tab.container, tab.defaultTitle)
-            self.originalNameToTabType[tab.defaultTitle] = type(tab)
+        self.newTab(RbIntroTab)
+        for tabType in self.availableTabTypes:
+            if not self.beta_test: # For development, show all tabs
+                self.newTab(tabType)
+
+            self.originalNameToTabType[tabType.defaultTitle] = tabType
 
             # populate New Tab Menu
             actionNew_Tab = QtGui.QAction(self)
-            actionNew_Tab.setObjectName('new ' + tab.defaultTitle)
-            actionNew_Tab.setText(tab.defaultTitle)
+            actionNew_Tab.setObjectName('new ' + tabType.defaultTitle)
+            actionNew_Tab.setText(tabType.defaultTitle)
 
             # The next line has some weirdness that needs explaining:
             #  1. "ignore" is a variable that receives the boolean returned
@@ -106,13 +111,13 @@ class RbGlobal(QtGui.QMainWindow):
             #  2. "t = widgetType" sets t to the current widgetType if the
             #     QAction.triggered() doesn't supply it (which it doesn't).
             #     This localizes widgetType to the lambda in this loop iteration.
-            #     Just using self.newTab(widgetType) would have the argument
-            #     replaced every iteration, so that every selection in the
-            #     Tabs->New Tab menu would result in a new copy of the last
-            #     tab added.
-            actionNew_Tab.triggered.connect(lambda ignore, t = type(tab) : self.newTab(t))
+            #     Just using self.newTab(widgetType) would only bind the name of
+            #     the variable to the argument, not the data contained. This would
+            #     result in every menu entry creating a new copy of the last tab added.
+            actionNew_Tab.triggered.connect(lambda ignore, t = tabType : self.newTab(t))
 
             self.ui.menuNew_Tab.addAction(actionNew_Tab)
+        self.tabWidget.setCurrentIndex(0)
 
         self.ui.actionOpen_Project.triggered.connect(lambda : self.openProject())
         self.ui.actionSet_Current_Project_Location.triggered.connect(self.setProjectLocation)
@@ -131,8 +136,6 @@ class RbGlobal(QtGui.QMainWindow):
 
         QtGui.QShortcut(QtGui.QKeySequence.Undo, self).activated.connect(self.undo)
         QtGui.QShortcut(QtGui.QKeySequence.Redo, self).activated.connect(self.redo)
-
-        self.closedTabs = []
 
         self.checkMenus()
 
@@ -225,7 +228,7 @@ class RbGlobal(QtGui.QMainWindow):
 
         # Find all types of tabs that accept file type "ext"
         choices = []
-        for tab in self.originalTabs:
+        for tab in self.availableTabTypes:
             try:
                 if ext in tab.acceptsFileTypes:
                     choices.append(type(tab))

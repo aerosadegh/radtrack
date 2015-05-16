@@ -12,13 +12,14 @@ from radtrack.RbUtility import displayWithUnitsNumber, \
 
 
 class RbCbt(QtGui.QWidget):
+    category = 'beam lines'
+
     def __init__(self, module, parent = None):
         QtGui.QWidget.__init__(self)
         
         #customize for simulation type
         self.beamlineType = module.beamlineType
         self.classDictionary = module.classDictionary
-        self.acceptsFileTypes = [module.fileExtension]
         self.importer = module.fileImporter
         self.exporter = module.fileExporter
 

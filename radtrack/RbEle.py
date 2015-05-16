@@ -14,6 +14,10 @@ from radtrack.RbUtility import getRealWidget
 import radtrack.util.resource as resource
 
 class RbEle(QtGui.QWidget):
+    acceptsFileTypes = []
+    defaultTitle = 'Elegant'
+    task = 'Run an Elegant simulation'
+    category = 'simulations'
 
     ERROR_FILE_NAME = 'elegant_errors.txt'
     OUTPUT_FILE_NAME = 'elegant_output.txt'
@@ -80,9 +84,6 @@ class RbEle(QtGui.QWidget):
         self.summary_html = ''
 
         self.container = self
-        self.defaultTitle = self.parent.tr('Elegant')
-
-        self.acceptsFileTypes = []
 
     # This tab only pulls together data from other sources.
     # It has no information to save. exportToFile() creates
@@ -384,10 +385,10 @@ class RbEle(QtGui.QWidget):
                 QtCore.Qt.UserRole).toString()
             menu = QtGui.QMenu()
             ext = os.path.splitext(file_name)[1].strip('.')
-            for tab in self.parent.originalTabs:
-                if ext in tab.acceptsFileTypes:
+            for tabType in self.parent.availableTabTypes:
+                if ext in tabType.acceptsFileTypes:
                     self._add_menu_actions(
-                        menu, file_name, type(tab), tab.defaultTitle)
+                        menu, file_name, tabType, tabType.defaultTitle)
             menu.exec_(results.mapToGlobal(position))
 
     def _run_simulation(self):

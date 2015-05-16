@@ -4,6 +4,11 @@ from radtrack.RbSrwmultiA import rbsrw as rbsrwmulti
 
 
 class RbSrwTab(QtGui.QWidget):
+    defaultTitle = 'SRW'
+    acceptsFileTypes = []
+    task = 'Run an SRW simulation'
+    category = 'simulations'
+
     def __init__(self, parent):
         if parent:
             self.parent = parent
@@ -24,8 +29,6 @@ class RbSrwTab(QtGui.QWidget):
         self.srw_particle.stateChanged.connect(self.togglesrw)
 
         self.container = self
-        self.defaultTitle = self.parent.tr('SRW')
-        self.acceptsFileTypes = []
 
     def exportToFile(self, fileName = None):
         with open(fileName, 'w'):

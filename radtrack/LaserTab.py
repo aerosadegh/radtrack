@@ -37,6 +37,10 @@ import sys
 import sdds
 
 class LaserTab(QtGui.QWidget):
+    acceptsFileTypes = ['sdds', 'csv']
+    defaultTitle = 'Laser'
+    task = 'Create a laser beam'
+    category = 'beams'
 
     def __init__(self,parent=None):
         # initialization
@@ -96,8 +100,6 @@ class LaserTab(QtGui.QWidget):
         importMenu.addAction(readFromCSV)
         readFromSDDS = QtGui.QAction("SRW SDDS format",self)
         importMenu.addAction(readFromSDDS)
-
-        self.acceptsFileTypes = ['sdds', 'csv']
 
         # associate these actions with class methods
         readFromCSV.triggered.connect(self.readFromCSV)
@@ -178,7 +180,6 @@ class LaserTab(QtGui.QWidget):
 
         self.container = QtGui.QScrollArea(parent)
         self.container.setWidget(self)
-        self.defaultTitle = self.parent.tr('Laser')
 
     def paraxialGaussian(self):
 

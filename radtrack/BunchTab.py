@@ -32,6 +32,10 @@ import radtrack.RbUtility
 import sdds
 
 class BunchTab(QtGui.QWidget):
+    acceptsFileTypes = ['sdds', 'csv', 'out', 'bun']
+    defaultTitle = 'Bunch'
+    task = 'Create an electron beam'
+    category = 'beams'
 
     def __init__(self,parent=None):       # initialization
         super(BunchTab, self).__init__()
@@ -81,8 +85,6 @@ class BunchTab(QtGui.QWidget):
         readFromSDDS = QtGui.QAction("Elegant SDDS format",self)
         importMenu.addAction(readFromSDDS)
 
-        # define the file extensions that can (hopefully) be parsed
-        self.acceptsFileTypes = ['sdds', 'csv', 'out', 'bun']
 
         # associate these actions with class methods
         # deprecated -- should delete soon
@@ -247,7 +249,6 @@ class BunchTab(QtGui.QWidget):
 
         self.container = QtGui.QScrollArea(self.parent)
         self.container.setWidget(self)
-        self.defaultTitle = parent.tr('Bunch')
 
     def radtrackGaussian(self):
         self.distributionFlag = 'gaussian'

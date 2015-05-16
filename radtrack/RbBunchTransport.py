@@ -4,10 +4,13 @@ from PyQt4 import QtGui
 import radtrack.beamlines.RbElegantElements as module
 
 class RbBunchTransport(rbcbt.RbCbt):
+    defaultTitle = 'Elegant Bunch Transport'
+    acceptsFileTypes = [module.fileExtension]
+    task = 'Design an Elegant beam line'
+
     def __init__(self, parent = None):
         rbcbt.RbCbt.__init__(self, module, parent)
         self.container = self
-        self.defaultTitle = parent.tr('Elegant Bunch Transport')
 
 def main():
     app = QtGui.QApplication(sys.argv)

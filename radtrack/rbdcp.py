@@ -26,6 +26,12 @@ MaxNumColum=999
 
 
 class RbDcp(QtGui.QWidget):
+    acceptsFileTypes = ['save', 'sdds', 'srw', 'ff', 'out', 'mag',
+                        'twi', 'fin', 'sig', 'cen']
+    defaultTitle = 'Data Visualization'
+    task = 'Analyze the results of particle beam simulations'
+    category = 'tools'
+
     def __init__(self, parent = None):
         QtGui.QWidget.__init__(self)
         self.ui = Ui_dcpwidget()
@@ -34,8 +40,6 @@ class RbDcp(QtGui.QWidget):
         if self.parent is None:
             self.parent = self
             self.parent.lastUsedDirectory = expanduser('~')
-        self.acceptsFileTypes = ['save', 'sdds', 'srw', 'ff', 'out', 'mag',
-                                 'twi', 'fin', 'sig', 'cen']
         self.ui.widget.canvas.ax2.set_visible(False)
         self.ui.page.activated.connect(self.sddspreview)
         self.ui.pushButton.clicked.connect(self.graph)
@@ -54,7 +58,6 @@ class RbDcp(QtGui.QWidget):
         self.ui.param.setHorizontalHeaderItem(3, QtGui.QTableWidgetItem('Name'))
 
         self.container = self
-        self.defaultTitle = self.parent.tr('Data Visualization')
 
     # This tab is only for reading files. It has no
     # data of its own to save. This creates a dummy
