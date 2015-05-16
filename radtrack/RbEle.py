@@ -5,7 +5,7 @@ version 2
 import os, re, cgi
 from PyQt4 import QtCore, QtGui
 
-from pybivio.trace import trace
+from pykern.trace import trace
 from radtrack.BunchTab import BunchTab
 from radtrack.RbBunchTransport import RbBunchTransport
 from radtrack.RbUtility import convertUnitsStringToNumber, convertUnitsNumber
