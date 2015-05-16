@@ -933,9 +933,7 @@
    <item row="1" column="6">
     <layout class="QGridLayout" name="gridLayout_3">
      <item row="0" column="0">
-      <widget class="matplotlibWidget" name="plotWidget" native="true">
-       <zorder>gridLayoutWidget</zorder>
-      </widget>
+      <widget class="matplotlibWidget" name="plotWidget" native="true"/>
      </item>
     </layout>
    </item>
@@ -949,6 +947,53 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>charge</tabstop>
+  <tabstop>slicemit</tabstop>
+  <tabstop>ebeamenergy</tabstop>
+  <tabstop>energyspread</tabstop>
+  <tabstop>reprate</tabstop>
+  <tabstop>peakamp</tabstop>
+  <tabstop>ufield</tabstop>
+  <tabstop>beta</tabstop>
+  <tabstop>radiatedwavelength</tabstop>
+  <tabstop>bunlen</tabstop>
+  <tabstop>bunchlen</tabstop>
+  <tabstop>gamma</tabstop>
+  <tabstop>edensity</tabstop>
+  <tabstop>geoemit</tabstop>
+  <tabstop>rmssize</tabstop>
+  <tabstop>uperiod</tabstop>
+  <tabstop>uparam</tabstop>
+  <tabstop>uwave</tabstop>
+  <tabstop>raleigh</tabstop>
+  <tabstop>photonemit</tabstop>
+  <tabstop>fel_1d</tabstop>
+  <tabstop>gain_1d</tabstop>
+  <tabstop>dfactor</tabstop>
+  <tabstop>efactor</tabstop>
+  <tabstop>espreadfactor</tabstop>
+  <tabstop>sasepower</tabstop>
+  <tabstop>saseenergy</tabstop>
+  <tabstop>threedfel</tabstop>
+  <tabstop>gain_3d</tabstop>
+  <tabstop>total</tabstop>
+  <tabstop>averagepower</tabstop>
+  <tabstop>saturation</tabstop>
+  <tabstop>x</tabstop>
+  <tabstop>xmin</tabstop>
+  <tabstop>xmax</tabstop>
+  <tabstop>y</tabstop>
+  <tabstop>ymin</tabstop>
+  <tabstop>ymax</tabstop>
+  <tabstop>z</tabstop>
+  <tabstop>plotButton</tabstop>
+  <tabstop>target</tabstop>
+  <tabstop>lineEdit</tabstop>
+  <tabstop>vary</tabstop>
+  <tabstop>solve</tabstop>
+  <tabstop>solverResult</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

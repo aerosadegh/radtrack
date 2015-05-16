@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'fel.ui'
 #
-# Created: Mon May 04 21:19:35 2015
+# Created: Fri May 15 22:06:36 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -486,6 +486,50 @@ class Ui_Form(object):
 
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
+        Form.setTabOrder(self.charge, self.slicemit)
+        Form.setTabOrder(self.slicemit, self.ebeamenergy)
+        Form.setTabOrder(self.ebeamenergy, self.energyspread)
+        Form.setTabOrder(self.energyspread, self.reprate)
+        Form.setTabOrder(self.reprate, self.peakamp)
+        Form.setTabOrder(self.peakamp, self.ufield)
+        Form.setTabOrder(self.ufield, self.beta)
+        Form.setTabOrder(self.beta, self.radiatedwavelength)
+        Form.setTabOrder(self.radiatedwavelength, self.bunlen)
+        Form.setTabOrder(self.bunlen, self.bunchlen)
+        Form.setTabOrder(self.bunchlen, self.gamma)
+        Form.setTabOrder(self.gamma, self.edensity)
+        Form.setTabOrder(self.edensity, self.geoemit)
+        Form.setTabOrder(self.geoemit, self.rmssize)
+        Form.setTabOrder(self.rmssize, self.uperiod)
+        Form.setTabOrder(self.uperiod, self.uparam)
+        Form.setTabOrder(self.uparam, self.uwave)
+        Form.setTabOrder(self.uwave, self.raleigh)
+        Form.setTabOrder(self.raleigh, self.photonemit)
+        Form.setTabOrder(self.photonemit, self.fel_1d)
+        Form.setTabOrder(self.fel_1d, self.gain_1d)
+        Form.setTabOrder(self.gain_1d, self.dfactor)
+        Form.setTabOrder(self.dfactor, self.efactor)
+        Form.setTabOrder(self.efactor, self.espreadfactor)
+        Form.setTabOrder(self.espreadfactor, self.sasepower)
+        Form.setTabOrder(self.sasepower, self.saseenergy)
+        Form.setTabOrder(self.saseenergy, self.threedfel)
+        Form.setTabOrder(self.threedfel, self.gain_3d)
+        Form.setTabOrder(self.gain_3d, self.total)
+        Form.setTabOrder(self.total, self.averagepower)
+        Form.setTabOrder(self.averagepower, self.saturation)
+        Form.setTabOrder(self.saturation, self.x)
+        Form.setTabOrder(self.x, self.xmin)
+        Form.setTabOrder(self.xmin, self.xmax)
+        Form.setTabOrder(self.xmax, self.y)
+        Form.setTabOrder(self.y, self.ymin)
+        Form.setTabOrder(self.ymin, self.ymax)
+        Form.setTabOrder(self.ymax, self.z)
+        Form.setTabOrder(self.z, self.plotButton)
+        Form.setTabOrder(self.plotButton, self.target)
+        Form.setTabOrder(self.target, self.lineEdit)
+        Form.setTabOrder(self.lineEdit, self.vary)
+        Form.setTabOrder(self.vary, self.solve)
+        Form.setTabOrder(self.solve, self.solverResult)
 
     def retranslateUi(self, Form):
         Form.setWindowTitle(_translate("Form", "Form", None))

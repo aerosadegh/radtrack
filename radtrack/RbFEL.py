@@ -24,7 +24,7 @@ e_radius = (e_charge**2)/(4*pi*e0*e_mass_kg*(c**2)) # m
 class RbFEL(QtGui.QWidget):
     acceptsFileTypes = ['fel']
     defaultTitle = 'FEL'
-    task = 'Experiment with FEL design parameters'
+    task = 'Analyze FEL parameters'
     category = 'tools'
 
     def __init__(self, parent = None):
@@ -179,6 +179,11 @@ class RbFEL(QtGui.QWidget):
 
         self.calculate()
         self.plot()
+        for box in self.textBox.values():
+            try:
+                box.setCursorPosition(0)
+            except AttributeError:
+                pass
 
         self.container = self
  

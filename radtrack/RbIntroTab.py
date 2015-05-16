@@ -1,4 +1,5 @@
 from PyQt4 import QtGui, QtCore
+from collections import OrderedDict
 from radtrack.ui.rbintro import Ui_Widget
 
 class RbIntroTab(QtGui.QWidget):
@@ -11,7 +12,7 @@ class RbIntroTab(QtGui.QWidget):
         self.ui = Ui_Widget()
         self.ui.setupUi(self)
 
-        categoryLayout = dict()
+        categoryLayout = OrderedDict()
         categoryLayout['beams'] = self.ui.beamsVerticalLayout
         categoryLayout['beam lines'] = self.ui.beamLinesVerticalLayout
         categoryLayout['simulations'] = self.ui.simulationsVerticalLayout
@@ -25,8 +26,15 @@ class RbIntroTab(QtGui.QWidget):
                                        self.parent.newTab(tabType))
             categoryLayout[tabType.category].addWidget(button)
 
+        lastWidget = None
         for layout in categoryLayout.values():
             layout.addStretch()
+            for index in range(layout.count()):
+                widget = layout.itemAt(index).widget()
+                if type(widget) == QtGui.QPushButton:
+                    if lastWidget:
+                        self.setTabOrder(lastWidget, widget)
+                    lastWidget = widget
 
         self.container = self
 

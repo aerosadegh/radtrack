@@ -29,7 +29,7 @@ class RbDcp(QtGui.QWidget):
     acceptsFileTypes = ['save', 'sdds', 'srw', 'ff', 'out', 'mag',
                         'twi', 'fin', 'sig', 'cen']
     defaultTitle = 'Data Visualization'
-    task = 'Analyze the results of particle beam simulations'
+    task = 'Analyze simulation results'
     category = 'tools'
 
     def __init__(self, parent = None):
