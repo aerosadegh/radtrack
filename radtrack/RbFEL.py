@@ -2,7 +2,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from PyQt4 import QtGui, QtCore
 from radtrack.ui.fel import Ui_Form
 from  radtrack.RbUtility import displayWithUnitsNumber, \
-                      displayWithUnitsString, \
                       convertUnitsNumber, \
                       convertUnitsStringToNumber, \
                       convertUnitsNumberToString, \
@@ -41,77 +40,102 @@ class RbFEL(QtGui.QWidget):
         self.setWindowTitle("RadTrack FEL Calculator")
 
         # Renames
-        self.mingXieMatrix = [[    0.55 , 0.0  , 1.6 , 0.0 ],
-                              [    3.0  , 0.0  , 0.0 , 2.0 ],
-                              [    0.35 , 0.0  , 2.9 , 2.4 ],
-                              [   51.0  , 0.95 , 0.0 , 3.0 ],
-                              [    5.4  , 0.7  , 1.9 , 0.0 ],
-                              [ 1140.0  , 2.2  , 2.9 , 3,2 ]]
-
         self.ui.charge.setObjectName("Charge")
         self.ui.charge.unit = 'C'
+        self.ui.charge.dictName = 'charge'
         self.ui.slicemit.setObjectName("Normalized slice emittance")
         self.ui.slicemit.unit = 'm*rad'
+        self.ui.slicemit.dictName = 'slicemit'
         self.ui.ebeamenergy.setObjectName("Beam energy")
         self.ui.ebeamenergy.unit = 'eV'
+        self.ui.ebeamenergy.dictName = 'ebeamenergy'
         self.ui.energyspread.setObjectName("Sliced energy spread")
         self.ui.energyspread.unit = ''
+        self.ui.energyspread.dictName = 'energyspread'
         self.ui.bunchlen.setObjectName("Bunch length (time)")
         self.ui.bunchlen.unit = 's'
+        self.ui.bunchlen.dictName = 'bunchLengthFWHM_sec'
         self.ui.reprate.setObjectName("Repetition rate")
         self.ui.reprate.unit = 'Hz'
+        self.ui.reprate.dictName = 'reprate'
         self.ui.uperiod.setObjectName("Undulator period")
         self.ui.uperiod.unit = 'm'
+        self.ui.uperiod.dictName = 'undulatorPeriod'
         self.ui.ufield.setObjectName("Undulator field")
         self.ui.ufield.unit = 'T'
+        self.ui.ufield.dictName = 'ufield'
         self.ui.beta.setObjectName("Average beta function")
         self.ui.beta.unit = 'm'
+        self.ui.beta.dictName = 'beta'
         self.ui.bunlen.setObjectName("Bunch length (distance)")
         self.ui.bunlen.unit = 'm'
+        self.ui.bunlen.dictName = 'bunchLengthFWHM_m'
         self.ui.gamma.setObjectName("Relativistic gamma")
         self.ui.gamma.unit = ''
+        self.ui.gamma.dictName = 'gamma'
         self.ui.edensity.setObjectName("Peak electron density")
         self.ui.edensity.unit = 'm^-3'
+        self.ui.edensity.dictName = 'peakElectronDensity'
         self.ui.geoemit.setObjectName("Geometric emittance")
         self.ui.geoemit.unit = 'm*rad'
+        self.ui.geoemit.dictName = 'geometricEmittance'
         self.ui.peakamp.setObjectName("Peak current")
         self.ui.peakamp.unit = 'A'
+        self.ui.peakamp.dictName = 'peakamp'
         self.ui.rmssize.setObjectName("RMS beam size (average)")
         self.ui.rmssize.unit = 'm'
+        self.ui.rmssize.dictName = 'rmsBeamSize'
         self.ui.uparam.setObjectName("Undulator parameter")
         self.ui.uparam.unit = ''
+        self.ui.uparam.dictName = 'undulatorParameter'
         self.ui.uwave.setObjectName("Undulator wavenumber")
         self.ui.uwave.unit = 'm^-1'
+        self.ui.uwave.dictName = 'undulatorWaveNumber'
         self.ui.averagepower.setObjectName("Average power")
         self.ui.averagepower.unit = 'W'
+        self.ui.averagepower.dictName = 'averagePower'
         self.ui.radiatedwavelength.setObjectName("Radiated wavelength")
         self.ui.radiatedwavelength.unit = 'm'
+        self.ui.radiatedwavelength.dictName = 'radiatedwavelength'
         self.ui.saturation.setObjectName("Saturation length")
         self.ui.saturation.unit = 'm'
+        self.ui.saturation.dictName = 'saturationLength'
         self.ui.raleigh.setObjectName("Rayleigh range")
         self.ui.raleigh.unit = 'm'
+        self.ui.raleigh.dictName = 'RayleighRange'
         self.ui.photonemit.setObjectName("Photon emittance")
         self.ui.photonemit.unit = 'm*rad'
+        self.ui.photonemit.dictName = 'photonEmittance'
         self.ui.fel_1d.setObjectName("1D FEL parameter")
         self.ui.fel_1d.unit = ''
+        self.ui.fel_1d.dictName = 'oneDFELParameter'
         self.ui.gain_1d.setObjectName("1D gain length")
         self.ui.gain_1d.unit = ''
+        self.ui.gain_1d.dictName = 'oneDGainLength'
         self.ui.dfactor.setObjectName("Diffraction factor")
         self.ui.dfactor.unit = ''
+        self.ui.dfactor.dictName = 'diffractionFactor'
         self.ui.efactor.setObjectName("Emittance factor")
         self.ui.efactor.unit = ''
+        self.ui.efactor.dictName = 'emitanceFactor'
         self.ui.espreadfactor.setObjectName("Energy spread factor")
         self.ui.espreadfactor.unit = ''
+        self.ui.espreadfactor.dictName = 'energySpreadFactor'
         self.ui.threedfel.setObjectName("3D FEL parameter")
         self.ui.threedfel.unit = ''
+        self.ui.threedfel.dictName = 'threeDFELParameter'
         self.ui.gain_3d.setObjectName("3D gain length")
         self.ui.gain_3d.unit = 'm'
+        self.ui.gain_3d.dictName = 'threeDGainLength'
         self.ui.total.setObjectName("3D effect total")
         self.ui.total.unit = ''
+        self.ui.total.dictName = 'threeDEffectTotal'
         self.ui.sasepower.setObjectName("SASE power at saturation")
         self.ui.sasepower.unit = 'W'
+        self.ui.sasepower.dictName = 'SASEpowerAtSaturation'
         self.ui.saseenergy.setObjectName("SASE pulsed energy")
         self.ui.saseenergy.unit = 'J'
+        self.ui.saseenergy.dictName = 'pulsedSASEenergy'
         self.ui.x.setObjectName("X Axis")
         self.ui.y.setObjectName("Y Axis")
         self.ui.z.setObjectName("Z Axis")
@@ -122,6 +146,8 @@ class RbFEL(QtGui.QWidget):
 
         self.textBox = dict()
         self.valueFromTextBox = dict()
+        self.textBoxFromDictName = dict()
+        self.userInputBoxes = []
 
         maxLength = 0
         for thing in [getattr(self.ui, name) for name in sorted(dir(self.ui))]:
@@ -131,6 +157,7 @@ class RbFEL(QtGui.QWidget):
             if length > maxLength:
                 maxLength = length
             self.textBox[thing.objectName()] = thing
+            self.textBoxFromDictName[thing.dictName] = thing
             if hasattr(thing, 'isReadOnly'):
                 if thing.isReadOnly():
                     if str(thing.objectName()).startswith("Bunch length"):
@@ -143,8 +170,9 @@ class RbFEL(QtGui.QWidget):
                     self.ui.x.addItem(thing.objectName())
                     self.ui.y.addItem(thing.objectName())
                     self.ui.vary.addItem(thing.objectName())
-                    thing.textEdited.connect(self.calculate)
+                    thing.textEdited.connect(self.calculateAll)
                     thing.setToolTip(thing.unit)
+                    self.userInputBoxes.append(thing)
 
         scrollBarWidth = self.style().pixelMetric(QtGui.QStyle.PM_ScrollBarExtent)
         extraSpace = 10
@@ -177,8 +205,8 @@ class RbFEL(QtGui.QWidget):
         self.ui.ufield.setText('0.9 T')
         self.ui.beta.setText('1 m')
 
-        self.calculate()
-        self.plot()
+        self.calculateAll()
+
         for box in self.textBox.values():
             try:
                 box.setCursorPosition(0)
@@ -187,172 +215,18 @@ class RbFEL(QtGui.QWidget):
 
         self.container = self
  
-    def calculate(self, writeToTextBoxes = True):
-        # Every time the user changes the text in an input text box,
-        # an attempt is made to calculate every output box.
-        # This way, the derived values are filled in as
-        # the user enters data. If an output cannot be calculated,
-        # it is simply skipped.
+    def calculateAll(self):
+        self.updateBoxes(calculate(self.userInputDict()))
 
-        charge = self.getValue(self.ui.charge)
-        peakCurrent = self.getValue(self.ui.peakamp)
-        normalizedSliceEmittance = self.getValue(self.ui.slicemit)
-        kineticEnergy = self.getValue(self.ui.ebeamenergy)
-        slicedEnergySpread = self.getValue(self.ui.energyspread)
-        repititionRate = self.getValue(self.ui.reprate)
-        undulatorField = self.getValue(self.ui.ufield)
-        averageBetaFunction = self.getValue(self.ui.beta)
-        radiatedWaveLength = self.getValue(self.ui.radiatedwavelength)
+    def updateBoxes(self, boxDict):
+        for name in boxDict:
+            self.setResultBox(self.textBoxFromDictName[name], boxDict[name])
 
-        # Calculations
-        try:
-            bunchLengthFWHM_sec = charge/peakCurrent
-            self.setResultBox(self.ui.bunchlen, bunchLengthFWHM_sec, writeToTextBoxes)
-        except (UnboundLocalError, TypeError, ZeroDivisionError):
-            self.unsetValue(self.ui.bunchlen)
-
-        try:
-            bunchLengthFWHM_m = bunchLengthFWHM_sec*c
-            self.setResultBox(self.ui.bunlen, bunchLengthFWHM_m, writeToTextBoxes)
-        except (UnboundLocalError, TypeError):
-            self.unsetValue(self.ui.bunlen)
-
-        try:
-            gamma = (kineticEnergy/e_mass)+1
-            self.setResultBox(self.ui.gamma, gamma, writeToTextBoxes)
-        except (UnboundLocalError, TypeError):
-            self.unsetValue(self.ui.gamma)
-
-        try:
-            rmsBeamSize = sqrt(averageBetaFunction*normalizedSliceEmittance/gamma)
-            self.setResultBox(self.ui.rmssize, rmsBeamSize, writeToTextBoxes)
-        except (UnboundLocalError, TypeError, ZeroDivisionError):
-            self.unsetValue(self.ui.rmssize)
-
-        try:
-            peakElectronDensity = peakCurrent/(e_charge*c*2*pi*(rmsBeamSize**2))
-            self.setResultBox(self.ui.edensity, peakElectronDensity, writeToTextBoxes)
-        except (UnboundLocalError, TypeError, ZeroDivisionError):
-            self.unsetValue(self.ui.edensity)
-
-        try:
-            geometricEmittance = normalizedSliceEmittance/gamma
-            self.setResultBox(self.ui.geoemit, geometricEmittance, writeToTextBoxes)
-        except (UnboundLocalError, TypeError, ZeroDivisionError):
-            self.unsetValue(self.ui.geoemit)
-
-        try:
-            betaR = sqrt(1-1/(gamma**2)) # relativistic beta
-            undulatorConstant = e_charge*undulatorField/(2*pi*betaR*e_mass_kg*c)
-            A = (undulatorConstant**2)/2.0
-            D = 18*(gamma**2)*radiatedWaveLength*(A**2)
-            X = (D + sqrt((D**2) + 12*(A**3)))**(1.0/3.0)
-            C1 = (18**(1.0/3.0))*A
-            C2 = (2.0/3.0)**(1.0/3.0)
-            undulatorPeriod = X/C1 - C2/X
-            self.setResultBox(self.ui.uperiod, undulatorPeriod, writeToTextBoxes)
-        except (UnboundLocalError, TypeError, ZeroDivisionError):
-            self.unsetValue(self.ui.uperiod)
-
-        try:
-            undulatorParameter = undulatorConstant*undulatorPeriod
-            self.setResultBox(self.ui.uparam, undulatorParameter, writeToTextBoxes)
-        except (UnboundLocalError, TypeError):
-            self.unsetValue(self.ui.uparam)
-
-        try:
-            undulatorWaveNumber = 2*pi/undulatorPeriod
-            self.setResultBox(self.ui.uwave, undulatorWaveNumber, writeToTextBoxes)
-        except (UnboundLocalError, TypeError, ZeroDivisionError):
-            self.unsetValue(self.ui.uwave)
-
-        try:
-            oneDFELParameter = ((pi*e_radius*peakElectronDensity*(undulatorParameter**2)/(undulatorWaveNumber**2))**(1.0/3.0))/(2*gamma)
-            self.setResultBox(self.ui.fel_1d, oneDFELParameter, writeToTextBoxes)
-        except (UnboundLocalError, TypeError, ZeroDivisionError):
-            self.unsetValue(self.ui.fel_1d)
-
-        try:
-            oneDGainLength = undulatorPeriod/(4*pi*sqrt(3)*oneDFELParameter)
-            self.setResultBox(self.ui.gain_1d, oneDGainLength, writeToTextBoxes)
-        except (UnboundLocalError, TypeError, ZeroDivisionError):
-            self.unsetValue(self.ui.gain_1d)
-
-        try:
-            RayleighRange = 4*pi*(rmsBeamSize**2)/radiatedWaveLength
-            self.setResultBox(self.ui.raleigh, RayleighRange, writeToTextBoxes)
-        except (UnboundLocalError, TypeError, ZeroDivisionError):
-            self.unsetValue(self.ui.raleigh)
-
-        try:
-            diffractionFactor = oneDGainLength/RayleighRange
-            self.setResultBox(self.ui.dfactor, diffractionFactor, writeToTextBoxes)
-        except (UnboundLocalError, TypeError, ZeroDivisionError):
-            self.unsetValue(self.ui.dfactor)
-
-        try:
-            photonEmittance = radiatedWaveLength/(4*pi)
-            self.setResultBox(self.ui.photonemit, photonEmittance, writeToTextBoxes)
-        except (UnboundLocalError, TypeError):
-            self.unsetValue(self.ui.photonemit)
-
-        try:
-            emitanceFactor = (geometricEmittance/photonEmittance)*(oneDGainLength/averageBetaFunction)
-            self.setResultBox(self.ui.efactor, emitanceFactor, writeToTextBoxes)
-        except (UnboundLocalError, TypeError, ZeroDivisionError):
-            self.unsetValue(self.ui.efactor)
-
-        try:
-            energySpreadFactor = slicedEnergySpread/(oneDFELParameter*sqrt(3))
-            self.setResultBox(self.ui.espreadfactor, energySpreadFactor, writeToTextBoxes)
-        except (UnboundLocalError, TypeError, ZeroDivisionError):
-            self.unsetValue(self.ui.espreadfactor)
-
-        try:
-            threeDEffectTotal = 0
-            for row in self.mingXieMatrix:
-                threeDEffectTotal += row[0]*(diffractionFactor**row[1])*(emitanceFactor**row[2])*(energySpreadFactor**row[3])
-            self.setResultBox(self.ui.total, threeDEffectTotal, writeToTextBoxes)
-        except (UnboundLocalError, TypeError, ZeroDivisionError):
-            del threeDEffectTotal
-            self.unsetValue(self.ui.total)
-
-        try:
-            threeDFELParameter = oneDFELParameter/(1+threeDEffectTotal)
-            self.setResultBox(self.ui.threedfel, threeDFELParameter, writeToTextBoxes)
-        except (UnboundLocalError, TypeError, ZeroDivisionError):
-            self.unsetValue(self.ui.threedfel)
-
-        try:
-            threeDGainLength = oneDGainLength*(1+threeDEffectTotal)
-            self.setResultBox(self.ui.gain_3d, threeDGainLength, writeToTextBoxes)
-        except (UnboundLocalError, TypeError):
-            self.unsetValue(self.ui.gain_3d)
-
-        try:
-            SASEpowerAtSaturation = e_mass_kg*(c**2)*gamma*threeDFELParameter*peakCurrent/e_charge
-            self.setResultBox(self.ui.sasepower, SASEpowerAtSaturation, writeToTextBoxes)
-        except (UnboundLocalError, TypeError):
-            self.unsetValue(self.ui.sasepower)
-
-        try:
-            pulsedSASEenergy = SASEpowerAtSaturation*bunchLengthFWHM_sec
-            self.setResultBox(self.ui.saseenergy, pulsedSASEenergy, writeToTextBoxes)
-        except (UnboundLocalError, TypeError):
-            self.unsetValue(self.ui.saseenergy)
-
-        try:
-            averagePower = pulsedSASEenergy*repititionRate
-            self.setResultBox(self.ui.averagepower, averagePower, writeToTextBoxes)
-        except (UnboundLocalError, TypeError):
-            self.unsetValue(self.ui.averagepower)
-
-        try:
-            saturationLength = undulatorPeriod/threeDFELParameter
-            self.setResultBox(self.ui.saturation, saturationLength, writeToTextBoxes)
-        except (UnboundLocalError, TypeError, ZeroDivisionError):
-            self.unsetValue(self.ui.saturation)
-
+    def userInputDict(self):
+        userDict = dict()
+        for box in self.userInputBoxes:
+            userDict[box.dictName] = self.getValue(box)
+        return userDict
 
     def unsetValue(self, textBox):
         textBox.clear()
@@ -367,11 +241,10 @@ class RbFEL(QtGui.QWidget):
             if textBox in self.valueFromTextBox:
                 del self.valueFromTextBox[textBox]
 
-    def setResultBox(self, textBox, value, writeToTextBox):
+    def setResultBox(self, textBox, value):
         self.valueFromTextBox[textBox] = value
-        if writeToTextBox:
-            textBox.setText(displayWithUnitsNumber(roundSigFig(value, 5), textBox.unit))
-            textBox.setCursorPosition(0)
+        textBox.setText(displayWithUnitsNumber(roundSigFig(value, 5), textBox.unit))
+        textBox.setCursorPosition(0)
 
     def plot(self):
         try:
@@ -415,9 +288,9 @@ class RbFEL(QtGui.QWidget):
                     plotProgress.setValue(plotProgress.value()+1)
                     xTextBox.setText(str(x))
                     yTextBox.setText(str(y))
-                    self.calculate(False) # do not write to text boxes
+                    results = calculate(self.userInputDict())
                     try:
-                        Z[i,j] = self.valueFromTextBox[zTextBox]
+                        Z[i,j] = results[zTextBox.dictName]
                     except KeyError:
                         Z[i,j] = float('nan')
 
@@ -447,7 +320,7 @@ class RbFEL(QtGui.QWidget):
             xTextBox.setCursorPosition(0)
             yTextBox.setText(yOrginalValue)
             yTextBox.setCursorPosition(0)
-            self.calculate()
+            self.calculateAll()
 
 
     def goalSeek(self):
@@ -524,12 +397,12 @@ class RbFEL(QtGui.QWidget):
 
         variableTextBox.setText(displayWithUnitsNumber(roundSigFig(value, 5), variableTextBox.unit))
         variableTextBox.setCursorPosition(0)
-        self.calculate(True)
+        self.calculateAll()
 
     def calculateValue(self, inputBox, inputValue, resultBox):
         inputBox.setText(str(inputValue))
-        self.calculate(False)
-        return self.valueFromTextBox[resultBox]
+        result = calculate(self.userInputDict())
+        return result[resultBox.dictName]
 
     def calculateSlope(self, inputBox, inputValue, inputStep, resultBox):
         return (self.calculateValue(inputBox, inputValue + inputStep, resultBox) \
@@ -583,7 +456,7 @@ class RbFEL(QtGui.QWidget):
                 except AttributeError:
                     box.setCurrentIndex(box.findText(value)) # combo box
 
-        self.calculate()
+        self.calculateAll()
         self.plot()
 
 
@@ -606,6 +479,118 @@ def rangeUnits(textBox, array):
 
 def isfinite(number):
     return not isnan(number) and not isinf(number)
+
+
+def calculate(userInputDict):
+    # Every time the user changes the text in an input text box,
+    # an attempt is made to calculate every output box.
+    # This way, the derived values are filled in as
+    # the user enters data. If an output cannot be calculated,
+    # it is simply skipped.
+
+    mingXieMatrix = [[    0.55 , 0.0  , 1.6 , 0.0 ],
+                     [    3.0  , 0.0  , 0.0 , 2.0 ],
+                     [    0.35 , 0.0  , 2.9 , 2.4 ],
+                     [   51.0  , 0.95 , 0.0 , 3.0 ],
+                     [    5.4  , 0.7  , 1.9 , 0.0 ],
+                     [ 1140.0  , 2.2  , 2.9 , 3,2 ]]
+
+    charge = userInputDict['charge']
+    peakCurrent = userInputDict['peakamp']
+    normalizedSliceEmittance = userInputDict['slicemit']
+    kineticEnergy = userInputDict['ebeamenergy']
+    slicedEnergySpread = userInputDict['energyspread']
+    repititionRate = userInputDict['reprate']
+    undulatorField = userInputDict['ufield']
+    averageBetaFunction = userInputDict['beta']
+    radiatedWaveLength = userInputDict['radiatedwavelength']
+
+    resultDict = dict()
+
+    try:
+        bunchLengthFWHM_sec = charge/peakCurrent
+        resultDict['bunchLengthFWHM_sec'] = bunchLengthFWHM_sec
+
+        bunchLengthFWHM_m = bunchLengthFWHM_sec*c
+        resultDict['bunchLengthFWHM_m'] = bunchLengthFWHM_m
+
+        gamma = (kineticEnergy/e_mass)+1
+        resultDict['gamma'] = gamma
+
+        rmsBeamSize = sqrt(averageBetaFunction*normalizedSliceEmittance/gamma)
+        resultDict['rmsBeamSize'] = rmsBeamSize
+
+        peakElectronDensity = peakCurrent/(e_charge*c*2*pi*(rmsBeamSize**2))
+        resultDict['peakElectronDensity'] = peakElectronDensity
+
+        geometricEmittance = normalizedSliceEmittance/gamma
+        resultDict['geometricEmittance'] = geometricEmittance
+
+        betaR = sqrt(1-1/(gamma**2)) # relativistic beta
+        undulatorConstant = e_charge*undulatorField/(2*pi*betaR*e_mass_kg*c)
+        A = (undulatorConstant**2)/2.0
+        D = 18*(gamma**2)*radiatedWaveLength*(A**2)
+        X = (D + sqrt((D**2) + 12*(A**3)))**(1.0/3.0)
+        C1 = (18**(1.0/3.0))*A
+        C2 = (2.0/3.0)**(1.0/3.0)
+        undulatorPeriod = X/C1 - C2/X
+        resultDict['undulatorPeriod'] = undulatorPeriod
+
+        undulatorParameter = undulatorConstant*undulatorPeriod
+        resultDict['undulatorParameter'] = undulatorParameter
+
+        undulatorWaveNumber = 2*pi/undulatorPeriod
+        resultDict['undulatorWaveNumber'] = undulatorWaveNumber
+
+        oneDFELParameter = ((pi*e_radius*peakElectronDensity*(undulatorParameter**2)/(undulatorWaveNumber**2))**(1.0/3.0))/(2*gamma)
+        resultDict['oneDFELParameter'] = oneDFELParameter
+
+        oneDGainLength = undulatorPeriod/(4*pi*sqrt(3)*oneDFELParameter)
+        resultDict['oneDGainLength'] = oneDGainLength
+
+        RayleighRange = 4*pi*(rmsBeamSize**2)/radiatedWaveLength
+        resultDict['RayleighRange'] = RayleighRange
+
+        diffractionFactor = oneDGainLength/RayleighRange
+        resultDict['diffractionFactor'] = diffractionFactor
+
+        photonEmittance = radiatedWaveLength/(4*pi)
+        resultDict['photonEmittance'] = photonEmittance
+
+        emitanceFactor = (geometricEmittance/photonEmittance)*(oneDGainLength/averageBetaFunction)
+        resultDict['emitanceFactor'] = emitanceFactor
+
+        energySpreadFactor = slicedEnergySpread/(oneDFELParameter*sqrt(3))
+        resultDict['energySpreadFactor'] = energySpreadFactor
+
+        threeDEffectTotal = 0
+        resultDict['threeDEffectTotal'] = threeDEffectTotal
+
+        for row in mingXieMatrix:
+            threeDEffectTotal += row[0]*(diffractionFactor**row[1])*(emitanceFactor**row[2])*(energySpreadFactor**row[3])
+        threeDFELParameter = oneDFELParameter/(1+threeDEffectTotal)
+        resultDict['threeDFELParameter'] = threeDFELParameter
+
+        threeDGainLength = oneDGainLength*(1+threeDEffectTotal)
+        resultDict['threeDGainLength'] = threeDGainLength
+
+        SASEpowerAtSaturation = e_mass_kg*(c**2)*gamma*threeDFELParameter*peakCurrent/e_charge
+        resultDict['SASEpowerAtSaturation'] = SASEpowerAtSaturation
+
+        pulsedSASEenergy = SASEpowerAtSaturation*bunchLengthFWHM_sec
+        resultDict['pulsedSASEenergy'] = pulsedSASEenergy
+
+        averagePower = pulsedSASEenergy*repititionRate
+        resultDict['averagePower'] = averagePower
+
+        saturationLength = undulatorPeriod/threeDFELParameter
+        resultDict['saturationLength'] = saturationLength
+
+    except (UnboundLocalError, TypeError, ZeroDivisionError):
+        pass
+
+    return resultDict
+
 
 def main():
     app = QtGui.QApplication(sys.argv)
