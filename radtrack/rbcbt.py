@@ -8,7 +8,8 @@ from PyQt4 import QtGui, QtCore
 from radtrack.ui.cbt import Ui_tree, genDialog, advDialog
 from radtrack.RbUtility import displayWithUnitsNumber, \
                       convertUnitsNumber, \
-                      roundSigFig
+                      roundSigFig, \
+                      wordwrap
 
 
 class RbCbt(QtGui.QWidget):
@@ -38,7 +39,7 @@ class RbCbt(QtGui.QWidget):
         self.adv = advDialog(self)
         for button in self.ui.buttons + self.adv.buttons:
             button.clicked.connect(self.createNewElement)
-            button.setToolTip(self.classDictionary[button.text()].elementDescription)
+            button.setToolTip(wordwrap(self.classDictionary[button.text()].elementDescription, 60))
         if len(self.ui.advancedNames) > 0:
             self.ui.advanced.clicked.connect(self.adv.show)
         self.ui.clearBeamlineButton.clicked.connect(self.newBeam)

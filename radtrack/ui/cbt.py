@@ -9,6 +9,7 @@
 
 from PyQt4 import QtCore, QtGui
 from math import sqrt
+from radtrack.RbUtility import wordwrap
 
 class dtreeWidget(QtGui.QTreeWidget):
     contextMenuClicked = QtCore.pyqtSignal(str,str,QtCore.QPoint)
@@ -282,8 +283,8 @@ class genDialog(QtGui.QDialog):
                     layout = extlayout
 
                 location.append([QtGui.QLabel(oldElement.parameterNames[i]), QtGui.QLineEdit(data)])
-                location[row][1].setToolTip(oldElement.parameterDescription[i] + \
-                        (' (unit: ' + oldElement.units[i] + ')' if oldElement.units[i].strip() != '' else ''))
+                location[row][1].setToolTip(wordwrap(oldElement.parameterDescription[i] + \
+                        (' (unit: ' + oldElement.units[i] + ')' if oldElement.units[i].strip() else ''), 60))
                 layout.addRow(location[row][0],location[row][1])
         except AttributeError:
             # Beamlines don't have parameterNames attribute,
@@ -328,7 +329,7 @@ class advDialog(QtGui.QDialog):
             row = k // columns
             col = k % columns
             button = QtGui.QPushButton(name)
-            button.setToolTip(encyclopedia[name].elementDescription)
+            button.setToolTip(wordwrap(encyclopedia[name].elementDescription, 60))
             grid.addWidget(button, row, col)
             self.buttons.append(button)
         self.setLayout(grid)
