@@ -1,15 +1,15 @@
 from radtrack.RbUtility import rpn
 import pytest
 
-testList = []
-testList.append(("1 2 +", 3))
-testList.append(("100 10 /", 10))
-testList.append(("10 17 -", -7))
-testList.append(("6 9 *", 54))
-testList.append(("5 sqr", 25))
-testList.append(("16 sqr 4 3 -35 * * - sqrt -16 + 2 3 * /", 5.0/3.0))
-
 def test_rpn_success():
+    testList = []
+    testList.append(("1 2 +", 3))
+    testList.append(("100 10 /", 10))
+    testList.append(("10 17 -", -7))
+    testList.append(("6 9 *", 54))
+    testList.append(("5 sqr", 25))
+    testList.append(("16 sqr 4 3 -35 * * - sqrt -16 + 2 3 * /", 5.0/3.0))
+
     for test in testList:
         a = test[0]
         b = test[1]
