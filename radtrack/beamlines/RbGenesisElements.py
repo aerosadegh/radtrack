@@ -17,7 +17,6 @@ class genesisElement(elementCommon):
                 zip(self.parameterNames, self.data, self.units) if datum]
 
         sentence = '   '.join(self.data)
-        #sentence = ', '.join(['='.join(phrase) for phrase in sentence])
 
         return type(self).__name__ + '     ' + sentence
 

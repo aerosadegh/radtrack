@@ -1176,7 +1176,5 @@ advancedNames = sorted(['ALPH', 'BMAPXY', 'BUMPER', 'CENTER', 'CEPL',
     'TRWAKE', 'TUBEND', 'TWISS', 'TWLA', 'TWMTA', 'TWPL', 'UKICKMAP', 'VKICK',
     'VMON', 'WAKE', 'ZLONGIT', 'ZTRANSVERSE'])
 
-fileImporter = lambda fileName, importDictionary = None : \
-        importFile(fileName, importDictionary, classDictionary, nameMangler)
-
+fileImporter = lambda fileName : importFile(fileName, None, classDictionary, nameMangler)
 fileExporter = exportToFile

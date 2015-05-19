@@ -12,12 +12,6 @@ exportEnd = '_export.lte'
 
 elegantFilesLocation = os.path.join(os.getcwd(), 'deprecated', 'elegant')
 particleFileList = glob.glob(os.path.join(elegantFilesLocation, 'beamlines', '*.lte'))
-excludedList = ['dtSweep.lte',
-                'fourDipoleCSR.lte',
-                'lattice.lte',
-                'multiple.lte',
-                'mv15-c5-v2-ring.lte']
-
 opticalFileList = glob.glob(os.path.join(os.getcwd(), 'deprecated', 'laser_transport', '*.rad'))
 
 fileLists = [particleFileList, opticalFileList]
