@@ -23,6 +23,55 @@ opticalFileList = glob.glob(os.path.join(os.getcwd(), 'deprecated', 'laser_trans
 fileLists = [particleFileList, opticalFileList]
 fileHandlers = [ele, opt]
 
+elegantSimTemplate = '''&run_setup
+    lattice = "%s",
+    use_beamline = %s,
+    default_order = 2,
+    p_central_mev = 200.0,
+    output = %%s.out,
+    centroid = %%s.cen,
+    sigma = %%s.sig,
+    final = %%s.fin,
+    parameters = %%s.param,
+    magnets = %%s.mag,
+    random_number_seed = 987654321,
+    combine_bunch_statistics = 0,
+    concat_order = 2,
+    tracking_updates = 1,
+    echo_lattice = 0,
+&end
+
+&run_control
+    n_steps = 1,
+    reset_rf_for_each_step = 1,
+&end
+
+&twiss_output
+    matched = 0,
+    concat_order = 3,
+    beta_x = 5, alpha_x = 0,
+    beta_y = 5, alpha_y = 0,
+    output_at_each_step = 1,
+    statistics = 1,
+    concat_order = 3,
+    filename = %%s.twi,
+&end
+
+&sdds_beam
+    input = "%s",
+&end
+
+&matrix_output
+    SDDS_output = %%s.mat,
+    SDDS_output_order = 3,
+    output_at_each_step = 1,
+&end
+
+&track
+&end
+
+&stop
+&end'''
 sddsFileName = os.path.join(elegantFilesLocation, 'bunches', 'elegantSimTest.sdds')
 # Test that importing an .lte file and an exported version of that file
 # result in the same elements being created
