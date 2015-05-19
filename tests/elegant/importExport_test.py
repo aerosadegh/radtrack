@@ -1,4 +1,4 @@
-import os, glob, sys, subprocess
+import os, glob, subprocess
 from itertools import izip_longest
 import radtrack.beamlines.RbElegantElements as ele
 import radtrack.beamlines.RbOpticalElements as opt
