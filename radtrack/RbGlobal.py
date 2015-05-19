@@ -228,10 +228,10 @@ class RbGlobal(QtGui.QMainWindow):
 
         # Find all types of tabs that accept file type "ext"
         choices = []
-        for tab in self.availableTabTypes:
+        for tabType in self.availableTabTypes:
             try:
-                if ext in tab.acceptsFileTypes:
-                    choices.append(type(tab))
+                if ext in tabType.acceptsFileTypes:
+                    choices.append(tabType)
             except AttributeError:
                 pass
 
