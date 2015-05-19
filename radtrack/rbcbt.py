@@ -44,7 +44,7 @@ class RbCbt(QtGui.QWidget):
             self.ui.advanced.clicked.connect(self.adv.show)
         self.ui.clearBeamlineButton.clicked.connect(self.newBeam)
         self.ui.saveBeamlineButton.clicked.connect(self.addBeam)
-        self.ui.treeWidget.itemSelectionChanged.connect(self.treeClick)
+        self.ui.treeWidget.itemClicked.connect(self.treeClick)
         self.ui.treeWidget.itemDoubleClicked.connect(self.treeItemDoubleClicked)
         self.ui.treeWidget.itemEntered.connect(self.elementTreeHovered)
         self.ui.treeWidget.itemExited.connect(self.elementTreeExit)
