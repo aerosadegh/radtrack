@@ -22,7 +22,7 @@ e_radius = (e_charge**2)/(4*pi*e0*e_mass_kg*(c**2)) # m
 
 class RbFEL(QtGui.QWidget):
     acceptsFileTypes = ['fel']
-    defaultTitle = 'FEL'
+    defaultTitle = 'FEL Calculator'
     task = 'Analyze FEL parameters'
     category = 'tools'
 

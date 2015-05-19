@@ -20,6 +20,8 @@ class RbIntroTab(QtGui.QWidget):
 
         self.parent = parent
         for tabType in self.parent.availableTabTypes:
+            if tabType == type(self):
+                continue
             button = QtGui.QPushButton(self.parent.tr(tabType.task), \
                                        self.parent)
             button.clicked.connect(lambda ignore, tabType = tabType : \
