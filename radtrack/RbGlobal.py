@@ -20,7 +20,6 @@ from radtrack.RbGenesisTransport import RbGenesisTransport
 from radtrack.BunchTab import BunchTab
 from radtrack.RbEle import RbEle
 from radtrack.RbFEL import RbFEL
-from radtrack.srw.RbSrwUndulator import srwund
 from radtrack.genesis.rbgenesis2 import RbGenesis2
 from radtrack.RbSrwTab import RbSrwTab
 from radtrack.RbIntroTab import RbIntroTab
@@ -74,13 +73,15 @@ class RbGlobal(QtGui.QMainWindow):
         self.tabPrefix = '###Tab###' # used to identify files that are the saved data from tabs
 
         if self.beta_test:
-            self.availableTabTypes = [ RbEle,
+            self.availableTabTypes = [ RbIntroTab,
+                                       RbEle,
                                        BunchTab,
                                        RbBunchTransport,
                                        RbDcp,
                                        RbFEL ]
         else:
-            self.availableTabTypes = [ LaserTab,
+            self.availableTabTypes = [ RbIntroTab,
+                                       LaserTab,
                                        RbLaserTransport,
                                        BunchTab,
                                        RbBunchTransport,
@@ -92,9 +93,8 @@ class RbGlobal(QtGui.QMainWindow):
                                        RbSrwTab ]
 
         self.originalNameToTabType = dict()
-        self.newTab(RbIntroTab)
         for tabType in self.availableTabTypes:
-            if not self.beta_test: # For development, show all tabs
+            if not self.beta_test or tabType == RbIntroTab: # For development, show all tabs
                 self.newTab(tabType)
 
             self.originalNameToTabType[tabType.defaultTitle] = tabType
