@@ -107,8 +107,9 @@ class RbCbt(QtGui.QWidget):
             self.callAfterWorkingBeamlineChanges()
         
     def addReversedToEndOfWorkingBeamLine(self, elementName, copies = None):
-        bl = self.elementDictionary[elementName]
-        blr = bl.reverse()
+        blr = self.elementDictionary[elementName].reverse()
+        if not blr.isBeamline():
+            return
         self.elementDictionary[blr.name] = blr
         self.addToEndOfWorkingBeamLine(blr.name, copies)
 
@@ -186,12 +187,13 @@ class RbCbt(QtGui.QWidget):
             if location == 'tree':
                 mouseMenu.addAction(self.addToBeamClickText,
                         lambda: self.addToEndOfWorkingBeamLine(element.name, 1))
-                mouseMenu.addAction('Add multiple copies ...',
+                mouseMenu.addAction('Add multiple copies to current beam line...',
                         lambda: self.addToEndOfWorkingBeamLine(element.name))
-                mouseMenu.addAction('Add reversed',
-                        lambda: self.addReversedToEndOfWorkingBeamLine(element.name, 1))
-                mouseMenu.addAction('Add multiple reversed ..',
-                        lambda: self.addReversedToEndOfWorkingBeamLine(element.name))
+                if element.isBeamline():
+                    mouseMenu.addAction('Add reversed to current beam line',
+                            lambda: self.addReversedToEndOfWorkingBeamLine(element.name, 1))
+                    mouseMenu.addAction('Add multiple reversed to current beam line..',
+                            lambda: self.addReversedToEndOfWorkingBeamLine(element.name))
 
             if location == 'list':
                 if element.isBeamline():
@@ -592,6 +594,8 @@ class RbCbt(QtGui.QWidget):
     def convertToReversed(self):
         beamlineName = self.ui.workingBeamline.currentItem().text()
         reversedBeamline = self.elementDictionary[beamlineName].reverse()
+        if not reversedBeamline.isBeamline():
+            return
         self.elementDictionary[reversedBeamline.name] = reversedBeamline
         self.ui.workingBeamline.currentItem().setText(reversedBeamline.name)
         self.callAfterWorkingBeamlineChanges()

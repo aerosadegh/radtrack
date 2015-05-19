@@ -47,7 +47,7 @@ class BeamlineCommon(object):
         return 'LINE=(' + ','.join(element.name for element in self.data) + ')'
 
     def contains(self, searchElement):
-        if searchElement is self or searchElement in self.data:
+        if searchElement == self or searchElement in self.data:
             return True
 
         return any([element.contains(searchElement) for element in self.data])
