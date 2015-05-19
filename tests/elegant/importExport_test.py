@@ -1,4 +1,4 @@
-import os, glob
+import os, glob, sys, subprocess
 from itertools import izip_longest
 import radtrack.beamlines.RbElegantElements as ele
 import radtrack.beamlines.RbOpticalElements as opt
@@ -11,6 +11,7 @@ if not os.getenv('RPN_DEFNS', None):
 exportEnd = '_export.lte'
 
 elegantFilesLocation = os.path.join(os.getcwd(), 'deprecated', 'elegant')
+elegantTestFile = os.path.join(elegantFilesLocation, 'elegantTest.ele')
 particleFileList = glob.glob(os.path.join(elegantFilesLocation, 'beamlines', '*.lte'))
 excludedList = ['dtSweep.lte',
                 'fourDipoleCSR.lte',
@@ -99,7 +100,28 @@ def test_import_export():
                         for index in range(len(e1.data)):
                             assert e1.data[index].strip(' "') == e2.data[index].strip(' "')
             assert default1 == default2
-            os.remove(exportFileName)
+
+            # Test elegant simulation on exported file
+            # Choose the beam line with the most elements for testing
+            try:
+                if os.path.basename(fileName) in excludedList:
+                    continue
+
+                longestLength = 0
+                longest = None
+                for beamline in [el for el in elementDictionary2.values() if el.isBeamline()]:
+                    length = beamline.getNumberOfElements()
+                    if length > longestLength:
+                        longest = beamline
+                        longestLength = length
+                if fileList == particleFileList:
+                    with open(elegantTestFile, 'w') as f:
+                        f.write(elegantSimTemplate % (exportFileName, longest.name, sddsFileName))
+                    assert subprocess.call(['elegant', elegantTestFile]) == 0
+            finally:
+                for fileName in glob.glob(os.path.splitext(elegantTestFile)[0] + '.*'):
+                    os.remove(fileName)
+                os.remove(exportFileName)
 
 if __name__ == '__main__':
     test_import_export()
