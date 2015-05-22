@@ -41,11 +41,3 @@ py.test --capture=no some_test.py
 
 This will allow you to watch `stdout` and `stderr` in real-time as the test runs.
 Normally, `py.test` captures output and only writes it if there is a failure.
-
-#### Installing Alpha on Mac
-
-Currently only Mac OS X (Darwin) install:
-
-```
-curl -s -L https://raw.githubusercontent.com/radiasoft/radtrack-installer/master/darwin.sh | bash
-```
