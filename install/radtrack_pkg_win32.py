@@ -1,3 +1,5 @@
+# C:\berkensuaterned\Anaconda;C:\berkensuaterned\Anaconda\Scripts;C:\berkensuaterned\APS\SDDS ToolKit\;C:\berkensuaterned\APS\Elegant\;C:\berkensuaterned\APS\Elegant\MinGW;C:\berkensuaterned\tex\miktex\bin\
+# RPN_DEFNS C:\Windows\defns.rpn
 from __future__ import print_function
 import datetime
 import glob
