@@ -5,7 +5,8 @@ version 2
 import os, re, cgi
 from PyQt4 import QtCore, QtGui
 
-from pykern.trace import trace
+from pykern.pkdebug import *
+
 from radtrack.BunchTab import BunchTab
 from radtrack.RbBunchTransport import RbBunchTransport
 from radtrack.RbUtility import convertUnitsStringToNumber, convertUnitsNumber
@@ -210,7 +211,7 @@ class RbEle(QtGui.QWidget):
     def _add_result_file(self, text, file_name):
         """Adds the file entry to the simulation results list"""
         if not os.path.isfile(file_name):
-            trace('missing result file: {}', file_name)
+            cpr('missing result file: {}', file_name)
             return
         results = self.ui.simulationResultsListWidget
         icon = results.style().standardIcon(QtGui.QStyle.SP_FileIcon)
@@ -576,14 +577,14 @@ class ComboManager():
 
         for name in delete_tabs:
             index = self.combo.findText(name)
-            trace('deleting "{}" at {}', name, index)
+            cpr('deleting "{}" at {}', name, index)
             if index == self.combo.currentIndex():
                 self.combo.setCurrentIndex(0)
             self.combo.removeItem(index)
 
         for name in tab_names:
             index = self.combo.findText(self.new_tab_choice)
-            trace('inserting "{}" at {}', name, index)
+            cpr('inserting "{}" at {}', name, index)
             self.combo.insertItem(index, name)
 
 

@@ -5,9 +5,9 @@
 :license: Apache, see LICENSE for more details.
 """
 
-from pykern.setup import setup
+from pykern import pksetup
 
-setup(
+pksetup.setup(
     name='radtrack',
     description='RadTrack is an open source framework for working with codes that model particle dynamics and electromagnetic radiation.',
     author='RadiaBeam Technologies, LLC',
