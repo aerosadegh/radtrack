@@ -6,13 +6,16 @@ Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 import sys, os
 from numpy import sqrt
 from PyQt4 import QtGui, QtCore
-from ui.newsrw import Ui_Form as Ui_newsrw
-from ui.undulatorforsrw import Ui_Dialog as und_dlg
-from ui.beamforsrw import Ui_Dialog as beam_dlg
-from ui.precisionofsrw import Ui_Dialog as prec_dlg
-from srw.uti_plot import *
-from srw.AnalyticCalc import *
-from srw.srwlib import *
+from radtrack.ui.newsrw import Ui_Form as Ui_newsrw
+from radtrack.ui.undulatorforsrw import Ui_Dialog as und_dlg
+from radtrack.ui.beamforsrw import Ui_Dialog as beam_dlg
+from radtrack.ui.precisionofsrw import Ui_Dialog as prec_dlg
+from radtrack.srw.uti_plot import *
+from radtrack.srw.AnalyticCalc import *
+try:                 # assume SRW is properly installed
+    from srwlib import *
+except ImportError:  # deprecated hack for Windows
+    from radtrack.srw.srwlib import *
 
 #global CritWvsU
 #CritWvsU=2
@@ -30,11 +33,11 @@ class rbsrw(QtGui.QWidget):
         #dialog boxes
         #self.dialogb = DialogB()
         #self.dialogp = DialogP()
-        #set srw initial values 
+        #set srw initial values
         self.GetUndParams(DialogU())
         self.GetBeamParams(DialogB())
         self.GetPrecision(DialogP())
-        
+
         #connections
         self.ui.undulator.clicked.connect(self.makeund)
         self.ui.beam.clicked.connect(self.makebeam)
@@ -45,8 +48,8 @@ class rbsrw(QtGui.QWidget):
         #indicators
         self.ui.status.setText('Initiated')
         self.ui.analytic.setText('No calculations performed...Yet')
-        
-        
+
+
     def AnalyticA(self):
         (Kx,Ky,lam_rn,e_phn)=IDWaveLengthPhotonEnergy(self.up.undPer,self.up.Bx,self.up.By,self.beam.partStatMom1.gamma)
         #Outputs: (UP.Kx=0.934*UP.By*UP.undPer, UP.K, RAD.ephn, UP.WorU)=
@@ -59,41 +62,41 @@ class rbsrw(QtGui.QWidget):
         '# Wavelength, m           Phot. energy, eV'+'\n'+\
         '1st harmonic '+'{:.3e}'.format(lam_rn)+' '+'{:.3f}'.format(e_phn)+'\n'+\
         '3rd harmonic '+'{:.3e}'.format(lam_rn/3.0)+' '+'{:.3f}'.format(e_phn*3.0)+'\n'+\
-        '5th harmonic '+'{:.3e}'.format(lam_rn/5.0)+' '+'{:.3f}'.format(e_phn*5.0)+'\n' 
-        
+        '5th harmonic '+'{:.3e}'.format(lam_rn/5.0)+' '+'{:.3f}'.format(e_phn*5.0)+'\n'
+
         E_c=CriticalEnergyWiggler(self.up.By,self.beam.partStatMom1.gamma)
         #Outputs: (RAD.Ecrit,UPWorU) where RAD.Ecrit is critical energy of Wiggler Radiation
         #Inputs: (UP.Bx, self.beam.partStatMom1.gamma,UP.Kx)
         stra=stri+'# Critical energy:'+'{:.3e}'.format(E_c)+', eV'+'\n'+\
         '-----------------------------------'+'\n'
-        
+
         (P_W, L_id)=RadiatedPowerPlanarWiggler(self.up.undPer,self.up.By,self.up.numPer,self.beam.partStatMom1.gamma,self.beam.Iavg)
         #Outputs: (RAD.PowW,UP.L) where RAD.PowW is radiated power of Wiggler Radiation, UP.L=length of ID
         #Inputs: (UP.undPer,UP.Bx,UP.numPer,self.beam.partStatMom1.gamma,self.beam.Iavg) standart SRW class variables
         #RadiatedPowerPlanarWiggler(lam_u,Bx,N_u,Gam,I_b):
-        
+
         (RadSpotSize,RadSpotDivergence)=UndulatorSourceSizeDivergence(lam_rn,L_id)
         stre=stra+'# Rad spot size: '+'{:.3e}'.format(RadSpotSize)+', m'+'\n'
         strf=stre+'# Rad divergence: '+'{:.3e}'.format(RadSpotDivergence)+', rad'+'\n'+\
         '-----------------------------------'+'\n'
-        
+
         strb=strf+'# Length of ID:'+'{:.3f}'.format(L_id)+', m'+'\n' + \
         '# Radiated power:'+'{:.3e}'.format(P_W)+', W'+'\n'
-        
+
         P_Wdc=CentralPowerDensityPlanarWiggler(self.up.By,self.up.numPer,self.beam.partStatMom1.gamma,self.beam.Iavg)
         #Outputs: (RAD.PowCPD) where RAD.PowCPD is radiated central cone power density of Wiggler Radiation
         #Inputs: (UP.undPer,UP.Bx,UP.numPer,self.beam.partStatMom1.gamma,self.beam.Iavg) standart SRW class variables
         strc=strb+'# Central Power Density: '+'{:.3e}'.format(P_Wdc)+', W/mrad2'+'\n'
-        
+
         SpectralFluxValue=SpectralFLux(self.up.numPer,self.beam.partStatMom1.gamma,1,self.beam.Iavg,Kx)
         strd=strc+'# Spectral flux: '+'{:.3e}'.format(SpectralFluxValue)+', phot/(sec mrad 0.1% BW)'+'\n'
-        
+
         RadBrightness=SpectralCenBrightness(self.up.numPer,self.beam.partStatMom1.gamma,self.beam.Iavg)
         strw=strd+'# Spectral Central Brightness: '+'{:.3e}'.format(RadBrightness)+', phot/(sec mrad2 0.1% BW)'+'\n'+\
         '-----------------------------------'+'\n'
-        
+
         self.ui.analytic.setText(strw)
-        
+
     def GetUndParams(self, dialog):
         self.up.numPer = float(dialog.ui.numper.text())
         self.up.undPer = float(dialog.ui.undper.text())
@@ -107,7 +110,7 @@ class rbsrw(QtGui.QWidget):
         self.up.ycID = float(dialog.ui.ycid.text())
         self.up.zcID = float(dialog.ui.zcid.text())
         self.up.n = int(dialog.ui.n.text())
-        
+
     def ShowUndParams(self, dialog):
         dialog.ui.numper.setText(str(self.up.numPer))
         dialog.ui.undper.setText(str(self.up.undPer))
@@ -121,8 +124,8 @@ class rbsrw(QtGui.QWidget):
         dialog.ui.ycid.setText(str(self.up.ycID))
         dialog.ui.zcid.setText(str(self.up.zcID))
         dialog.ui.n.setText(str(self.up.n))
-        
-        
+
+
     def GetBeamParams(self,dialog):
         #this is the self.beam class
         self.beam.Iavg = float(dialog.ui.iavg.text())
@@ -130,7 +133,7 @@ class rbsrw(QtGui.QWidget):
         self.beam.partStatMom1.y = float(dialog.ui.partstatmom1y.text())
         self.beam.partStatMom1.z = float(dialog.ui.partstatmom1z.text())
         self.beam.partStatMom1.xp = float(dialog.ui.partstatmom1xp.text())
-        self.beam.partStatMom1.yp = float(dialog.ui.partstatmom1yp.text()) 
+        self.beam.partStatMom1.yp = float(dialog.ui.partstatmom1yp.text())
         self.beam.partStatMom1.gamma = float(dialog.ui.partstatmom1gamma.text())
         '''
         sigEperE = 0.00089 #relative RMS energy spread
@@ -145,14 +148,14 @@ class rbsrw(QtGui.QWidget):
         sigY = float(dialog.ui.sigy.text())
         sigYp = float(dialog.ui.sigyp.text())
         #2nd order stat. moments:
-        self.beam.arStatMom2[0] = sigX*sigX #<(x-<x>)^2> 
+        self.beam.arStatMom2[0] = sigX*sigX #<(x-<x>)^2>
         self.beam.arStatMom2[1] = 0 #<(x-<x>)(x'-<x'>)>
-        self.beam.arStatMom2[2] = sigXp*sigXp #<(x'-<x'>)^2> 
+        self.beam.arStatMom2[2] = sigXp*sigXp #<(x'-<x'>)^2>
         self.beam.arStatMom2[3] = sigY*sigY #<(y-<y>)^2>
         self.beam.arStatMom2[4] = 0 #<(y-<y>)(y'-<y'>)>
         self.beam.arStatMom2[5] = sigYp*sigYp #<(y'-<y'>)^2>
         self.beam.arStatMom2[10] = sigEperE*sigEperE #<(E-<E>)^2>/<E>^2
-        
+
     def ShowBeamParams(self, dialog):
         dialog.ui.iavg.setText(str(self.beam.Iavg))
         dialog.ui.partstatmom1x.setText(str(self.beam.partStatMom1.x))
@@ -166,7 +169,7 @@ class rbsrw(QtGui.QWidget):
         dialog.ui.sigy.setText(str(sqrt(self.beam.arStatMom2[3])))
         dialog.ui.sigxp.setText(str(sqrt(self.beam.arStatMom2[2])))
         dialog.ui.sigyp.setText(str(sqrt(self.beam.arStatMom2[5])))
-        
+
     def WfrSetUpE(self,wfrE):
         #wfrE = SRWLWfr() this is the waveform class
         Nenergy = int(self.ui.tableWidget.item(0,0).text())#float?
@@ -180,7 +183,7 @@ class rbsrw(QtGui.QWidget):
         wfrE.mesh.xFin = float(self.ui.tableWidget.item(8,0).text())
         wfrE.mesh.yStart = float(self.ui.tableWidget.item(7,0).text())
         wfrE.mesh.yFin = float(self.ui.tableWidget.item(9,0).text())
-        
+
     def GetPrecision(self,dialog):
         self.precis.meth = dialog.ui.meth.currentIndex()
         self.precis.relPrec = float(dialog.ui.relprec.text())
@@ -189,7 +192,7 @@ class rbsrw(QtGui.QWidget):
         self.precis.npTraj = float(dialog.ui.nptraj.text())
         self.precis.useTermin = dialog.ui.usetermin.currentIndex()
         self.precis.sampFactNxNyForProp = float(dialog.ui.sampfactnxny.text())
-        
+
     def ShowPrecision(self,dialog):
         dialog.ui.meth.setCurrentIndex(self.precis.meth)
         dialog.ui.relprec.setText(str(self.precis.relPrec))
@@ -198,8 +201,8 @@ class rbsrw(QtGui.QWidget):
         dialog.ui.nptraj.setText(str(self.precis.npTraj))
         dialog.ui.usetermin.setCurrentIndex(self.precis.useTermin)
         dialog.ui.sampfactnxny.setText(str(self.precis.sampFactNxNyForProp))
-    
-         
+
+
     def srwbuttonThin(self):
         if 'srwl' not in globals():
             msg = ' !Warning --'
@@ -224,7 +227,7 @@ class rbsrw(QtGui.QWidget):
         wfrXY = SRWLWfr()
         self.WfrSetUpE(wfrXY)
         wfrXY.partBeam = self.beam
-        
+
         mesh=deepcopy(wfrE.mesh)
         wfrIn=deepcopy(wfrE)
 
@@ -232,7 +235,7 @@ class rbsrw(QtGui.QWidget):
         Intens = self.ui.intensity.currentIndex()
         DependArg = self.ui.deparg.currentIndex()
 #       print (Polar, Intens, DependArg)
-      
+
         if DependArg == 0:
             #after setting the text call self.ui.status.repaint() to have it immediately show otherwise it will wait till it exits the block to draw
             str1='* Performing Electric Field (spectrum vs photon energy) calculation ... \n \n'
@@ -281,7 +284,7 @@ class rbsrw(QtGui.QWidget):
             self.ui.status.repaint()
             uti_plot1d(arI1, [wfrXY.mesh.yStart, wfrXY.mesh.yFin, wfrXY.mesh.ny],
             ['Vertical Position [m]','Spectral intensity, ph/s/0.1%BW','Intensity vs y-coordinate'])
-       
+
         elif DependArg == 3:
             str1='* Performing Electric Field (intensity vs x- and y-coordinate) calculation ... \n \n'
             self.ui.status.setText(str1)
@@ -295,8 +298,8 @@ class rbsrw(QtGui.QWidget):
             str3='* Plotting the results ...\n'
             self.ui.status.setText(str1+str2+str3)
             self.ui.status.repaint()
-            uti_plot2d(arI1, [1*wfrXY.mesh.xStart, 1*wfrXY.mesh.xFin, wfrXY.mesh.nx], 
-            [1*wfrXY.mesh.yStart, 1*wfrXY.mesh.yFin, wfrXY.mesh.ny], 
+            uti_plot2d(arI1, [1*wfrXY.mesh.xStart, 1*wfrXY.mesh.xFin, wfrXY.mesh.nx],
+            [1*wfrXY.mesh.yStart, 1*wfrXY.mesh.yFin, wfrXY.mesh.ny],
             ['Horizontal Position [m]', 'Vertical Position [m]', 'Intensity at ' + str(wfrXY.mesh.eStart) + ' eV'])
 
         elif DependArg == 4:
@@ -312,8 +315,8 @@ class rbsrw(QtGui.QWidget):
             str3='* Plotting the results ...\n'
             self.ui.status.setText(str1+str2+str3)
             self.ui.status.repaint()
-            uti_plot2d(arI1, [1*wfrXY.mesh.eStart, 1*wfrXY.mesh.eFin, wfrXY.mesh.ne], 
-            [1*wfrXY.mesh.xStart, 1*wfrXY.mesh.xFin, wfrXY.mesh.nx], 
+            uti_plot2d(arI1, [1*wfrXY.mesh.eStart, 1*wfrXY.mesh.eFin, wfrXY.mesh.ne],
+            [1*wfrXY.mesh.xStart, 1*wfrXY.mesh.xFin, wfrXY.mesh.nx],
             ['Energy [eV]', 'Horizontal Position [m]', 'Intensity integrated from ' + str(wfrXY.mesh.yStart) + ' to ' + str(wfrXY.mesh.yFin) + ' ,m in y-coordinate'])
 
         elif DependArg == 5:
@@ -329,69 +332,69 @@ class rbsrw(QtGui.QWidget):
             str3='* Plotting the results ...\n'
             self.ui.status.setText(str1+str2+str3)
             self.ui.status.repaint()
-            uti_plot2d(arI1, [1*wfrXY.mesh.eStart, 1*wfrXY.mesh.eFin, wfrXY.mesh.ne], 
-            [1*wfrXY.mesh.yStart, 1*wfrXY.mesh.yFin, wfrXY.mesh.ny], 
+            uti_plot2d(arI1, [1*wfrXY.mesh.eStart, 1*wfrXY.mesh.eFin, wfrXY.mesh.ne],
+            [1*wfrXY.mesh.yStart, 1*wfrXY.mesh.yFin, wfrXY.mesh.ny],
             ['Energy [eV]', 'Vertical Position [m]', 'Intensity integrated from ' + str(wfrXY.mesh.xStart) + ' to ' + str(wfrXY.mesh.xFin)+ ' ,m in x-coordinate'])
         else:
             print 'Error'
-    
+
         uti_plot_show()
-          
+
     def thin(self,i):
-        thintable = [[10000,1,1,20,10,3000,0,0,0,0], 
+        thintable = [[10000,1,1,20,10,3000,0,0,0,0],
                      [1,100,3,20,395,395,-0.0025,0,0.0025,0],
                      [1,3,100,20,395,395,0,-0.0025,0,0.0025],
                      [1,100,100,20,395,395,-0.0025,-0.0025,0.0025,0.0025],
                      [1000,100,3,20,10,3000,-0.0025,-0.0025,0.0025,0.0025],
                      [1000,3,100,20,10,3000,-0.0025,-0.0025,0.0025,0.0025],
                      [1000,30,30,20,10,3000,0,0,0,0]]
-                     
+
         for n,x in enumerate(thintable[i]):
             self.ui.tableWidget.setItem(n,0,QtGui.QTableWidgetItem(str(x)))
-        
+
     def makeund(self):
         dialog = DialogU()
         self.ShowUndParams(dialog)
         if dialog.exec_():
             self.GetUndParams(dialog)
-            
+
     def makebeam(self):
         dialog = DialogB()
         self.ShowBeamParams(dialog)
         if dialog.exec_():
             self.GetBeamParams(dialog)
-            
+
     def setprec(self):
         dialog = DialogP()
         self.ShowPrecision(dialog)
         if dialog.exec_():
             self.GetPrecision(dialog)
-        
+
 class UP:
-     def __init__(self): 
-         UP.numPer = [] 
-         UP.undPer = [] 
-         UP.Bx = [] 
-         UP.By = [] 
-         UP.phBx = [] 
-         UP.phBy = [] 
-         UP.sBx = [] 
-         UP.sBy = [] 
-         UP.xcID = [] 
-         UP.ycID = [] 
+     def __init__(self):
+         UP.numPer = []
+         UP.undPer = []
+         UP.Bx = []
+         UP.By = []
+         UP.phBx = []
+         UP.phBy = []
+         UP.sBx = []
+         UP.sBy = []
+         UP.xcID = []
+         UP.ycID = []
          UP.zcID = []
          UP.n = []
 
 class Precis:
      def __init__(self):
-        Precis.meth = [] 
-        Precis.relPrec = [] 
-        Precis.zStartInteg = [] 
-        Precis.zEndInteg = [] 
-        Precis.npTraj = [] 
-        Precis.useTermin = [] 
+        Precis.meth = []
+        Precis.relPrec = []
+        Precis.zStartInteg = []
+        Precis.zEndInteg = []
+        Precis.npTraj = []
+        Precis.useTermin = []
         Precis.sampFactNxNyForProp = []
-        
+
 class DialogU(QtGui.QDialog):
     def __init__(self, parent=None):
         QtGui.QDialog.__init__(self,parent)
@@ -405,18 +408,18 @@ class DialogU(QtGui.QDialog):
         self.ui.phby.setText('0')       #Initial Phase of the Vertical field component
         self.ui.sbx.setText('-1')       #Symmetry of the Horizontal field component vs Longitudinal position
         self.ui.sby.setText('1')        #Symmetry of the Vertical field component vs Longitudinal position
-        self.ui.xcid.setText('0')       #Misaligment. Horizontal Coordinate of Undulator Center 
-        self.ui.ycid.setText('0')       #Misaligment. Vertical Coordinate of Undulator Center 
+        self.ui.xcid.setText('0')       #Misaligment. Horizontal Coordinate of Undulator Center
+        self.ui.ycid.setText('0')       #Misaligment. Vertical Coordinate of Undulator Center
         self.ui.zcid.setText('0')       #Misaligment. Longitudinal Coordinate of Undulator Center
         self.ui.n.setText('1')
-                
+
 class DialogB(QtGui.QDialog):
     def __init__(self, parent=None):
         QtGui.QDialog.__init__(self,parent)
         self.ui = beam_dlg()
         self.ui.setupUi(self)
         self.ui.iavg.setText('0.5')     #Above is the UP class, this is self.beam.iavg
-        self.ui.partstatmom1x.setText('0')  #self.beam.partStatMom1.x, initial x-offset    
+        self.ui.partstatmom1x.setText('0')  #self.beam.partStatMom1.x, initial x-offset
         self.ui.partstatmom1y.setText('0')  #self.beam.partStatMom1.y, initial y-offset
         self.ui.partstatmom1z.setText('0.0') #self.beam.partStatMom1.z, initial z-offset
         self.ui.partstatmom1xp.setText('0') #self.beam.partStatMom1.xp, initial x angle offset
@@ -427,7 +430,7 @@ class DialogB(QtGui.QDialog):
         self.ui.sigy.setText('2.912e-06')
         self.ui.sigxp.setText('16.5e-06')
         self.ui.sigyp.setText('2.7472e-06')
-        
+
 class DialogP(QtGui.QDialog):
     def __init__(self, parent=None):
         QtGui.QDialog.__init__(self,parent)
@@ -440,8 +443,8 @@ class DialogP(QtGui.QDialog):
         self.ui.nptraj.setText('20000') #Number of points for trajectory calculation
         self.ui.usetermin.setCurrentIndex(1) #Use "terminating terms" (i.e. asymptotic expansions at zStartInteg and zEndInteg) or not (1 or 0 respectively)
         self.ui.sampfactnxny.setText('0') #sampling factor for adjusting nx, ny (effective if > 0)
-        
-                
+
+
 def main():
     app = QtGui.QApplication(sys.argv)
     myapp = rbsrw()
@@ -450,4 +453,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

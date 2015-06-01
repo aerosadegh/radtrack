@@ -32,26 +32,26 @@ class srwund(QtGui.QWidget):
         '# Wavelength, m         Photon energy, eV'+'\n'+\
         '1st harmonic '+'{:.3e}'.format(lam_rn)+' '+'{:.3e}'.format(e_phn)+'\n'+\
         '3rd harmonic '+'{:.3e}'.format(lam_rn/3.0)+' '+'{:.3e}'.format(e_phn*3.0)+'\n'+\
-        '5th harmonic '+'{:.3e}'.format(lam_rn/5.0)+' '+'{:.3e}'.format(e_phn*5.0)+'\n' 
-        
+        '5th harmonic '+'{:.3e}'.format(lam_rn/5.0)+' '+'{:.3e}'.format(e_phn*5.0)+'\n'
+
         (E_c,w_or_id)=CriticalEnergyWiggler(UP.Bx,elecBeam.partStatMom1.gamma,Kx)
         #Outputs: (RAD.Ecrit,UPWorU) where RAD.Ecrit is critical energy of Wiggler Radiation
         #Inputs: (UP.Bx, elecBeam.partStatMom1.gamma,UP.Kx)
         stra=stri+'# If wiggler: critical energy:'+'{:.3e}'.format(E_c)+', eV'+'\n'
-        
+
         (P_W, L_id)=RadiatedPowerPlanarWiggler(UP.undPer,UP.Bx,UP.numPer,elecBeam.partStatMom1.gamma,elecBeam.Iavg)
         #Outputs: (RAD.PowW,UP.L) where RAD.PowW is radiated power of Wiggler Radiation, UP.L=length of ID
         #Inputs: (UP.undPer,UP.Bx,UP.numPer,elecBeam.partStatMom1.gamma,elecBeam.Iavg) standart SRW class variables
         strb=stra+'# Length of ID:'+'{:.3e}'.format(L_id)+', m'+'\n' + \
         '# Radiated power:'+'{:.3e}'.format(P_W)+', W'+'\n'
-        
+
         P_Wdc=CentralPowerDensityPlanarWiggler(UP.Bx,UP.numPer,elecBeam.partStatMom1.gamma,elecBeam.Iavg)
         #Outputs: (RAD.PowCPD) where RAD.PowCPD is radiated central cone power density of Wiggler Radiation
         #Inputs: (UP.undPer,UP.Bx,UP.numPer,elecBeam.partStatMom1.gamma,elecBeam.Iavg) standart SRW class variables
         strc=strb+'# Central Power Density: '+'{:.3e}'.format(P_Wdc)+', W/mrad2'+'\n'
-        
+
         self.ui.analytic.setText(strc)
-    
+
     def __init__(self, parent = None):
         QtGui.QWidget.__init__(self, parent)
         self.ui = ui_form()
@@ -67,11 +67,11 @@ class srwund(QtGui.QWidget):
         self.ui.phby.setText('0')       #Initial Phase of the Vertical field component
         self.ui.sbx.setText('-1')       #Symmetry of the Horizontal field component vs Longitudinal position
         self.ui.sby.setText('1')        #Symmetry of the Vertical field component vs Longitudinal position
-        self.ui.xcid.setText('0')       #Misaligment. Horizontal Coordinate of Undulator Center 
-        self.ui.ycid.setText('0')       #Misaligment. Vertical Coordinate of Undulator Center 
+        self.ui.xcid.setText('0')       #Misaligment. Horizontal Coordinate of Undulator Center
+        self.ui.ycid.setText('0')       #Misaligment. Vertical Coordinate of Undulator Center
         self.ui.zcid.setText('0')       #Misaligment. Longitudinal Coordinate of Undulator Center
         self.ui.iavg.setText('0.5')     #Above is the UP class, this is elecBeam.iavg
-        self.ui.partstatmom1x.setText('0')  #elecBeam.partStatMom1.x, initial x-offset    
+        self.ui.partstatmom1x.setText('0')  #elecBeam.partStatMom1.x, initial x-offset
         self.ui.partstatmom1y.setText('0')  #elecBeam.partStatMom1.y, initial y-offset
         self.ui.partstatmom1z.setText('0.0') #elecBeam.partStatMom1.z, initial z-offset
         self.ui.partstatmom1xp.setText('0') #elecBeam.partStatMom1.xp, initial x angle offset
@@ -95,7 +95,7 @@ class srwund(QtGui.QWidget):
         self.ui.tableWidget.setItem(7,0,QtGui.QTableWidgetItem('-0.02'))
         self.ui.tableWidget.setItem(8,0,QtGui.QTableWidgetItem('0.02'))
         self.ui.tableWidget.setItem(9,0,QtGui.QTableWidgetItem('0.02'))
-        
+
 ##         self.ui.tableWidget.setItem(0,0,QtGui.QTableWidgetItem('3'))
 ##         self.ui.tableWidget.setItem(1,0,QtGui.QTableWidgetItem('30'))
 ##         self.ui.tableWidget.setItem(2,0,QtGui.QTableWidgetItem('30'))
@@ -106,7 +106,7 @@ class srwund(QtGui.QWidget):
 ##         self.ui.tableWidget.setItem(7,0,QtGui.QTableWidgetItem('-0.01'))
 ##         self.ui.tableWidget.setItem(8,0,QtGui.QTableWidgetItem('0.01'))
 ##         self.ui.tableWidget.setItem(9,0,QtGui.QTableWidgetItem('0.01'))
-                            
+
         #this is how you write to the status and calculations windows
         self.ui.analytic.setText('hello')
         self.ui.status.setText('hi')
@@ -133,7 +133,7 @@ class srwund(QtGui.QWidget):
         elecBeam.partStatMom1.y = float(self.ui.partstatmom1y.text())
         elecBeam.partStatMom1.z = float(self.ui.partstatmom1z.text())
         elecBeam.partStatMom1.xp = float(self.ui.partstatmom1xp.text())
-        elecBeam.partStatMom1.yp = float(self.ui.partstatmom1yp.text()) 
+        elecBeam.partStatMom1.yp = float(self.ui.partstatmom1yp.text())
         elecBeam.partStatMom1.gamma = float(self.ui.partstatmom1gamma.text())
         sigEperE = 0.00089 #relative RMS energy spread
         sigX = 33.33e-06 #horizontal RMS size of e-beam [m]
@@ -141,9 +141,9 @@ class srwund(QtGui.QWidget):
         sigY = 2.912e-06 #vertical RMS size of e-beam [m]
         sigYp = 2.7472e-06 #vertical RMS angular divergence [rad]
         #2nd order stat. moments:
-        elecBeam.arStatMom2[0] = sigX*sigX #<(x-<x>)^2> 
+        elecBeam.arStatMom2[0] = sigX*sigX #<(x-<x>)^2>
         elecBeam.arStatMom2[1] = 0 #<(x-<x>)(x'-<x'>)>
-        elecBeam.arStatMom2[2] = sigXp*sigXp #<(x'-<x'>)^2> 
+        elecBeam.arStatMom2[2] = sigXp*sigXp #<(x'-<x'>)^2>
         elecBeam.arStatMom2[3] = sigY*sigY #<(y-<y>)^2>
         elecBeam.arStatMom2[4] = 0 #<(y-<y>)(y'-<y'>)>
         elecBeam.arStatMom2[5] = sigYp*sigYp #<(y'-<y'>)^2>
@@ -163,7 +163,7 @@ class srwund(QtGui.QWidget):
         wfrE.mesh.yStart = float(self.ui.tableWidget.item(7,0).text())
         wfrE.mesh.yFin = float(self.ui.tableWidget.item(9,0).text())
         #return(wfrE)
-     
+
     def UndParamsThick(self):
         harmB = SRWLMagFldH() #magnetic field harmonic
         harmB.n = 1 #harmonic number
@@ -173,7 +173,7 @@ class srwund(QtGui.QWidget):
         und.per = 0.02 #period length [m]
         und.nPer = 150 #number of periods (will be rounded to integer)
         magFldCnt = SRWLMagFldC([und], array('d', [0]), array('d', [0]), array('d', [0])) #Container of all magnetic field elements
-        return (und, magFldCnt) 
+        return (und, magFldCnt)
 
     def Precision(self):
         Precis.meth = self.ui.meth.currentIndex()
@@ -184,7 +184,7 @@ class srwund(QtGui.QWidget):
         Precis.useTermin = float(self.ui.usetermin.currentIndex())
         Precis.sampFactNxNyForProp = float(self.ui.sampfactnxnyprop.text())
         return(Precis)
-        
+
     def PrecisionThick(self):
         arPrecF = [0]*5 #for spectral flux vs photon energy
         arPrecF[0] = 1 #initial UR harmonic to take into account
@@ -192,7 +192,7 @@ class srwund(QtGui.QWidget):
         arPrecF[2] = 1.5 #longitudinal integration precision parameter
         arPrecF[3] = 1.5 #azimuthal integration precision parameter
         arPrecF[4] = 1 #calculate flux (1) or flux per unit surface (2)
-        
+
         arPrecP = [0]*5 #for power density
         arPrecP[0] = 1.5 #precision factor
         arPrecP[1] = 1 #power density computation method (1- "near field", 2- "far field")
@@ -201,7 +201,7 @@ class srwund(QtGui.QWidget):
         arPrecP[4] = 20000 #number of points for (intermediate) trajectory calculation
         return (arPrecF, arPrecP)
 
-    def srwbuttonThick(self):     
+    def srwbuttonThick(self):
         if 'srwl' not in globals():
             msg = ' !Warning --'
             msg += 'SRW not installed on this system.'
@@ -209,31 +209,31 @@ class srwund(QtGui.QWidget):
             raise Exception(msg)
 
         (und,magFldCnt)=self.UndParamsThick()
-        
+
         elecBeam = SRWLPartBeam()
         self.BeamParams(elecBeam)
 
 #        self.AnalyticA(elecBeam)
 
-        (arPrecF, arPrecP)=self.PrecisionThick()     
-        
+        (arPrecF, arPrecP)=self.PrecisionThick()
+
         stkF = SRWLStokes() #for spectrum
         self.WfrSetUpE(stkF)
         stkP = SRWLStokes() #for power density
         self.WfrSetUpE(stkP)
-        
+
         Polar = self.ui.polar.currentIndex()
         Intens = self.ui.intensity.currentIndex()
         DependArg = self.ui.deparg.currentIndex()
         print (Polar, Intens, DependArg)
-         
+
         if DependArg == 0:
             #after setting the text call self.ui.status.repaint() to have it immediately show otherwise it will wait till it exits the block to draw
             str1='* Performing Electric Field (spectrum vs photon energy) calculation ... \n \n'
             self.ui.status.setText(str1)
             self.ui.status.repaint()
             srwl.CalcStokesUR(stkF, elecBeam, und, arPrecF) #####
-            
+
             str2='* Extracting Intensity from calculated Electric Field ... \n \n'
             self.ui.status.setText(str1+str2)
             self.ui.status.repaint()
@@ -243,7 +243,7 @@ class srwund(QtGui.QWidget):
             self.ui.status.repaint()
             uti_plot1d(stkF.arS, [stkF.mesh.eStart, stkF.mesh.eFin, stkF.mesh.ne], ['Photon Energy [eV]', 'Flux [ph/s/.1%bw]', 'Flux through Finite Aperture'])
 
-        elif DependArg == 1: 
+        elif DependArg == 1:
             str1='* Performing Power Density calculation (from field) vs x-coordinate calculation ... \n \n'
             self.ui.status.setText(str1)
             print DependArg
@@ -253,11 +253,11 @@ class srwund(QtGui.QWidget):
             print(arPrecP)
             srwl.CalcPowDenSR(stkP, elecBeam, 0, magFldCnt, arPrecP)
             print 'yes'
-                
+
             str2='* Extracting Intensity from calculated Electric Field ... \n \n '
             self.ui.status.setText(str1+str2)
             self.ui.status.repaint()
-            
+
             str3='* Plotting the results ...\n'
             self.ui.status.setText(str1+str2+str3)
             self.ui.status.repaint()
@@ -279,11 +279,11 @@ class srwund(QtGui.QWidget):
             print(arPrecP)
             srwl.CalcPowDenSR(stkP, elecBeam, 0, magFldCnt, arPrecP)
             print 'yes'
-                
+
             str2='* Extracting Intensity from calculated Electric Field ... \n \n '
             self.ui.status.setText(str1+str2)
             self.ui.status.repaint()
-            
+
             str3='* Plotting the results ...\n'
             self.ui.status.setText(str1+str2+str3)
             self.ui.status.repaint()
@@ -326,20 +326,20 @@ class srwund(QtGui.QWidget):
             str1='* Performing Electric Field (intensity vs energy- and y-coordinate) calculation ... \n \n'
             self.ui.status.setText(str1)
             self.ui.status.repaint()
-            
+
             str2='* Un der construction ... \n \n '
             self.ui.status.setText(str1+str2)
             self.ui.status.repaint()
- 
+
             str3='* Plotting the results ...\n'
             self.ui.status.setText(str1+str2+str3)
             self.ui.status.repaint()
 
         else:
             print 'Error'
-    
+
         uti_plot_show()
-        
+
     def srwbuttonThin(self):
         if 'srwl' not in globals():
             msg = ' !Warning --'
@@ -364,7 +364,7 @@ class srwund(QtGui.QWidget):
         wfrXY = SRWLWfr()
         self.WfrSetUpE(wfrXY)
         wfrXY.partBeam = elecBeam
-        
+
         mesh=deepcopy(wfrE.mesh)
         wfrIn=deepcopy(wfrE)
 
@@ -372,7 +372,7 @@ class srwund(QtGui.QWidget):
         Intens = self.ui.intensity.currentIndex()
         DependArg = self.ui.deparg.currentIndex()
 #        print (Polar, Intens, DependArg)
-      
+
         if DependArg == 0:
             #after setting the text call self.ui.status.repaint() to have it immediately show otherwise it will wait till it exits the block to draw
             str1='* Performing Electric Field (spectrum vs photon energy) calculation ... \n \n'
@@ -418,7 +418,7 @@ class srwund(QtGui.QWidget):
             self.ui.status.setText(str1+str2+str3)
             self.ui.status.repaint()
             uti_plot1d(arI1, [wfrXY.mesh.yStart, wfrXY.mesh.yFin, wfrXY.mesh.ny],['label','label','label'])
-       
+
         elif DependArg == 3:
             str1='* Performing Electric Field (intensity vs x- and y-coordinate) calculation ... \n \n'
             self.ui.status.setText(str1)
@@ -432,8 +432,8 @@ class srwund(QtGui.QWidget):
             str3='* Plotting the results ...\n'
             self.ui.status.setText(str1+str2+str3)
             self.ui.status.repaint()
-            uti_plot2d(arI1, [1000*wfrXY.mesh.xStart, 1000*wfrXY.mesh.xFin, wfrXY.mesh.nx], 
-            [1000*wfrXY.mesh.yStart, 1000*wfrXY.mesh.yFin, wfrXY.mesh.ny], 
+            uti_plot2d(arI1, [1000*wfrXY.mesh.xStart, 1000*wfrXY.mesh.xFin, wfrXY.mesh.nx],
+            [1000*wfrXY.mesh.yStart, 1000*wfrXY.mesh.yFin, wfrXY.mesh.ny],
             ['Horizontal Position [mm]', 'Vertical Position [mm]', 'Intensity at ' + str(wfrXY.mesh.eStart) + ' eV'])
 
         elif DependArg == 4:
@@ -449,8 +449,8 @@ class srwund(QtGui.QWidget):
             str3='* Plotting the results ...\n'
             self.ui.status.setText(str1+str2+str3)
             self.ui.status.repaint()
-            uti_plot2d(arI1, [1000*wfrXY.mesh.eStart, 1000*wfrXY.mesh.eFin, wfrXY.mesh.ne], 
-            [1000*wfrXY.mesh.xStart, 1000*wfrXY.mesh.xFin, wfrXY.mesh.nx], 
+            uti_plot2d(arI1, [1000*wfrXY.mesh.eStart, 1000*wfrXY.mesh.eFin, wfrXY.mesh.ne],
+            [1000*wfrXY.mesh.xStart, 1000*wfrXY.mesh.xFin, wfrXY.mesh.nx],
             ['Energy [eV]', 'Horizontal Position [mm]', 'Intensity at ' + str(wfrXY.mesh.eStart) + ' eV'])
 
         elif DependArg == 5:
@@ -466,15 +466,15 @@ class srwund(QtGui.QWidget):
             str3='* Plotting the results ...\n'
             self.ui.status.setText(str1+str2+str3)
             self.ui.status.repaint()
-            uti_plot2d(arI1, [1000*wfrXY.mesh.eStart, 1000*wfrXY.mesh.eFin, wfrXY.mesh.ne], 
-            [1000*wfrXY.mesh.yStart, 1000*wfrXY.mesh.yFin, wfrXY.mesh.ny], 
+            uti_plot2d(arI1, [1000*wfrXY.mesh.eStart, 1000*wfrXY.mesh.eFin, wfrXY.mesh.ne],
+            [1000*wfrXY.mesh.yStart, 1000*wfrXY.mesh.yFin, wfrXY.mesh.ny],
             ['Energy [eV]', 'Vertical Position [mm]', 'Intensity at ' + str(wfrXY.mesh.eStart) + ' eV'])
 
         else:
             print 'Error'
-    
+
         uti_plot_show()
-        
+
 
 class UP:
      def __init__(self): #,index
@@ -493,12 +493,12 @@ class UP:
 class Precis:
 
      def __init__(self):
-        Precis.meth = [] 
-        Precis.relPrec = [] 
-        Precis.zStartInteg = [] 
-        Precis.zEndInteg = [] 
-        Precis.npTraj = [] 
-        Precis.useTermin = [] 
+        Precis.meth = []
+        Precis.relPrec = []
+        Precis.zStartInteg = []
+        Precis.zEndInteg = []
+        Precis.npTraj = []
+        Precis.useTermin = []
         Precis.sampFactNxNyForProp = []
 
 def main():
