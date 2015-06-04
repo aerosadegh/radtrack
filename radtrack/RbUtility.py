@@ -299,8 +299,8 @@ rpnOp['dtan'] = lambda stack : math.tan((pi/180)*stack.pop(-1))
 rpnOp['rtod'] = lambda stack : stack.pop(-1)*180/math.pi
 rpnOp['dtor'] = lambda stack : stack.pop(-1)*math.pi/180
 rpnOp['hypot'] = lambda stack : math.hypot(stack.pop(-2), stack.pop(-1))
-# Usage: [x1 y1 x2 y2 dist]
-rpnOp['dist2'] = lambda stack : math.sqrt((stack.pop(-4) - stack.pop(-2))**2 + (stack.pop(-2) - stack.pop(-1))**2)
+# Usage: [x1 y1 x2 y2 dist2]
+rpnOp['dist2'] = lambda stack : math.hypot(stack.pop(-4) - stack.pop(-2), stack.pop(-2) - stack.pop(-1))
 rpnOp['knee'] = lambda stack : (math.atan(stack.pop(-1)) + (math.pi/2))/math.pi
 rpnOp['Tn'] = lambda stack : math.cos(math.acos(stack.pop(-2))*stack.pop(-1))
 
