@@ -24,7 +24,7 @@ import sys
 import traceback
 try:
     from uti_plot import * #universal simple plotting module distributed together with SRWLib
-except:
+except ImportError:
     #excInf = sys.exc_info()
     #print(excInf[1]) #printing exception value
     traceback.print_exc()
@@ -1708,7 +1708,7 @@ def srwl_uti_proc_is_master():
             return True
         else:
             return False
-    except:
+    except Exception:
         return True
 
 #**********************Auxiliary function to write tabulated resulting Intensity data to ASCII file:
@@ -1767,7 +1767,7 @@ def srwl_wfr_emit_prop_multi_e(_e_beam, _mag, _mesh, _sr_meth, _sr_rel_prec, _n_
         rank = comMPI.Get_rank()
         nProc = comMPI.Get_size()
 
-    except:
+    except Exception:
         print('Calculation will be sequential (non-parallel), because "mpi4py" module can not be loaded')
 
     if(nProc <= 1):
@@ -1937,7 +1937,7 @@ def srwl_wfr_emit_prop_multi_e(_e_beam, _mag, _mesh, _sr_meth, _sr_rel_prec, _n_
                 if(_pres_ang > 0):
                     srwl.SetRepresElecField(wfr, 'a')
 
-            except:
+            except Exception:
                 traceback.print_exc()
 
             if(workStokes == None):

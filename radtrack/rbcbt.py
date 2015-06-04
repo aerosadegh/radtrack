@@ -585,7 +585,7 @@ class RbCbt(QtGui.QWidget):
             progress.setValue(5)
             try:
                 del painter
-            except:
+            except Exception:
                 pass
             progress.setValue(6)
             self.drawLengthScale()

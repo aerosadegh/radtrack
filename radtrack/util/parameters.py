@@ -20,7 +20,7 @@ Example:
 import os.path
 try:
     from radtrack.util.parameters_generated import *
-except:
+except ImportError:
     import radtrack.util.gen_parameters
     radtrack.util.gen_parameters.parse_and_write(
         os.path.join(

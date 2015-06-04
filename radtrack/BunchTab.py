@@ -660,7 +660,7 @@ class BunchTab(QtGui.QWidget):
                     # this works in newer matplotlib versions
                     from matplotlib.path import Path
                     points_inside = Path(outer_poly).contains_points(lowDensityArray)
-                except:
+                except ImportError:
                     # this works in older matplotlib versions
                     import matplotlib.nxutils as nx
                     points_inside = nx.points_inside_poly(x, outer_poly)

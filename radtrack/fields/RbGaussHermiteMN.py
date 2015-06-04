@@ -190,7 +190,7 @@ class RbGaussHermiteMN:
         try:
             numVals = xArray.size
             result  = np.zeros(numVals, complex)
-        except:
+        except AttributeError:
             # above failed, so input must be a float
             result = 0.
 
