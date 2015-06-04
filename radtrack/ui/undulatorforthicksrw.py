@@ -6,6 +6,8 @@
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
+from __future__ import absolute_import, division, print_function, unicode_literals
+from io import open
 
 from PyQt4 import QtCore, QtGui
 
@@ -39,48 +41,35 @@ class Ui_Dialog(object):
         self.formLayout.setFieldGrowthPolicy(QtGui.QFormLayout.AllNonFixedFieldsGrow)
         self.formLayout.setMargin(0)
         self.formLayout.setObjectName(_fromUtf8("formLayout"))
-        self.label = QtGui.QLabel(self.formLayoutWidget)
-        self.label.setObjectName(_fromUtf8("label"))
-        self.formLayout.setWidget(0, QtGui.QFormLayout.LabelRole, self.label)
-        self.numper = QtGui.QLineEdit(self.formLayoutWidget)
-        self.numper.setObjectName(_fromUtf8("numper"))
-        self.formLayout.setWidget(0, QtGui.QFormLayout.FieldRole, self.numper)
-        self.label_2 = QtGui.QLabel(self.formLayoutWidget)
-        self.label_2.setObjectName(_fromUtf8("label_2"))
-        self.formLayout.setWidget(1, QtGui.QFormLayout.LabelRole, self.label_2)
-        self.undper = QtGui.QLineEdit(self.formLayoutWidget)
-        self.undper.setObjectName(_fromUtf8("undper"))
-        self.formLayout.setWidget(1, QtGui.QFormLayout.FieldRole, self.undper)
-        self.label_3 = QtGui.QLabel(self.formLayoutWidget)
-        self.label_3.setObjectName(_fromUtf8("label_3"))
-        self.formLayout.setWidget(2, QtGui.QFormLayout.LabelRole, self.label_3)
-        self.b = QtGui.QLineEdit(self.formLayoutWidget)
-        self.b.setObjectName(_fromUtf8("b"))
-        self.formLayout.setWidget(2, QtGui.QFormLayout.FieldRole, self.b)
-        self.label_12 = QtGui.QLabel(self.formLayoutWidget)
-        self.label_12.setObjectName(_fromUtf8("label_12"))
-        self.formLayout.setWidget(3, QtGui.QFormLayout.LabelRole, self.label_12)
-        self.n = QtGui.QLineEdit(self.formLayoutWidget)
-        self.n.setObjectName(_fromUtf8("n"))
-        self.formLayout.setWidget(3, QtGui.QFormLayout.FieldRole, self.n)
-        self.label_4 = QtGui.QLabel(self.formLayoutWidget)
-        self.label_4.setObjectName(_fromUtf8("label_4"))
-        self.formLayout.setWidget(4, QtGui.QFormLayout.LabelRole, self.label_4)
-        self.vh = QtGui.QCheckBox(self.formLayoutWidget)
-        self.vh.setObjectName(_fromUtf8("vh"))
-        self.formLayout.setWidget(4, QtGui.QFormLayout.FieldRole, self.vh)
 
+        self.fields = {}
+        for i, c in enumerate(Dialog.cfg[1]):
+            n, t, _, u, _ = c
+            label = QtGui.QLabel(self.formLayoutWidget)
+            label.setObjectName(_fromUtf8(n + ' label'))
+            self.formLayout.setWidget(i, QtGui.QFormLayout.LabelRole, label)
+            if t == bool:
+                value = QtGui.QCheckBox(self.formLayoutWidget)
+            else:
+                value = QtGui.QLineEdit(self.formLayoutWidget)
+            value.setObjectName(_fromUtf8(n))
+            self.formLayout.setWidget(i, QtGui.QFormLayout.FieldRole, value)
+            self.fields[n] = {
+                # Not good to denormalize
+                'cfg': c,
+                'label': label,
+                'value': value,
+            }
         self.retranslateUi(Dialog)
+
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("accepted()")), Dialog.accept)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("rejected()")), Dialog.reject)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
-        Dialog.setWindowTitle(_translate("Dialog", "Undulator", None))
-        self.label.setText(_translate("Dialog", "Number of Periods", None))
-        self.label_2.setText(_translate("Dialog", "Period Length", None))
-        self.label_3.setText(_translate("Dialog", "Magnetic Field", None))
-        self.label_12.setText(_translate("Dialog", "Harmonic Number", None))
-        self.label_4.setText(_translate("Dialog", "Undulator Orientation", None))
-        self.vh.setText(_translate("Dialog", "Vertical", None))
-
+        Dialog.setWindowTitle(_translate("Dialog", Dialog.cfg[0], None))
+        for f in self.fields.values():
+            f['label'].setText(_translate("Dialog", f['cfg'][0], None))
+            # Encapsulate in a widget based on type
+            if f['cfg'][1] == bool:
+                f['value'].setText(_translate("Dialog", f['cfg'][3], None))
