@@ -1,0 +1,117 @@
+---
+description: APS Undulator A
+
+srw:
+  AnalyticCalc:
+    Ky:
+      desc: "vertical strenght parameter"
+      format: format_array_as_we_like_it
+      units: inches
+    lam_rn_3
+      desc: "3rd harmonic"
+      code: lam_rn/3.0
+      units: lamba_resonant
+
+  RbSrwmultiA:
+    AnalyticA:
+      output_order:
+        - Ky
+        - Kx
+        - lam_rn
+        - e_phn
+        - lam_rn_3
+
+
+
+
+
+thick:
+  undulator:
+    number of periods: 170
+    period length: .027
+    magnetic field: .865
+    harmonic number: 1
+    undulator orientation: v
+
+  beam:
+    average current: 0.35
+    initial x offset: 0
+    initial y offset: 0
+    initial z offset: 0
+    initial x angle offset: 0
+    initial y angle offset: 0
+    relativistic gamma: 13698.63
+    rms energy spread: 0.0011
+    rms x position: 0.000220794
+    E-06rms y position: 8.47
+    E-05rms xp: 1.13228
+    E-06rms yp: 2.95141
+
+  precision:
+    initial UR harmonic to take into account: 1
+    final UR harmonic to take into account: 11
+    longitudinal integration precision parameter: 1.5
+    azimuthal integration precision parameter: 1.5
+    calculate flux (1) or flux per unit surface (2): 1
+    precision factor: 1.5
+    power density computation method (1- "near field", 2- "far field"): 2
+    initial longitudinal position (effective if arPrecP[2] < arPrecP[3]): 0
+    final longitudinal position (effective if arPrecP[2] < arPrecP[3]): 0
+    number of points for (intermediate) trajectory calculation: 10000
+
+  plots:
+    Flux through Finite Aperture:
+      x_axis: Photon Energy [eV]
+      y_axis: Flux [ph/s/.1%bw]
+      Nenergy: 1000
+      Nx: 1
+      Ny: 1
+      zStart: 20
+      eStart: 10
+      eFin: 25000
+      xStart: -0.0015
+      xFin: -0.0015
+      yStart: 0.0015
+      yFin: 0.0015
+
+    "Power Density;\n(horizontal cut at y = 0)":
+      x_axis: Horizontal Position [mm]
+      y_axis: Power Density [W/mm^2]
+      Nenergy: 1
+      Nx: 100
+      Ny: 3
+      zStart: 20
+      eStart: 5102
+      eFin: 5102
+      xStart: -0.015
+      xFin: -0.001
+      yStart: 0.015
+      yFin: 0.001
+
+    "Power Density\n(vertical cut at x = 0)":
+      x_axis: Vertical Position [mm]
+      y_axis: Power Density [W/mm^2]
+      Nenergy: 1
+      Nx: 3
+      Ny: 100
+      zStart: 20
+      eStart: 5102
+      eFin: 5102
+      xStart: -0.001
+      xFin: -0.015
+      yStart: 0.001
+      yFin: 0.015
+
+    Power Density:
+      y_axis: Vertical Position [mm]
+      x_axis: Horizontal Position [mm]
+      Nenergy: 1
+      Nx: 101
+      Ny: 100
+      zStart: 20
+      eStart: 5102
+      eFin: 5102
+      xStart: -0.015
+      xFin: -0.015
+      yStart: 0.015
+      yFin: 0.015

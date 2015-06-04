@@ -1,60 +1,79 @@
-"""
-Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
+# -*- coding: utf-8 -*-
+u"""Multiparticle SRW panel
 
+:copyright: Copyright (c) 2013-2015 RadiaBeam Technologies LLC.  All Rights Reserved.
+:license: http://www.apache.org/licenses/LICENSE-2.0.html
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
+from io import open
 
-import sys, os
+import math
+import os
+import sys
+
 import sip
 sip.setapi('QString', 2)
 from PyQt4 import QtGui, QtCore
-from radtrack.ui.newsrw import Ui_Form as Ui_newsrw
-from radtrack.ui.undulatorforthicksrw import Ui_Dialog as und_dlg
-from radtrack.ui.beamforsrw import Ui_Dialog as beam_dlg
-from radtrack.ui.precisionthicksrw import Ui_Dialog as prec_dlg
-from radtrack.srw.uti_plot import *
-from radtrack.srw.AnalyticCalc import *
-try:                 # assume SRW is properly installed
-    from srwlib import *
-except ImportError:  # deprecated hack for Windows
-    from radtrack.srw.srwlib import *
-from xlrd import *
-import radtrack.util.resource as resource
-from RbUtility import *
+import xlrd
+from pykern.pkdebug import pkdc
+
+from radtrack import RbUtility
+from radtrack.srw import AnalyticCalc
+from radtrack.ui import beamforsrw
+from radtrack.ui import newsrw
+from radtrack.ui import precisionthicksrw
+from radtrack.ui import undulatorforthicksrw
+from radtrack.util import resource
+
+# TODO(robnagler) remove this once all code migrated
+from radtrack.srwlib_import_hack import *
 
 class rbsrw(QtGui.QWidget):
+
     def __init__(self, parent = None):
         QtGui.QWidget.__init__(self, parent)
-        self.ui = Ui_newsrw()
-        self.ui.setupUi(self)
-        self.up = UP()
-        self.beam = SRWLPartBeam()
+        self.ui = newsrw.Ui_Form()
+        self.ui.setupUi(self, is_multi_particle=True)
+
+        self.up = dict()
+
+        self.beam = srwlib.SRWLPartBeam()
+
         #self.precis = Precis()
         self.arPrecF = [0]*5
         self.arPrecP = [0]*5
-        #load initial values from excel
-        self.workbook = open_workbook(resource.filename('SRWinitialvalues.xls'))
-        self.thick(self.ui.deparg.currentIndex())
-        #disable/remove broken simulation argument
-        self.ui.deparg.removeItem(6)
-        self.ui.deparg.removeItem(5)
-        self.ui.deparg.removeItem(4)
-        self.ui.intensity.hide()
-        self.ui.formLayout_4.labelForField(self.ui.intensity).hide()
-        self.ui.polar.hide()
-        self.ui.formLayout_4.labelForField(self.ui.polar).hide()
 
-        #set srw initial values
+        #load initial values from excel
+        self.workbook = xlrd.open_workbook(resource.filename('SRWinitialvalues.xls'))
+
+        # TODO(robnagler) necessary?
+        self.thick(self.ui.deparg.currentIndex())
+
         column = self.workbook.sheet_by_name('thick undulator').col(0)
         units = self.workbook.sheet_by_name('thick undulator').col(1)
         units = self.unitstr(units)
-        self.GetUndParams(DialogU(self,units,column))
+
+        definte parameters period_length magnetic_field undulator_orientation
+
+        self.cfg = (
+            # These would be labelled names, just did this fast
+            'Undulator', (
+                ("Number of Periods", int, 170, None, 'Number of Periods'),
+                ("Period Length", float, .027, 'cm', 'undPer'),
+                ("Magnetic Field", float, .865, 'mT', 'b'),
+                ("Harmonic Number", int, 1, None, 'n'),
+                # hack
+                ("Undulator Orientation", bool, True, 'Vertical', 'vh'),
+            ),
+        )
+        self.GetUndParams(DialogU(self).configure())
         column = self.workbook.sheet_by_name('thick beam').col(0)
         units = self.workbook.sheet_by_name('thick beam').col(1)
         units = self.unitstr(units)
         self.GetBeamParams(DialogB(self,units,column))
         column = self.workbook.sheet_by_name('thick precision').col(0)
         units = self.workbook.sheet_by_name('thick precision').col(1)
-        print column
+        pkdc('column={}', column)
         units = self.unitstr(units)
         self.GetPrecision(DialogP(self,units,column))
 
@@ -70,32 +89,62 @@ class rbsrw(QtGui.QWidget):
         self.ui.analytic.setText('No calculations performed...As of Yet')
 
     def AnalyticA(self):
-#        (Kx,Ky,lam_rn,e_phn)=IDWaveLengthPhotonEnergy(self.up.undPer,self.up.Bx,self.up.By,self.beam.partStatMom1.gamma)
-        (Kx,Ky,lam_rn,e_phn)=IDWaveLengthPhotonEnergy(self.up.undPer,0,self.up.By,self.beam.partStatMom1.gamma)
-        #Outputs: (UP.Kx=0.934*UP.By*UP.undPer, UP.K, RAD.ephn, UP.WorU)=
-        #1. derived Kx from UP.By and UP.undPer
-        #2. Introduced new class RAD.ephn = radiation class, variable phot energy of nth harmonics
-        #3. UP.WorU=flag indicating wiggler or undulator situation
-        #Inputs: (harmB.n, UP.undPer, UP.Bx, UP.By, self.beam.partStatMom1.gamma)
+        (Kx, Ky, lam_rn, e_phn) = AnalyticCalc.IDWaveLengthPhotonEnergy(
+            self.up['undPer'],
+            0,
+            self.up['By'],
+            self.beam.partStatMom1.gamma,
+        )
+        (P_W, L_id) = AnalyticCalc.RadiatedPowerPlanarWiggler(
+            self.up['undPer'],
+            self.up['By'],
+            self.up['Number of Periods'],
+            self.beam.partStatMom1.gamma,
+            self.beam.Iavg,
+        )
+        E_c = AnalyticCalc.CriticalEnergyWiggler(
+            self.up['By'],
+            self.beam.partStatMom1.gamma,
+        )
+        P_Wdc = AnalyticCalc.CentralPowerDensityPlanarWiggler(
+            self.up['By'],
+            self.up['Number of Periods'],
+            self.beam.partStatMom1.gamma,
+            self.beam.Iavg,
+        )
+        (RadSpotSize, RadSpotDivergence) = AnalyticCalc.UndulatorSourceSizeDivergence(
+            lam_rn,
+            L_id,
+        )
+        SpectralFluxValue = AnalyticCalc.SpectralFLux(
+            self.up['Number of Periods'],
+            self.beam.partStatMom1.gamma,
+            1,
+            self.beam.Iavg,
+            Kx,
+        )
+        RadBrightness = AnalyticCalc.SpectralCenBrightness(
+            self.up['Number of Periods'],
+            self.beam.partStatMom1.gamma,
+            self.beam.Iavg,
+        )
+        # jinja template
         stri='# Ky:'+'{:.3f}'.format(Kx)+\
-        ' # Kx:'+'{:.3f}'.format(Ky)+'\n'+\
-        '# Wavelength, m           Phot. energy, eV'+'\n'+\
-        '1st harmonic '+'{:.3e}'.format(lam_rn)+' '+'{:.3f}'.format(e_phn)+'\n'+\
-        '3rd harmonic '+'{:.3e}'.format(lam_rn/3.0)+' '+'{:.3f}'.format(e_phn*3.0)+'\n'+\
-        '5th harmonic '+'{:.3e}'.format(lam_rn/5.0)+' '+'{:.3f}'.format(e_phn*5.0)+'\n'
+            ' # Kx:'+'{:.3f}'.format(Ky)+'\n'+\
+            '# Wavelength, m           Phot. energy, eV'+'\n'+\
+            '1st harmonic '+'{:.3e}'.format(lam_rn)+' '+'{:.3f}'.format(e_phn)+'\n'+\
+            '3rd harmonic '+'{:.3e}'.format(lam_rn/3.0)+' '+'{:.3f}'.format(e_phn*3.0)+'\n'+\
+            '5th harmonic '+'{:.3e}'.format(lam_rn/5.0)+' '+'{:.3f}'.format(e_phn*5.0)+'\n'
 
-        E_c=CriticalEnergyWiggler(self.up.By,self.beam.partStatMom1.gamma)
         #Outputs: (RAD.Ecrit,UPWorU) where RAD.Ecrit is critical energy of Wiggler Radiation
         #Inputs: (UP.Bx, self.beam.partStatMom1.gamma,UP.Kx)
         stra=stri+'# Critical energy:'+'{:.3e}'.format(E_c)+', eV'+'\n'+\
         '-----------------------------------'+'\n'
 
-        (P_W, L_id)=RadiatedPowerPlanarWiggler(self.up.undPer,self.up.By,self.up.numPer,self.beam.partStatMom1.gamma,self.beam.Iavg)
         #Outputs: (RAD.PowW,UP.L) where RAD.PowW is radiated power of Wiggler Radiation, UP.L=length of ID
         #Inputs: (UP.undPer,UP.Bx,UP.numPer,self.beam.partStatMom1.gamma,self.beam.Iavg) standart SRW class variables
         #RadiatedPowerPlanarWiggler(lam_u,Bx,N_u,Gam,I_b):
 
-        (RadSpotSize,RadSpotDivergence)=UndulatorSourceSizeDivergence(lam_rn,L_id)
         stre=stra+'# Rad spot size: '+'{:.3e}'.format(RadSpotSize)+', m'+'\n'
         strf=stre+'# Rad divergence: '+'{:.3e}'.format(RadSpotDivergence)+', rad'+'\n'+\
         '-----------------------------------'+'\n'
@@ -103,15 +152,12 @@ class rbsrw(QtGui.QWidget):
         strb=strf+'# Length of ID:'+'{:.3f}'.format(L_id)+', m'+'\n' + \
         '# Radiated power:'+'{:.3e}'.format(P_W)+', W'+'\n'
 
-        P_Wdc=CentralPowerDensityPlanarWiggler(self.up.By,self.up.numPer,self.beam.partStatMom1.gamma,self.beam.Iavg)
         #Outputs: (RAD.PowCPD) where RAD.PowCPD is radiated central cone power density of Wiggler Radiation
         #Inputs: (UP.undPer,UP.Bx,UP.numPer,self.beam.partStatMom1.gamma,self.beam.Iavg) standart SRW class variables
         strc=strb+'# Central Power Density: '+'{:.3e}'.format(P_Wdc)+', W/mrad2'+'\n'
 
-        SpectralFluxValue=SpectralFLux(self.up.numPer,self.beam.partStatMom1.gamma,1,self.beam.Iavg,Kx)
         strd=strc+'# Spectral flux: '+'{:.3e}'.format(SpectralFluxValue)+', phot/(sec mrad 0.1% BW)'+'\n'
 
-        RadBrightness=SpectralCenBrightness(self.up.numPer,self.beam.partStatMom1.gamma,self.beam.Iavg)
         strw=strd+'# Spectral Central Brightness: '+'{:.3e}'.format(RadBrightness)+', phot/(sec mrad2 0.1% BW)'+'\n'+\
         '-----------------------------------'+'\n'
 
@@ -119,57 +165,73 @@ class rbsrw(QtGui.QWidget):
 
     def UndParamsThick(self):
         #vertical harmonic magnetic field
-        harmB = SRWLMagFldH() #magnetic field harmonic
-        harmB.n = self.up.n #harmonic number
-        if self.up.By is None:
-            harmB.B = self.up.Bx #magnetic field amplitude [T]
+        harmB = srwlib.SRWLMagFldH() #magnetic field harmonic
+        harmB.n = self.up['n'] #harmonic number
+        if self.up['By'] is None:
+            harmB.B = self.up['Bx'] #magnetic field amplitude [T]
             harmB.h_or_v = 'h'   #magnetic field plane: horzontal ('h')
         else:
-            harmB.B = self.up.By #magnetic field amplitude[T]
+            harmB.B = self.up['By'] #magnetic field amplitude[T]
             harmB.h_or_v = 'v'   #magnetic field plane: vertical ('v')
 
-        und = SRWLMagFldU([harmB])
-        und.per = self.up.undPer #period length [m]
-        und.nPer = self.up.numPer #number of periods (will be rounded to integer)
-        magFldCnt = SRWLMagFldC([und], array('d', [0]), array('d', [0]), array('d', [0])) #Container of all magnetic field elements
+        und = srwlib.SRWLMagFldU([harmB])
+        und.per = self.up['undPer'] #period length [m]
+        und.nPer = self.up['Number of Periods'] #number of periods (will be rounded to integer)
+        magFldCnt = srwlib.SRWLMagFldC([und], array('d', [0]), array('d', [0]), array('d', [0])) #Container of all magnetic field elements
         return (und, magFldCnt)
 
     def GetUndParams(self, dialog):
-        units = dialog.u
-        self.up.numPer = convertUnitsStringToNumber(dialog.ui.numper.text(),units[0])
-        self.up.undPer = convertUnitsStringToNumber(dialog.ui.undper.text(),units[1])
-        self.up.n = int(float(dialog.ui.n.text()))
 
-        if dialog.ui.vh.isChecked():
-            self.up.By = convertUnitsStringToNumber(dialog.ui.b.text(),units[2])
-            self.up.Bx = 0
+        def num(c, v):
+            # need type checking
+            if v is None:
+                return None
+            v = v.text()
+            if c[3] is not None:
+                v = RbUtility.convertUnitsStringToNumber(v, c[3])
+            return c[1].__call__(v)
+
+        for f in dialog.ui.fields.values():
+            c = f['cfg']
+            v = f['value']
+            if c[1] is bool:
+                v = v.isChecked()
+            elif c[1] in (float, int):
+                v = num(c, v)
+            else:
+                raise AssertionError('bad type: ' + str(c))
+            self.up[c[4]] = v
+        # compute secondaries
+        if self.up['vh']:
+            self.up['Bx'] = 0
+            self.up['By'] = self.up['b']
         else:
-            self.up.Bx = convertUnitsStringToNumber(dialog.ui.b.text(),units[2])
-            self.up.By = 0
+            self.up['Bx'] = self.up['b']
+            self.up['By'] = 0
 
 
     def ShowUndParams(self, dialog):
-        units = dialog.u
-        dialog.ui.numper.setText(displayWithUnitsNumber(self.up.numPer,units[0]))
-        dialog.ui.undper.setText(displayWithUnitsNumber(self.up.undPer,units[1]))
-        if self.up.By is 0:
-            dialog.ui.b.setText(displayWithUnitsNumber(self.up.Bx,units[2]))
-            dialog.ui.vh.setChecked(False)
-        else:
-            dialog.ui.b.setText(displayWithUnitsNumber(self.up.By,units[2]))
-            dialog.ui.vh.setChecked(True)
-        dialog.ui.n.setText(str(self.up.n))
+        self.up['vh'] = self.up['By'] == 0
+        for f in dialog.ui.fields.values():
+            c = f['cfg']
+            v = f['value']
+            if c[1] is bool:
+                v.setChecked(self.up[c[4]])
+            elif c[3] is not None:
+                v.setText(RbUtility.displayWithUnitsNumber(self.up[c[4]], c[3]))
+            else:
+                v.setText(str(self.up[c[4]]))
 
     def GetBeamParams(self,dialog):
         units = dialog.u
         #this is the beam class
-        self.beam.Iavg = convertUnitsStringToNumber(dialog.ui.iavg.text(),units[0])
-        self.beam.partStatMom1.x = convertUnitsStringToNumber(dialog.ui.partstatmom1x.text(),units[1])
-        self.beam.partStatMom1.y = convertUnitsStringToNumber(dialog.ui.partstatmom1y.text(),units[2])
-        self.beam.partStatMom1.z = convertUnitsStringToNumber(dialog.ui.partstatmom1z.text(),units[3])
-        self.beam.partStatMom1.xp = convertUnitsStringToNumber(dialog.ui.partstatmom1xp.text(),units[4])
-        self.beam.partStatMom1.yp = convertUnitsStringToNumber(dialog.ui.partstatmom1yp.text(),units[5])
-        self.beam.partStatMom1.gamma = convertUnitsStringToNumber(dialog.ui.partstatmom1gamma.text(),units[6])
+        self.beam.Iavg = RbUtility.convertUnitsStringToNumber(dialog.ui.iavg.text(),units[0])
+        self.beam.partStatMom1.x = RbUtility.convertUnitsStringToNumber(dialog.ui.partstatmom1x.text(),units[1])
+        self.beam.partStatMom1.y = RbUtility.convertUnitsStringToNumber(dialog.ui.partstatmom1y.text(),units[2])
+        self.beam.partStatMom1.z = RbUtility.convertUnitsStringToNumber(dialog.ui.partstatmom1z.text(),units[3])
+        self.beam.partStatMom1.xp = RbUtility.convertUnitsStringToNumber(dialog.ui.partstatmom1xp.text(),units[4])
+        self.beam.partStatMom1.yp = RbUtility.convertUnitsStringToNumber(dialog.ui.partstatmom1yp.text(),units[5])
+        self.beam.partStatMom1.gamma = RbUtility.convertUnitsStringToNumber(dialog.ui.partstatmom1gamma.text(),units[6])
         '''
         sigEperE = 0.00089 #relative RMS energy spread
         sigX = 33.33e-06 #horizontal RMS size of e-beam [m]
@@ -177,11 +239,11 @@ class rbsrw(QtGui.QWidget):
         sigY = 2.912e-06 #vertical RMS size of e-beam [m]
         sigYp = 2.7472e-06 #vertical RMS angular divergence [rad]
         '''
-        sigEperE = convertUnitsStringToNumber(dialog.ui.sige.text(),units[7])
-        sigX = convertUnitsStringToNumber(dialog.ui.sigx.text(),units[8])
-        sigXp = convertUnitsStringToNumber(dialog.ui.sigxp.text(),units[9])
-        sigY = convertUnitsStringToNumber(dialog.ui.sigy.text(),units[10])
-        sigYp = convertUnitsStringToNumber(dialog.ui.sigyp.text(),units[11])
+        sigEperE = RbUtility.convertUnitsStringToNumber(dialog.ui.sige.text(),units[7])
+        sigX = RbUtility.convertUnitsStringToNumber(dialog.ui.sigx.text(),units[8])
+        sigXp = RbUtility.convertUnitsStringToNumber(dialog.ui.sigxp.text(),units[9])
+        sigY = RbUtility.convertUnitsStringToNumber(dialog.ui.sigy.text(),units[10])
+        sigYp = RbUtility.convertUnitsStringToNumber(dialog.ui.sigyp.text(),units[11])
         #2nd order stat. moments:
         self.beam.arStatMom2[0] = sigX*sigX #<(x-<x>)^2>
         self.beam.arStatMom2[1] = 0 #<(x-<x>)(x'-<x'>)>
@@ -193,27 +255,27 @@ class rbsrw(QtGui.QWidget):
 
     def ShowBeamParams(self, dialog):
         units = dialog.u
-        dialog.ui.iavg.setText(displayWithUnitsNumber(self.beam.Iavg,units[0]))
-        dialog.ui.partstatmom1x.setText(displayWithUnitsNumber(self.beam.partStatMom1.x,units[1]))
-        dialog.ui.partstatmom1y.setText(displayWithUnitsNumber(self.beam.partStatMom1.y,units[2]))
-        dialog.ui.partstatmom1z.setText(displayWithUnitsNumber(self.beam.partStatMom1.z,units[3]))
-        dialog.ui.partstatmom1xp.setText(displayWithUnitsNumber(self.beam.partStatMom1.xp,units[4]))
-        dialog.ui.partstatmom1yp.setText(displayWithUnitsNumber(self.beam.partStatMom1.yp,units[5]))
-        dialog.ui.partstatmom1gamma.setText(displayWithUnitsNumber(self.beam.partStatMom1.gamma,units[6]))
-        dialog.ui.sige.setText(displayWithUnitsNumber(sqrt(self.beam.arStatMom2[10]),units[7]))
-        dialog.ui.sigx.setText(displayWithUnitsNumber(sqrt(self.beam.arStatMom2[0]),units[8]))
-        dialog.ui.sigy.setText(displayWithUnitsNumber(sqrt(self.beam.arStatMom2[3]),units[9]))
-        dialog.ui.sigxp.setText(displayWithUnitsNumber(sqrt(self.beam.arStatMom2[2]),units[10]))
-        dialog.ui.sigyp.setText(displayWithUnitsNumber(sqrt(self.beam.arStatMom2[5]),units[11]))
+        dialog.ui.iavg.setText(RbUtility.displayWithUnitsNumber(self.beam.Iavg,units[0]))
+        dialog.ui.partstatmom1x.setText(RbUtility.displayWithUnitsNumber(self.beam.partStatMom1.x,units[1]))
+        dialog.ui.partstatmom1y.setText(RbUtility.displayWithUnitsNumber(self.beam.partStatMom1.y,units[2]))
+        dialog.ui.partstatmom1z.setText(RbUtility.displayWithUnitsNumber(self.beam.partStatMom1.z,units[3]))
+        dialog.ui.partstatmom1xp.setText(RbUtility.displayWithUnitsNumber(self.beam.partStatMom1.xp,units[4]))
+        dialog.ui.partstatmom1yp.setText(RbUtility.displayWithUnitsNumber(self.beam.partStatMom1.yp,units[5]))
+        dialog.ui.partstatmom1gamma.setText(RbUtility.displayWithUnitsNumber(self.beam.partStatMom1.gamma,units[6]))
+        dialog.ui.sige.setText(RbUtility.displayWithUnitsNumber(math.sqrt(self.beam.arStatMom2[10]),units[7]))
+        dialog.ui.sigx.setText(RbUtility.displayWithUnitsNumber(math.sqrt(self.beam.arStatMom2[0]),units[8]))
+        dialog.ui.sigy.setText(RbUtility.displayWithUnitsNumber(math.sqrt(self.beam.arStatMom2[3]),units[9]))
+        dialog.ui.sigxp.setText(RbUtility.displayWithUnitsNumber(math.sqrt(self.beam.arStatMom2[2]),units[10]))
+        dialog.ui.sigyp.setText(RbUtility.displayWithUnitsNumber(math.sqrt(self.beam.arStatMom2[5]),units[11]))
 
     def WfrSetUpE(self,wfrE):
-        #wfrE = SRWLWfr() this is the waveform class
+        #wfrE = srwlib.SRWLWfr() this is the waveform class
 #        Nenergy = float(self.ui.tableWidget.item(0,0).text())#float?
-        Nenergy = int(convertUnitsStringToNumber(self.ui.tableWidget.item(0,0).text(),''))
+        Nenergy = int(RbUtility.convertUnitsStringToNumber(self.ui.tableWidget.item(0,0).text(),''))
 #        Nx = int(self.ui.tableWidget.item(1,0).text())
-        Nx = int(convertUnitsStringToNumber(self.ui.tableWidget.item(1,0).text(),''))
+        Nx = int(RbUtility.convertUnitsStringToNumber(self.ui.tableWidget.item(1,0).text(),''))
 #        Ny = int(self.ui.tableWidget.item(2,0).text())
-        Ny = int(convertUnitsStringToNumber(self.ui.tableWidget.item(2,0).text(),''))
+        Ny = int(RbUtility.convertUnitsStringToNumber(self.ui.tableWidget.item(2,0).text(),''))
         wfrE.allocate(Nenergy,Nx,Ny)
         wfrE.mesh.zStart = float(self.ui.tableWidget.item(3,0).text())
         wfrE.mesh.eStart = float(self.ui.tableWidget.item(4,0).text())
@@ -260,9 +322,7 @@ class rbsrw(QtGui.QWidget):
         return units
 
     def makeund(self):
-        units = self.workbook.sheet_by_name('thick undulator').col(1)
-        units = self.unitstr(units)
-        dialog = DialogU(self,units)
+        dialog = DialogU(self)
         self.ShowUndParams(dialog)
         if dialog.exec_():
             self.GetUndParams(dialog)
@@ -290,7 +350,7 @@ class rbsrw(QtGui.QWidget):
 
         (und,magFldCnt)=self.UndParamsThick()
 
-        #self.beam = SRWLPartBeam()
+        #self.beam = srwlib.SRWLPartBeam()
         #self.BeamParams(self.beam)
 
         #self.AnalyticA(self.beam)
@@ -298,15 +358,15 @@ class rbsrw(QtGui.QWidget):
 
         #(self.arPrecF, self.arPrecP)=self.PrecisionThick()
 
-        stkF = SRWLStokes() #for spectrum
+        stkF = srwlib.SRWLStokes() #for spectrum
         self.WfrSetUpE(stkF)
-        stkP = SRWLStokes() #for power density
+        stkP = srwlib.SRWLStokes() #for power density
         self.WfrSetUpE(stkP)
 
         Polar = self.ui.polar.currentIndex()
         Intens = self.ui.intensity.currentIndex()
         DependArg = self.ui.deparg.currentIndex()
-        print (Polar, Intens, DependArg)
+        pkdc('Polar={}, Intens={}, DependArg={}', Polar, Intens, DependArg)
 
         if DependArg == 0:
             #after setting the text call self.ui.status.repaint() to have it immediately show otherwise it will wait till it exits the block to draw
@@ -322,18 +382,17 @@ class rbsrw(QtGui.QWidget):
             str3='* Plotting the results ...\n'
             self.ui.status.setText(str1+str2+str3)
             self.ui.status.repaint()
-            uti_plot1d(stkF.arS, [stkF.mesh.eStart, stkF.mesh.eFin, stkF.mesh.ne], ['Photon Energy [eV]', 'Flux [ph/s/.1%bw]', 'Flux through Finite Aperture'])
+            uti_plot.uti_plot1d(stkF.arS, [stkF.mesh.eStart, stkF.mesh.eFin, stkF.mesh.ne], ['Photon Energy [eV]', 'Flux [ph/s/.1%bw]', 'Flux through Finite Aperture'])
 
         elif DependArg == 1:
             str1='* Performing Power Density calculation (from field) vs x-coordinate calculation ... \n \n'
             self.ui.status.setText(str1)
-            print DependArg
-            print(stkP)
-            print(self.beam)
-            print(und)
-            print(self.arPrecP)
+            pkdc('DependArg={}', DependArg)
+            pkdc('stkP={}', stkP)
+            pkdc('beam={}', self.beam)
+            pkdc('und={}', und)
+            pkdc('arPrecP={}', self.arPrecP)
             srwl.CalcPowDenSR(stkP, self.beam, 0, magFldCnt, self.arPrecP)
-            print 'yes'
 
             str2='* Extracting Intensity from calculated Electric Field ... \n \n '
             self.ui.status.setText(str1+str2)
@@ -345,21 +404,20 @@ class rbsrw(QtGui.QWidget):
             plotMeshX = [1000*stkP.mesh.xStart, 1000*stkP.mesh.xFin, stkP.mesh.nx]
             powDenVsX = array('f', [0]*stkP.mesh.nx)
             for i in range(stkP.mesh.nx): powDenVsX[i] = stkP.arS[stkP.mesh.nx*int(stkP.mesh.ny*0.5) + i]
-            print plotMeshX
-            uti_plot1d(powDenVsX, plotMeshX, ['Horizontal Position [mm]', 'Power Density [W/mm^2]', 'Power Density\n(horizontal cut at y = 0)'])
+            pkdc('plotMeshX={}', plotMeshX)
+            uti_plot.uti_plot1d(powDenVsX, plotMeshX, ['Horizontal Position [mm]', 'Power Density [W/mm^2]', 'Power Density\n(horizontal cut at y = 0)'])
 
 
         elif DependArg == 2:
             str1='* Performing Power Density calculation (from field) vs x-coordinate calculation ... \n \n'
             self.ui.status.setText(str1)
             self.ui.status.repaint()
-#            print DependArg
-#            print(stkP)
-#            print(self.beam)
-#            print(und)
-#            print(self.arPrecP)
+            pkdc('DependArg={}', DependArg)
+            pkdc('stkP={}', stkP)
+            pkdc('self.beam={}', self.beam)
+            pkdc('und={}', und)
+            pkdc('self.arPrecP={}', self.arPrecP)
             srwl.CalcPowDenSR(stkP, self.beam, 0, magFldCnt, self.arPrecP)
-#            print 'yes'
 
             str2='* Extracting Intensity from calculated Electric Field ... \n \n '
             self.ui.status.setText(str1+str2)
@@ -372,7 +430,7 @@ class rbsrw(QtGui.QWidget):
             powDenVsY = array('f', [0]*stkP.mesh.ny)
 #            for i in range(stkP.mesh.ny): powDenVsY[i] = stkP.arS[int(stkP.mesh.nx*0.5) + i*stkP.mesh.ny]
             for i in range(stkP.mesh.ny): powDenVsY[i] = stkP.arS[stkP.mesh.ny*int(stkP.mesh.nx*0.5) + i]
-            uti_plot1d(powDenVsY, plotMeshY, ['Vertical Position [mm]', 'Power Density [W/mm^2]', 'Power Density\n(vertical cut at x = 0)'])
+            uti_plot.uti_plot1d(powDenVsY, plotMeshY, ['Vertical Position [mm]', 'Power Density [W/mm^2]', 'Power Density\n(vertical cut at x = 0)'])
 
         elif DependArg == 3:
             str1='* Performing Electric Field (intensity vs x- and y-coordinate) calculation ... \n \n'
@@ -389,7 +447,7 @@ class rbsrw(QtGui.QWidget):
             self.ui.status.repaint()
             plotMeshX = [1000*stkP.mesh.xStart, 1000*stkP.mesh.xFin, stkP.mesh.nx]
             plotMeshY = [1000*stkP.mesh.yStart, 1000*stkP.mesh.yFin, stkP.mesh.ny]
-            uti_plot2d(stkP.arS, plotMeshX, plotMeshY, ['Horizontal Position [mm]', 'Vertical Position [mm]', 'Power Density'])
+            uti_plot.uti_plot2d(stkP.arS, plotMeshX, plotMeshY, ['Horizontal Position [mm]', 'Vertical Position [mm]', 'Power Density'])
 
         elif DependArg == 4:
             str1='* Performing Electric Field (intensity vs energy- and x-coordinate) calculation ... \n \n '
@@ -418,9 +476,9 @@ class rbsrw(QtGui.QWidget):
             self.ui.status.repaint()
 
         else:
-            print 'Error'
+            raise AssertionError('{}: invalid DependArg'.format(DependArg))
 
-        uti_plot_show()
+        uti_plot.uti_plot_show()
 
 
     def thick(self,i):
@@ -433,14 +491,6 @@ class rbsrw(QtGui.QWidget):
             units[n]=str(u.value)
 
         return units
-
-    def makeund(self):
-        units = self.workbook.sheet_by_name('thick undulator').col(1)
-        units = self.unitstr(units)
-        dialog = DialogU(self,units)
-        self.ShowUndParams(dialog)
-        if dialog.exec_():
-            self.GetUndParams(dialog)
 
     def makebeam(self):
         units = self.workbook.sheet_by_name('thick beam').col(1)
@@ -456,28 +506,31 @@ class rbsrw(QtGui.QWidget):
         if dialog.exec_():
             self.GetPrecision(dialog)
 
-    def check(self):
-        print self.arPrecF
-
 
 class DialogU(QtGui.QDialog):
-    def __init__(self, parent=None,units=None,column=None):
+    def __init__(self, parent=None):
         QtGui.QDialog.__init__(self,parent)
-        self.ui = und_dlg()
+        self.cfg = parent.cfg
+        self.ui = undulatorforthicksrw.Ui_Dialog()
         self.ui.setupUi(self)
-        self.u = units
-        if column is not None:
-            self.ui.numper.setText(str(column[0].value)+' '+units[0])  #Number of ID Periods (without accounting for terminations)
-            self.ui.undper.setText(str(column[1].value)) #Period Length
-            self.ui.n.setText(str(column[3].value))
-            self.ui.b.setText(str(column[2].value)+' '+units[2])
-            self.ui.vh.setChecked(column[4].value is unicode('v'))
+
+    def configure(self):
+        for f in self.ui.fields.values():
+            c = f['cfg']
+            v = f['value']
+            if c[1] is bool:
+                v.setChecked(c[2])
+            elif c[3] is not None:
+                v.setText(c[1].__str__(c[2]) + ' ' + c[3])
+            else:
+                v.setText(c[1].__str__(c[2]))
+        return self
 
 
 class DialogB(QtGui.QDialog):
     def __init__(self, parent=None,units=None,column=None):
         QtGui.QDialog.__init__(self,parent)
-        self.ui = beam_dlg()
+        self.ui = beamforsrw.Ui_Dialog()
         self.ui.setupUi(self)
         self.u = units
         if column is not None:
@@ -497,7 +550,7 @@ class DialogB(QtGui.QDialog):
 class DialogP(QtGui.QDialog):
     def __init__(self, parent=None,units=None,column=None):
         QtGui.QDialog.__init__(self,parent)
-        self.ui = prec_dlg()
+        self.ui = precisionthicksrw.Ui_Dialog()
         self.ui.setupUi(self)
         self.u = units
         if column is not None:
@@ -513,21 +566,6 @@ class DialogP(QtGui.QDialog):
             self.ui.flp.setText(str(column[8].value))
             self.ui.np.setText(str(column[9].value))
 
-class UP:
-     def __init__(self):
-         UP.numPer = []
-         UP.undPer = []
-         UP.Bx = []
-         UP.By = []
-         UP.phBx = []
-         UP.phBy = []
-         UP.sBx = []
-         UP.sBy = []
-         UP.xcID = []
-         UP.ycID = []
-         UP.zcID = []
-         UP.n = []
-
 class Precis:
      def __init__(self):
         Precis.meth = []
@@ -537,7 +575,6 @@ class Precis:
         Precis.npTraj = []
         Precis.useTermin = []
         Precis.sampFactNxNyForProp = []
-
 
 
 def main():
