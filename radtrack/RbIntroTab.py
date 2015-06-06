@@ -11,6 +11,8 @@ class RbIntroTab(QtGui.QWidget):
 
         self.ui = Ui_Widget()
         self.ui.setupUi(self)
+        self.container = self
+
 
         categoryLayout = OrderedDict()
         categoryLayout['beams'] = self.ui.beamsVerticalLayout
@@ -19,6 +21,8 @@ class RbIntroTab(QtGui.QWidget):
         categoryLayout['tools'] = self.ui.toolsVerticalLayout
 
         self.parent = parent
+
+        # Create button for every available tab type in RbGlobal
         for tabType in self.parent.availableTabTypes:
             if tabType == type(self):
                 continue
@@ -28,6 +32,8 @@ class RbIntroTab(QtGui.QWidget):
                                        self.parent.newTab(tabType))
             categoryLayout[tabType.category].addWidget(button)
 
+        # Set tab order of buttons (start in top-left, go down,
+        # then to top of next column)
         lastWidget = None
         for layout in categoryLayout.values():
             layout.addStretch()
@@ -37,8 +43,6 @@ class RbIntroTab(QtGui.QWidget):
                     if lastWidget:
                         self.setTabOrder(lastWidget, widget)
                     lastWidget = widget
-
-        self.container = self
 
     def exportToFile(self, fileName = None):
         with open(fileName, 'w'):
