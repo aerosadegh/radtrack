@@ -242,7 +242,7 @@ class RbGlobal(QtGui.QMainWindow):
             destinationType = choices[0]
         else: # len(choices) > 1
             box = QtGui.QMessageBox(QtGui.QMessageBox.Question, 'Ambiguous Import Destination', 'Multiple tab types can import this file.\nWhich kind of tab should be used?')
-            responses = [box.addButton(widgetType.__name__, QtGui.QMessageBox.ActionRole) for widgetType in choices] + [box.addButton(QtGui.QMessageBox.Cancel)]
+            responses = [box.addButton(widgetType.defaultTitle, QtGui.QMessageBox.ActionRole) for widgetType in choices] + [box.addButton(QtGui.QMessageBox.Cancel)]
             box.exec_()
             try:
                 destinationType = choices[responses.index(box.clickedButton())]
@@ -251,7 +251,7 @@ class RbGlobal(QtGui.QMainWindow):
 
         # Check if a tab of this type is already open
         openWidgetIndexes = [i for i in range(self.tabWidget.count()) if type(getRealWidget(self.tabWidget.widget(i))) == destinationType]
-        newTabLabel = 'New Tab'
+        newTabLabel = 'New ' + box.clickedButton().text() + ' Tab'
         if openWidgetIndexes:
             choices = [self.tabWidget.tabText(i) for i in openWidgetIndexes] + [newTabLabel]
             box = QtGui.QMessageBox(QtGui.QMessageBox.Question, 'Choose Import Destination', 'Which tab should receive the data?')
