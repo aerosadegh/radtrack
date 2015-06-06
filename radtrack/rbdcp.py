@@ -72,6 +72,9 @@ class RbDcp(QtGui.QWidget):
 
     def importFile(self, fnfromglobal):
         filetype = IFileTypeCheck(fnfromglobal)
+        
+        print(os.path.splitext(fnfromglobal)[-1].lower().lstrip("."))
+        
         if filetype == 'sdds':
             self.showDCP_ele(fnfromglobal)
         elif filetype == 'out':
@@ -368,7 +371,7 @@ class RbDcp(QtGui.QWidget):
                 Yrvec2.append(Yrvec[n])
 
         #plots the data
-        PlotColnS2(Xrvec,Yrvec1,Yrvec2,'','bo','rs',self.x.description[0],Xlab,YLab, self.ui.widget.canvas)
+        PlotColnS2(Xrvec,Yrvec1,Yrvec2,'-','bo','rs',self.x.description[0],Xlab,YLab, self.ui.widget.canvas)
 
     #method for quickly displaying data to see its general form
     def quickview(self):
@@ -436,3 +439,12 @@ class RbDcp(QtGui.QWidget):
         self.ui.param.setHorizontalHeaderItem(2, QtGui.QTableWidgetItem('Unit'))
         self.ui.param.setHorizontalHeaderItem(3, QtGui.QTableWidgetItem('Name'))
         self.ui.widget.canvas.draw()
+        
+def main():
+    app = QtGui.QApplication(sys.argv)
+    window = RbDcp()
+    window.show()
+    sys.exit(app.exec_())
+
+if __name__ == "__main__":
+    main()

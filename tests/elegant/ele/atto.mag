@@ -1,0 +1,22 @@
+SDDS1
+&description text="magnet layout for beamline atto.lte" &end
+&column name=ElementName, type=string &end
+&column name=ElementType, type=string &end
+&column name=s, units=m, type=double &end
+&column name=Profile, type=double &end
+&data mode=ascii, no_row_counts=1 &end
+_BEGIN_ MARK 0 0
+COL ECOL 5.000000e-003 0
+U2FINN LSRMDLTR 4.050000e-001 0
+L1 DRIF 5.050000e-001  0
+CAV RFDF 9.650000e-001 0
+L1 DRIF 1.065000e+000  0
+L1 DRIF 1.165000e+000  0
+L1 DRIF 1.265000e+000  0
+L1 DRIF 1.365000e+000  0
+L1 DRIF 1.465000e+000  0
+L1 DRIF 1.565000e+000  0
+L1 DRIF 1.665000e+000  0
+L1 DRIF 1.765000e+000  0
+L1 DRIF 1.865000e+000  0
+L1 DRIF 1.965000e+000  0

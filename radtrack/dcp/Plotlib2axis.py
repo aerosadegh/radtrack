@@ -39,7 +39,7 @@ def PlotColnS1(Xvector, Yvector,LineType,MarkerType,TitleP,Xlab,Ylab,dcp):
                     Ylabel=Ylab[i][2]+", "+Ylab[i][1]
                 else:
                     Ylabel=Ylab[i][2]
-                dcp.ax.plot(Xvector, Yvector1[i][:], LineType+MarkerType1,label=Ylabel)
+                dcp.ax.plot(Xvector, Yvector[i][:], LineType+MarkerType,label=Ylabel)
                 legend( loc='upper left', numpoints = 1 )
             else:
                 dcp.ax.plot(Xvector, Yvector1[i][:], LineType+MarkerType1)

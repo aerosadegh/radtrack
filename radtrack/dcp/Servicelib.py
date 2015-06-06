@@ -24,6 +24,7 @@ def IFileTypeCheck(IFileName):
         return ext[1:] # remove leading period
 
 def SDDSreshape(x,ColumnXAxis,ColumnPicked,NumPage):
+    FlagOK=1
     print np.shape(x.columnData)
     if len(np.shape(x.columnData)) < 3:
         raise Exception('Empty SDDS File') 
