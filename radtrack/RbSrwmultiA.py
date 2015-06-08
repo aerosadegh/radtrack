@@ -43,8 +43,6 @@ class rbsrw(QtGui.QWidget):
         self.ui = newsrw.Ui_Form()
         self.ui.setupUi(self, is_multi_particle=True)
 
-        self.up = dict()
-
         self.beam = srwlib.SRWLPartBeam()
 
         self.arPrecF = [0]*5
@@ -56,24 +54,16 @@ class rbsrw(QtGui.QWidget):
         # TODO(robnagler) necessary?
         self.thick(self.ui.deparg.currentIndex())
 
-        column = self.workbook.sheet_by_name('thick undulator').col(0)
-        units = self.workbook.sheet_by_name('thick undulator').col(1)
-        units = self.unitstr(units)
+        self.defaults = srw_params.defaults()['Simulation Complexity']['MULTI_PARTICLE']
+        self.declarations = srw_params.declarations()
+        self.params = {}
+        srw_ui_params.init_params(self, 'Undulator')
 
-        # definte parameters period_length magnetic_field undulator_orientation
-
-        self.declarations = srw_params.declarations()['Undulator']
-        self.defaults = srw_params.defaults()
-        srw_ui_params.set_defaults(
-            self.up,
-            self.defaults['Simulation Complexity']['MULTI_PARTICLE']['Undulator'],
-            DialogU(self),
-        )
-        self.compute_secondary_params()
         column = self.workbook.sheet_by_name('thick beam').col(0)
         units = self.workbook.sheet_by_name('thick beam').col(1)
         units = self.unitstr(units)
         self.GetBeamParams(DialogB(self,units,column))
+
         column = self.workbook.sheet_by_name('thick precision').col(0)
         units = self.workbook.sheet_by_name('thick precision').col(1)
         pkdc('column={}', column)
@@ -92,7 +82,7 @@ class rbsrw(QtGui.QWidget):
         self.ui.analytic.setText('No calculations performed...As of Yet')
 
     def AnalyticA(self):
-        params = copy.copy(self.up)
+        params = copy.copy(self.params['Undulator'])
         params['gamma'] = self.beam.partStatMom1.gamma
         params['Iavg'] = self.beam.Iavg
         params = AnalyticCalc.MultiParticle(params)
@@ -131,40 +121,49 @@ class rbsrw(QtGui.QWidget):
     def UndParamsThick(self):
         #vertical harmonic magnetic field
         harmB = srwlib.SRWLMagFldH() #magnetic field harmonic
-        harmB.n = self.up['n'] #harmonic number
+        p = self.params['Undulator']
+        harmB.n = p['n'] #harmonic number
         # TODO(robnagler) this should be vh
-        if self.up['vh']:
-            harmB.B = self.up['b'] #magnetic field amplitude[T]
+        if p['vh'].has_name('VERTICAL'):
+            harmB.B = p['b'] #magnetic field amplitude[T]
             harmB.h_or_v = 'v'   #magnetic field plane: vertical ('v')
         else:
-            harmB.B = self.up['b'] #magnetic field amplitude [T]
+            harmB.B = p['b'] #magnetic field amplitude [T]
             harmB.h_or_v = 'h'   #magnetic field plane: horzontal ('h')
-
         und = srwlib.SRWLMagFldU([harmB])
-        und.per = self.up['undPer'] #period length [m]
-        und.nPer = self.up['numPer'] #number of periods (will be rounded to integer)
-        magFldCnt = srwlib.SRWLMagFldC([und], pkarray.new_double([0]), pkarray.new_double([0]), pkarray.new_double([0])) #Container of all magnetic field elements
+        und.per = p['undPer'] #period length [m]
+        und.nPer = p['numPer'] #number of periods (will be rounded to integer)
+        # Container of all magnetic field elements
+        magFldCnt = srwlib.SRWLMagFldC(
+            [und],
+            pkarray.new_double([0]),
+            pkarray.new_double([0]),
+            pkarray.new_double([0]),
+        )
         return (und, magFldCnt)
 
     def GetUndParams(self, dialog):
-        srw_ui_params.from_dialog(self.up, dialog)
-        self.compute_secondary_params()
+        srw_ui_params.from_dialog(self.params, dialog)
+        self.compute_secondary_params('Undulator')
 
-    def compute_secondary_params(self):
-        # TODO(robnagler) compute secondaries in srw_params
-        if self.up['vh'].has_name('VERTICAL'):
-            self.up['Bx'] = 0
-            self.up['By'] = self.up['b']
-        else:
-            self.up['Bx'] = self.up['b']
-            self.up['By'] = 0
+    def compute_secondary_params(self, which):
+        p = self.params[which]
+        if which == 'Undulator':
+            # TODO(robnagler) compute secondaries in srw_params
+            if p['vh'].has_name('VERTICAL'):
+                p['Bx'] = 0
+                p['By'] = p['b']
+            else:
+                p['Bx'] = p['b']
+                p['By'] = 0
 
     def ShowUndParams(self, dialog):
-        srw_ui_params.to_dialog(self.up, dialog)
+        srw_ui_params.to_dialog(self.params['Undulator'], dialog)
 
-    def GetBeamParams(self,dialog):
+    def GetBeamParams(self, dialog):
         units = dialog.u
         #this is the beam class
+
         self.beam.Iavg = RbUtility.convertUnitsStringToNumber(dialog.ui.iavg.text(),units[0])
         self.beam.partStatMom1.x = RbUtility.convertUnitsStringToNumber(dialog.ui.partstatmom1x.text(),units[1])
         self.beam.partStatMom1.y = RbUtility.convertUnitsStringToNumber(dialog.ui.partstatmom1y.text(),units[2])
@@ -184,6 +183,7 @@ class rbsrw(QtGui.QWidget):
         sigXp = RbUtility.convertUnitsStringToNumber(dialog.ui.sigxp.text(),units[9])
         sigY = RbUtility.convertUnitsStringToNumber(dialog.ui.sigy.text(),units[10])
         sigYp = RbUtility.convertUnitsStringToNumber(dialog.ui.sigyp.text(),units[11])
+
         #2nd order stat. moments:
         self.beam.arStatMom2[0] = sigX*sigX #<(x-<x>)^2>
         self.beam.arStatMom2[1] = 0 #<(x-<x>)(x'-<x'>)>
@@ -225,7 +225,7 @@ class rbsrw(QtGui.QWidget):
         wfrE.mesh.yStart = float(self.ui.tableWidget.item(7,0).text())
         wfrE.mesh.yFin = float(self.ui.tableWidget.item(9,0).text())
 
-    def GetPrecision(self,dialog):
+    def GetPrecision(self, dialog):
         units = dialog.u
         #for spectral flux vs photon energy
         self.arPrecF[0] = float(dialog.ui.harma.text()) #initial UR harmonic to take into account
@@ -242,7 +242,7 @@ class rbsrw(QtGui.QWidget):
         self.arPrecP[4] = int(float(dialog.ui.np.text())) #number of points for (intermediate) trajectory calculation
         #return (self.arPrecF, self.arPrecP)
 
-    def ShowPrecision(self,dialog):
+    def ShowPrecision(self, dialog):
         dialog.ui.harma.setText(str(self.arPrecF[0]))
         dialog.ui.harmb.setText(str(self.arPrecF[1]))
         dialog.ui.lip.setText(str(self.arPrecF[2]))
@@ -421,10 +421,8 @@ class rbsrw(QtGui.QWidget):
 class DialogU(QtGui.QDialog):
     def __init__(self, parent=None):
         QtGui.QDialog.__init__(self,parent)
-        self.declarations = parent.declarations
-        self.defaults = parent.defaults
         self.ui = undulatorforthicksrw.Ui_Dialog()
-        self.ui.setupUi(self)
+        self.ui.setupUi(self, parent.declarations['Undulator'])
 
 class DialogB(QtGui.QDialog):
     def __init__(self, parent=None,units=None,column=None):

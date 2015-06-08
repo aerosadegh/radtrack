@@ -7,3 +7,16 @@ Simulation Complexity:
       Magnetic Field: .865
       Harmonic Number: 1
       Undulator Orientation: VERTICAL
+    Beam:
+      Average Current: 0.5
+      Initial Horizontal Coordinate: 0
+      Initial Vertical Coordinate: 0
+      Initial Longitudinal Coordinate: 0
+      Initial Horizontal Angle: 0
+      Initial Vertical Angle: 0
+      Relativistic Energy (gamma): 5870.925
+      RMS Energy Spread: 0.00089
+      RMS Horizontal Width: 3.33E-05
+      RMS Vertical Width: 2.91E-06
+      RMS Horizontal Divergence: 1.65E-05
+      RMS Vertical Divergence: 2.75E-06

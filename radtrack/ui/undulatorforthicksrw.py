@@ -14,7 +14,7 @@ from radtrack.rtpyqt4 import QtCore, QtGui, fromUtf8, translate
 from radtrack import srw_ui_params
 
 class Ui_Dialog(object):
-    def setupUi(self, Dialog):
+    def setupUi(self, Dialog, declarations):
         Dialog.setObjectName(fromUtf8("Dialog"))
         Dialog.resize(291, 240)
         self.buttonBox = QtGui.QDialogButtonBox(Dialog)
@@ -30,12 +30,9 @@ class Ui_Dialog(object):
         self.formLayout.setMargin(0)
         self.formLayout.setObjectName(fromUtf8("formLayout"))
 
-        srw_ui_params.setup_ui(self, Dialog)
-        self.retranslateUi(Dialog)
+        srw_ui_params.setup_ui(self, Dialog, declarations)
+        srw_ui_params.retranslate_dialog(self, Dialog, declarations)
 
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(fromUtf8("accepted()")), Dialog.accept)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(fromUtf8("rejected()")), Dialog.reject)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
-
-    def retranslateUi(self, Dialog):
-        srw_ui_params.retranslate_dialog(self, Dialog)
