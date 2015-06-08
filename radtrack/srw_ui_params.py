@@ -40,9 +40,34 @@ def from_dialog(params, dialog):
         params[d['rt_old']] = v
 
 
-def retranslate_dialog(ui_dialog, dialog):
+def init_params(widget, which):
+    """Initialize ``widget.params`` from declarations and defaults.
+
+    widget must have fields `params`, `defaults`, and `declarations`.
+    Must implement `compute_secondary_params`
+
+    Args:
+        widget (QWidget): params, defaults, ec.
+        declarations (dict): parameter spec
+        defaults (dict): values
+
+    Returns:
+        dict: name to value
+    """
+    res = {}
+    dflt = widget.defaults[which]
+    for i, d in enumerate(widget.declarations[which].values()):
+        #TODO(robnagler) this should be a list, perhaps (e.g. fields)
+        if not isinstance(d, dict):
+            continue
+        res[d['rt_old']] = dflt[d['label']]
+    widget.params[which] = res
+    widget.compute_secondary_params(which)
+
+
+def retranslate_dialog(ui_dialog, dialog, declarations):
     """Set the values from the dialog"""
-    dialog.setWindowTitle(translate('Dialog', dialog.declarations['label'], None))
+    dialog.setWindowTitle(translate('Dialog', declarations['label'], None))
     for f in ui_dialog.fields.values():
         d = f['declaration']
         f['qlabel'].setText(translate('Dialog', d['label'], None))
@@ -55,17 +80,10 @@ def retranslate_dialog(ui_dialog, dialog):
                     f['value'].setItemText(v.value, translate('Dialog', v.display_name, None))
 
 
-def set_defaults(params, defaults, dialog):
-    """Go through all the parameter values"""
-    for f in dialog.ui.fields.values():
-        d = f['declaration']
-        params[d['rt_old']] = defaults[d['label']]
-
-
-def setup_ui(ui_dialog, dialog):
+def setup_ui(ui_dialog, dialog, declarations):
     """Create widgets"""
     ui_dialog.fields = {}
-    for i, d in enumerate(dialog.declarations.values()):
+    for i, d in enumerate(declarations.values()):
         #TODO(robnagler) this should be a list, perhaps (e.g. fields)
         if not isinstance(d, dict):
             continue
