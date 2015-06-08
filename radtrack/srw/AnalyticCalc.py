@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 # version where we do not check wiggler or undulator
+from __future__ import absolute_import, division, print_function, unicode_literals
+from io import open
+
+import copy
+
 import numpy as np
 import scipy.integrate
 import scipy.special
@@ -46,3 +51,61 @@ def SpectralCenBrightness(N_u,Gam,I_b):
     #This only works for the case of a planar ID
     I_s=1.325E10*2*N_u*I_b*1E-3*Gam*0.511E0*Gam*0.511E0*1.45 #I[phot/(sec mrad2 0.1% BW)]
     return (I_s)
+
+def MultiParticle(params):
+    """Perform multiparticle analytical calc.
+
+    Args:
+        params (dict): input
+
+    Returns:
+        dict: copy of `params` and results
+    """
+    res = copy.copy(params)
+    v = IDWaveLengthPhotonEnergy(
+        res['undPer'],
+        0,
+        res['By'],
+        res['gamma'],
+    )
+    res.update(zip(('Kx', 'Ky', 'lam_rn', 'e_phn'), v))
+    v = RadiatedPowerPlanarWiggler(
+        res['undPer'],
+        res['By'],
+        res['numPer'],
+        res['gamma'],
+        res['Iavg'],
+    )
+    res.update(zip(('P_W', 'L_id'), v))
+    res['E_c'] = CriticalEnergyWiggler(
+        res['By'],
+        res['gamma'],
+    )
+    res['P_Wdc'] = CentralPowerDensityPlanarWiggler(
+        res['By'],
+        res['numPer'],
+        res['gamma'],
+        res['Iavg'],
+    )
+    v = UndulatorSourceSizeDivergence(
+        res['lam_rn'],
+        res['L_id'],
+    )
+    res.update(zip(('RadSpotSize', 'RadSpotDivergence'), v))
+    res['SpectralFluxValue'] = SpectralFLux(
+        res['numPer'],
+        res['gamma'],
+        1,
+        res['Iavg'],
+        res['Kx'],
+    )
+    res['RadBrightness'] = SpectralCenBrightness(
+        res['numPer'],
+        res['gamma'],
+        res['Iavg'],
+    )
+    res['lam_rn_3'] = res['lam_rn'] / 3.0
+    res['lam_rn_5'] = res['lam_rn'] / 5.0
+    res['e_phn_3'] = res['e_phn'] / 3.0
+    res['e_phn_5'] = res['e_phn'] / 5.0
+    return res

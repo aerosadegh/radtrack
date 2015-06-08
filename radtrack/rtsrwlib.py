@@ -13,8 +13,3 @@ try:
 except ImportError:
     from radtrack.srw import srwlib
     from radtrack.srw import uti_plot
-
-__all__ = [
-    'srwlib',
-    'uti_plot',
-]

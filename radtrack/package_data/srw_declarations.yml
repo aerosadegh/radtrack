@@ -1,0 +1,133 @@
+---
+-
+  label: Simulation Complexity
+  py_type: srw_enums.SimComplexity
+  display_as_checkbox: True
+  rt_old: srw_particle
+-
+  Undulator:
+    -
+      label: Number of Periods
+      py_type: int
+      rt_old: numPer
+    -
+      label: Period Length
+      py_type: float
+      units: cm
+      rt_old: undPer
+    -
+      label: Magnetic Field
+      py_type: float
+      units: mT
+      rt_old: b
+    -
+      label: Harmonic Number
+      py_type: int
+      rt_old: n
+    -
+      label: Undulator Orientation
+      # TODO(robnagler) needs to be an enum with label and desc
+      py_type: srw_enums.UndulatorOrientation
+      want_checkbox: True
+      rt_old: vh
+-
+  label: Simulation Kind
+  py_type: srw_enums.SimKind
+-
+  Spectral Flux Calculation:
+    -
+      label: Initial Harmonic
+      py_type: float
+      rt_old: harma
+    -
+      label: Final Harmonic
+      py_type: float
+      rt_old: harmb
+    -
+      label: Longitudinal Integration Precision
+      py_type: float
+      rt_old: lip
+    -
+      label: Azimuthal Integration Precision
+      py_type: float
+      rt_old: aip
+    -
+      label: Flux Calculation
+      py_type: srw_enums.Flux
+      rt_old: flux
+-
+  Power Density Calculation:
+    -
+      label: Precision Factor
+      py_type: float
+      rt_old: precfact
+    -
+      label: Density Computation Method
+      py_type: srw_enums.DensityMethod
+      rt_old: field
+    -
+      label: Initial Longitudinal Position
+      py_type: float
+      rt_old: ilp
+    -
+      label: Initial Azimuthal Position
+      py_type: float
+      rt_old: flp
+    -
+      label: Number of Points along Trajectory
+      py_type: float
+      rt_old: np
+-
+  Beam:
+    -
+      label: Average Current
+      py_type: float
+      units: mA
+      rt_old: iavg
+    -
+      label: Initial Horizontal Coordinate
+      py_type: float
+      units: m
+      rt_old: partstatmom1x
+    -
+      label: Initial Vertical Coordinate
+      py_type: float
+      units: m
+      rt_old: partstatmom1y
+    -
+      label: Initial Longitudinal Coordinate
+      py_type: float
+      units: m
+      rt_old: partstatmom1z
+    -
+      label: Initial Horizontal Angle
+      py_type: float
+      rt_old: partstatmom1xp
+    -
+      label: Initial Vertical Angle
+      py_type: float
+      rt_old: partstatmom1yp
+    -
+      label: Relativistic Energy (gamma)
+      py_type: float
+      rt_old: partstatmom1gamma
+    -
+      label: RMS Energy Spread
+      py_type: float
+      rt_old: sige
+    -
+      label: RMS Horizontal Width
+      py_type: float
+      rt_old: sigx
+    -
+      label: RMS Vertical Width
+      py_type: float
+      rt_old: sigy
+    -
+      label: RMS Horizontal Divergence
+      py_type: float
+      rt_old: sigxp
+    -
+      label: RMS Vertical Divergence
+      py_type: float
+      rt_old: sigyp
