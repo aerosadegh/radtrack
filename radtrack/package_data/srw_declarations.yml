@@ -28,7 +28,7 @@
       label: Undulator Orientation
       # TODO(robnagler) needs to be an enum with label and desc
       py_type: srw_enums.UndulatorOrientation
-      want_checkbox: True
+      display_as_checkbox: True
       rt_old: vh
 -
   label: Simulation Kind

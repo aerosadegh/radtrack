@@ -64,6 +64,7 @@ def MultiParticle(params):
     res = copy.copy(params)
     v = IDWaveLengthPhotonEnergy(
         res['undPer'],
+        #TODO(robnagler) Why is this not res['Bx']?
         0,
         res['By'],
         res['gamma'],
@@ -71,6 +72,7 @@ def MultiParticle(params):
     res.update(zip(('Kx', 'Ky', 'lam_rn', 'e_phn'), v))
     v = RadiatedPowerPlanarWiggler(
         res['undPer'],
+        #TODO(robnagler) Why is this not res['Bx']?
         res['By'],
         res['numPer'],
         res['gamma'],
