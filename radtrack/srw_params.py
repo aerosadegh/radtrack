@@ -8,6 +8,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from io import open
 
 import __builtin__
+import collections
 import importlib
 import re
 
@@ -50,7 +51,7 @@ def _get(which, how):
 
 
 def _parse_declarations(fields, is_top=True):
-    res = {}
+    res = collections.OrderedDict()
     for f in fields:
         if len(f) == 1:
             k = f.keys()[0]
