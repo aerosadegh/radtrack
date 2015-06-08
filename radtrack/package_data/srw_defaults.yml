@@ -1,0 +1,9 @@
+---
+Simulation Complexity:
+  MULTI_PARTICLE:
+    Undulator:
+      Number of Periods: 170
+      Period Length: .027
+      Magnetic Field: .865
+      Harmonic Number: 1
+      Undulator Orientation: VERTICAL

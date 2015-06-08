@@ -1,0 +1,25 @@
+---
+DensityMethod:
+  NEAR_FIELD: Near Field
+  FAR_FIELD: Far Field
+
+Flux:
+  TOTAL: Total
+  PER_UNIT_SURFACE: Per Unit Surface
+
+SimComplexity:
+  MULTI_PARTICLE: Multi-Particle
+  SINGLE_PARTICLE: Single Particle
+
+SimKind:
+  E: e (energy)
+  X: x (horizontal)
+  Y: y (vertical)
+  X_AND_Y: x & y
+  E_AND_X: e & x
+  E_AND_Y: e & y
+  E_AND_X_AND_Y: e & x & y
+
+UndulatorOrientation:
+  HORIZONTAL: Horizontal
+  VERTICAL: Vertical
