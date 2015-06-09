@@ -29,6 +29,8 @@ from radtrack.srw import AnalyticCalc
 from radtrack.ui import newsrw
 from radtrack.util import resource
 
+from radtrack.rtsrwlib import srwlib, uti_plot
+
 FILE_PREFIX = 'srw'
 
 class rbsrw(QtGui.QWidget):
