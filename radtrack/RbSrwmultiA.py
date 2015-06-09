@@ -16,23 +16,18 @@ import sys
 
 from radtrack.rt_pyqt4 import QtCore, QtGui, call_if_main
 
+from pykern import pkarray
+from pykern.pkdebug import pkdc, pkdi, pkdp
 import jinja2
 import xlrd
-from pykern.pkdebug import pkdc, pkdi, pkdp
-
-from pykern import pkarray
 
 from radtrack import RbUtility
+from radtrack import rt_params
 from radtrack import rt_popup
+from radtrack.rtsrwlib import srwlib, uti_plot
 from radtrack.srw import AnalyticCalc
 from radtrack.ui import newsrw
-from radtrack.ui import precisionthicksrw
 from radtrack.util import resource
-
-
-from radtrack import rt_params
-
-from radtrack.rtsrwlib import srwlib, uti_plot
 
 FILE_PREFIX = 'srw'
 

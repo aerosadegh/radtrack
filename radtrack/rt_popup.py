@@ -16,7 +16,7 @@ from radtrack import RbUtility
 from pykern import pkcompat
 from pykern import pkresource
 from pykern import pkio
-from pykern.pkdebug import pkdp
+from pykern.pkdebug import pkdc, pkdp
 
 #: Index of True of an enumerated type. Not it's value, which may be anything
 ENUM_TRUE_INDEX = 1
@@ -80,7 +80,7 @@ class Form(object):
                 if d['display_as_checkbox']:
                     v = d['py_type'](ENUM_TRUE_INDEX if v.isChecked() else ENUM_FALSE_INDEX)
                 else:
-                    v = d['py_type'](v.currentIndex())
+                    v = d['py_type'](v.itemData(v.currentIndex()).toInt()[0])
             elif d['py_type'] in (float, int):
                 v = num(d, v)
             else:
