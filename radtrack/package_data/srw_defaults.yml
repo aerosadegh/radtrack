@@ -20,3 +20,14 @@ Simulation Complexity:
       RMS Vertical Width: 2.91E-06
       RMS Horizontal Divergence: 1.65E-05
       RMS Vertical Divergence: 2.75E-06
+    Precision:
+      Initial Harmonic: 1
+      Final Harmonic: 21
+      Longitudinal Integration Precision: 1.5
+      Azimuthal Integration Precision: 1.5
+      Flux Calculation: PER_UNIT_SURFACE
+      Precision Factor: 1.5
+      Density Computation Method: FAR_FIELD
+      Initial Longitudinal Position: 0
+      Initial Azimuthal Position: 0
+      Number of Points along Trajectory: 10000

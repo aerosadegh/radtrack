@@ -34,13 +34,19 @@
   label: Simulation Kind
   py_type: srw_enums.SimKind
 -
-  Spectral Flux Calculation:
+  Precision:
+    -
+      label: Spectral Flux Calculation
+      py_type: str
+      display_as_heading: True
     -
       label: Initial Harmonic
+      #TODO(robnagler) int
       py_type: float
       rt_old: harma
     -
       label: Final Harmonic
+      #TODO(robnagler) int
       py_type: float
       rt_old: harmb
     -
@@ -55,8 +61,10 @@
       label: Flux Calculation
       py_type: srw_enums.Flux
       rt_old: flux
--
-  Power Density Calculation:
+    -
+      label: Power Density Calculation
+      py_type: str
+      display_as_heading: True
     -
       label: Precision Factor
       py_type: float

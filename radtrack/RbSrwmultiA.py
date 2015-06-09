@@ -14,7 +14,7 @@ import os
 import re
 import sys
 
-from radtrack.rtpyqt4 import QtCore, QtGui, call_if_main
+from radtrack.rt_pyqt4 import QtCore, QtGui, call_if_main
 
 import jinja2
 import xlrd
@@ -23,16 +23,18 @@ from pykern.pkdebug import pkdc, pkdi, pkdp
 from pykern import pkarray
 
 from radtrack import RbUtility
-from radtrack import srw_pop_up
+from radtrack import rt_popup
 from radtrack.srw import AnalyticCalc
 from radtrack.ui import newsrw
 from radtrack.ui import precisionthicksrw
 from radtrack.util import resource
 
-# TODO(robnagler) remove this once all code migrated
+
+from radtrack import rt_params
+
 from radtrack.rtsrwlib import srwlib, uti_plot
-from radtrack import srw_pop_up
-from radtrack import srw_params
+
+FILE_PREFIX = 'srw'
 
 class rbsrw(QtGui.QWidget):
 
@@ -40,31 +42,18 @@ class rbsrw(QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
         self.ui = newsrw.Ui_Form()
         self.ui.setupUi(self, is_multi_particle=True)
-
-        self.arPrecF = [0]*5
-        self.arPrecP = [0]*5
-
-        #load initial values from excel
         self.workbook = xlrd.open_workbook(resource.filename('SRWinitialvalues.xls'))
-
         # TODO(robnagler) necessary?
         self.thick(self.ui.deparg.currentIndex())
-
-        self.defaults = srw_params.defaults()['Simulation Complexity']['MULTI_PARTICLE']
-        self.declarations = srw_params.declarations()
+        self.defaults = rt_params.defaults(FILE_PREFIX) \
+            ['Simulation Complexity']['MULTI_PARTICLE']
+        self.declarations = rt_params.declarations(FILE_PREFIX)
         self._init_params('Undulator')
         self._init_params('Beam')
-
-        column = self.workbook.sheet_by_name('thick precision').col(0)
-        units = self.workbook.sheet_by_name('thick precision').col(1)
-        pkdc('column={}', column)
-        units = self.unitstr(units)
-        self.GetPrecision(DialogP(self,units,column))
-
-        #connections
+        self._init_params('Precision')
         self.ui.undulator.clicked.connect(lambda: self.pop_up('Undulator'))
         self.ui.beam.clicked.connect(lambda: self.pop_up('Beam'))
-        self.ui.precision.clicked.connect(self.setprec)
+        self.ui.precision.clicked.connect(lambda: self.pop_up('Precision'))
         self.ui.deparg.currentIndexChanged.connect(self.thick)
         self.ui.sim.clicked.connect(self.srwbuttonThick)
         self.ui.analyze.clicked.connect(self.AnalyticA)
@@ -93,7 +82,8 @@ class rbsrw(QtGui.QWidget):
             #TODO(robnagler) this should be a list, perhaps (e.g. fields)
             if not isinstance(d, dict):
                 continue
-            res[d['rt_old']] = dflt[d['label']]
+            if d['rt_old']:
+                res[d['rt_old']] = dflt[d['label']]
         self.params[which] = res
 
 
@@ -164,13 +154,23 @@ class rbsrw(QtGui.QWidget):
         res.arStatMom2[10] = sigEperE*sigEperE #<(E-<E>)^2>/<E>^2
         return res
 
+    def ar_prec_f(self):
+        return self._ar_prec(('harma', 'harmb', 'lip', 'aip', 'flux'))
+
+    def ar_prec_p(self):
+        return self._ar_prec(('prefact', 'field', 'ilp', 'flp', 'np'))
+
+    def _ar_prec(self, short_names):
+        p = self.params['Precision']
+        return [_fix_enum_value(p[k]) for k in short_names]
+
     def undulator_params(self):
         #vertical harmonic magnetic field
         harmB = srwlib.SRWLMagFldH() #magnetic field harmonic
         p = self.params['Undulator']
         harmB.n = p['n'] #harmonic number
         # TODO(robnagler) this should be vh
-        # TODO(robnagler) compute secondaries in srw_params
+        # TODO(robnagler) compute secondaries in rt_params
         if p['vh'].has_name('VERTICAL'):
             harmB.B = p['b'] #magnetic field amplitude[T]
             harmB.h_or_v = 'v'   #magnetic field plane: vertical ('v')
@@ -206,46 +206,16 @@ class rbsrw(QtGui.QWidget):
         wfrE.mesh.yStart = float(self.ui.tableWidget.item(7,0).text())
         wfrE.mesh.yFin = float(self.ui.tableWidget.item(9,0).text())
 
-    def GetPrecision(self, dialog):
-        units = dialog.u
-        #for spectral flux vs photon energy
-        self.arPrecF[0] = float(dialog.ui.harma.text()) #initial UR harmonic to take into account
-        self.arPrecF[1] = float(dialog.ui.harmb.text()) #final UR harmonic to take into account
-        self.arPrecF[2] = float(dialog.ui.lip.text()) #longitudinal integration precision parameter
-        self.arPrecF[3] = float(dialog.ui.aip.text()) #azimuthal integration precision parameter
-        self.arPrecF[4] = dialog.ui.flux.currentIndex()+1 #calculate flux (1) or flux per unit surface (2)
-
-        #for power density
-        self.arPrecP[0] = float(dialog.ui.prefact.text()) #precision factor
-        self.arPrecP[1] = dialog.ui.field.currentIndex()+1 #power density computation method (1- "near field", 2- "far field")
-        self.arPrecP[2] = float(dialog.ui.ilp.text()) #initial longitudinal position (effective if self.arPrecP[2] < self.arPrecP[3])
-        self.arPrecP[3] = float(dialog.ui.flp.text()) #final longitudinal position (effective if self.arPrecP[2] < self.arPrecP[3])
-        self.arPrecP[4] = int(float(dialog.ui.np.text())) #number of points for (intermediate) trajectory calculation
-        #return (self.arPrecF, self.arPrecP)
-
-    def ShowPrecision(self, dialog):
-        dialog.ui.harma.setText(str(self.arPrecF[0]))
-        dialog.ui.harmb.setText(str(self.arPrecF[1]))
-        dialog.ui.lip.setText(str(self.arPrecF[2]))
-        dialog.ui.aip.setText(str(self.arPrecF[3]))
-        dialog.ui.flux.setCurrentIndex(self.arPrecF[4]-1)
-
-        dialog.ui.prefact.setText(str(self.arPrecP[0]))
-        dialog.ui.field.setCurrentIndex(self.arPrecP[1]-1)
-        dialog.ui.ilp.setText(str(self.arPrecP[2]))
-        dialog.ui.flp.setText(str(self.arPrecP[3]))
-        dialog.ui.np.setText(str(self.arPrecP[4]))
 
     def pop_up(self, which):
-        p = srw_pop_up.Window(self.declarations[which], self.params[which], self)
+        p = rt_popup.Window(
+            self.declarations[which],
+            self.params[which],
+            file_prefix=FILE_PREFIX,
+            parent=self,
+        )
         if p.exec_():
             self.params[which] = p.get_params()
-
-    def setprec(self):
-        dialog = DialogP()
-        self.ShowPrecision(dialog)
-        if dialog.exec_():
-            self.GetPrecision(dialog)
 
     def srwbuttonThick(self):
         (und, magFldCnt) = self.undulator_params()
@@ -263,7 +233,8 @@ class rbsrw(QtGui.QWidget):
             str1='* Performing Electric Field (spectrum vs photon energy) calculation ... \n \n'
             self.ui.status.setText(str1)
             self.ui.status.repaint()
-            srwlib.srwl.CalcStokesUR(stkF, beam, und, self.arPrecF) #####
+            pkdc('ar_prec_f={}', self.ar_prec_f())
+            srwlib.srwl.CalcStokesUR(stkF, beam, und, self.ar_prec_f())
 
             str2='* Extracting Intensity from calculated Electric Field ... \n \n'
             self.ui.status.setText(str1+str2)
@@ -281,8 +252,7 @@ class rbsrw(QtGui.QWidget):
             pkdc('stkP={}', stkP)
             pkdc('beam={}', beam)
             pkdc('und={}', und)
-            pkdc('arPrecP={}', self.arPrecP)
-            srwlib.srwl.CalcPowDenSR(stkP, beam, 0, magFldCnt, self.arPrecP)
+            srwlib.srwl.CalcPowDenSR(stkP, beam, 0, magFldCnt, self.ar_prec_p())
 
             str2='* Extracting Intensity from calculated Electric Field ... \n \n '
             self.ui.status.setText(str1+str2)
@@ -306,8 +276,7 @@ class rbsrw(QtGui.QWidget):
             pkdc('stkP={}', stkP)
             pkdc('beam={}', beam)
             pkdc('und={}', und)
-            pkdc('self.arPrecP={}', self.arPrecP)
-            srwlib.srwl.CalcPowDenSR(stkP, beam, 0, magFldCnt, self.arPrecP)
+            srwlib.srwl.CalcPowDenSR(stkP, beam, 0, magFldCnt, self.ar_prec_p())
 
             str2='* Extracting Intensity from calculated Electric Field ... \n \n '
             self.ui.status.setText(str1+str2)
@@ -326,7 +295,7 @@ class rbsrw(QtGui.QWidget):
             str1='* Performing Electric Field (intensity vs x- and y-coordinate) calculation ... \n \n'
             self.ui.status.setText(str1)
             self.ui.status.repaint()
-            srwlib.srwl.CalcPowDenSR(stkP, beam, 0, magFldCnt, self.arPrecP)
+            srwlib.srwl.CalcPowDenSR(stkP, beam, 0, magFldCnt, self.ar_prec_p())
 
             str2='* Extracting Intensity from calculated Electric Field ... \n \n '
             self.ui.status.setText(str1+str2)
@@ -382,23 +351,8 @@ class rbsrw(QtGui.QWidget):
 
         return units
 
-class DialogP(QtGui.QDialog):
-    def __init__(self, parent=None,units=None,column=None):
-        QtGui.QDialog.__init__(self,parent)
-        self.ui = precisionthicksrw.Ui_Dialog()
-        self.ui.setupUi(self)
-        self.u = units
-        if column is not None:
-            self.ui.harma.setText(str(column[0].value))
-            self.ui.harmb.setText(str(column[1].value))
-            self.ui.lip.setText(str(column[2].value))
-            self.ui.aip.setText(str(column[3].value))
-            self.ui.flux.setCurrentIndex(int(column[4].value))
 
-            self.ui.prefact.setText(str(column[5].value))
-            self.ui.field.setCurrentIndex(column[6].value)
-            self.ui.ilp.setText(str(column[7].value))
-            self.ui.flp.setText(str(column[8].value))
-            self.ui.np.setText(str(column[9].value))
+def _fix_enum_value(v):
+    return v.value if hasattr(v, 'value') else v
 
 call_if_main(rbsrw)
