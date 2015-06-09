@@ -9,6 +9,7 @@ from io import open
 import os.path
 
 import pytest
+from pykern.pkdebug import pkdc, pkdi, pkdp
 
 from radtrack import rt_params
 from radtrack import srw_enums
@@ -31,14 +32,45 @@ def test_declarations():
 def test_defaults():
     """Verify a couple of values exist"""
     d = rt_params.defaults('srw')
-    assert d['Simulation Complexity']['MULTI_PARTICLE']['_value'] \
-        == srw_enums.SimComplexity.MULTI_PARTICLE, \
-        'Value must be parsed correctly'
     assert isinstance(
         d['Simulation Complexity']['MULTI_PARTICLE']['Undulator']['Undulator Orientation'],
         srw_enums.UndulatorOrientation), \
         'Value must be parsed correctly'
+    assert 101 == \
+        d['Simulation Complexity']['MULTI_PARTICLE'] \
+        ['Simulation Kind']['X_AND_Y']['Wavefront']['Number of points along X'], \
+        'Value must be parsed correctly'
     _assert_unicode(d)
+
+
+def test_init_params():
+    """Verify a couple of values exist"""
+    p = rt_params.init_params(
+        rt_params.defaults('srw')['Simulation Complexity']['MULTI_PARTICLE'],
+        rt_params.declarations('srw'),
+    )
+    assert 0.5 == p['Beam']['Average Current'], \
+        'Value must be converted to type correctly'
+    assert 1000 == p['Simulation Kind']['E']['Wavefront']['Number of points along Energy'], \
+        'Selectors must be parsed correctly'
+    assert p
+
+
+def test_iter_declarations():
+    """Verify a couple of values exist"""
+    declarations = rt_params.declarations('srw');
+    it = rt_params.iter_display_declarations(declarations['Precision'])
+    assert 'Spectral Flux Calculation' == it.next()['label'], \
+        'When iter_display_declarations, should see headings'
+    assert 'Initial Harmonic' == it.next()['label'], \
+        'Ensure values are in order '
+    it = rt_params.iter_primary_param_declarations(declarations['Precision'])
+    assert 'Initial Harmonic' == it.next()['label'], \
+        'When iter_primary_param_declarations, should not see heading'
+    it = rt_params.iter_primary_param_declarations(declarations['Undulator'])
+    assert 5 == len(list(it)), \
+        'When iter_primary_param_declarations, should not see computed params'
+
 
 def _assert_unicode(d, prefix=None):
     if isinstance(d, dict):

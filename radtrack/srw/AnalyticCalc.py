@@ -52,7 +52,7 @@ def SpectralCenBrightness(N_u,Gam,I_b):
     I_s=1.325E10*2*N_u*I_b*1E-3*Gam*0.511E0*Gam*0.511E0*1.45 #I[phot/(sec mrad2 0.1% BW)]
     return (I_s)
 
-def MultiParticle(params):
+def multi_particle(params):
     """Perform multiparticle analytical calc.
 
     Args:
@@ -61,33 +61,33 @@ def MultiParticle(params):
     Returns:
         dict: copy of `params` and results
     """
-    res = copy.copy(params)
+    res = copy.deepcopy(params)
     v = IDWaveLengthPhotonEnergy(
-        res['undPer'],
+        params['Period Length'],
         #TODO(robnagler) Why is this not res['Bx']?
         0,
-        res['By'],
-        res['gamma'],
+        params['Vertical Magnetic Field'],
+        params['Relativistic Energy (gamma)'],
     )
     res.update(zip(('Kx', 'Ky', 'lam_rn', 'e_phn'), v))
     v = RadiatedPowerPlanarWiggler(
-        res['undPer'],
+        params['Period Length'],
         #TODO(robnagler) Why is this not res['Bx']?
-        res['By'],
-        res['numPer'],
-        res['gamma'],
-        res['Iavg'],
+        params['Vertical Magnetic Field'],
+        params['Number of Periods'],
+        params['Relativistic Energy (gamma)'],
+        params['Average Current'],
     )
     res.update(zip(('P_W', 'L_id'), v))
     res['E_c'] = CriticalEnergyWiggler(
-        res['By'],
-        res['gamma'],
+        params['Vertical Magnetic Field'],
+        params['Relativistic Energy (gamma)'],
     )
     res['P_Wdc'] = CentralPowerDensityPlanarWiggler(
-        res['By'],
-        res['numPer'],
-        res['gamma'],
-        res['Iavg'],
+        params['Vertical Magnetic Field'],
+        params['Number of Periods'],
+        params['Relativistic Energy (gamma)'],
+        params['Average Current'],
     )
     v = UndulatorSourceSizeDivergence(
         res['lam_rn'],
@@ -95,16 +95,16 @@ def MultiParticle(params):
     )
     res.update(zip(('RadSpotSize', 'RadSpotDivergence'), v))
     res['SpectralFluxValue'] = SpectralFLux(
-        res['numPer'],
-        res['gamma'],
+        params['Number of Periods'],
+        params['Relativistic Energy (gamma)'],
         1,
-        res['Iavg'],
+        params['Average Current'],
         res['Kx'],
     )
     res['RadBrightness'] = SpectralCenBrightness(
-        res['numPer'],
-        res['gamma'],
-        res['Iavg'],
+        params['Number of Periods'],
+        params['Relativistic Energy (gamma)'],
+        params['Average Current'],
     )
     res['lam_rn_3'] = res['lam_rn'] / 3.0
     res['lam_rn_5'] = res['lam_rn'] / 5.0

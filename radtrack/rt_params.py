@@ -15,7 +15,7 @@ import re
 import enum
 import yaml
 
-from pykern.pkdebug import pkdi
+from pykern.pkdebug import pkdc, pkdi, pkdp
 from pykern import pkcompat
 from pykern import pkio
 from pykern import pkresource
@@ -46,6 +46,62 @@ def defaults(file_prefix):
         dict: mapping of default values
     """
     return _get(file_prefix, 'defaults', _parse_defaults)
+
+
+def init_params(defaults, declarations):
+    """Create a tree of default params excluding headings and computed params
+
+    Args:
+        defaults (dict): used for initializations
+        declarations (dict): relevant expected declarations
+
+    Returns:
+        dict: nested dictionary of params
+    """
+    res = {}
+    for k in defaults:
+        res2 = {}
+        res[k] = res2
+        df = defaults[k]
+        d = declarations[k]
+        if d['is_selector_for_params']:
+            for k2 in df:
+                res2[k2] = init_params(df[k2], declarations)
+        else:
+            for d in declarations[k].values():
+                if not isinstance(d, dict) \
+                    or d['is_computed_param'] or d['display_as_heading']:
+                    continue
+                res2[d['label']] = df[d['label']]
+    return res
+
+
+def iter_display_declarations(declarations):
+    """Iterate over primary params and headings
+
+    Args:
+        declarations (OrderedDict): what to iterate
+
+    Yields:
+        declaration (dict): values of `declarations`
+    """
+    for d in declarations.values():
+        if isinstance(d, dict) and not d['is_computed_param']:
+            yield d
+
+
+def iter_primary_param_declarations(declarations):
+    """Iterate over primary params and not headings
+
+    Args:
+        declarations (OrderedDict): what to iterate
+
+    Yields:
+        declaration (dict): values of `declarations`
+    """
+    for d in declarations.values():
+        if isinstance(d, dict) and not d['is_computed_param'] and not d['display_as_heading']:
+            yield d
 
 
 def _get(file_prefix, which, how):
@@ -84,10 +140,18 @@ def _parse_declarations(values, file_prefix=None):
             assert not 'label' in v, \
                 '{}.parameter name may not be "label"'.format(k)
             v['label'] = k
+            #TODO(robnagler) need to solve collisions problem
+            v['is_selector_for_params'] = False
         else:
-            for x in ('display_as_checkbox', 'display_as_heading', 'rt_old', 'units'):
+            for x in (
+                'display_as_checkbox',
+                'display_as_heading',
+                'is_computed_param',
+                'is_selector_for_params',
+                'units',
+            ):
                 if x not in v:
-                    v[x] = None
+                    v[x] = None if x == 'units' else False
             v['py_type'] = _parse_type(v)
         res[v['label']] = v
     return res
@@ -111,18 +175,16 @@ def _parse_defaults(values, d=None, file_prefix=None):
         if not isinstance(v, dict):
             res[k] = _parse_value(v, sub_d['py_type'])
             continue
-        #TODO(robnagler) This isn't quite right
-        if not 'py_type' in sub_d:
+        if not sub_d['is_selector_for_params']:
             res[k] = _parse_defaults(v, sub_d)
             continue
-        # Enum selector is strange, because there is a value
+        # Selector is strange, because there is a value
         t = sub_d['py_type']
         assert isinstance(t, enum.EnumMeta), \
             '{}: unable to parse value for {}'.format(d['py_type'], d['label'])
         res[k] = {}
         for k2, v2 in v.items():
             res[k][k2] = _parse_defaults(v2, d)
-            res[k][k2]['_value'] = _parse_value(k2, t)
     return res
 
 

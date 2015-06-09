@@ -73,7 +73,7 @@ class Form(object):
             return d['py_type'](v)
 
         res = {}
-        for d in self._iterate_declarations(True):
+        for d in rt_params.iter_primary_param_declarations(self._declarations):
             f = self._fields[d['label']]
             v = f['value']
             if isinstance(d['py_type'], enum.EnumMeta):
@@ -85,7 +85,7 @@ class Form(object):
                 v = num(d, v)
             else:
                 raise AssertionError('bad type: ' + str(d['py_type']))
-            res[d['rt_old']] = v
+            res[d['label']] = v
         return res
 
     def _init_buttons(self, window):
@@ -114,7 +114,7 @@ class Form(object):
         self._fields = {}
         self._declarations = declarations
         num = 0
-        for d in self._iterate_declarations():
+        for d in rt_params.iter_display_declarations(self._declarations):
             qlabel = QtGui.QLabel(self._frame)
             if d['display_as_heading']:
                 qlabel.setObjectName(fromUtf8('heading'))
@@ -157,7 +157,7 @@ class Form(object):
         """Set the values from the window"""
         max_label = 0
         max_value = 0
-        for d in self._iterate_declarations():
+        for d in rt_params.iter_display_declarations(self._declarations):
             f = self._fields[d['label']]
             l = translate('Dialog', d['label'], None)
             if len(l) > max_label:
@@ -185,10 +185,10 @@ class Form(object):
         return (max_label, max_value)
 
     def _set_params(self, params, max_value):
-        for d in self._iterate_declarations(True):
+        for d in rt_params.iter_primary_param_declarations(self._declarations):
             f = self._fields[d['label']]
             v = f['value']
-            p = params[d['rt_old']]
+            p = params[d['label']]
             if isinstance(d['py_type'], enum.EnumMeta):
                 if d['display_as_checkbox']:
                     v.setChecked(d['py_type'](ENUM_TRUE_INDEX) == p)
@@ -205,12 +205,3 @@ class Form(object):
             if len(l) > max_value:
                 max_value = len(l)
         return max_value
-
-    def _iterate_declarations(self, ignore_headings=False):
-        """Iterate over declarations, ignoring non-fields"""
-        for d in self._declarations.values():
-            if not isinstance(d, dict):
-                continue
-            if ignore_headings and d['display_as_heading']:
-                continue
-            yield d

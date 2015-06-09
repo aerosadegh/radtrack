@@ -31,3 +31,52 @@ Simulation Complexity:
       Initial Longitudinal Position: 0
       Initial Azimuthal Position: 0
       Number of Points along Trajectory: 10000
+    Simulation Kind:
+      E:
+        Wavefront:
+          Number of points along Energy: 1000
+          Number of points along X: 1
+          Number of points along Y: 1
+          Distance to Window: 20
+          Initial Photon Energy: 10
+          Final Photon Energy: 3000
+          Window Left Edge: -0.0025
+          Window Top Edge: -0.0025
+          Window Right Edge: 0.0025
+          Window Bottom Edge: 0.0025
+      X:
+        Wavefront:
+          Number of points along Energy: 1
+          Number of points along X: 100
+          Number of points along Y: 3
+          Distance to Window: 20
+          Initial Photon Energy: 396
+          Final Photon Energy: 396
+          Window Left Edge: -0.015
+          Window Top Edge: -0.001
+          Window Right Edge: 0.015
+          Window Bottom Edge: 0.001
+      Y:
+        Wavefront:
+          Number of points along Energy: 1
+          Number of points along X: 3
+          Number of points along Y: 100
+          Distance to Window: 20
+          Initial Photon Energy: 396
+          Final Photon Energy: 396
+          Window Left Edge: -0.001
+          Window Top Edge: -0.015
+          Window Right Edge: 0.001
+          Window Bottom Edge: 0.015
+      X_AND_Y:
+        Wavefront:
+          Number of points along Energy: 1
+          Number of points along X: 101
+          Number of points along Y: 100
+          Distance to Window: 20
+          Initial Photon Energy: 396
+          Final Photon Energy: 396
+          Window Left Edge: -0.015
+          Window Top Edge: -0.015
+          Window Right Edge: 0.015
+          Window Bottom Edge: 0.015

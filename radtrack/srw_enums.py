@@ -23,13 +23,13 @@ class Flux(rt_enum.Enum):
 
 
 @enum.unique
-class SimComplexity(rt_enum.Enum):
+class SimulationComplexity(rt_enum.Enum):
     MULTI_PARTICLE = 0
     SINGLE_PARTICLE = 1
 
 
 @enum.unique
-class SimKind(rt_enum.Enum):
+class SimulationKind(rt_enum.Enum):
     E = 0
     X = 1
     Y = 2

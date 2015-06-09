@@ -7,11 +7,11 @@ Flux:
   TOTAL: Total
   PER_UNIT_SURFACE: Per Unit Surface
 
-SimComplexity:
+SimulationComplexity:
   MULTI_PARTICLE: Multi-Particle
   SINGLE_PARTICLE: Single Particle
 
-SimKind:
+SimulationKind:
   E: e (energy)
   X: x (horizontal)
   Y: y (vertical)
