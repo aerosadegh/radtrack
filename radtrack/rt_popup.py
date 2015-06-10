@@ -11,12 +11,13 @@ import enum
 
 from radtrack.rt_pyqt4 import QtCore, QtGui, fromUtf8, translate
 
-from radtrack import RbUtility
-
 from pykern import pkcompat
 from pykern import pkresource
 from pykern import pkio
 from pykern.pkdebug import pkdc, pkdp
+
+from radtrack import RbUtility
+from radtrack import rt_params
 
 #: Index of True of an enumerated type. Not it's value, which may be anything
 ENUM_TRUE_INDEX = 1
