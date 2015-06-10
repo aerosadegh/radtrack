@@ -27,6 +27,7 @@ from radtrack import rt_popup
 from radtrack import srw_enums
 from radtrack.rtsrwlib import srwlib, uti_plot
 from radtrack.srw import AnalyticCalc
+#from radtrack import srw_pane
 from radtrack.ui import newsrw
 from radtrack.util import resource
 
@@ -34,18 +35,23 @@ from radtrack.rtsrwlib import srwlib, uti_plot
 
 FILE_PREFIX = 'srw'
 
-class Popup(QtGui.QWidget):
+class Pane(QtGui.QWidget):
 
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
-        self.ui = newsrw.Ui_Form()
-        self.ui.setupUi(self, is_multi_particle=True)
         # TODO(robnagler) necessary?
         self.declarations = rt_params.declarations(FILE_PREFIX)
         self.params = rt_params.init_params(
             rt_params.defaults(FILE_PREFIX)['Simulation Complexity']['MULTI_PARTICLE'],
             self.declarations,
         )
+
+        #self.ui = srw_pane.Pane()
+        #self.ui.setupUi(self, is_multi_particle=True)
+        #return
+        self.ui = newsrw.Ui_Form()
+        self.ui.setupUi(self, is_multi_particle=True)
+
         self.wavefront_display_params()
         self.ui.undulator.clicked.connect(lambda: self.pop_up('Undulator'))
         self.ui.beam.clicked.connect(lambda: self.pop_up('Beam'))
@@ -53,7 +59,7 @@ class Popup(QtGui.QWidget):
         self.ui.deparg.currentIndexChanged.connect(self.wavefront_display_params)
         self.ui.sim.clicked.connect(self.simulate)
         self.ui.analyze.clicked.connect(self.analytic_calculations)
-        self.ui.analytic.setText('Click Analyze to calculate')
+        self.ui.analytic.setText('Click the Analyze button to approximate a simulation')
         self.ui.status.setText('Initialized')
 
     def analytic_calculations(self):
@@ -175,13 +181,14 @@ class Popup(QtGui.QWidget):
             p['Number of points along X'],
             p['Number of points along Y'],
         )
-        res.mesh.zStart = p['Distance to Window']
-        res.mesh.eStart = p['Initial Photon Energy']
-        res.mesh.eFin = p['Final Photon Energy']
-        res.mesh.xStart = p['Window Left Edge']
-        res.mesh.xFin = p['Window Right Edge']
-        res.mesh.yStart = p['Window Top Edge']
-        res.mesh.yFin = p['Window Bottom Edge']
+        m = res.mesh
+        m.zStart = p['Distance to Window']
+        m.eStart = p['Initial Photon Energy']
+        m.eFin = p['Final Photon Energy']
+        m.xStart = p['Window Left Edge']
+        m.xFin = p['Window Right Edge']
+        m.yStart = p['Window Top Edge']
+        m.yFin = p['Window Bottom Edge']
         return res
 
     def wavefront_display_params(self):
@@ -297,4 +304,4 @@ def _fix_enum_value(v):
     return v.value if hasattr(v, 'value') else v
 
 
-call_if_main(Popup)
+call_if_main(Pane)

@@ -18,7 +18,7 @@ class RbSrwTab(QtGui.QWidget):
 
         self.stackwidget = QtGui.QStackedWidget(self)
         self.stackwidget.addWidget(
-            srw_multi_particle.Popup(self))
+            srw_multi_particle.Pane(self))
         self.stackwidget.addWidget(rbsrwsingle(self))
         self.srw_particle = QtGui.QCheckBox(self)
         self.srw_particle.setText('Single-Particle')
