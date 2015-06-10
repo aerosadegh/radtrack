@@ -14,7 +14,7 @@ import os
 import re
 import sys
 
-from radtrack.rt_qt import QtCore, QtGui, call_if_main, i18n_text
+from radtrack.rt_qt import call_if_main
 
 from pykern import pkarray
 from pykern.pkdebug import pkdc, pkdi, pkdp

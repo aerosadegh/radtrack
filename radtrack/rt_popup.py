@@ -9,7 +9,7 @@ from io import open
 
 import enum
 
-from radtrack.rt_qt import QtCore, QtGui, i18n_text, set_id, set_param
+from radtrack.rt_qt import QtCore, QtGui, i18n_text, set_id, set_param, ENUM_TRUE_INDEX, ENUM_FALSE_INDEX
 
 from pykern import pkcompat
 from pykern import pkresource
@@ -18,12 +18,6 @@ from pykern.pkdebug import pkdc, pkdp
 
 from radtrack import RbUtility
 from radtrack import rt_params
-
-#: Index of True of an enumerated type. Not it's value, which may be anything
-ENUM_TRUE_INDEX = 1
-
-#: Index of False of an enumerated type. Not it's value, which may be anything
-ENUM_FALSE_INDEX = 0
 
 class Window(QtGui.QDialog):
     def __init__(self, declarations, params, file_prefix, parent=None):
@@ -65,7 +59,7 @@ class Form(object):
                 return None
             v = w.text()
             if d['units']:
-                w = RbUtility.convertUnitsStringToNumber(v, d['units'])
+                v = RbUtility.convertUnitsStringToNumber(v, d['units'])
             return d['py_type'](v)
 
         res = {}
@@ -134,7 +128,7 @@ class Form(object):
             else:
                 if d['display_as_checkbox']:
                     widget = QtGui.QCheckBox(self._frame)
-                    v = i18n_text(t(ENUM_TRUE_INDEX).display_name, f['widget'])
+                    v = i18n_text(t(ENUM_TRUE_INDEX).display_name, widget)
                 else:
                     widget = QtGui.QComboBox(self._frame)
                     v = ''

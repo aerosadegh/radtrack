@@ -26,6 +26,12 @@ ID_NAMES = [
     'form_field',
 ]
 
+#: Index of True of an enumerated type. Not it's value, which may be anything
+ENUM_TRUE_INDEX = 1
+
+#: Index of False of an enumerated type. Not it's value, which may be anything
+ENUM_FALSE_INDEX = 0
+
 
 def call_if_main(init_widget):
     """Invokes `init_widget` as a Qt program if caller is __main__.
@@ -111,7 +117,7 @@ def set_param(declaration, params, widget):
             widget.setCurrentIndex(list(t).index(p))
         return i18n_text(p.display_name)
     if declaration['units']:
-        l = RbUtility.displayWithUnitsNumber(p, d['units'])
+        l = RbUtility.displayWithUnitsNumber(p, declaration['units'])
     else:
         l = str(p)
     widget.setText(l)
