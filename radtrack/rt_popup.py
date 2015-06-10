@@ -9,7 +9,7 @@ from io import open
 
 import enum
 
-from radtrack.rt_pyqt4 import QtCore, QtGui, fromUtf8, translate
+from radtrack.rt_qt import QtCore, QtGui, i18n_text, set_id, set_param
 
 from pykern import pkcompat
 from pykern import pkresource
@@ -28,7 +28,7 @@ ENUM_FALSE_INDEX = 0
 class Window(QtGui.QDialog):
     def __init__(self, declarations, params, file_prefix, parent=None):
         super(Window, self).__init__(parent)
-        self._retranslate(declarations)
+        self.setWindowTitle(i18n_text(declarations['label']))
         self.setStyleSheet(pkio.read_text(pkresource.filename(file_prefix + '_popup.css')))
         self._form = Form(declarations, params, self)
 
@@ -36,8 +36,7 @@ class Window(QtGui.QDialog):
         """Convert values in the window to "param" values"""
         return self._form._get_params()
 
-    def _retranslate(self, declarations):
-        self.setWindowTitle(translate('window', declarations['label'], None))
+
 
 
 class Form(object):
@@ -50,40 +49,36 @@ class Form(object):
 
     def __init__(self, declarations, params, window):
         super(Form, self).__init__()
-        window.setObjectName(fromUtf8('form'))
+        self._declarations = declarations
         self._frame = QtGui.QWidget(window)
-        self._frame.setObjectName(fromUtf8('form'))
         self._layout = QtGui.QFormLayout(self._frame)
         self._layout.setFieldGrowthPolicy(QtGui.QFormLayout.AllNonFixedFieldsGrow)
         self._layout.setMargin(0)
-        self._layout.setObjectName(fromUtf8('layout'))
-        num_fields = self._init_fields(declarations)
-        (max_label, max_value) = self._retranslate(window)
+        sizes = self._init_fields(params)
         self._init_buttons(window)
-        max_value = self._set_params(params, max_value)
-        self._set_geometry(max_label, max_value, num_fields)
+        self._set_geometry(sizes)
 
     def _get_params(self):
-        def num(d, v):
+        def num(d, w):
             # need type checking
-            if v is None:
+            if w is None:
                 return None
-            v = v.text()
+            v = w.text()
             if d['units']:
-                v = RbUtility.convertUnitsStringToNumber(v, d['units'])
+                w = RbUtility.convertUnitsStringToNumber(v, d['units'])
             return d['py_type'](v)
 
         res = {}
         for d in rt_params.iter_primary_param_declarations(self._declarations):
             f = self._fields[d['label']]
-            v = f['value']
+            w = f['widget']
             if isinstance(d['py_type'], enum.EnumMeta):
                 if d['display_as_checkbox']:
-                    v = d['py_type'](ENUM_TRUE_INDEX if v.isChecked() else ENUM_FALSE_INDEX)
+                    v = d['py_type'](ENUM_TRUE_INDEX if w.isChecked() else ENUM_FALSE_INDEX)
                 else:
-                    v = d['py_type'](v.itemData(v.currentIndex()).toInt()[0])
+                    v = d['py_type'](w.itemData(w.currentIndex()).toInt()[0])
             elif d['py_type'] in (float, int):
-                v = num(d, v)
+                v = num(d, w)
             else:
                 raise AssertionError('bad type: ' + str(d['py_type']))
             res[d['label']] = v
@@ -94,7 +89,7 @@ class Form(object):
         self._buttons.setOrientation(QtCore.Qt.Horizontal)
         self._buttons.setStandardButtons(
             QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
-        self._buttons.setObjectName(fromUtf8('_buttons'))
+        self._buttons.setSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         self._buttons.setCenterButtons(1)
         s = QtGui.QSpacerItem(
             self.CHAR_WIDTH,
@@ -105,104 +100,76 @@ class Form(object):
         self._layout.addItem(s)
         self._layout.addRow(self._buttons)
         QtCore.QObject.connect(
-            self._buttons, QtCore.SIGNAL(fromUtf8('accepted()')), window.accept)
+            self._buttons, QtCore.SIGNAL('accepted()'), window.accept)
         QtCore.QObject.connect(
-            self._buttons, QtCore.SIGNAL(fromUtf8('rejected()')), window.reject)
-        QtCore.QMetaObject.connectSlotsByName(window)
+            self._buttons, QtCore.SIGNAL('rejected()'), window.reject)
+        ###QtCore.QMetaObject.connectSlotsByName(window)
 
-    def _init_fields(self, declarations):
+    def _init_fields(self, params):
         """Create widgets"""
         self._fields = {}
-        self._declarations = declarations
-        num = 0
-        for d in rt_params.iter_display_declarations(self._declarations):
+        res = {
+            'num': 0,
+            'max_value': 0,
+            'max_label': 0,
+        }
+
+        def _label(d):
             qlabel = QtGui.QLabel(self._frame)
-            if d['display_as_heading']:
-                qlabel.setObjectName(fromUtf8('heading'))
-                qlabel.setAlignment(QtCore.Qt.AlignCenter)
-                self._layout.addRow(qlabel)
-                value = None
+            l = i18n_text(d['label'], qlabel)
+            if len(l) > res['max_label']:
+                res['max_label'] = len(l)
+            return qlabel
+
+        def _heading(qlabel):
+            set_id(qlabel, 'heading')
+            qlabel.setAlignment(QtCore.Qt.AlignCenter)
+            self._layout.addRow(qlabel)
+
+        def _value_widget(d):
+            t = d['py_type']
+            if not isinstance(t, enum.EnumMeta):
+                widget = QtGui.QLineEdit(self._frame)
+                v = set_param(d, params, widget)
             else:
-                qlabel.setObjectName(fromUtf8(d['label'] + ' label'))
-                if isinstance(d['py_type'], enum.EnumMeta):
-                    if d['display_as_checkbox']:
-                        value = QtGui.QCheckBox(self._frame)
-                    else:
-                        value = QtGui.QComboBox(self._frame)
-                        for f in d['py_type']:
-                            value.addItem(fromUtf8(''), userData=f.value)
+                if d['display_as_checkbox']:
+                    widget = QtGui.QCheckBox(self._frame)
+                    v = i18n_text(t(ENUM_TRUE_INDEX).display_name, f['widget'])
                 else:
-                    value = QtGui.QLineEdit(self._frame)
-                value.setObjectName(fromUtf8(d['label']))
-                #value.setVerticalPolicy(QtCore.QSizePolicy.Expanding)
-                self._layout.addRow(qlabel, value)
+                    widget = QtGui.QComboBox(self._frame)
+                    v = ''
+                    for e in t:
+                        n = i18n_text(e.display_name)
+                        widget.addItem(n, userData=e.value)
+                        if len(n) > len(v):
+                            v = n
+                set_param(d, params, widget)
+            return (widget, v)
+
+        for d in rt_params.iter_display_declarations(self._declarations):
+            qlabel = _label(d)
+            if d['display_as_heading']:
+                _heading(qlabel)
+                widget = None
+            else:
+                set_id(qlabel, 'form_field')
+                (widget, value) = _value_widget(d)
+                self._layout.addRow(qlabel, widget)
+                if len(value) > res['max_value']:
+                    res['max_value'] = len(value)
             self._fields[d['label']] = {
-                # Not good to denormalize
                 'qlabel': qlabel,
                 'declaration': d,
-                'value': value,
+                'widget': widget,
             }
-            num += 1
-        return num
+            res['num'] += 1
+        return res
 
-    def _set_geometry(self, max_label, max_value, num_fields):
+    def _set_geometry(self, sizes):
         g = QtCore.QRect(
             self.MARGIN_WIDTH,
             self.MARGIN_HEIGHT,
-            2 * self.MARGIN_WIDTH + (max_label + max_value) * self.CHAR_WIDTH,
-            2 * self.MARGIN_HEIGHT + self.CHAR_HEIGHT * num_fields + self.BUTTON_HEIGHT,
+            2 * self.MARGIN_WIDTH + (sizes['max_label'] + sizes['max_value']) * self.CHAR_WIDTH,
+            2 * self.MARGIN_HEIGHT + self.CHAR_HEIGHT * sizes['num'] + self.BUTTON_HEIGHT,
         )
         self._frame.setGeometry(g)
-
-    def _retranslate(self, window):
-        """Set the values from the window"""
-        max_label = 0
-        max_value = 0
-        for d in rt_params.iter_display_declarations(self._declarations):
-            f = self._fields[d['label']]
-            l = translate('Dialog', d['label'], None)
-            if len(l) > max_label:
-                max_label = len(l)
-            f['qlabel'].setText(l)
-            if d['display_as_heading']:
-                continue
-            # Encapsulate in a widget based on type
-            if isinstance(d['py_type'], enum.EnumMeta):
-                if d['display_as_checkbox']:
-                    l = translate(
-                        'Dialog',
-                        d['py_type'](ENUM_TRUE_INDEX).display_name,
-                        None,
-                    )
-                    f['value'].setText(l)
-                    if len(l) > max_value:
-                        max_value = len(l)
-                else:
-                    for i, v in enumerate(d['py_type']):
-                        l = translate('Dialog', v.display_name, None)
-                        f['value'].setItemText(i, l)
-                        if len(l) > max_value:
-                            max_value = len(l)
-        return (max_label, max_value)
-
-    def _set_params(self, params, max_value):
-        for d in rt_params.iter_primary_param_declarations(self._declarations):
-            f = self._fields[d['label']]
-            v = f['value']
-            p = params[d['label']]
-            if isinstance(d['py_type'], enum.EnumMeta):
-                if d['display_as_checkbox']:
-                    v.setChecked(d['py_type'](ENUM_TRUE_INDEX) == p)
-                else:
-                    v.setCurrentIndex(list(d['py_type']).index(p))
-                continue
-            if d['units']:
-                l = RbUtility.displayWithUnitsNumber(p, d['units'])
-                v.setText(l)
-            else:
-                # translate('Dialog', v.display_name, None)
-                l = pkcompat.locale_str(str(p))
-            v.setText(l)
-            if len(l) > max_value:
-                max_value = len(l)
-        return max_value

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-u"""Multiparticle SRW panel
+u"""Multiparticle SRW Pane
 
 :copyright: Copyright (c) 2013-2015 RadiaBeam Technologies LLC.  All Rights Reserved.
 :license: http://www.apache.org/licenses/LICENSE-2.0.html
@@ -14,7 +14,7 @@ import os
 import re
 import sys
 
-from radtrack.rt_pyqt4 import QtCore, QtGui, call_if_main, fromUtf8
+from radtrack.rt_qt import QtCore, QtGui, call_if_main, i18n_text
 
 from pykern import pkarray
 from pykern.pkdebug import pkdc, pkdi, pkdp
@@ -27,42 +27,27 @@ from radtrack import rt_popup
 from radtrack import srw_enums
 from radtrack.rtsrwlib import srwlib, uti_plot
 from radtrack.srw import AnalyticCalc
-#from radtrack import srw_pane
-from radtrack.ui import newsrw
+from radtrack import srw_pane
 from radtrack.util import resource
 
 from radtrack.rtsrwlib import srwlib, uti_plot
 
 FILE_PREFIX = 'srw'
 
-class Pane(QtGui.QWidget):
+class Controller(object):
 
-    def __init__(self, parent=None):
-        QtGui.QWidget.__init__(self, parent)
+    def init(self, parent_widget=None):
         # TODO(robnagler) necessary?
         self.declarations = rt_params.declarations(FILE_PREFIX)
         self.params = rt_params.init_params(
             rt_params.defaults(FILE_PREFIX)['Simulation Complexity']['MULTI_PARTICLE'],
             self.declarations,
         )
+        self.view = srw_pane.View(self, parent_widget, is_multi_particle=True)
+        return self.view
 
-        #self.ui = srw_pane.Pane()
-        #self.ui.setupUi(self, is_multi_particle=True)
-        #return
-        self.ui = newsrw.Ui_Form()
-        self.ui.setupUi(self, is_multi_particle=True)
 
-        self.wavefront_display_params()
-        self.ui.undulator.clicked.connect(lambda: self.pop_up('Undulator'))
-        self.ui.beam.clicked.connect(lambda: self.pop_up('Beam'))
-        self.ui.precision.clicked.connect(lambda: self.pop_up('Precision'))
-        self.ui.deparg.currentIndexChanged.connect(self.wavefront_display_params)
-        self.ui.sim.clicked.connect(self.simulate)
-        self.ui.analyze.clicked.connect(self.analytic_calculations)
-        self.ui.analytic.setText('Click the Analyze button to approximate a simulation')
-        self.ui.status.setText('Initialized')
-
-    def analytic_calculations(self):
+    def action_analyze(self):
         args = copy.deepcopy(self.params['Undulator'])
         if args['Undulator Orientation'].has_name('VERTICAL'):
             args['Horizontal Magnetic Field'] = 0
@@ -102,7 +87,7 @@ class Pane(QtGui.QWidget):
         je.filters['e'] = lambda v: '{:.3e}'.format(v)
         je.filters['f'] = lambda v: '{:.3f}'.format(v)
         jt = je.from_string(template)
-        self.ui.analytic.setText(jt.render(res))
+        self.view.analysis_results.setText(jt.render(res))
 
     def beam_inputs(self):
         p = self.params['Beam']
@@ -167,13 +152,6 @@ class Pane(QtGui.QWidget):
         )
         return (und, magFldCnt)
 
-    def wavefront_params(self):
-        simulation_kind = srw_enums.SimulationKind(self.ui.deparg.currentIndex())
-        return (
-            self.params['Simulation Kind'][simulation_kind.name]['Wavefront'],
-            simulation_kind,
-        )
-
     def wavefront_inputs(self, p):
         res = srwlib.SRWLStokes()
         res.allocate(
@@ -191,55 +169,52 @@ class Pane(QtGui.QWidget):
         m.yFin = p['Window Bottom Edge']
         return res
 
-    def wavefront_display_params(self):
-        p = self.wavefront_params()[0]
-        for i, d in enumerate(
-            rt_params.iter_primary_param_declarations(self.declarations['Wavefront'])):
-            item = self.ui.tableWidget.verticalHeaderItem(i)
-            self.ui.tableWidget.setItem(
-                i,
-                0,
-                QtGui.QTableWidgetItem(str(p[item.text()])),
-            )
-
-
     def pop_up(self, which):
         p = rt_popup.Window(
             self.declarations[which],
             self.params[which],
             file_prefix=FILE_PREFIX,
-            parent=self,
+            parent=self.view,
         )
         if p.exec_():
             self.params[which] = p.get_params()
 
-    def simulate(self):
+    def action_beam(self):
+        self.pop_up('Beam')
+
+    def action_precision(self):
+        self.pop_up('Precision')
+
+    def action_undulator(self):
+        self.pop_up('Undulator')
+
+    def action_simulate(self):
         (und, magFldCnt) = self.undulator_inputs()
         beam = self.beam_inputs()
-        (wp, simulation_kind) = self.wavefront_params()
+        simulation_kind = self.view.current_simulation_kind()
+        wp = self.params['Simulation Kind'][simulation_kind.name]['Wavefront']
         stkF = self.wavefront_inputs(wp)
         stkP = self.wavefront_inputs(wp)
         pkdc('simulation_kind={}', simulation_kind)
         if simulation_kind.has_name('E'):
-            #after setting the text call self.ui.status.repaint() to have it immediately show otherwise it will wait till it exits the block to draw
             str1='* Performing Electric Field (spectrum vs photon energy) calculation ... \n \n'
-            self.ui.status.setText(str1)
-            self.ui.status.repaint()
+            self.view.simulate_results.setText(str1)
+            self.view.simulate_results.repaint()
             pkdc('ar_prec_f={}', self.ar_prec_f())
             srwlib.srwl.CalcStokesUR(stkF, beam, und, self.ar_prec_f())
             #pkdp('stkF.arS={}', stkF.arS)
 
             str2='* Extracting Intensity from calculated Electric Field ... \n \n'
-            self.ui.status.setText(str1+str2)
-            self.ui.status.repaint()
+            self.view.simulate_results.setText(str1+str2)
+            self.view.simulate_results.repaint()
 
             str3='* Plotting the results ...\n'
-            self.ui.status.setText(str1+str2+str3)
-            self.ui.status.repaint()
+            self.view.simulate_results.setText(str1+str2+str3)
+            self.view.simulate_results.repaint()
             uti_plot.uti_plot1d(stkF.arS, [stkF.mesh.eStart, stkF.mesh.eFin, stkF.mesh.ne], ['Photon Energy [eV]', 'Flux [ph/s/.1%bw]', 'Flux through Finite Aperture'])
         elif simulation_kind.has_name('X'):
             str1='* Performing Power Density calculation (from field) vs x-coordinate calculation ... \n \n'
-            self.ui.status.setText(str1)
+            self.view.simulate_results.setText(str1)
             pkdc('simulation_kind={}', simulation_kind)
             pkdc('stkP={}', stkP)
             pkdc('beam={}', beam)
@@ -247,12 +222,12 @@ class Pane(QtGui.QWidget):
             srwlib.srwl.CalcPowDenSR(stkP, beam, 0, magFldCnt, self.ar_prec_p())
 
             str2='* Extracting Intensity from calculated Electric Field ... \n \n '
-            self.ui.status.setText(str1+str2)
-            self.ui.status.repaint()
+            self.view.simulate_results.setText(str1+str2)
+            self.view.simulate_results.repaint()
 
             str3='* Plotting the results ...\n'
-            self.ui.status.setText(str1+str2+str3)
-            self.ui.status.repaint()
+            self.view.simulate_results.setText(str1+str2+str3)
+            self.view.simulate_results.repaint()
             plotMeshX = [1000*stkP.mesh.xStart, 1000*stkP.mesh.xFin, stkP.mesh.nx]
             powDenVsX = pkarray.new_float([0]*stkP.mesh.nx)
             for i in range(stkP.mesh.nx): powDenVsX[i] = stkP.arS[stkP.mesh.nx*int(stkP.mesh.ny*0.5) + i]
@@ -260,8 +235,8 @@ class Pane(QtGui.QWidget):
             uti_plot.uti_plot1d(powDenVsX, plotMeshX, ['Horizontal Position [mm]', 'Power Density [W/mm^2]', 'Power Density\n(horizontal cut at y = 0)'])
         elif simulation_kind.has_name('Y'):
             str1='* Performing Power Density calculation (from field) vs x-coordinate calculation ... \n \n'
-            self.ui.status.setText(str1)
-            self.ui.status.repaint()
+            self.view.simulate_results.setText(str1)
+            self.view.simulate_results.repaint()
             pkdc('simulation_kind={}', simulation_kind)
             pkdc('stkP={}', stkP)
             pkdc('beam={}', beam)
@@ -269,12 +244,12 @@ class Pane(QtGui.QWidget):
             srwlib.srwl.CalcPowDenSR(stkP, beam, 0, magFldCnt, self.ar_prec_p())
 
             str2='* Extracting Intensity from calculated Electric Field ... \n \n '
-            self.ui.status.setText(str1+str2)
-            self.ui.status.repaint()
+            self.view.simulate_results.setText(str1+str2)
+            self.view.simulate_results.repaint()
 
             str3='* Plotting the results ...\n'
-            self.ui.status.setText(str1+str2+str3)
-            self.ui.status.repaint()
+            self.view.simulate_results.setText(str1+str2+str3)
+            self.view.simulate_results.repaint()
             plotMeshY = [1000*stkP.mesh.yStart, 1000*stkP.mesh.yFin, stkP.mesh.ny]
             powDenVsY = pkarray.new_float([0]*stkP.mesh.ny)
 #            for i in range(stkP.mesh.ny): powDenVsY[i] = stkP.arS[int(stkP.mesh.nx*0.5) + i*stkP.mesh.ny]
@@ -282,17 +257,17 @@ class Pane(QtGui.QWidget):
             uti_plot.uti_plot1d(powDenVsY, plotMeshY, ['Vertical Position [mm]', 'Power Density [W/mm^2]', 'Power Density\n(vertical cut at x = 0)'])
         elif simulation_kind.has_name('X_AND_Y'):
             str1='* Performing Electric Field (intensity vs x- and y-coordinate) calculation ... \n \n'
-            self.ui.status.setText(str1)
-            self.ui.status.repaint()
+            self.view.simulate_results.setText(str1)
+            self.view.simulate_results.repaint()
             srwlib.srwl.CalcPowDenSR(stkP, beam, 0, magFldCnt, self.ar_prec_p())
 
             str2='* Extracting Intensity from calculated Electric Field ... \n \n '
-            self.ui.status.setText(str1+str2)
-            self.ui.status.repaint()
+            self.view.simulate_results.setText(str1+str2)
+            self.view.simulate_results.repaint()
 
             str3='* Plotting the results ...\n'
-            self.ui.status.setText(str1+str2+str3)
-            self.ui.status.repaint()
+            self.view.simulate_results.setText(str1+str2+str3)
+            self.view.simulate_results.repaint()
             plotMeshX = [1000*stkP.mesh.xStart, 1000*stkP.mesh.xFin, stkP.mesh.nx]
             plotMeshY = [1000*stkP.mesh.yStart, 1000*stkP.mesh.yFin, stkP.mesh.ny]
             uti_plot.uti_plot2d(stkP.arS, plotMeshX, plotMeshY, ['Horizontal Position [mm]', 'Vertical Position [mm]', 'Power Density'])
@@ -303,5 +278,7 @@ class Pane(QtGui.QWidget):
 def _fix_enum_value(v):
     return v.value if hasattr(v, 'value') else v
 
+def init_widget(parent=None):
+    return Controller().init(parent)
 
-call_if_main(Pane)
+call_if_main(init_widget)
