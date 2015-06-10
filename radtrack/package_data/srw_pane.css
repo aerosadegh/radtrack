@@ -1,0 +1,18 @@
+QLabel#simulation_kind,
+QLabel#analysis_results,
+QLabel#simulation_results {
+  font-weight: bold;
+}
+QLabel, QTableView {
+  margin-left: 20px;
+}
+QTextEdit {
+  margin-left: 20px;
+}
+QPushButton {
+  padding: 20px;
+  font-weight: bold;
+}
+QPushButton:focus {
+  outline: none;
+}
