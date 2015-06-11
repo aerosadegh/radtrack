@@ -34,7 +34,7 @@ class Window(QtGui.QDialog):
 class Form(object):
     BUTTON_HEIGHT = 30
     BUTTON_WIDTH = 120
-    CHAR_HEIGHT = BUTTON_HEIGHT
+    CHAR_HEIGHT = BUTTON_HEIGHT - 2
     CHAR_WIDTH = 6
     MARGIN_HEIGHT = 20
     MARGIN_WIDTH = 30

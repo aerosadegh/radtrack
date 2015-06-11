@@ -34,7 +34,7 @@ ENUM_TRUE_INDEX = 1
 ENUM_FALSE_INDEX = 0
 
 
-def call_if_main(init_widget):
+def run_app(init_widget):
     """Invokes `init_widget` as a Qt program if caller is __main__.
 
     If `init_widget` is called, then will call :func:`sys.exit`
@@ -47,8 +47,6 @@ def call_if_main(init_widget):
     Args:
         widget (QtGui.QWidget): what to call
     """
-    if not pkinspect.is_caller_main():
-        return
     app = QtGui.QApplication(sys.argv)
     myapp = init_widget()
     myapp.show()

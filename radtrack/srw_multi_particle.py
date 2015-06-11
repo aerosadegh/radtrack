@@ -14,27 +14,27 @@ import os
 import re
 import sys
 
-from radtrack.rt_qt import call_if_main
-
 from pykern import pkarray
 from pykern.pkdebug import pkdc, pkdi, pkdp
 import jinja2
 import xlrd
 
 from radtrack import RbUtility
+from radtrack import rt_controller
 from radtrack import rt_params
 from radtrack import rt_popup
 from radtrack import srw_enums
+from radtrack import srw_pane
 from radtrack.rtsrwlib import srwlib, uti_plot
 from radtrack.srw import AnalyticCalc
-from radtrack import srw_pane
 from radtrack.util import resource
 
 from radtrack.rtsrwlib import srwlib, uti_plot
 
 FILE_PREFIX = 'srw'
 
-class Controller(object):
+class Controller(rt_controller.Controller):
+    """Implements contol flow for SRW multiparticle tab"""
 
     def init(self, parent_widget=None):
         # TODO(robnagler) necessary?
@@ -250,10 +250,8 @@ class Controller(object):
             raise AssertionError('{}: invalid simulation_kind'.format(simulation_kind))
         uti_plot.uti_plot_show()
 
+
 def _fix_enum_value(v):
     return v.value if hasattr(v, 'value') else v
 
-def init_widget(parent=None):
-    return Controller().init(parent)
-
-call_if_main(init_widget)
+Controller.run_if_main()

@@ -7,7 +7,7 @@ u"""Main panel for simulation
 from __future__ import absolute_import, division, print_function, unicode_literals
 from io import open
 
-from radtrack.rt_qt import QtCore, QtGui, call_if_main, i18n_text, set_id, set_param
+from radtrack.rt_qt import QtCore, QtGui, i18n_text, set_id, set_param
 
 from pykern.pkdebug import pkdc, pkdi, pkdp
 from pykern import pkio
