@@ -4,6 +4,8 @@ QLabel#heading {
   margin-bottom: 10px;
 }
 QDialogButtonBox {
-  padding-top: 20px;
-  button-layout: 1;
+  margin-top: 20px;
+}
+QDialogButtonBox#standard QPushButton {
+  min-width: 3.5em;
 }

@@ -18,7 +18,7 @@ from radtrack import srw_enums
 
 RESULTS_STRETCH = 4
 
-PARAMS_STRETCH = 4
+PARAMS_STRETCH = 5
 
 class View(QtGui.QWidget):
     def __init__(self, controller, parent=None, is_multi_particle=False):

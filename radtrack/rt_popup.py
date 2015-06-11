@@ -31,8 +31,6 @@ class Window(QtGui.QDialog):
         return self._form._get_params()
 
 
-
-
 class Form(object):
     BUTTON_HEIGHT = 30
     BUTTON_WIDTH = 120
@@ -79,19 +77,20 @@ class Form(object):
         return res
 
     def _init_buttons(self, window):
-        self._buttons = QtGui.QDialogButtonBox(window)
-        self._buttons.setOrientation(QtCore.Qt.Horizontal)
+        self._buttons = set_id(QtGui.QDialogButtonBox(window), 'standard')
+        #self._buttons.setOrientation(QtCore.Qt.Horizontal)
+        self._buttons.setCenterButtons(1)
         self._buttons.setStandardButtons(
             QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
-        self._buttons.setSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
-        self._buttons.setCenterButtons(1)
-        s = QtGui.QSpacerItem(
-            self.CHAR_WIDTH,
-            self.CHAR_HEIGHT,
-            QtGui.QSizePolicy.Expanding,
-            QtGui.QSizePolicy.Expanding,
-        )
-        self._layout.addItem(s)
+        for b in self._buttons.buttons():
+            b.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        # s = QtGui.QSpacerItem(
+        #     self.CHAR_WIDTH,
+        #     self.CHAR_HEIGHT,
+        #     QtGui.QSizePolicy.Expanding,
+        #     QtGui.QSizePolicy.Expanding,
+        # )
+        # self._layout.addItem(s)
         self._layout.addRow(self._buttons)
         QtCore.QObject.connect(
             self._buttons, QtCore.SIGNAL('accepted()'), window.accept)
@@ -144,6 +143,7 @@ class Form(object):
             qlabel = _label(d)
             if d['display_as_heading']:
                 _heading(qlabel)
+                res['num'] += 1
                 widget = None
             else:
                 set_id(qlabel, 'form_field')

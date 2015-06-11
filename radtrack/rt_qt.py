@@ -24,6 +24,7 @@ from radtrack import RbUtility
 ID_NAMES = [
     'heading',
     'form_field',
+    'standard',
 ]
 
 #: Index of True of an enumerated type. Not it's value, which may be anything
