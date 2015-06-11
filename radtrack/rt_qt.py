@@ -120,5 +120,4 @@ def set_param(declaration, params, widget):
     else:
         l = str(p)
     widget.setText(l)
-    pkdp('{}={}', declaration['label'], l)
     return l

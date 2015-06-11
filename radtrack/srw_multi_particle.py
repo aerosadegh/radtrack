@@ -36,6 +36,8 @@ FILE_PREFIX = 'srw'
 class Controller(rt_controller.Controller):
     """Implements contol flow for SRW multiparticle tab"""
 
+    ACTION_NAMES = ('Precision', 'Undulator', 'Beam', 'Analyze', 'Simulate')
+
     def init(self, parent_widget=None):
         # TODO(robnagler) necessary?
         self.declarations = rt_params.declarations(FILE_PREFIX)
@@ -88,7 +90,105 @@ class Controller(rt_controller.Controller):
         jt = je.from_string(template)
         self.view.set_result_text('analysis', jt.render(res))
 
-    def beam_inputs(self):
+    def action_beam(self):
+        self._pop_up('Beam')
+
+    def action_precision(self):
+        self._pop_up('Precision')
+
+    def action_simulate(self):
+        (und, magFldCnt) = self._undulator_inputs()
+        beam = self._beam_inputs()
+        simulation_kind = self.view.current_simulation_kind()
+        wp = self.params['Simulation Kind'][simulation_kind.name]['Wavefront']
+        stkF = self._wavefront_inputs(wp)
+        stkP = self._wavefront_inputs(wp)
+        pkdc('simulation_kind={}', simulation_kind)
+        msg_list = []
+
+        def msg(m):
+            msg_list.append(m + '... \n \n')
+            self.view.set_result_text('simulation', ''.join(msg_list))
+
+        if simulation_kind.has_name('E'):
+            msg('Performing Electric Field (spectrum vs photon energy) calculation')
+            pkdc('ar_prec_f={}', self._ar_prec_f())
+            srwlib.srwl.CalcStokesUR(stkF, beam, und, self._ar_prec_f())
+            msg('Extracting Intensity from calculated Electric Field')
+            msg('Plotting the results')
+            uti_plot.uti_plot1d(stkF.arS, [stkF.mesh.eStart, stkF.mesh.eFin, stkF.mesh.ne], ['Photon Energy [eV]', 'Flux [ph/s/.1%bw]', 'Flux through Finite Aperture'])
+        elif simulation_kind.has_name('X'):
+            msg('Performing Power Density calculation (from field) vs x-coordinate calculation')
+            pkdc('simulation_kind={}', simulation_kind)
+            pkdc('stkP={}', stkP)
+            pkdc('beam={}', beam)
+            pkdc('und={}', und)
+            srwlib.srwl.CalcPowDenSR(stkP, beam, 0, magFldCnt, self._ar_prec_p())
+
+            msg('Extracting Intensity from calculated Electric Field')
+            msg('Plotting the results')
+            plotMeshX = [1000*stkP.mesh.xStart, 1000*stkP.mesh.xFin, stkP.mesh.nx]
+            powDenVsX = pkarray.new_float([0]*stkP.mesh.nx)
+            for i in range(stkP.mesh.nx): powDenVsX[i] = stkP.arS[stkP.mesh.nx*int(stkP.mesh.ny*0.5) + i]
+            pkdc('plotMeshX={}', plotMeshX)
+            uti_plot.uti_plot1d(powDenVsX, plotMeshX, ['Horizontal Position [mm]', 'Power Density [W/mm^2]', 'Power Density\n(horizontal cut at y = 0)'])
+        elif simulation_kind.has_name('Y'):
+            msg('Performing Power Density calculation (from field) vs x-coordinate calculation')
+            pkdc('simulation_kind={}', simulation_kind)
+            pkdc('stkP={}', stkP)
+            pkdc('beam={}', beam)
+            pkdc('und={}', und)
+            srwlib.srwl.CalcPowDenSR(stkP, beam, 0, magFldCnt, self._ar_prec_p())
+            msg('Extracting Intensity from calculated Electric Field')
+            msg('Plotting the results')
+            plotMeshY = [1000*stkP.mesh.yStart, 1000*stkP.mesh.yFin, stkP.mesh.ny]
+            powDenVsY = pkarray.new_float([0]*stkP.mesh.ny)
+#            for i in range(stkP.mesh.ny): powDenVsY[i] = stkP.arS[int(stkP.mesh.nx*0.5) + i*stkP.mesh.ny]
+            for i in range(stkP.mesh.ny): powDenVsY[i] = stkP.arS[stkP.mesh.ny*int(stkP.mesh.nx*0.5) + i]
+            uti_plot.uti_plot1d(powDenVsY, plotMeshY, ['Vertical Position [mm]', 'Power Density [W/mm^2]', 'Power Density\n(vertical cut at x = 0)'])
+        elif simulation_kind.has_name('X_AND_Y'):
+            msg('Performing Electric Field (intensity vs x- and y-coordinate) calculation')
+            srwlib.srwl.CalcPowDenSR(stkP, beam, 0, magFldCnt, self._ar_prec_p())
+
+            msg('Extracting Intensity from calculated Electric Field')
+            msg('Plotting the results')
+            plotMeshX = [1000*stkP.mesh.xStart, 1000*stkP.mesh.xFin, stkP.mesh.nx]
+            plotMeshY = [1000*stkP.mesh.yStart, 1000*stkP.mesh.yFin, stkP.mesh.ny]
+            uti_plot.uti_plot2d(stkP.arS, plotMeshX, plotMeshY, ['Horizontal Position [mm]', 'Vertical Position [mm]', 'Power Density'])
+        else:
+            raise AssertionError('{}: invalid simulation_kind'.format(simulation_kind))
+        uti_plot.uti_plot_show()
+
+    def action_undulator(self):
+        self._pop_up('Undulator')
+
+    def name_to_action(self, name):
+        """Returns button action"""
+        return getattr(self, 'action_' + name.lower())
+
+    def _ar_prec(self, labels):
+        p = self.params['Precision']
+        return [_fix_enum_value(p[k]) for k in labels]
+
+    def _ar_prec_f(self):
+        return self._ar_prec((
+            'Initial Harmonic',
+            'Final Harmonic',
+            'Longitudinal Integration Precision',
+            'Azimuthal Integration Precision',
+            'Flux Calculation',
+        ))
+
+    def _ar_prec_p(self):
+        return self._ar_prec((
+            'Precision Factor',
+            'Density Computation Method',
+            'Initial Longitudinal Position',
+            'Initial Azimuthal Position',
+            'Number of Points along Trajectory',
+        ))
+
+    def _beam_inputs(self):
         p = self.params['Beam']
         res = srwlib.SRWLPartBeam()
         res.Iavg = p['Average Current']
@@ -108,29 +208,17 @@ class Controller(rt_controller.Controller):
         res.arStatMom2[10] = p['RMS Energy Spread'] ** 2
         return res
 
-    def ar_prec_f(self):
-        return self._ar_prec((
-            'Initial Harmonic',
-            'Final Harmonic',
-            'Longitudinal Integration Precision',
-            'Azimuthal Integration Precision',
-            'Flux Calculation',
-        ))
+    def _pop_up(self, which):
+        p = rt_popup.Window(
+            self.declarations[which],
+            self.params[which],
+            file_prefix=FILE_PREFIX,
+            parent=self.view,
+        )
+        if p.exec_():
+            self.params[which] = p.get_params()
 
-    def ar_prec_p(self):
-        return self._ar_prec((
-            'Precision Factor',
-            'Density Computation Method',
-            'Initial Longitudinal Position',
-            'Initial Azimuthal Position',
-            'Number of Points along Trajectory',
-        ))
-
-    def _ar_prec(self, labels):
-        p = self.params['Precision']
-        return [_fix_enum_value(p[k]) for k in labels]
-
-    def undulator_inputs(self):
+    def _undulator_inputs(self):
         harmB = srwlib.SRWLMagFldH()
         p = self.params['Undulator']
         harmB.n = p['Harmonic Number']
@@ -151,7 +239,7 @@ class Controller(rt_controller.Controller):
         )
         return (und, magFldCnt)
 
-    def wavefront_inputs(self, p):
+    def _wavefront_inputs(self, p):
         res = srwlib.SRWLStokes()
         res.allocate(
             p['Number of points along Energy'],
@@ -167,89 +255,6 @@ class Controller(rt_controller.Controller):
         m.yStart = p['Window Top Edge']
         m.yFin = p['Window Bottom Edge']
         return res
-
-    def pop_up(self, which):
-        p = rt_popup.Window(
-            self.declarations[which],
-            self.params[which],
-            file_prefix=FILE_PREFIX,
-            parent=self.view,
-        )
-        if p.exec_():
-            self.params[which] = p.get_params()
-
-    def action_beam(self):
-        self.pop_up('Beam')
-
-    def action_precision(self):
-        self.pop_up('Precision')
-
-    def action_undulator(self):
-        self.pop_up('Undulator')
-
-    def action_simulate(self):
-        (und, magFldCnt) = self.undulator_inputs()
-        beam = self.beam_inputs()
-        simulation_kind = self.view.current_simulation_kind()
-        wp = self.params['Simulation Kind'][simulation_kind.name]['Wavefront']
-        stkF = self.wavefront_inputs(wp)
-        stkP = self.wavefront_inputs(wp)
-        pkdc('simulation_kind={}', simulation_kind)
-        msg_list = []
-
-        def msg(m):
-            msg_list.append(m + '... \n \n')
-            self.view.set_result_text('simulation', ''.join(msg_list))
-
-        if simulation_kind.has_name('E'):
-            msg('Performing Electric Field (spectrum vs photon energy) calculation')
-            pkdc('ar_prec_f={}', self.ar_prec_f())
-            srwlib.srwl.CalcStokesUR(stkF, beam, und, self.ar_prec_f())
-            msg('Extracting Intensity from calculated Electric Field')
-            msg('Plotting the results')
-            uti_plot.uti_plot1d(stkF.arS, [stkF.mesh.eStart, stkF.mesh.eFin, stkF.mesh.ne], ['Photon Energy [eV]', 'Flux [ph/s/.1%bw]', 'Flux through Finite Aperture'])
-        elif simulation_kind.has_name('X'):
-            msg('Performing Power Density calculation (from field) vs x-coordinate calculation')
-            pkdc('simulation_kind={}', simulation_kind)
-            pkdc('stkP={}', stkP)
-            pkdc('beam={}', beam)
-            pkdc('und={}', und)
-            srwlib.srwl.CalcPowDenSR(stkP, beam, 0, magFldCnt, self.ar_prec_p())
-
-            msg('Extracting Intensity from calculated Electric Field')
-            msg('Plotting the results')
-            plotMeshX = [1000*stkP.mesh.xStart, 1000*stkP.mesh.xFin, stkP.mesh.nx]
-            powDenVsX = pkarray.new_float([0]*stkP.mesh.nx)
-            for i in range(stkP.mesh.nx): powDenVsX[i] = stkP.arS[stkP.mesh.nx*int(stkP.mesh.ny*0.5) + i]
-            pkdc('plotMeshX={}', plotMeshX)
-            uti_plot.uti_plot1d(powDenVsX, plotMeshX, ['Horizontal Position [mm]', 'Power Density [W/mm^2]', 'Power Density\n(horizontal cut at y = 0)'])
-        elif simulation_kind.has_name('Y'):
-            msg('Performing Power Density calculation (from field) vs x-coordinate calculation')
-            pkdc('simulation_kind={}', simulation_kind)
-            pkdc('stkP={}', stkP)
-            pkdc('beam={}', beam)
-            pkdc('und={}', und)
-            srwlib.srwl.CalcPowDenSR(stkP, beam, 0, magFldCnt, self.ar_prec_p())
-            msg('Extracting Intensity from calculated Electric Field')
-            msg('Plotting the results')
-            plotMeshY = [1000*stkP.mesh.yStart, 1000*stkP.mesh.yFin, stkP.mesh.ny]
-            powDenVsY = pkarray.new_float([0]*stkP.mesh.ny)
-#            for i in range(stkP.mesh.ny): powDenVsY[i] = stkP.arS[int(stkP.mesh.nx*0.5) + i*stkP.mesh.ny]
-            for i in range(stkP.mesh.ny): powDenVsY[i] = stkP.arS[stkP.mesh.ny*int(stkP.mesh.nx*0.5) + i]
-            uti_plot.uti_plot1d(powDenVsY, plotMeshY, ['Vertical Position [mm]', 'Power Density [W/mm^2]', 'Power Density\n(vertical cut at x = 0)'])
-        elif simulation_kind.has_name('X_AND_Y'):
-            msg('Performing Electric Field (intensity vs x- and y-coordinate) calculation')
-            srwlib.srwl.CalcPowDenSR(stkP, beam, 0, magFldCnt, self.ar_prec_p())
-
-            msg('Extracting Intensity from calculated Electric Field')
-            msg('Plotting the results')
-            plotMeshX = [1000*stkP.mesh.xStart, 1000*stkP.mesh.xFin, stkP.mesh.nx]
-            plotMeshY = [1000*stkP.mesh.yStart, 1000*stkP.mesh.yFin, stkP.mesh.ny]
-            uti_plot.uti_plot2d(stkP.arS, plotMeshX, plotMeshY, ['Horizontal Position [mm]', 'Vertical Position [mm]', 'Power Density'])
-        else:
-            raise AssertionError('{}: invalid simulation_kind'.format(simulation_kind))
-        uti_plot.uti_plot_show()
-
 
 def _fix_enum_value(v):
     return v.value if hasattr(v, 'value') else v
