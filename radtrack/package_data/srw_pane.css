@@ -1,9 +1,8 @@
-QLabel#simulation_kind,
-QLabel#analysis_results,
-QLabel#simulation_results {
+QComboBox,
+QLabel#heading {
   font-weight: bold;
 }
-QLabel, QTableView {
+QLabel#heading, QTableView {
   margin-left: 20px;
 }
 QTextEdit {

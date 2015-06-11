@@ -46,7 +46,6 @@ class Controller(object):
         self.view = srw_pane.View(self, parent_widget, is_multi_particle=True)
         return self.view
 
-
     def action_analyze(self):
         args = copy.deepcopy(self.params['Undulator'])
         if args['Undulator Orientation'].has_name('VERTICAL'):
@@ -87,7 +86,7 @@ class Controller(object):
         je.filters['e'] = lambda v: '{:.3e}'.format(v)
         je.filters['f'] = lambda v: '{:.3f}'.format(v)
         jt = je.from_string(template)
-        self.view.analysis_results.setText(jt.render(res))
+        self.view.set_result_text('analysis', jt.render(res))
 
     def beam_inputs(self):
         p = self.params['Beam']
@@ -196,78 +195,54 @@ class Controller(object):
         stkF = self.wavefront_inputs(wp)
         stkP = self.wavefront_inputs(wp)
         pkdc('simulation_kind={}', simulation_kind)
+        msg_list = []
+
+        def msg(m):
+            msg_list.append(m + '... \n \n')
+            self.view.set_result_text('simulation', ''.join(msg_list))
+
         if simulation_kind.has_name('E'):
-            str1='* Performing Electric Field (spectrum vs photon energy) calculation ... \n \n'
-            self.view.simulate_results.setText(str1)
-            self.view.simulate_results.repaint()
+            msg('Performing Electric Field (spectrum vs photon energy) calculation')
             pkdc('ar_prec_f={}', self.ar_prec_f())
             srwlib.srwl.CalcStokesUR(stkF, beam, und, self.ar_prec_f())
-            #pkdp('stkF.arS={}', stkF.arS)
-
-            str2='* Extracting Intensity from calculated Electric Field ... \n \n'
-            self.view.simulate_results.setText(str1+str2)
-            self.view.simulate_results.repaint()
-
-            str3='* Plotting the results ...\n'
-            self.view.simulate_results.setText(str1+str2+str3)
-            self.view.simulate_results.repaint()
+            msg('Extracting Intensity from calculated Electric Field')
+            msg('Plotting the results')
             uti_plot.uti_plot1d(stkF.arS, [stkF.mesh.eStart, stkF.mesh.eFin, stkF.mesh.ne], ['Photon Energy [eV]', 'Flux [ph/s/.1%bw]', 'Flux through Finite Aperture'])
         elif simulation_kind.has_name('X'):
-            str1='* Performing Power Density calculation (from field) vs x-coordinate calculation ... \n \n'
-            self.view.simulate_results.setText(str1)
+            msg('Performing Power Density calculation (from field) vs x-coordinate calculation')
             pkdc('simulation_kind={}', simulation_kind)
             pkdc('stkP={}', stkP)
             pkdc('beam={}', beam)
             pkdc('und={}', und)
             srwlib.srwl.CalcPowDenSR(stkP, beam, 0, magFldCnt, self.ar_prec_p())
 
-            str2='* Extracting Intensity from calculated Electric Field ... \n \n '
-            self.view.simulate_results.setText(str1+str2)
-            self.view.simulate_results.repaint()
-
-            str3='* Plotting the results ...\n'
-            self.view.simulate_results.setText(str1+str2+str3)
-            self.view.simulate_results.repaint()
+            msg('Extracting Intensity from calculated Electric Field')
+            msg('Plotting the results')
             plotMeshX = [1000*stkP.mesh.xStart, 1000*stkP.mesh.xFin, stkP.mesh.nx]
             powDenVsX = pkarray.new_float([0]*stkP.mesh.nx)
             for i in range(stkP.mesh.nx): powDenVsX[i] = stkP.arS[stkP.mesh.nx*int(stkP.mesh.ny*0.5) + i]
             pkdc('plotMeshX={}', plotMeshX)
             uti_plot.uti_plot1d(powDenVsX, plotMeshX, ['Horizontal Position [mm]', 'Power Density [W/mm^2]', 'Power Density\n(horizontal cut at y = 0)'])
         elif simulation_kind.has_name('Y'):
-            str1='* Performing Power Density calculation (from field) vs x-coordinate calculation ... \n \n'
-            self.view.simulate_results.setText(str1)
-            self.view.simulate_results.repaint()
+            msg('Performing Power Density calculation (from field) vs x-coordinate calculation')
             pkdc('simulation_kind={}', simulation_kind)
             pkdc('stkP={}', stkP)
             pkdc('beam={}', beam)
             pkdc('und={}', und)
             srwlib.srwl.CalcPowDenSR(stkP, beam, 0, magFldCnt, self.ar_prec_p())
-
-            str2='* Extracting Intensity from calculated Electric Field ... \n \n '
-            self.view.simulate_results.setText(str1+str2)
-            self.view.simulate_results.repaint()
-
-            str3='* Plotting the results ...\n'
-            self.view.simulate_results.setText(str1+str2+str3)
-            self.view.simulate_results.repaint()
+            msg('Extracting Intensity from calculated Electric Field')
+            msg('Plotting the results')
             plotMeshY = [1000*stkP.mesh.yStart, 1000*stkP.mesh.yFin, stkP.mesh.ny]
             powDenVsY = pkarray.new_float([0]*stkP.mesh.ny)
 #            for i in range(stkP.mesh.ny): powDenVsY[i] = stkP.arS[int(stkP.mesh.nx*0.5) + i*stkP.mesh.ny]
             for i in range(stkP.mesh.ny): powDenVsY[i] = stkP.arS[stkP.mesh.ny*int(stkP.mesh.nx*0.5) + i]
             uti_plot.uti_plot1d(powDenVsY, plotMeshY, ['Vertical Position [mm]', 'Power Density [W/mm^2]', 'Power Density\n(vertical cut at x = 0)'])
         elif simulation_kind.has_name('X_AND_Y'):
-            str1='* Performing Electric Field (intensity vs x- and y-coordinate) calculation ... \n \n'
-            self.view.simulate_results.setText(str1)
-            self.view.simulate_results.repaint()
+            msg('Performing Electric Field (intensity vs x- and y-coordinate) calculation')
             srwlib.srwl.CalcPowDenSR(stkP, beam, 0, magFldCnt, self.ar_prec_p())
 
-            str2='* Extracting Intensity from calculated Electric Field ... \n \n '
-            self.view.simulate_results.setText(str1+str2)
-            self.view.simulate_results.repaint()
-
-            str3='* Plotting the results ...\n'
-            self.view.simulate_results.setText(str1+str2+str3)
-            self.view.simulate_results.repaint()
+            msg('Extracting Intensity from calculated Electric Field')
+            msg('Plotting the results')
             plotMeshX = [1000*stkP.mesh.xStart, 1000*stkP.mesh.xFin, stkP.mesh.nx]
             plotMeshY = [1000*stkP.mesh.yStart, 1000*stkP.mesh.yFin, stkP.mesh.ny]
             uti_plot.uti_plot2d(stkP.arS, plotMeshX, plotMeshY, ['Horizontal Position [mm]', 'Vertical Position [mm]', 'Power Density'])

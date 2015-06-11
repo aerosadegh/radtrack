@@ -16,6 +16,10 @@ from pykern import pkresource
 from radtrack import rt_params
 from radtrack import srw_enums
 
+RESULTS_STRETCH = 4
+
+PARAMS_STRETCH = 4
+
 class View(QtGui.QWidget):
     def __init__(self, controller, parent=None, is_multi_particle=False):
         super(View, self).__init__(parent)
@@ -39,13 +43,13 @@ class View(QtGui.QWidget):
             self.action_box[n] = a
             self.action_box[n].clicked.connect(
                 getattr(controller, 'action_' + n.lower()))
-
+        button_widget.setSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
         main.addWidget(button_widget)
         pkdp('main.sizeHint={}', main.sizeHint())
 
         param_vbox = QtGui.QVBoxLayout()
         param_widget = QtGui.QWidget(self)
-        main.addLayout(param_vbox, stretch=4)
+        main.addLayout(param_vbox, stretch=PARAMS_STRETCH)
 
         hb = QtGui.QHBoxLayout()
 
@@ -68,17 +72,16 @@ class View(QtGui.QWidget):
         decl = list(
             rt_params.iter_primary_param_declarations(controller.declarations['Wavefront']))
 
-
-        i = 0
+        first_sk = None
         for sk in srw_enums.SimulationKind:
             if sk.name not in params:
                 continue
+            if not first_sk:
+                first_sk = sk
             self.simulation_kind_value.addItem(
                 i18n_text(sk.display_name),
                 userData=sk.value,
             )
-            pkdi(self.simulation_kind_value.itemData(i).toString())
-            i += 1
             m = QtGui.QStandardItemModel(len(decl), 2);
             p = params[sk.name]['Wavefront']
             for (row, d) in enumerate(decl):
@@ -89,53 +92,25 @@ class View(QtGui.QWidget):
                 set_param(d, p, item)
                 m.setItem(row, 1, item)
             self.wavefront_param_models[sk.name] = m
-        self.wavefront_param_view.setModel(self.wavefront_param_models['E'])
-
-        pkdp('param_vbox.sizeHint={}', param_vbox.sizeHint())
-        pkdp('main.sizeHint={}', main.sizeHint())
-
-
-        #### Simulation Results
-
-        simulation_vbox = QtGui.QVBoxLayout()
-        main.addLayout(simulation_vbox, stretch=3)
-        label = QtGui.QLabel(self)
-        label.setMinimumHeight(self.simulation_kind_value.sizeHint().height())
-        i18n_text('Simulation Results', label)
-        set_id(label, 'heading')
-        simulation_vbox.addWidget(label, alignment=QtCore.Qt.AlignCenter)
-        self.simulate_results = QtGui.QTextEdit(self)
-        simulation_vbox.addWidget(self.simulate_results)
-        i18n_text('Click the Simulate button to run SRW', self.simulate_results)
-
-        #### Analysis Results
-
-        analysis_vbox = QtGui.QVBoxLayout()
-        main.addLayout(analysis_vbox, stretch=3)
-        label = set_id(QtGui.QLabel(self), 'heading')
-        label.setText('Analysis Results')
-        label.setMinimumHeight(self.simulation_kind_value.sizeHint().height())
-        analysis_vbox.addWidget(label, alignment=QtCore.Qt.AlignCenter)
-        self.analysis_results = QtGui.QTextEdit(self)
-        analysis_vbox.addWidget(self.analysis_results)
-        i18n_text(
-            'Click the Analyze button to approximate a simulation',
-            self.analysis_results,
-        )
-
-        pkdp('param_vbox.sizeHint={}', param_vbox.sizeHint())
-        pkdp('main.sizeHint={}', main.sizeHint())
-        pkdp('simulation_kind.sizeHint={}', self.simulation_kind_value.sizeHint())
-
-        pkdp('label.sizeHint={}', label.sizeHint())
+        self.wavefront_param_view.setModel(
+            self.wavefront_param_models[first_sk.name])
 
         policy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
-
         param_widget.setSizePolicy(policy)
 
-        policy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
-        button_widget.setSizePolicy(policy)
-
+        self.result_text = {}
+        self._result_text(
+            'simulation',
+            'Simulation Results',
+            'Click Simulate to run SRW',
+            main,
+        )
+        self._result_text(
+            'analysis',
+            'Analysis Results',
+            'Click Analysis to approximate a simulation',
+            main,
+        )
         policy = QtGui.QSizePolicy(
             QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
 
@@ -169,3 +144,20 @@ class View(QtGui.QWidget):
         assert ok, \
             '{}: simulation_kind_value invalid'.format(v)
         return srw_enums.SimulationKind(i)
+
+    def set_result_text(self, which, text):
+        w = self.result_text[which]
+        w.setText(text)
+        w.repaint()
+
+    def _result_text(self, name, label, desc, main):
+        vbox = QtGui.QVBoxLayout()
+        main.addLayout(vbox, stretch=RESULTS_STRETCH)
+        qlabel = set_id(QtGui.QLabel(self), 'heading')
+        qlabel.setMinimumHeight(self.simulation_kind_value.sizeHint().height())
+        i18n_text(label, qlabel)
+        vbox.addWidget(qlabel, alignment=QtCore.Qt.AlignCenter)
+        text = QtGui.QTextEdit(self)
+        i18n_text(desc, text)
+        vbox.addWidget(text)
+        self.result_text[name] = text
