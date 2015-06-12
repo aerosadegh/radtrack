@@ -14,10 +14,11 @@ def IDWaveLengthPhotonEnergy(lam_u,Bx,By,Gam):
     Kx=0.934*By*lam_u*100
     lam_r=lam_u/2/Gam/Gam*(1+Kx*Kx/2+Ky*Ky/2) #m
     e_ph=1.2407002E-6/lam_r #eV
-    return Kx,Ky,lam_r,e_ph
+    return (Kx,Ky,lam_r,e_ph)
 
 def CriticalEnergyWiggler(Bx,By,Gam):
     E_c=665.0255*(Bx*Bx+By*By)*Gam*0.511E-3*Gam*0.511E-3 #eV
+#    print Bx
     return (E_c)
 
 def RadiatedPowerPlanarWiggler(lam_u,Bx,N_u,Gam,I_b):

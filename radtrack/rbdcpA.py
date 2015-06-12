@@ -111,10 +111,13 @@ class RbDcp(QtGui.QWidget):
         (_,_,_,_,self.Ncol,_,_,Npage)=SDDSreshape(self.x,ColumnXAxis,ColumnPicked,NumPage)
 #        print(self.x.description[0])
 #        print("%d %d %d" %(self.Ncol, Npage, np.shape(self.x.columnData)[2]))
-        stringOut=" Columns: "+str(self.Ncol)+" Pages: "+str(Npage)+" ColumnElements: "+\
+        stringOut="Columns: "+str(self.Ncol)+" Pages: "+str(Npage)+" ColumnElements: "+\
         str(np.shape(self.x.columnData)[2])
+        paramsOut ='\nPARAMTER INFO \n'
+        for i,a in enumerate(self.x.parameterName):
+            paramsOut+=str(a)+'='+str(self.x.parameterData[i])+'\n'
         self.ui.legend.setText(QtGui.QApplication.translate("dcpwidget",\
-            self.x.description[0]+stringOut, None, QtGui.QApplication.UnicodeUTF8))
+            'FILE INFO \n'+self.x.description[0]+stringOut+paramsOut, None, QtGui.QApplication.UnicodeUTF8))
         #for i in range(Npage):
         #    self.ui.page.addItem(str(i))
         #self.ui.page.setCurrentIndex(0)
@@ -171,6 +174,8 @@ class RbDcp(QtGui.QWidget):
         
     #displaying and setting data options method
     def dataopt(self):
+        self.ui.xaxis.clear()
+        self.ui.yaxis.clear()
         for i in self.x.columnName:
             self.ui.xaxis.addItem(i)
             self.ui.yaxis.addItem(i)
@@ -192,7 +197,6 @@ class RbDcp(QtGui.QWidget):
         self.ui.selectplot.addItem('s v. sigma y')
         
     def graphset(self):
-        ColumnXAxis=0
         #self.y=[]
         #self.y.extend([1,7])
         
@@ -211,9 +215,17 @@ class RbDcp(QtGui.QWidget):
                 self.ui.xaxis.setCurrentIndex(0)
                 self.ui.yaxis.setCurrentIndex(2)
                 
+        elif self.currentFiletype == 'sig':
+            self.ui.xaxis.setCurrentIndex(0)
+            if self.ui.selectplot.currentIndex() == 0:
+                self.ui.yaxis.setCurrentIndex(53)
+            elif self.ui.selectplot.currentIndex() == 1:
+                self.ui.yaxis.setCurrentIndex(55)
+                
         self.customgraph()
     
     def customgraph(self):
+        ColumnXAxis=0
         xname = self.ui.xaxis.currentText()
         yname = self.ui.yaxis.currentText()
         linetype = ''
