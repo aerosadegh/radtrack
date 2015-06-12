@@ -73,59 +73,62 @@ class View(QtGui.QWidget):
             hb.addWidget(self.simulation_kind)
             param_vbox.addLayout(hb)
 
-        _selector()
-
-        params = self._controller.params['Simulation Kind']
-        self.wavefront_models = {}
-        self.wavefront_view = WavefrontParams(param_widget)
-        self.wavefront_view.horizontalHeader().setVisible(0)
-        self.wavefront_view.horizontalHeader().setResizeMode(QtGui.QHeaderView.ResizeToContents)
-        self.wavefront_view.verticalHeader().setVisible(0)
-        decl = list(
-            rt_params.iter_primary_param_declarations(self._controller.declarations['Wavefront']))
-        first_sk = None
-        for sk in srw_enums.SimulationKind:
-            #
-            if sk.name not in params:
-                continue
-            if not first_sk:
-                first_sk = sk
-            self.simulation_kind.addItem(
-                i18n_text(sk.display_name),
-                userData=sk.value,
+        def _models():
+            self._wavefront_models = {}
+            params = self._controller.params['Simulation Kind']
+            decl = list(
+                rt_params.iter_primary_param_declarations(
+                    self._controller.declarations['Wavefront']),
             )
-            m = QtGui.QStandardItemModel(len(decl), 2);
-            p = params[sk.name]['Wavefront']
-            for (row, d) in enumerate(decl):
-                item = QtGui.QStandardItem()
-                i18n_text(d['label'], item)
-                m.setItem(row, 0, item)
-                item = QtGui.QStandardItem()
-                set_param(d, p, item)
-                m.setItem(row, 1, item)
-            self.wavefront_models[sk.name] = m
-        self.wavefront_view.setModel(
-            self.wavefront_models[first_sk.name],
-        )
-        policy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
-        param_widget.setSizePolicy(policy)
+            first_sk = None
+            for sk in srw_enums.SimulationKind:
+                #TODO (robnagler) move to iterator somewhere else
+                if sk.name not in params:
+                    continue
+                if not first_sk:
+                    first_sk = sk
+                self.simulation_kind.addItem(
+                    i18n_text(sk.display_name),
+                    userData=sk.value,
+                )
+                m = QtGui.QStandardItemModel(len(decl), 2);
+                p = params[sk.name]['Wavefront']
+                for (row, d) in enumerate(decl):
+                    item = QtGui.QStandardItem()
+                    i18n_text(d['label'], item)
+                    m.setItem(row, 0, item)
+                    item = QtGui.QStandardItem()
+                    set_param(d, p, item)
+                    m.setItem(row, 1, item)
+                self._wavefront_models[sk.name] = m
+            return self._wavefront_models[first_sk.name]
 
-        self.wavefront_view.horizontalHeader().setSizePolicy(
-            QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Preferred)
+        def _view():
+            v = WavefrontParams(param_widget)
+            v.horizontalHeader().setVisible(0)
+            v.horizontalHeader().setResizeMode(
+                QtGui.QHeaderView.ResizeToContents)
+            v.verticalHeader().setVisible(0)
+            param_widget.setSizePolicy(
+                QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+            v.horizontalHeader().setSizePolicy(
+                QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Preferred)
+            param_vbox.addWidget(v)
+            first = _models()
+            v.setModel(first)
+            self._wavefront_view = v
+            self.simulation_kind.currentIndexChanged.connect(
+                self._simulation_kind_changed)
 
-        self.simulation_kind.currentIndexChanged.connect(
-            self._simulation_kind_changed)
-
-        param_vbox.addWidget(self.wavefront_view)
+        _selector()
+        _view()
         self._add_vertical_stretch_spacer(param_vbox)
         main.addLayout(param_vbox)
 
     def _add_result_texts(self, main):
         """Adds two boxes on the right side"""
 
-        self._result_text = {}
-
-        def _result_text(name, label, desc):
+        def _add(name, label, desc):
             """Creates a stretchable TextEdit area with label above"""
             vbox = QtGui.QVBoxLayout()
             main.addLayout(vbox, stretch=1)
@@ -139,12 +142,13 @@ class View(QtGui.QWidget):
             vbox.addWidget(text)
             self._result_text[name] = text
 
-        _result_text(
+        self._result_text = {}
+        _add(
             'simulation',
             'Simulation Results',
             'Click Simulate to run SRW',
         )
-        _result_text(
+        _add(
             'analysis',
             'Analysis Results',
             'Click Analysis to approximate a simulation',
@@ -163,8 +167,9 @@ class View(QtGui.QWidget):
         param_vbox.addStretch()
 
     def _simulation_kind_changed(self):
-        self.wavefront_view.setModel(
-            self.wavefront_models[self.current_simulation_kind().name])
+        """Called when checkbox changes. Sets model on view appropriately"""
+        self._wavefront_view.setModel(
+            self._wavefront_models[self.current_simulation_kind().name])
 
 
 class WavefrontParams(QtGui.QTableView):

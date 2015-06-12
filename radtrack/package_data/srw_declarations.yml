@@ -26,7 +26,6 @@
       py_type: int
     -
       label: Undulator Orientation
-      # TODO(robnagler) needs to be an enum with label and desc
       py_type: srw_enums.UndulatorOrientation
       display_as_checkbox: True
     -
