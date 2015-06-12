@@ -12,7 +12,8 @@ import re
 
 import jinja2
 
-def render_template(template, params):
+
+def render(template, params):
     """Parse template for $name and replace with special filter then render
 
     Since a common case is to render floating point numbers, we
@@ -47,7 +48,7 @@ def render_template(template, params):
     )
     je.filters['rt_filter'] = _rt_filter
     jt = je.from_string(_template(template))
-    return jt.render(res)
+    return jt.render(params)
 
 
 def _rt_filter(v):
@@ -65,12 +66,11 @@ def _template(t):
         t2 = t.lstrip()
         i = str(len(t) - len(t2) - 1)
         t = re.sub(
-            pkdi(r'^\s{1,' + i + '}'),
+            r'^\s{1,' + i + '}',
             '',
             t2,
             flags=re.IGNORECASE + re.MULTILINE,
         )
-        pkdi(t)
     if not t.endswith('\n'):
         t += '\n'
     return re.sub(

@@ -17,11 +17,11 @@ import sys
 from pykern import pkarray
 from pykern import pkcompat
 from pykern.pkdebug import pkdc, pkdi, pkdp
-import jinja2
 import xlrd
 
 from radtrack import RbUtility
 from radtrack import rt_controller
+from radtrack import rt_jinja
 from radtrack import rt_params
 from radtrack import rt_popup
 from radtrack import srw_enums
@@ -58,38 +58,33 @@ class Controller(rt_controller.Controller):
             args['Horizontal Magnetic Field'] = args['Magnetic Field']
             args['Vertical Magnetic Field'] = 0
         args.update(self.params['Beam'])
-        res = AnalyticCalc.multi_particle(args)
-        template = '''
-            Kx: {{ Kx|f }}
-            Ky: {{ Ky|f }}
+        values = AnalyticCalc.multi_particle(args)
+        res = rt_jinja.render(
+            '''
+            Kx: $Kx
+            Ky: $Ky
             Wavelength (m)      Phot. energy (eV)
-            1st harmonic: {{ lam_rn|e }}   {{ e_phn|e }}
-            3rd harmonic: {{ lam_rn_3|e }}   {{ e_phn_3|e }}
-            5th harmonic: {{ lam_rn_5|e }}  {{ e_phn_5|e }}
-            Critical energy: {{ E_c|e }} eV
+            1st harmonic: $lam_rn   $e_phn
+            3rd harmonic: $lam_rn_3   $e_phn_3
+            5th harmonic: $lam_rn_5  $e_phn_5
+            Critical energy: $E_c eV
             -----------------------------------
-            Rad spot size: {{ RadSpotSize|e }} m
-            Rad divergence: {{ RadSpotDivergence|e }} rad
+            Rad spot size: $RadSpotSize m
+            Rad divergence: $RadSpotDivergence rad
             -----------------------------------
-            Length of ID: {{ L_id|f }} m
-            Radiated power: {{ P_W|e }} W
+            Length of ID: $L_id m
+            Radiated power: $P_W W
             Central Power Density:
-            {{ P_Wdc|e }} W/mrad2
+            $P_Wdc W/mrad2
             Spectral flux:
-            {{ SpectralFluxValue|e }} phot/(sec mrad 0.1% BW)
+            $SpectralFluxValue phot/(sec mrad 0.1% BW)
             Spectral Central Brightness:
-            {{ RadBrightness|e }} phot/(sec mrad2 0.1% BW)
-            -----------------------------------'''
-        template = re.sub(r'^\s+', '', template, flags=re.MULTILINE)
-        je = jinja2.Environment(
-            trim_blocks=True,
-            lstrip_blocks=True,
-            keep_trailing_newline=True,
+            $RadBrightness phot/(sec mrad2 0.1% BW)
+            -----------------------------------
+            ''',
+            values,
         )
-        je.filters['e'] = lambda v: '{:.3e}'.format(v)
-        je.filters['f'] = lambda v: '{:.3f}'.format(v)
-        jt = je.from_string(template)
-        self._view.set_result_text('analysis', jt.render(res))
+        self._view.set_result_text('analysis', res)
 
     def action_beam(self):
         self._pop_up('Beam')
