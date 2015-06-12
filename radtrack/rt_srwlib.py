@@ -13,3 +13,6 @@ try:
 except ImportError:
     from radtrack.srw import srwlib
     from radtrack.srw import uti_plot
+
+# Initialize so doesn't files
+uti_plot.uti_plot_init(backend=uti_plot.DEFAULT_BACKEND, fname_format=None)
