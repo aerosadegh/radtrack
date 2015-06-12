@@ -1,6 +1,6 @@
 from PyQt4 import QtGui
 from radtrack.RbSrwsingleA import rbsrw as rbsrwsingle
-from radtrack import srw_multi_particle;
+from radtrack import srw_multi_particle
 
 
 class RbSrwTab(QtGui.QWidget):
@@ -18,7 +18,7 @@ class RbSrwTab(QtGui.QWidget):
 
         self.stackwidget = QtGui.QStackedWidget(self)
         self.stackwidget.addWidget(
-            srw_multi_particle.init_widget(self))
+            srw_multi_particle.Controller.init_widget(self))
         self.stackwidget.addWidget(rbsrwsingle(self))
         self.srw_particle = QtGui.QCheckBox(self)
         self.srw_particle.setText('Single-Particle')
