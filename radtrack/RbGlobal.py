@@ -3,10 +3,8 @@ Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
-import sys, os, tempfile, shutil
 
-import argh
-import sip
+import sys, os, tempfile, shutil, argh, string, sip, traceback
 sip.setapi('QString', 2)
 from PyQt4 import QtGui
 from datetime import datetime
@@ -24,6 +22,22 @@ from radtrack.genesis.rbgenesis2 import RbGenesis2
 from radtrack.RbSrwTab import RbSrwTab
 from radtrack.RbIntroTab import RbIntroTab
 from radtrack.RbUtility import getRealWidget
+
+def exceptionCapture(exceptionType, exceptionValue, traceBack, logFile):
+    # For now, print exceptions as normal
+    # Eventually replace with message box to user
+    print('Traceback (most recent call last):')
+    traceback.print_tb(traceBack)
+    print(exceptionType.__name__ + ': ' + str(exceptionValue))
+
+
+    # Log error
+    timestamp = datetime.now().strftime('%Y/%m/%d %H:%M:%S')
+    with open(logFile, 'a') as log:
+        log.write(string.center(' ' + timestamp + ' ', 80, '-') + '\n')
+        log.write(exceptionType.__name__ + ': ' + str(exceptionValue) + '\n')
+        traceback.print_tb(traceBack, None, log)
+        log.write('-'*80 + '\n\n')
 
 class RbGlobal(QtGui.QMainWindow):
     def __init__(self, beta_test=False):
@@ -45,7 +59,15 @@ class RbGlobal(QtGui.QMainWindow):
         try:
             os.makedirs(self.configDirectory)
         except OSError: # directory already exists or can't be created
-            pass
+            if not os.path.isdir(self.configDirectory):
+                raise OSError('Could not find or create configuration directory: ' + self.configDirectory)
+
+        sys.excepthook = \
+                lambda exceptionType, exceptionValue, traceBack : \
+                exceptionCapture(exceptionType,
+                                 exceptionValue,
+                                 traceBack,
+                                 os.path.join(self.configDirectory, 'error_log.txt'))
 
         # Read recent files and projects
         self.recentFile = os.path.join(self.configDirectory, 'recent')
@@ -421,12 +443,18 @@ class RbGlobal(QtGui.QMainWindow):
             f.write('\n'.join(loadedRecentFiles))
 
     def openSessionDirectory(self):
-        if sys.platform == 'win32': # Windows
-            os.startfile(self.sessionDirectory)
-        elif sys.platform == 'darwin': # Mac
-            subprocess.Popen(['open', self.sessionDirectory])
-        else: # Linux
-            subprocess.Popen(['xdg-open', self.sessionDirectory])
+        openDirectory(self.sessionDirectory)
+
+    def openConfigDirectory(self):
+        openDirectory(self.configDirectory)
+
+def openDirectory(directory):
+    if sys.platform == 'win32': # Windows
+        os.startfile(directory)
+    elif sys.platform == 'darwin': # Mac
+        subprocess.Popen(['open', directory])
+    else: # Linux
+        subprocess.Popen(['xdg-open', directory])
 
 
 @argh.arg('project_file', nargs='?', default=None, help='project file to open at startup')
