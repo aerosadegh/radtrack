@@ -11,9 +11,15 @@ from ui.newsrw import Ui_Form as Ui_newsrw
 from ui.undulatorforthicksrw import Ui_Dialog as und_dlg
 from ui.beamforsrw import Ui_Dialog as beam_dlg
 from ui.precisionthicksrw import Ui_Dialog as prec_dlg
-from srw.uti_plot import *
+
+try:
+    from uti_plot import *
+    from srwlib import *
+except ImportError:
+    from radtrack.srw.uti_plot import *
+    from radtrack.srw.srwlib import *
+
 from srw.AnalyticCalc import *
-from srw.srwlib import *
 from xlrd import *
 import radtrack.util.resource as resource
 from RbUtility import *
@@ -27,8 +33,8 @@ class rbsrw(QtGui.QWidget):
         self.beam = SRWLPartBeam()
         #self.precis = Precis()
         self.arPrecF = [0]*5
-        self.arPrecP = [0]*5 
-    
+        self.arPrecP = [0]*5
+
         #load initial values from excel
         self.workbook = open_workbook(resource.filename('SRWinitialvalues.xls'))
         self.thick(self.ui.deparg.currentIndex())
@@ -40,7 +46,7 @@ class rbsrw(QtGui.QWidget):
         self.ui.formLayout_4.labelForField(self.ui.intensity).hide()
         self.ui.polar.hide()
         self.ui.formLayout_4.labelForField(self.ui.polar).hide()
-        
+
         #set srw initial values
         column = self.workbook.sheet_by_name('thick undulator').col(0)
         units = self.workbook.sheet_by_name('thick undulator').col(1)
@@ -55,7 +61,7 @@ class rbsrw(QtGui.QWidget):
         print column
         units = self.unitstr(units)
         self.GetPrecision(DialogP(self,units,column))
-        
+
         #connections
         self.ui.undulator.clicked.connect(self.makeund)
         self.ui.beam.clicked.connect(self.makebeam)
@@ -66,7 +72,7 @@ class rbsrw(QtGui.QWidget):
         #indicators
         self.ui.status.setText('Initiated')
         self.ui.analytic.setText('No calculations performed...As of Yet')
-        
+
     def AnalyticA(self):
 #        (Kx,Ky,lam_rn,e_phn)=IDWaveLengthPhotonEnergy(self.up.undPer,self.up.Bx,self.up.By,self.beam.partStatMom1.gamma)
         (Kx,Ky,lam_rn,e_phn)=IDWaveLengthPhotonEnergy(self.up.undPer,0,self.up.By,self.beam.partStatMom1.gamma)
@@ -80,86 +86,86 @@ class rbsrw(QtGui.QWidget):
         '# Wavelength, m           Phot. energy, eV'+'\n'+\
         '1st harmonic '+'{:.3e}'.format(lam_rn)+' '+'{:.3f}'.format(e_phn)+'\n'+\
         '3rd harmonic '+'{:.3e}'.format(lam_rn/3.0)+' '+'{:.3f}'.format(e_phn*3.0)+'\n'+\
-        '5th harmonic '+'{:.3e}'.format(lam_rn/5.0)+' '+'{:.3f}'.format(e_phn*5.0)+'\n' 
-        
+        '5th harmonic '+'{:.3e}'.format(lam_rn/5.0)+' '+'{:.3f}'.format(e_phn*5.0)+'\n'
+
         E_c=CriticalEnergyWiggler(self.up.By,self.up.Bx,self.beam.partStatMom1.gamma)
         #Outputs: (RAD.Ecrit,UPWorU) where RAD.Ecrit is critical energy of Wiggler Radiation
         #Inputs: (UP.Bx, self.beam.partStatMom1.gamma,UP.Kx)
         stra=stri+'# Critical energy:'+'{:.3e}'.format(E_c)+', eV'+'\n'+\
         '-----------------------------------'+'\n'
-        
+
         (P_W, L_id)=RadiatedPowerPlanarWiggler(self.up.undPer,self.up.By,self.up.numPer,self.beam.partStatMom1.gamma,self.beam.Iavg)
         #Outputs: (RAD.PowW,UP.L) where RAD.PowW is radiated power of Wiggler Radiation, UP.L=length of ID
         #Inputs: (UP.undPer,UP.Bx,UP.numPer,self.beam.partStatMom1.gamma,self.beam.Iavg) standart SRW class variables
         #RadiatedPowerPlanarWiggler(lam_u,Bx,N_u,Gam,I_b):
-        
+
         (RadSpotSize,RadSpotDivergence)=UndulatorSourceSizeDivergence(lam_rn,L_id)
         stre=stra+'# Rad spot size: '+'{:.3e}'.format(RadSpotSize)+', m'+'\n'
         strf=stre+'# Rad divergence: '+'{:.3e}'.format(RadSpotDivergence)+', rad'+'\n'+\
         '-----------------------------------'+'\n'
-        
+
         strb=strf+'# Length of ID:'+'{:.3f}'.format(L_id)+', m'+'\n' + \
         '# Radiated power:'+'{:.3e}'.format(P_W)+', W'+'\n'
-        
+
         P_Wdc=CentralPowerDensityPlanarWiggler(self.up.By,self.up.numPer,self.beam.partStatMom1.gamma,self.beam.Iavg)
         #Outputs: (RAD.PowCPD) where RAD.PowCPD is radiated central cone power density of Wiggler Radiation
         #Inputs: (UP.undPer,UP.Bx,UP.numPer,self.beam.partStatMom1.gamma,self.beam.Iavg) standart SRW class variables
         strc=strb+'# Central Power Density: '+'{:.3e}'.format(P_Wdc)+', W/mrad2'+'\n'
-        
+
         SpectralFluxValue=SpectralFLux(self.up.numPer,self.beam.partStatMom1.gamma,1,self.beam.Iavg,Kx)
         strd=strc+'# Spectral flux: '+'{:.3e}'.format(SpectralFluxValue)+', phot/(sec mrad 0.1% BW)'+'\n'
-        
+
         RadBrightness=SpectralCenBrightness(self.up.numPer,self.beam.partStatMom1.gamma,self.beam.Iavg)
         strw=strd+'# Spectral Central Brightness: '+'{:.3e}'.format(RadBrightness)+', phot/(sec mrad2 0.1% BW)'+'\n'+\
         '-----------------------------------'+'\n'
-        
+
         self.ui.analytic.setText(strw)
-        
+
     def UndParamsThick(self):
         #vertical harmonic magnetic field
         harmB = SRWLMagFldH() #magnetic field harmonic
         harmB.n = self.up.n #harmonic number
         if self.up.By is None:
-            harmB.B = self.up.Bx #magnetic field amplitude [T] 
+            harmB.B = self.up.Bx #magnetic field amplitude [T]
             harmB.h_or_v = 'h'   #magnetic field plane: horzontal ('h')
         else:
             harmB.B = self.up.By #magnetic field amplitude[T]
             harmB.h_or_v = 'v'   #magnetic field plane: vertical ('v')
-        
+
         und = SRWLMagFldU([harmB])
         und.per = self.up.undPer #period length [m]
         und.nPer = self.up.numPer #number of periods (will be rounded to integer)
         magFldCnt = SRWLMagFldC([und], array('d', [0]), array('d', [0]), array('d', [0])) #Container of all magnetic field elements
-        return (und, magFldCnt) 
-    
+        return (und, magFldCnt)
+
     def CalcTraj(self,und,magFldCnt,arPrecPar,fieldInterpMeth):
         # Done specifying undulator mag field
         # Initial coordinates of particle trajectory through the ID
         part = SRWLParticle()
-        part.x = self.beam.partStatMom1.x 
-        part.y = self.beam.partStatMom1.y 
-        part.xp = self.beam.partStatMom1.xp 
-        part.yp = self.beam.partStatMom1.yp 
+        part.x = self.beam.partStatMom1.x
+        part.y = self.beam.partStatMom1.y
+        part.xp = self.beam.partStatMom1.xp
+        part.yp = self.beam.partStatMom1.yp
         part.gamma = 3/0.51099890221e-03 #Relative Energy self.beam.partStatMom1.gamma #
-        part.relE0 = 1 
-        part.nq = -1 
+        part.relE0 = 1
+        part.nq = -1
         zcID=0
-        
+
         # number of trajectory points along longitudinal axis
-        npTraj = 10001  
-        
+        npTraj = 10001
+
         #Definitions and allocation for the Trajectory waveform
         part.z = zcID #- 0.5*magFldCnt.MagFld[0].rz
         partTraj = SRWLPrtTrj()
         partTraj.partInitCond = part
         partTraj.allocate(npTraj, True)
-        partTraj.ctStart = 0 
+        partTraj.ctStart = 0
         partTraj.ctEnd = und.nPer*und.per #magFldCnt.MagFld[0].rz
         print('   Performing calculation ... ')
         partTraj = srwl.CalcPartTraj(partTraj, magFldCnt, arPrecPar)
         print('done')
-        
-        print('   Plotting the results (blocks script execution; close any graph windows to proceed) ... ')
+
+        print('   Plotting the results (blocks script execution; close all graph windows to proceed) ... ')
         ctMesh = [partTraj.ctStart, partTraj.ctEnd, partTraj.np]
         for i in range(partTraj.np):
             partTraj.arX[i] *= 1000
@@ -168,9 +174,9 @@ class rbsrw(QtGui.QWidget):
         uti_plot1d(partTraj.arY, ctMesh, ['ct [m]', 'Vertical Position [mm]'])
         uti_plot_show() #show all graphs (and block execution)
         print('done')
-        
+
         return (partTraj.arX,partTraj.arY,ctMesh)
-        
+
     def GetUndParams(self, dialog):
         units = dialog.u
         self.up.numPer = convertUnitsStringToNumber(dialog.ui.numper.text(),units[0])
@@ -184,7 +190,7 @@ class rbsrw(QtGui.QWidget):
             self.up.Bx = convertUnitsStringToNumber(dialog.ui.b.text(),units[2])
             self.up.By = 0
 
-        
+
     def ShowUndParams(self, dialog):
         units = dialog.u
         dialog.ui.numper.setText(displayWithUnitsNumber(self.up.numPer,units[0]))
@@ -195,8 +201,8 @@ class rbsrw(QtGui.QWidget):
         else:
             dialog.ui.b.setText(displayWithUnitsNumber(self.up.By,units[2]))
             dialog.ui.vh.setChecked(True)
-        dialog.ui.n.setText(str(self.up.n))   
-        
+        dialog.ui.n.setText(str(self.up.n))
+
     def GetBeamParams(self,dialog):
         units = dialog.u
         #this is the beam class
@@ -205,7 +211,7 @@ class rbsrw(QtGui.QWidget):
         self.beam.partStatMom1.y = convertUnitsStringToNumber(dialog.ui.partstatmom1y.text(),units[2])
         self.beam.partStatMom1.z = convertUnitsStringToNumber(dialog.ui.partstatmom1z.text(),units[3])
         self.beam.partStatMom1.xp = convertUnitsStringToNumber(dialog.ui.partstatmom1xp.text(),units[4])
-        self.beam.partStatMom1.yp = convertUnitsStringToNumber(dialog.ui.partstatmom1yp.text(),units[5]) 
+        self.beam.partStatMom1.yp = convertUnitsStringToNumber(dialog.ui.partstatmom1yp.text(),units[5])
         self.beam.partStatMom1.gamma = convertUnitsStringToNumber(dialog.ui.partstatmom1gamma.text(),units[6])
         '''
         sigEperE = 0.00089 #relative RMS energy spread
@@ -220,14 +226,14 @@ class rbsrw(QtGui.QWidget):
         sigY = convertUnitsStringToNumber(dialog.ui.sigy.text(),units[10])
         sigYp = convertUnitsStringToNumber(dialog.ui.sigyp.text(),units[11])
         #2nd order stat. moments:
-        self.beam.arStatMom2[0] = sigX*sigX #<(x-<x>)^2> 
+        self.beam.arStatMom2[0] = sigX*sigX #<(x-<x>)^2>
         self.beam.arStatMom2[1] = 0 #<(x-<x>)(x'-<x'>)>
-        self.beam.arStatMom2[2] = sigXp*sigXp #<(x'-<x'>)^2> 
+        self.beam.arStatMom2[2] = sigXp*sigXp #<(x'-<x'>)^2>
         self.beam.arStatMom2[3] = sigY*sigY #<(y-<y>)^2>
         self.beam.arStatMom2[4] = 0 #<(y-<y>)(y'-<y'>)>
         self.beam.arStatMom2[5] = sigYp*sigYp #<(y'-<y'>)^2>
         self.beam.arStatMom2[10] = sigEperE*sigEperE #<(E-<E>)^2>/<E>^2
-        
+
     def ShowBeamParams(self, dialog):
         units = dialog.u
         dialog.ui.iavg.setText(displayWithUnitsNumber(self.beam.Iavg,units[0]))
@@ -242,7 +248,7 @@ class rbsrw(QtGui.QWidget):
         dialog.ui.sigy.setText(displayWithUnitsNumber(sqrt(self.beam.arStatMom2[3]),units[9]))
         dialog.ui.sigxp.setText(displayWithUnitsNumber(sqrt(self.beam.arStatMom2[2]),units[10]))
         dialog.ui.sigyp.setText(displayWithUnitsNumber(sqrt(self.beam.arStatMom2[5]),units[11]))
-        
+
     def WfrSetUpE(self,wfrE):
         #wfrE = SRWLWfr() this is the waveform class
 #        Nenergy = float(self.ui.tableWidget.item(0,0).text())#float?
@@ -258,8 +264,8 @@ class rbsrw(QtGui.QWidget):
         wfrE.mesh.xStart = float(self.ui.tableWidget.item(6,0).text())
         wfrE.mesh.xFin = float(self.ui.tableWidget.item(8,0).text())
         wfrE.mesh.yStart = float(self.ui.tableWidget.item(7,0).text())
-        wfrE.mesh.yFin = float(self.ui.tableWidget.item(9,0).text())   
-        
+        wfrE.mesh.yFin = float(self.ui.tableWidget.item(9,0).text())
+
     def GetPrecision(self,dialog):
         units = dialog.u
         #for spectral flux vs photon energy
@@ -268,16 +274,16 @@ class rbsrw(QtGui.QWidget):
         self.arPrecF[2] = float(dialog.ui.lip.text()) #longitudinal integration precision parameter
         self.arPrecF[3] = float(dialog.ui.aip.text()) #azimuthal integration precision parameter
         self.arPrecF[4] = dialog.ui.flux.currentIndex()+1 #calculate flux (1) or flux per unit surface (2)
-        
+
         #for power density
         self.arPrecP[0] = float(dialog.ui.prefact.text()) #precision factor
         self.arPrecP[1] = dialog.ui.field.currentIndex()+1 #power density computation method (1- "near field", 2- "far field")
         self.arPrecP[2] = float(dialog.ui.ilp.text()) #initial longitudinal position (effective if self.arPrecP[2] < self.arPrecP[3])
         self.arPrecP[3] = float(dialog.ui.flp.text()) #final longitudinal position (effective if self.arPrecP[2] < self.arPrecP[3])
         self.arPrecP[4] = int(float(dialog.ui.np.text())) #number of points for (intermediate) trajectory calculation
-        
+
         #for trajectory calculations:
-               
+
         #Need to reflect in the GUI:
         self.arPrecPar = [1] #General Precision parameters for Trajectory calculation:
         #[0]: integration method No:
@@ -290,26 +296,26 @@ class rbsrw(QtGui.QWidget):
         #1- bi-linear (3D), 2- bi-quadratic (3D), 3- bi-cubic (3D), 4- 1D cubic spline (longitudinal) + 2D bi-cubic
 
         #return (self.arPrecF, self.arPrecP)
-        
+
     def ShowPrecision(self,dialog):
         dialog.ui.harma.setText(str(self.arPrecF[0]))
         dialog.ui.harmb.setText(str(self.arPrecF[1]))
         dialog.ui.lip.setText(str(self.arPrecF[2]))
         dialog.ui.aip.setText(str(self.arPrecF[3]))
         dialog.ui.flux.setCurrentIndex(self.arPrecF[4]-1)
-        
+
         dialog.ui.prefact.setText(str(self.arPrecP[0]))
         dialog.ui.field.setCurrentIndex(self.arPrecP[1]-1)
         dialog.ui.ilp.setText(str(self.arPrecP[2]))
         dialog.ui.flp.setText(str(self.arPrecP[3]))
         dialog.ui.np.setText(str(self.arPrecP[4]))
-        
+
     def unitstr(self,units):
         for n,u in enumerate(units):
             units[n]=str(u.value)
-            
+
         return units
-        
+
     def makeund(self):
         units = self.workbook.sheet_by_name('thick undulator').col(1)
         units = self.unitstr(units)
@@ -317,7 +323,7 @@ class rbsrw(QtGui.QWidget):
         self.ShowUndParams(dialog)
         if dialog.exec_():
             self.GetUndParams(dialog)
-            
+
     def makebeam(self):
         units = self.workbook.sheet_by_name('thick undulator').col(1)
         units = self.unitstr(units)
@@ -325,14 +331,14 @@ class rbsrw(QtGui.QWidget):
         self.ShowBeamParams(dialog)
         if dialog.exec_():
             self.GetBeamParams(dialog)
-            
+
     def setprec(self):
         dialog = DialogP()
         self.ShowPrecision(dialog)
         if dialog.exec_():
             self.GetPrecision(dialog)
-        
-    def srwbuttonThick(self):     
+
+    def srwbuttonThick(self):
         if 'srwl' not in globals():
             msg = ' !Warning --'
             msg += 'SRW not installed on this system.'
@@ -348,32 +354,32 @@ class rbsrw(QtGui.QWidget):
 #        f.write([str(ctMesh[1]),str(ctMesh[1])])
 #        print "%s %s %s " %(str(partTraj.arX),str(partTraj.arY),str(ctMesh))
         f.close()
-        
+
         #self.beam = SRWLPartBeam()
         #self.BeamParams(self.beam)
 
         #self.AnalyticA(self.beam)
         #self.AnalyticA()
 
-        #(self.arPrecF, self.arPrecP)=self.PrecisionThick()     
-        
+        #(self.arPrecF, self.arPrecP)=self.PrecisionThick()
+
         stkF = SRWLStokes() #for spectrum
         self.WfrSetUpE(stkF)
         stkP = SRWLStokes() #for power density
         self.WfrSetUpE(stkP)
-        
+
         Polar = self.ui.polar.currentIndex()
         Intens = self.ui.intensity.currentIndex()
         DependArg = self.ui.deparg.currentIndex()
         print (Polar, Intens, DependArg)
-         
+
         if DependArg == 0:
             #after setting the text call self.ui.status.repaint() to have it immediately show otherwise it will wait till it exits the block to draw
             str1='* Performing Electric Field (spectrum vs photon energy) calculation ... \n \n'
             self.ui.status.setText(str1)
             self.ui.status.repaint()
             srwl.CalcStokesUR(stkF, self.beam, und, self.arPrecF) #####
-            
+
             str2='* Extracting Intensity from calculated Electric Field ... \n \n'
             self.ui.status.setText(str1+str2)
             self.ui.status.repaint()
@@ -383,7 +389,7 @@ class rbsrw(QtGui.QWidget):
             self.ui.status.repaint()
             uti_plot1d(stkF.arS, [stkF.mesh.eStart, stkF.mesh.eFin, stkF.mesh.ne], ['Photon Energy [eV]', 'Flux [ph/s/.1%bw]', 'Flux through Finite Aperture'])
 
-        elif DependArg == 1: 
+        elif DependArg == 1:
             str1='* Performing Power Density calculation (from field) vs x-coordinate calculation ... \n \n'
             self.ui.status.setText(str1)
             print DependArg
@@ -393,11 +399,11 @@ class rbsrw(QtGui.QWidget):
             print(self.arPrecP)
             srwl.CalcPowDenSR(stkP, self.beam, 0, magFldCnt, self.arPrecP)
             print 'yes'
-                
+
             str2='* Extracting Intensity from calculated Electric Field ... \n \n '
             self.ui.status.setText(str1+str2)
             self.ui.status.repaint()
-            
+
             str3='* Plotting the results ...\n'
             self.ui.status.setText(str1+str2+str3)
             self.ui.status.repaint()
@@ -419,11 +425,11 @@ class rbsrw(QtGui.QWidget):
 #            print(self.arPrecP)
             srwl.CalcPowDenSR(stkP, self.beam, 0, magFldCnt, self.arPrecP)
 #            print 'yes'
-                
+
             str2='* Extracting Intensity from calculated Electric Field ... \n \n '
             self.ui.status.setText(str1+str2)
             self.ui.status.repaint()
-            
+
             str3='* Plotting the results ...\n'
             self.ui.status.setText(str1+str2+str3)
             self.ui.status.repaint()
@@ -467,32 +473,32 @@ class rbsrw(QtGui.QWidget):
             str1='* Performing Electric Field (intensity vs energy- and y-coordinate) calculation ... \n \n'
             self.ui.status.setText(str1)
             self.ui.status.repaint()
-            
+
             str2='* Un der construction ... \n \n '
             self.ui.status.setText(str1+str2)
             self.ui.status.repaint()
- 
+
             str3='* Plotting the results ...\n'
             self.ui.status.setText(str1+str2+str3)
             self.ui.status.repaint()
 
         else:
             print 'Error'
-    
+
         uti_plot_show()
 
-                     
+
     def thick(self,i):
         thicksheet = self.workbook.sheet_by_name('thick table')
         for n,c in enumerate(thicksheet.col(i)):
             self.ui.tableWidget.setItem(n,0,QtGui.QTableWidgetItem(str(c.value)))
-            
+
     def unitstr(self,units):
         for n,u in enumerate(units):
             units[n]=str(u.value)
-            
+
         return units
-        
+
     def makeund(self):
         units = self.workbook.sheet_by_name('thick undulator').col(1)
         units = self.unitstr(units)
@@ -500,7 +506,7 @@ class rbsrw(QtGui.QWidget):
         self.ShowUndParams(dialog)
         if dialog.exec_():
             self.GetUndParams(dialog)
-            
+
     def makebeam(self):
         units = self.workbook.sheet_by_name('thick beam').col(1)
         units = self.unitstr(units)
@@ -508,17 +514,17 @@ class rbsrw(QtGui.QWidget):
         self.ShowBeamParams(dialog)
         if dialog.exec_():
             self.GetBeamParams(dialog)
-            
+
     def setprec(self):
         dialog = DialogP()
         self.ShowPrecision(dialog)
         if dialog.exec_():
             self.GetPrecision(dialog)
-            
+
     def check(self):
         print self.arPrecF
-        
-        
+
+
 class DialogU(QtGui.QDialog):
     def __init__(self, parent=None,units=None,column=None):
         QtGui.QDialog.__init__(self,parent)
@@ -530,9 +536,9 @@ class DialogU(QtGui.QDialog):
             self.ui.undper.setText(str(column[1].value)) #Period Length
             self.ui.n.setText(str(column[3].value))
             self.ui.b.setText(str(column[2].value)+' '+units[2])
-            self.ui.vh.setChecked(column[4].value is unicode('v'))             
-            
-                
+            self.ui.vh.setChecked(column[4].value is unicode('v'))
+
+
 class DialogB(QtGui.QDialog):
     def __init__(self, parent=None,units=None,column=None):
         QtGui.QDialog.__init__(self,parent)
@@ -541,7 +547,7 @@ class DialogB(QtGui.QDialog):
         self.u = units
         if column is not None:
             self.ui.iavg.setText(str(column[0].value)+' '+units[0])     #Above is the UP class, this is self.beam.iavg
-            self.ui.partstatmom1x.setText(str(column[1].value)+' '+units[1])  #self.beam.partStatMom1.x, initial x-offset    
+            self.ui.partstatmom1x.setText(str(column[1].value)+' '+units[1])  #self.beam.partStatMom1.x, initial x-offset
             self.ui.partstatmom1y.setText(str(column[2].value)+' '+units[2])  #self.beam.partStatMom1.y, initial y-offset
             self.ui.partstatmom1z.setText(str(column[3].value)+' '+units[3]) #self.beam.partStatMom1.z, initial z-offset
             self.ui.partstatmom1xp.setText(str(column[4].value)+' '+units[4]) #self.beam.partStatMom1.xp, initial x angle offset
@@ -552,7 +558,7 @@ class DialogB(QtGui.QDialog):
             self.ui.sigy.setText(str(column[9].value)+' '+units[9])
             self.ui.sigxp.setText(str(column[10].value)+' '+units[10])
             self.ui.sigyp.setText(str(column[11].value)+' '+units[11])
-        
+
 class DialogP(QtGui.QDialog):
     def __init__(self, parent=None,units=None,column=None):
         QtGui.QDialog.__init__(self,parent)
@@ -565,40 +571,40 @@ class DialogP(QtGui.QDialog):
             self.ui.lip.setText(str(column[2].value))
             self.ui.aip.setText(str(column[3].value))
             self.ui.flux.setCurrentIndex(int(column[4].value))
-        
+
             self.ui.prefact.setText(str(column[5].value))
             self.ui.field.setCurrentIndex(column[6].value)
             self.ui.ilp.setText(str(column[7].value))
             self.ui.flp.setText(str(column[8].value))
             self.ui.np.setText(str(column[9].value))
-        
+
 class UP:
-     def __init__(self): 
-         UP.numPer = [] 
-         UP.undPer = [] 
-         UP.Bx = [] 
-         UP.By = [] 
-         UP.phBx = [] 
-         UP.phBy = [] 
-         UP.sBx = [] 
-         UP.sBy = [] 
-         UP.xcID = [] 
-         UP.ycID = [] 
+     def __init__(self):
+         UP.numPer = []
+         UP.undPer = []
+         UP.Bx = []
+         UP.By = []
+         UP.phBx = []
+         UP.phBy = []
+         UP.sBx = []
+         UP.sBy = []
+         UP.xcID = []
+         UP.ycID = []
          UP.zcID = []
          UP.n = []
 
 class Precis:
      def __init__(self):
-        Precis.meth = [] 
-        Precis.relPrec = [] 
-        Precis.zStartInteg = [] 
-        Precis.zEndInteg = [] 
-        Precis.npTraj = [] 
-        Precis.useTermin = [] 
+        Precis.meth = []
+        Precis.relPrec = []
+        Precis.zStartInteg = []
+        Precis.zEndInteg = []
+        Precis.npTraj = []
+        Precis.useTermin = []
         Precis.sampFactNxNyForProp = []
-        
-        
-                
+
+
+
 def main():
     app = QtGui.QApplication(sys.argv)
     myapp = rbsrw()
@@ -607,4 +613,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
