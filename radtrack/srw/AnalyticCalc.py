@@ -4,6 +4,13 @@ import numpy as np
 import scipy.integrate
 import scipy.special
 
+#cd radtrack
+#git pull
+#it will look for the git directory
+
+#C:\d from old\RadiaBeam\RadSoft\radtrack>python radtrack\radtrack_gui.py
+
+
 def IDWaveLengthPhotonEnergy(lam_u,Bx,By,Gam):	
     Ky=0.934*Bx*lam_u*100
     Kx=0.934*By*lam_u*100
@@ -11,8 +18,8 @@ def IDWaveLengthPhotonEnergy(lam_u,Bx,By,Gam):
     e_ph=1.2407002E-6/lam_r #eV
     return (Kx,Ky,lam_r,e_ph) 
 	
-def CriticalEnergyWiggler(Bx,Gam):		
-    E_c=665.0255*Bx*Bx*Gam*0.511E-3*Gam*0.511E-3 #eV
+def CriticalEnergyWiggler(Bx,By,Gam):		
+    E_c=665.0255*(Bx*Bx+By*By)*Gam*0.511E-3*Gam*0.511E-3 #eV
 #    print Bx
     return (E_c) 
 
