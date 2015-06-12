@@ -16,9 +16,8 @@ def IDWaveLengthPhotonEnergy(lam_u,Bx,By,Gam):
     e_ph=1.2407002E-6/lam_r #eV
     return Kx,Ky,lam_r,e_ph
 
-def CriticalEnergyWiggler(Bx,Gam):
-    E_c=665.0255*Bx*Bx*Gam*0.511E-3*Gam*0.511E-3 #eV
-#    print Bx
+def CriticalEnergyWiggler(Bx,By,Gam):
+    E_c=665.0255*(Bx*Bx+By*By)*Gam*0.511E-3*Gam*0.511E-3 #eV
     return (E_c)
 
 def RadiatedPowerPlanarWiggler(lam_u,Bx,N_u,Gam,I_b):
@@ -81,6 +80,7 @@ def multi_particle(params):
     res.update(zip(('P_W', 'L_id'), v))
     res['E_c'] = CriticalEnergyWiggler(
         params['Vertical Magnetic Field'],
+        params['Horizontal Magnetic Field'],
         params['Relativistic Energy (gamma)'],
     )
     res['P_Wdc'] = CentralPowerDensityPlanarWiggler(

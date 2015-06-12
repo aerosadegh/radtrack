@@ -15,6 +15,7 @@ import re
 import sys
 
 from pykern import pkarray
+from pykern import pkcompat
 from pykern.pkdebug import pkdc, pkdi, pkdp
 import jinja2
 import xlrd
@@ -97,6 +98,11 @@ class Controller(rt_controller.Controller):
         self._pop_up('Precision')
 
     def action_simulate(self):
+        msg_list = []
+        def msg(m):
+            msg_list.append(m + '... \n \n')
+            self._view.set_result_text('simulation', ''.join(msg_list))
+
         (und, magFldCnt) = srw_params.to_undulator(self.params['Undulator'])
         beam = srw_params.to_beam(self.params['Beam'])
         simulation_kind = self._view.current_simulation_kind()
@@ -104,14 +110,40 @@ class Controller(rt_controller.Controller):
         stkF = srw_params.to_wavefront(wp)
         stkP = srw_params.to_wavefront(wp)
         pkdc('simulation_kind={}', simulation_kind)
-        msg_list = []
-
         ar_prec_f = srw_params.to_flux_precision(self.params['Precision'])
         ar_prec_p = srw_params.to_power_precision(self.params['Precision'])
 
-        def msg(m):
-            msg_list.append(m + '... \n \n')
-            self._view.set_result_text('simulation', ''.join(msg_list))
+        #for trajectory calculations:
+
+        #Need to reflect in the GUI:
+        arPrecPar = [1] #General Precision parameters for Trajectory calculation:
+        #[0]: integration method No:
+        #1- fourth-order Runge-Kutta (precision is driven by number of points)
+        #2- fifth-order Runge-Kutta
+        #[1],[2],[3],[4],[5]: absolute precision values for X[m],X'[rad],Y[m],Y'[rad],Z[m] (yet to be tested!!) - to be taken into account only for R-K fifth order or higher
+        #[6]: tolerance (default = 1) for R-K fifth order or higher
+        #[7]: max. number of auto-steps for R-K fifth order or higher (default = 5000)
+        fieldInterpMeth = 4 #Magnetic Field Interpolation Method, to be entered into 3D field structures below (to be used e.g. for trajectory calculation):
+        #1- bi-linear (3D), 2- bi-quadratic (3D), 3- bi-cubic (3D), 4- 1D cubic spline (longitudinal) + 2D bi-cubic
+
+        msg('Performing trajectory calculation')
+        (Xtrajectory, Ytrajectory, ctMesh) = self._trajectory(
+            und,
+            magFldCnt,
+            arPrecPar,
+            fieldInterpMeth,
+            beam,
+        )
+        f = open('Trajectory.txt', 'w')
+        f.write(pkcompat.locale_str(Xtrajectory))
+        f.write(pkcompat.locale_str(Ytrajectory))
+        f.write(pkcompat.locale_str(ctMesh))
+#        f.write([str(ctMesh[1]),str(ctMesh[1])])
+#        print "%s %s %s " %(str(partTraj.arX),str(partTraj.arY),str(ctMesh))
+        f.close()
+        msg('Plotting the results')
+        msg('NOTE: Close all graph windows to proceed')
+        uti_plot.uti_plot_show()
 
         if simulation_kind.has_name('E'):
             msg('Performing Electric Field (spectrum vs photon energy) calculation')
@@ -210,6 +242,39 @@ class Controller(rt_controller.Controller):
         )
         if pu.exec_():
             self.params[which] = pu.get_params()
+
+    def _trajectory(self,und,magFldCnt,arPrecPar,fieldInterpMeth,beam):
+        # Done specifying undulator mag field
+        # Initial coordinates of particle trajectory through the ID
+        part = srwlib.SRWLParticle()
+        part.x = beam.partStatMom1.x
+        part.y = beam.partStatMom1.y
+        part.xp = beam.partStatMom1.xp
+        part.yp = beam.partStatMom1.yp
+        part.gamma = 3/0.51099890221e-03 #Relative Energy self.beam.partStatMom1.gamma #
+        part.relE0 = 1
+        part.nq = -1
+        zcID=0
+
+        # number of trajectory points along longitudinal axis
+        npTraj = 10001
+
+        #Definitions and allocation for the Trajectory waveform
+        part.z = zcID #- 0.5*magFldCnt.MagFld[0].rz
+        partTraj = srwlib.SRWLPrtTrj()
+        partTraj.partInitCond = part
+        partTraj.allocate(npTraj, True)
+        partTraj.ctStart = 0
+        partTraj.ctEnd = und.nPer*und.per #magFldCnt.MagFld[0].rz
+        partTraj = srwlib.srwl.CalcPartTraj(partTraj, magFldCnt, arPrecPar)
+
+        ctMesh = [partTraj.ctStart, partTraj.ctEnd, partTraj.np]
+        for i in range(partTraj.np):
+            partTraj.arX[i] *= 1000
+            partTraj.arY[i] *= 1000
+        uti_plot.uti_plot1d(partTraj.arX, ctMesh, ['ct [m]', 'Horizontal Position [mm]'])
+        uti_plot.uti_plot1d(partTraj.arY, ctMesh, ['ct [m]', 'Vertical Position [mm]'])
+        return (partTraj.arX,partTraj.arY,ctMesh)
 
 
 Controller.run_if_main()
