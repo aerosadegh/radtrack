@@ -23,22 +23,6 @@ from radtrack.RbSrwTab import RbSrwTab
 from radtrack.RbIntroTab import RbIntroTab
 from radtrack.RbUtility import getRealWidget
 
-def exceptionCapture(exceptionType, exceptionValue, traceBack, logFile):
-    # For now, print exceptions as normal
-    # Eventually replace with message box to user
-    print('Traceback (most recent call last):')
-    traceback.print_tb(traceBack)
-    print(exceptionType.__name__ + ': ' + str(exceptionValue))
-
-
-    # Log error
-    timestamp = datetime.now().strftime('%Y/%m/%d %H:%M:%S')
-    with open(logFile, 'a') as log:
-        log.write(string.center(' ' + timestamp + ' ', 80, '-') + '\n')
-        log.write(exceptionType.__name__ + ': ' + str(exceptionValue) + '\n')
-        traceback.print_tb(traceBack, None, log)
-        log.write('-'*80 + '\n\n')
-
 class RbGlobal(QtGui.QMainWindow):
     def __init__(self, beta_test=False):
         self.beta_test=beta_test
@@ -61,13 +45,8 @@ class RbGlobal(QtGui.QMainWindow):
         except OSError: # directory already exists or can't be created
             if not os.path.isdir(self.configDirectory):
                 raise OSError('Could not find or create configuration directory: ' + self.configDirectory)
-
-        sys.excepthook = \
-                lambda exceptionType, exceptionValue, traceBack : \
-                exceptionCapture(exceptionType,
-                                 exceptionValue,
-                                 traceBack,
-                                 os.path.join(self.configDirectory, 'error_log.txt'))
+        self.logFile = os.path.join(self.configDirectory, 'error_log.txt')
+        sys.excepthook = self.exceptionCapture
 
         # Read recent files and projects
         self.recentFile = os.path.join(self.configDirectory, 'recent')
@@ -160,6 +139,36 @@ class RbGlobal(QtGui.QMainWindow):
         QtGui.QShortcut(QtGui.QKeySequence.Redo, self).activated.connect(self.redo)
 
         self.checkMenus()
+
+    def exceptionCapture(self, exceptionType, exceptionValue, traceBack):
+        # Extract exception information
+        exceptionText = 'Traceback (most recent call last):\n'
+        for fileName, lineNumber, scope, line in traceback.extract_tb(traceBack):
+            exceptionText = exceptionText + '  File "' + fileName + '", line ' + str(lineNumber) + ', in ' + scope + '\n'
+            exceptionText = exceptionText + '    ' + line + '\n'
+        exceptionText = exceptionText + exceptionType.__name__ + ': ' + str(exceptionValue) + '\n'
+
+        # Log error
+        timestamp = datetime.now().strftime('%Y/%m/%d %H:%M:%S')
+        with open(self.logFile, 'a') as log:
+            log.write(string.center(' ' + timestamp + ' ', 80, '-') + '\n')
+            log.write(exceptionText)
+            log.write('-'*80 + '\n\n')
+
+        # Make an attempt at saving the user's data.
+        # If unsuccessful, skip it to avoid an infinite loop.
+        try:
+            self.saveProject()
+        except Exception:
+            pass
+
+        # Present user with dialog box
+        box = QtGui.QMessageBox(QtGui.QMessageBox.Warning,
+                                'RadTrack Error',
+                                'An unexpected error has occured.\n\nIf you wish to submit a bug report, push "More Details" and copy the information in your report.',
+                                QtGui.QMessageBox.Ok, self)
+        box.setDetailedText(exceptionText)
+        box.exec_()
 
     def setTitleBar(self, text):
         self.setWindowTitle(_translate("globalgu", text, None))
