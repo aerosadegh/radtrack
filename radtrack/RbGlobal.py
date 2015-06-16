@@ -11,7 +11,7 @@ from datetime import datetime
 
 from radtrack.ui.globalgu import Ui_globalgu, _translate
 from radtrack.LaserTab import LaserTab
-from radtrack.rbdcp import RbDcp
+from radtrack.rbdcpA import RbDcp
 from radtrack.RbBunchTransport import RbBunchTransport
 from radtrack.RbLaserTransport import RbLaserTransport
 from radtrack.RbGenesisTransport import RbGenesisTransport
@@ -19,7 +19,7 @@ from radtrack.BunchTab import BunchTab
 from radtrack.RbEle import RbEle
 from radtrack.RbFEL import RbFEL
 from radtrack.genesis.rbgenesis2 import RbGenesis2
-from radtrack.RbSrwTab import RbSrwTab
+#from radtrack.RbSrwTab import RbSrwTab
 from radtrack.RbIntroTab import RbIntroTab
 from radtrack.RbUtility import getRealWidget
 
@@ -91,7 +91,7 @@ class RbGlobal(QtGui.QMainWindow):
                                        RbFEL,
                                        RbGenesis2,
                                        RbGenesisTransport,
-                                       RbSrwTab ]
+                                       ]#RbSrwTab ]
 
         self.originalNameToTabType = dict()
         for tabType in self.availableTabTypes:
