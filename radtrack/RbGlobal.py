@@ -19,7 +19,7 @@ from radtrack.BunchTab import BunchTab
 from radtrack.RbEle import RbEle
 from radtrack.RbFEL import RbFEL
 from radtrack.genesis.rbgenesis2 import RbGenesis2
-#from radtrack.RbSrwTab import RbSrwTab
+from radtrack.RbSrwTab import RbSrwTab
 from radtrack.RbIntroTab import RbIntroTab
 from radtrack.RbUtility import getRealWidget
 
@@ -91,7 +91,7 @@ class RbGlobal(QtGui.QMainWindow):
                                        RbFEL,
                                        RbGenesis2,
                                        RbGenesisTransport,
-                                       ]#RbSrwTab ]
+                                       RbSrwTab ]
 
         self.originalNameToTabType = dict()
         for tabType in self.availableTabTypes:
