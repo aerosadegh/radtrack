@@ -141,6 +141,13 @@ class RbGlobal(QtGui.QMainWindow):
         self.checkMenus()
 
     def exceptionCapture(self, exceptionType, exceptionValue, traceBack):
+        # Make an attempt at saving the user's data.
+        # If unsuccessful, skip it to avoid an infinite loop.
+        try:
+            self.saveProject()
+        except Exception:
+            pass
+
         # Extract exception information
         exceptionText = 'Traceback (most recent call last):\n'
         for fileName, lineNumber, scope, line in traceback.extract_tb(traceBack):
@@ -148,19 +155,15 @@ class RbGlobal(QtGui.QMainWindow):
             exceptionText = exceptionText + '    ' + line + '\n'
         exceptionText = exceptionText + exceptionType.__name__ + ': ' + str(exceptionValue) + '\n'
 
+        # Print error to console (stderr)
+        sys.stderr.write(exceptionText)
+
         # Log error
         timestamp = datetime.now().strftime('%Y/%m/%d %H:%M:%S')
         with open(self.logFile, 'a') as log:
             log.write(string.center(' ' + timestamp + ' ', 80, '-') + '\n')
             log.write(exceptionText)
             log.write('-'*80 + '\n\n')
-
-        # Make an attempt at saving the user's data.
-        # If unsuccessful, skip it to avoid an infinite loop.
-        try:
-            self.saveProject()
-        except Exception:
-            pass
 
         # Present user with dialog box
         box = QtGui.QMessageBox(QtGui.QMessageBox.Warning,
