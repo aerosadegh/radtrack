@@ -277,21 +277,21 @@ rpnOp['Kas'] = lambda stack : 191.655e-2
 rpnOp['Kaq'] = lambda stack : 75.0499e-2
 
 ### Relativistic Functions
-rpnOp['beta.p'] = lambda stack : stack[-1]/sqrt(1 + (stack.pop(-1)**2))
+rpnOp['beta.p'] = lambda stack : stack[-1]/math.sqrt(1 + (stack.pop(-1)**2))
 rpnOp['gamma.p'] = lambda stack : math.sqrt(1 + (stack.pop(-1)**2))
 rpnOp['gamma.beta'] = lambda stack : 1/math.sqrt((stack.pop(-1)**2) - 1)
 rpnOp['p.beta'] = lambda stack : stack[-1]/sqrt(1 - (stack.pop(-1)**2))
 rpnOp['p.gamma'] = lambda stack : math.sqrt((stack.pop(-1)**2) - 1)
 
 # Trigonometry
-rpnOp['dasin'] = lambda stack : (180.0/pi)*math.asin(stack.pop(-1))
+rpnOp['dasin'] = lambda stack : (180.0/math.pi)*math.asin(stack.pop(-1))
 rpnOp['asin'] = lambda stack : math.asin(stack.pop(-1))
 rpnOp['sin'] = lambda stack : math.sin(stack.pop(-1))
-rpnOp['dsin'] = lambda stack : math.sin((pi/180)*stack.pop(-1))
+rpnOp['dsin'] = lambda stack : math.sin((math.pi/180)*stack.pop(-1))
 rpnOp['dacos'] = lambda stack : (180.0/pi)*math.acos(stack.pop(-1))
 rpnOp['acos'] = lambda stack : math.acos(stack.pop(-1))
 rpnOp['cos'] = lambda stack : math.cos(stack.pop(-1))
-rpnOp['dcos'] = lambda stack : math.cos((pi/180)*stack.pop(-1))
+rpnOp['dcos'] = lambda stack : math.cos((math.pi/180)*stack.pop(-1))
 rpnOp['datan'] = lambda stack : (180.0/pi)*math.atan(stack.pop(-1))
 rpnOp['atan'] = lambda stack : math.atan(stack.pop(-1))
 rpnOp['tan'] = lambda stack : math.tan(stack.pop(-1))
