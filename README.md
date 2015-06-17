@@ -8,7 +8,7 @@ This script should set up a development environment. It's written in Unix
 terms, but should be translatable to Windows:
 
 ```bash
-# Assumes running in virtualenv an PyQt4 is installed
+# Assumes running in virtualenv and PyQt4 is installed
 pip install numpy
 cd
 mkdir src
