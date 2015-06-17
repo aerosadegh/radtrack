@@ -40,7 +40,6 @@ def render(template, params):
         str: rendered template with params.
 
     """
-    template = _template(template)
     je = jinja2.Environment(
         trim_blocks=True,
         lstrip_blocks=True,
