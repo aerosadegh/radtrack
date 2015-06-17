@@ -285,7 +285,7 @@ class RbGlobal(QtGui.QMainWindow):
 
         # Check if a tab of this type is already open
         openWidgetIndexes = [i for i in range(self.tabWidget.count()) if type(getRealWidget(self.tabWidget.widget(i))) == destinationType]
-        newTabLabel = 'New ' + box.clickedButton().text() + ' Tab'
+        newTabLabel = 'New ' + destinationType.defaultTitle + ' Tab'
         if openWidgetIndexes:
             choices = [self.tabWidget.tabText(i) for i in openWidgetIndexes] + [newTabLabel]
             box = QtGui.QMessageBox(QtGui.QMessageBox.Question, 'Choose Import Destination', 'Which tab should receive the data?')

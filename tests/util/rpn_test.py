@@ -30,7 +30,7 @@ def test_rpn_files():
         # Test that files load without errors
         elementDictionary, _ = fileImporter(fileName)
 
-        for element in loader.elementDictionary.values():
+        for element in elementDictionary.values():
             if element.isBeamline():
                 continue
             for thing in element.data:
@@ -48,8 +48,8 @@ def test_rpn_files():
                         pass # thing is an unambiguous rpn expression
                 except ValueError:
                     if thing != '' and \
-                            thing not in ['', '"+X"', '"+Y"', '"-Y"', '"-X"'] and \
+                            thing not in ['', '+X', '+Y', '-Y', '-X', 't'] and \
                             all([x not in thing.lower() for x in \
                                 ['coord', '%', 'centroid', 'ideal', 'param', 'sdds']]) and \
-                            thing.lower() not in ['"t"', '"w"']:
+                            thing.lower() not in ['t', 'w']:
                         assert (fileName, ':', element.name, type(element), element.displayLine(), thing) == None
