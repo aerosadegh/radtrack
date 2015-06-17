@@ -48,8 +48,7 @@ def test_rpn_files():
                         pass # thing is an unambiguous rpn expression
                 except ValueError:
                     if thing != '' and \
-                            thing not in ['', '+X', '+Y', '-Y', '-X', 't'] and \
+                            thing.lower() not in ['', '+x', '+y', '-y', '-x', 't', 'w'] and \
                             all([x not in thing.lower() for x in \
-                                ['coord', '%', 'centroid', 'ideal', 'param', 'sdds']]) and \
-                            thing.lower() not in ['t', 'w']:
+                                ['coord', '%', 'centroid', 'ideal', 'param', 'sdds']]):
                         assert (fileName, ':', element.name, type(element), element.displayLine(), thing) == None
