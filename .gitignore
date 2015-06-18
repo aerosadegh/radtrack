@@ -1,7 +1,5 @@
 Trajectory.txt
 uti_plot*.json
-.eggs
-MANIFEST.in
 pykern_setup.json
 RadTrack/dcp/sddsdata.pyd
 RadTrack/srw/srwlpy.pyd
@@ -11,6 +9,16 @@ test/laserHeater/BorisVayTrajectory.png
 test/laserHeater/EXB_trajectory.png
 build/
 ~$*
+*.out
+.python-version
+
+.eggs/
+MANIFEST.in
+pytest.ini
+tox.ini
+.python-version
+.#*
+\#*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -20,7 +28,6 @@ __pycache__/
 *.so
 
 # Distribution / packaging
-.python-version
 .Python
 env/
 build/
@@ -67,4 +74,3 @@ docs/_build/
 
 # PyBuilder
 target/
-*.out
