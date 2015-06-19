@@ -311,7 +311,7 @@ class elegantElement(elementCommon):
             if self.data[index]:
                 try:
                     phrases.append((self.parameterNames[index],
-                                    convertUnitsString(self.data[index], self.units[index]).split()[0]))
+                                    str(convertUnitsStringToNumber(self.data[index], self.units[index]))))
                 except ValueError: # unit conversion failed
                     phrases.append((self.parameterNames[index], '"' + self.data[index].strip('"') + '"'))
 
