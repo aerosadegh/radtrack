@@ -211,7 +211,6 @@ class RbGlobal(QtGui.QMainWindow):
         newTitle = self.uniqueTabTitle(newWidget.defaultTitle)
         self.tabWidget.addTab(newWidget.container, newTitle)
         self.tabWidget.setCurrentIndex(self.tabWidget.count()-1)
-        self.checkMenus()
 
     def uniqueTabTitle(self, title, ignoreIndex = -1):
         originalTitle = title
@@ -229,14 +228,11 @@ class RbGlobal(QtGui.QMainWindow):
                                 index,
                                 self.tabWidget.tabText(index)))
         self.tabWidget.removeTab(index)
-        self.checkMenus()
 
     def undoCloseTab(self):
         widget, index, title = self.closedTabs.pop()
         self.tabWidget.insertTab(index, widget, title)
-        self.checkMenus()
         self.tabWidget.setCurrentIndex(index)
-        self.checkMenus()
 
     def renameTab(self):
         index = self.tabWidget.currentIndex()
@@ -244,7 +240,6 @@ class RbGlobal(QtGui.QMainWindow):
 
         if ok and newName:
             self.tabWidget.setTabText(index, self.uniqueTabTitle(newName, index))
-            self.checkMenus()
 
     def importFile(self, openFile = None):
         if not openFile:
@@ -415,7 +410,9 @@ class RbGlobal(QtGui.QMainWindow):
         menuMap['undo'] = self.ui.actionUndo
         menuMap['redo'] = self.ui.actionRedo
         for function in menuMap:
-            menuMap[function].setEnabled(hasattr(getRealWidget(self.tabWidget.currentWidget()), function))
+            realWidget = getRealWidget(self.tabWidget.currentWidget())
+            menuMap[function].setEnabled(hasattr(realWidget, function) and type(realWidget) not in [RbIntroTab, RbDcp, RbEle])
+
         self.ui.actionReopen_Closed_Tab.setEnabled(len(self.closedTabs) > 0)
 
         # Configure Elegant tab to use tabs for simulation input
