@@ -6,30 +6,23 @@ u"""Multiparticle SRW Pane
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 from io import open
-
-import array
 import copy
-import math
-import os
-import re
-import sys
-
 from pykern import pkarray
 from pykern import pkcompat
-from pykern.pkdebug import pkdc, pkdi, pkdp
-import xlrd
-
-from radtrack import RbUtility
+from pykern.pkdebug import pkdc
 from radtrack import rt_controller
 from radtrack import rt_jinja
 from radtrack import rt_params
 from radtrack import rt_popup
-from radtrack import srw_enums
 from radtrack import srw_pane
 from radtrack import srw_params
-from radtrack import rt_srwlib
+
+import srwlib
+import uti_plot
+# Initialize so that SRW doesn't generate files
+uti_plot.uti_plot_init(backend=uti_plot.DEFAULT_BACKEND, fname_format=None)
+
 from radtrack.srw import AnalyticCalc
-from radtrack.util import resource
 
 FILE_PREFIX = 'srw'
 

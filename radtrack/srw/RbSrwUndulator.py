@@ -4,15 +4,17 @@
 # The following classes are used throughout SRW: UP, elecBeam, RAD
 #C:\d from old\RadiaBeam\RadSoft\python\radtrack-master\RadTrack\srw
 
-import numpy as np
-import sys, os
+import sys
 
 # next line is for PySide (no longer valid)
 # from PySide import QtGui, QtCore
 # PyQt4 imports
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtGui
 
-from radtrack.util import rt_srwlib
+import uti_plot
+# Initialize so that SRW doesn't generate files
+uti_plot.uti_plot_init(backend=uti_plot.DEFAULT_BACKEND, fname_format=None)
+
 from undulator import ui_form
 from AnalyticCalc import *
 

@@ -8,7 +8,6 @@ from radtrack.ui.newsrw import Ui_Form as Ui_newsrw
 from radtrack.ui.undulatorforthicksrw import Ui_Dialog as und_dlg
 from radtrack.ui.beamforsrw import Ui_Dialog as beam_dlg
 from radtrack.ui.precisionthicksrw import Ui_Dialog as prec_dlg
-from radtrack import rt_srwlib
 from radtrack.srw.AnalyticCalc import *
 
 class rbsrw(QtGui.QWidget):
