@@ -10,13 +10,8 @@ from radtrack.ui.newsrw import Ui_Form as Ui_newsrw
 from radtrack.ui.undulatorforsrw import Ui_Dialog as und_dlg
 from radtrack.ui.beamforsrw import Ui_Dialog as beam_dlg
 from radtrack.ui.precisionofsrw import Ui_Dialog as prec_dlg
-from radtrack.srw.uti_plot import *
 from radtrack.srw.AnalyticCalc import *
-try:                 # assume SRW is properly installed
-    from srwlib import *
-except ImportError:  # deprecated hack for Windows
-    from radtrack.srw.srwlib import *
-
+from radtrack.util import rt_srwlib
 #global CritWvsU
 #CritWvsU=2
 

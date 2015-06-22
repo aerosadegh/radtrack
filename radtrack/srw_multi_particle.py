@@ -27,13 +27,7 @@ from radtrack import rt_popup
 from radtrack import srw_enums
 from radtrack import srw_pane
 from radtrack import srw_params
-try:
-    import srwlib
-    import uti_plot
-except ImportError:
-    from radtrack.srw import srwlib
-    from radtrack.srw import uti_plot
-# from radtrack.rt_srwlib import srwlib, uti_plot
+from radtrack import rt_srwlib
 from radtrack.srw import AnalyticCalc
 from radtrack.util import resource
 

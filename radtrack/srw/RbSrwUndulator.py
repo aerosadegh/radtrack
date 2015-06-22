@@ -5,7 +5,6 @@
 #C:\d from old\RadiaBeam\RadSoft\python\radtrack-master\RadTrack\srw
 
 import numpy as np
-from srwlib import *
 import sys, os
 
 # next line is for PySide (no longer valid)
@@ -13,8 +12,8 @@ import sys, os
 # PyQt4 imports
 from PyQt4 import QtCore, QtGui
 
+from radtrack.util import rt_srwlib
 from undulator import ui_form
-from uti_plot import *
 from AnalyticCalc import *
 
 class srwund(QtGui.QWidget):

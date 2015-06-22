@@ -10,14 +10,7 @@ from io import open
 from pykern import pkarray
 from pykern.pkdebug import pkdc, pkdi, pkdp
 
-# from radtrack.rt_srwlib import srwlib, uti_plot
-try:
-    import srwlib
-    import uti_plot
-except ImportError:
-    from radtrack.srw import srwlib
-    from radtrack.srw import uti_plot
-
+from radtrack import rt_srwlib
 
 def to_beam(params):
     """Convert params to `SRWLPartBeam`
