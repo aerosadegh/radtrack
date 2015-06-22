@@ -653,6 +653,9 @@ class RbCbt(QtGui.QWidget):
         if not outputFileName:
             return # User cancelled
 
+        if not outputFileName.endswith(self.acceptsFileTypes[0]):
+            outputFileName = outputFileName + '.' + self.acceptsFileTypes[0]
+
         self.exporter(outputFileName, self.elementDictionary, self.defaultBeamline)
 
     def closeEvent(self, event):
