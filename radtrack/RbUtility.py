@@ -78,8 +78,6 @@ def convertUnitsNumber(number, oldUnit, newUnit):
 
 def convertUnitsString(inputString, newUnit):
     number, unit = separateNumberUnit(inputString)
-    if not unit:
-        return inputString
     return convertUnitsNumberToString(number, unit, newUnit)
 
 def convertUnitsNumberToString(number, oldUnit, newUnit):
@@ -404,7 +402,7 @@ def stripComments(line, commentCharacter):
 def characterEscaped(line, position):
     return position > 0 \
             and line[position - 1] == '\\' \
-            and not characterEscaped(position - 1)
+            and not characterEscaped(line, position - 1)
 
 def removeWhitespace(string):
     return ''.join(string)
