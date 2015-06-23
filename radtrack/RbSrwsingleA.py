@@ -13,7 +13,7 @@ from ui.undulatorforthinsrw import Ui_Dialog as und_dlg
 from ui.beamforthinsrw import Ui_Dialog as beam_dlg
 from ui.precisionofsrw import Ui_Dialog as prec_dlg
 from srw.AnalyticCalc import *
-from radtrack.rt_srwlib import srwlib, uti_plot
+import srwlib
 from array import array
 from copy import deepcopy
 

@@ -79,7 +79,8 @@ class RbGlobal(QtGui.QMainWindow):
                                        BunchTab,
                                        RbBunchTransport,
                                        RbDcp,
-                                       RbFEL ]
+                                       RbFEL,
+                                       RbSrwTab ]
         else:
             self.availableTabTypes = [ RbIntroTab,
                                        LaserTab,

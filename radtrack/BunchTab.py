@@ -1,14 +1,13 @@
-u"""
-Module defining interactive window for bunch generation.
+# -*- coding: utf-8 -*-
+u"""Interactive window for charged particle bunches
 
 Imports the auto-generated RbBunchInterface.py module, which is
 created via pyside-uic.exe from Qt's RbBunchInterface.ui file.
 
-Here, the window is instantiated and hooks to the production
-Python code are established.
+Here, the window is instantiated and hooks to the production Python code are established.
 
-moduleauthor:: David Bruhwiler <bruhwiler@radiasoft.net>
-Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
+:copyright: Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
+:license: http://www.apache.org/licenses/LICENSE-2.0.html
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 import sys, re, os.path, subprocess

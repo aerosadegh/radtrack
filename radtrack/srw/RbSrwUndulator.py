@@ -4,15 +4,17 @@
 # The following classes are used throughout SRW: UP, elecBeam, RAD
 #C:\d from old\RadiaBeam\RadSoft\python\radtrack-master\RadTrack\srw
 
-import numpy as np
-import sys, os
+import sys
 
 # next line is for PySide (no longer valid)
 # from PySide import QtGui, QtCore
 # PyQt4 imports
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtGui
 
-from radtrack.util import rt_srwlib
+import uti_plot
+# Initialize so that SRW doesn't generate files
+uti_plot.uti_plot_init(backend=uti_plot.DEFAULT_BACKEND, fname_format=None)
+
 from undulator import ui_form
 from AnalyticCalc import *
 
@@ -95,16 +97,16 @@ class srwund(QtGui.QWidget):
         self.ui.tableWidget.setItem(8,0,QtGui.QTableWidgetItem('0.02'))
         self.ui.tableWidget.setItem(9,0,QtGui.QTableWidgetItem('0.02'))
 
-##         self.ui.tableWidget.setItem(0,0,QtGui.QTableWidgetItem('3'))
-##         self.ui.tableWidget.setItem(1,0,QtGui.QTableWidgetItem('30'))
-##         self.ui.tableWidget.setItem(2,0,QtGui.QTableWidgetItem('30'))
-##         self.ui.tableWidget.setItem(3,0,QtGui.QTableWidgetItem('20'))
-##         self.ui.tableWidget.setItem(4,0,QtGui.QTableWidgetItem('10'))
-##         self.ui.tableWidget.setItem(5,0,QtGui.QTableWidgetItem('3000'))
-##         self.ui.tableWidget.setItem(6,0,QtGui.QTableWidgetItem('-0.01'))
-##         self.ui.tableWidget.setItem(7,0,QtGui.QTableWidgetItem('-0.01'))
-##         self.ui.tableWidget.setItem(8,0,QtGui.QTableWidgetItem('0.01'))
-##         self.ui.tableWidget.setItem(9,0,QtGui.QTableWidgetItem('0.01'))
+#       self.ui.tableWidget.setItem(0,0,QtGui.QTableWidgetItem('3'))
+#       self.ui.tableWidget.setItem(1,0,QtGui.QTableWidgetItem('30'))
+#       self.ui.tableWidget.setItem(2,0,QtGui.QTableWidgetItem('30'))
+#       self.ui.tableWidget.setItem(3,0,QtGui.QTableWidgetItem('20'))
+#       self.ui.tableWidget.setItem(4,0,QtGui.QTableWidgetItem('10'))
+#       self.ui.tableWidget.setItem(5,0,QtGui.QTableWidgetItem('3000'))
+#       self.ui.tableWidget.setItem(6,0,QtGui.QTableWidgetItem('-0.01'))
+#       self.ui.tableWidget.setItem(7,0,QtGui.QTableWidgetItem('-0.01'))
+#       self.ui.tableWidget.setItem(8,0,QtGui.QTableWidgetItem('0.01'))
+#       self.ui.tableWidget.setItem(9,0,QtGui.QTableWidgetItem('0.01'))
 
         #this is how you write to the status and calculations windows
         self.ui.analytic.setText('hello')
