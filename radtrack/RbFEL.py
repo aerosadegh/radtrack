@@ -6,7 +6,8 @@ from  radtrack.RbUtility import displayWithUnitsNumber, \
                       convertUnitsStringToNumber, \
                       convertUnitsNumberToString, \
                       separateNumberUnit, \
-                      roundSigFig
+                      roundSigFig, \
+                      getSaveFileName
 from math import pi, sqrt, log10, floor, isinf, isnan
 import numpy
 import sys
@@ -413,15 +414,10 @@ class RbFEL(QtGui.QWidget):
                 self.calculateSlope(inputBox, inputValue, inputStep, resultBox))/inputStep
 
     def exportToFile(self, fileName = None):
-        if fileName is None or fileName == '':
-            fileName = QtGui.QFileDialog.getSaveFileName(self, 'Save file', self.parent.lastUsedDirectory,
-                    "FEL (*." + self.acceptsFileTypes[0] + ")")
-            if fileName == '':
+        if not fileName:
+            fileName = getSaveFileName(self)
+            if not fileName:
                 return
-            self.parent.lastUsedDirectory = os.path.dirname(fileName)
-
-        if not fileName.endswith("." + self.acceptsFileTypes[0]):
-            fileName = fileName + "." + self.acceptsFileTypes[0] 
 
         fileLines = []
         for box in self.textBox.values():

@@ -21,7 +21,7 @@ from radtrack.RbFEL import RbFEL
 from radtrack.genesis.rbgenesis2 import RbGenesis2
 from radtrack.RbSrwTab import RbSrwTab
 from radtrack.RbIntroTab import RbIntroTab
-from radtrack.RbUtility import getRealWidget
+from radtrack.RbUtility import getRealWidget, fileTypeList
 
 class RbGlobal(QtGui.QMainWindow):
     def __init__(self, beta_test=False):
@@ -94,6 +94,7 @@ class RbGlobal(QtGui.QMainWindow):
                                        RbSrwTab ]
 
         self.originalNameToTabType = dict()
+        self.allExtensions = []
         for tabType in self.availableTabTypes:
             if not self.beta_test or tabType == RbIntroTab: # For development, show all tabs
                 self.newTab(tabType)
@@ -118,6 +119,10 @@ class RbGlobal(QtGui.QMainWindow):
             actionNew_Tab.triggered.connect(lambda ignore, t = tabType : self.newTab(t))
 
             self.ui.menuNew_Tab.addAction(actionNew_Tab)
+
+            for ext in tabType.acceptsFileTypes:
+                self.allExtensions.append(ext)
+
         self.tabWidget.setCurrentIndex(0)
 
         self.ui.actionOpen_Project.triggered.connect(lambda : self.openProject())
@@ -244,11 +249,7 @@ class RbGlobal(QtGui.QMainWindow):
     def importFile(self, openFile = None):
         if not openFile:
             openFile = QtGui.QFileDialog.getOpenFileName(self, 'Open file', self.lastUsedDirectory,
-                    "All Files (*.*);;" +
-                    "Laser Transport (*.rad);;" +
-                    "Bunch Transport (*.lte);;" +
-                    "SDDS (*.sdds);;" +
-                    "SRW (*.srw)")
+                    'All Files (*.*);;' + fileTypeList(self.allExtensions))
             if not openFile:
                 return
         self.lastUsedDirectory = os.path.dirname(openFile)

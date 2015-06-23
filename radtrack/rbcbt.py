@@ -9,7 +9,8 @@ from radtrack.ui.cbt import Ui_tree, genDialog, advDialog
 from radtrack.RbUtility import displayWithUnitsNumber, \
                       convertUnitsNumber, \
                       roundSigFig, \
-                      wordwrap
+                      wordwrap, \
+                      getSaveFileName
 
 
 class RbCbt(QtGui.QWidget):
@@ -645,16 +646,10 @@ class RbCbt(QtGui.QWidget):
 
     def exportToFile(self, outputFileName = None):
         if not outputFileName:
-            outputFileName = QtGui.QFileDialog.getSaveFileName(self,
-                'Export Charged Beam Transport',
-                self.parent.lastUsedDirectory,
-                '*.' + self.acceptsFileTypes[0])
+            getSaveFileName(self)
                 
-        if not outputFileName:
-            return # User cancelled
-
-        if not outputFileName.endswith(self.acceptsFileTypes[0]):
-            outputFileName = outputFileName + '.' + self.acceptsFileTypes[0]
+            if not outputFileName:
+                return # User cancelled
 
         self.exporter(outputFileName, self.elementDictionary, self.defaultBeamline)
 

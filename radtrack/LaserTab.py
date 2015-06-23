@@ -30,7 +30,7 @@ from PyQt4 import QtGui
 # RadTrack imports
 import radtrack.fields.RbGaussHermiteMN as hermite
 from radtrack.ui.LaserInterface import Ui_LaserInterface
-from radtrack.RbUtility import convertUnitsStringToNumber, convertUnitsNumber
+from radtrack.RbUtility import convertUnitsStringToNumber, convertUnitsNumber, getSaveFileName
 import radtrack.plot.RbPlotUtils
 import sys
 
@@ -1012,14 +1012,9 @@ class LaserTab(QtGui.QWidget):
 
     def saveToCSV(self, fileName = None):
         if fileName is None or fileName == '':
-            fileName = QtGui.QFileDialog.getSaveFileName(self, 'Save distribution to RadTrack file ...',
-                             self.parent.lastUsedDirectory, "*.csv")
+            fileName = getSaveFileName(self, 'csv')
             if fileName == '':
                 return
-
-        if not fileName.endswith('.csv'):
-            fileName = fileName + '.csv'
-        self.parent.lastUsedDirectory = os.path.dirname(fileName)
 
         with open(fileName, 'w'):
             return
@@ -1058,14 +1053,9 @@ class LaserTab(QtGui.QWidget):
 
     def saveToSDDS(self, sddsFileName = None):
         if sddsFileName is None or sddsFileName == '':
-            sddsFileName = QtGui.QFileDialog.getSaveFileName(self, 'Save distribution to Elegant/SDDS file ...',
-                              self.parent.lastUsedDirectory, "*.sdds")
-            if sddsFileName == '':
+            sddsFileName = getSaveFileName(self, 'sdds')
+            if not sddsFileName:
                 return
-
-        if not sddsFileName.endswith(".sdds"):
-            sddsFileName = sddsFileName + ".sdds"
-        self.parent.lastUsedDirectory = os.path.dirname(sddsFileName)
 
         with open(sddsFileName, 'w'):
             return
