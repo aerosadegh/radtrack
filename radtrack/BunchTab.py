@@ -1107,7 +1107,7 @@ class BunchTab(QtGui.QWidget):
         defaultUnits = ['m', 'rad', 'm', 'rad', 'm', 'rad']
         for iLoop in range(6):
 #            print(' before: unitStrings[', iLoop, '] = ', unitStrings[iLoop])
-            if unitStrings[iLoop] == '':
+            if not unitStrings[iLoop]:
                 unitStrings[iLoop] = defaultUnits[dataIndex[iLoop]]
 #            print(' after: unitStrings[', iLoop, '] = ', unitStrings[iLoop])
 
@@ -1267,9 +1267,9 @@ class BunchTab(QtGui.QWidget):
         self.refreshPlots()
 
     def saveToCSV(self, fileName = None):
-        if fileName is None or fileName == '':
+        if not fileName:
             fileName = util.getSaveFileName(self, 'csv')
-            if fileName == '':
+            if not fileName:
                 return
 
         # make sure the top-level parameters are up-to-date
@@ -1307,7 +1307,7 @@ class BunchTab(QtGui.QWidget):
     def saveToSDDS(self, sddsFileName = None):
         if not sddsFileName:
             sddsFileName = util.getSaveFileName(self, 'sdds')
-            if sddsFileName == '':
+            if not sddsFileName:
                 return
 
         # make sure the top-level parameters are up-to-date

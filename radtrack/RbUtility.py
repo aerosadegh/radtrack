@@ -421,6 +421,7 @@ def getRealWidget(widget):
         return widget
 
 __fileTypeDescription = dict()
+__fileTypeDescription['*'] = 'All files'
 __fileTypeDescription['lte'] = 'Elegant lattice file'
 __fileTypeDescription['sdds'] = 'Self-Describing Data Set'
 __fileTypeDescription['save'] = None
@@ -445,13 +446,19 @@ def fileTypeDescription(ext):
         return None
 
 def fileTypeList(exts):
-    return ';;'.join([fileTypeDescription(ext) for ext in exts if fileTypeDescription(ext)])
+    return ';;'.join([fileTypeDescription(ext.strip('.')) for ext in ['*'] + exts if fileTypeDescription(ext)])
 
 from PyQt4.QtGui import QFileDialog
 import os
-def getSaveFileName(widget, ext = None):
-    dialog = QFileDialog(widget, 'Save File', widget.parent.lastUsedDirectory, fileTypeList([ext] if ext else widget.acceptsFileTypes))
-    dialog.setDefaultSuffix(widget.acceptsFileTypes[0])
+def getSaveFileName(widget, exts = None):
+    if exts:
+        if isinstance(exts, (str, unicode)):
+            exts = [exts]
+    else:
+        exts = widget.acceptsFileTypes
+
+    dialog = QFileDialog(widget, 'Save File', widget.parent.lastUsedDirectory, fileTypeList(exts))
+    dialog.setDefaultSuffix(exts[0])
     dialog.filterSelected.connect(lambda filter : dialog.setDefaultSuffix(filter.split('*')[1].strip(')').strip('.')))
     dialog.setAcceptMode(QFileDialog.AcceptSave)
     if dialog.exec_():

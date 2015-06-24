@@ -516,10 +516,9 @@ class RbCbt(QtGui.QWidget):
         self.drawLengthScale()
 
     def savePreviewImage(self):
-        imageSuffixes = ['.png', '.jpg', '.bmp', '.ppm', '.tiff', '.xbm', '.xpm']
-        fileName = QtGui.QFileDialog.getSaveFileName(self, 'Save As',
-                self.parent.lastUsedDirectory, ';;'.join(['*' + suffix for suffix in imageSuffixes]))
-        if fileName == '':
+        imageSuffixes = ['png', 'jpg', 'bmp', 'ppm', 'tiff', 'xbm', 'xpm']
+        fileName = getSaveFileName(self, imageSuffixes)
+        if not fileName:
             return
         fileExtension = os.path.splitext(fileName)[1]
         self.parent.lastUsedDirectory = os.path.dirname(fileName)
@@ -554,7 +553,7 @@ class RbCbt(QtGui.QWidget):
                 return
             progress.setValue(1)
             progress.setLabelText('Filling Background ...')
-            if fileExtension in ['.png', '.tiff', '.xpm']:
+            if fileExtension in ['png', 'tiff', 'xpm']:
                 image.fill(QtGui.QColor('transparent'))
             else:
                 image.fill(QtGui.QColor('white'))

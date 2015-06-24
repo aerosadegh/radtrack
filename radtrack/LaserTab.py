@@ -650,7 +650,7 @@ class LaserTab(QtGui.QWidget):
             fileName = QFileDialog.getOpenFileName(self, "Import Elegant/SDDS particle file -- ",
                                                   self.parent.lastUsedDirectory, "*.sdds")
         # if user cancels out, do nothing
-        if fileName == '':
+        if not fileName:
             return
 
         self.parent.lastUsedDirectory = os.path.dirname(fileName)
@@ -845,7 +845,7 @@ class LaserTab(QtGui.QWidget):
         defaultUnits = ['m', 'rad', 'm', 'rad', 'm', 'rad']
         for iLoop in range(6):
 #            print(' before: unitStrings[', iLoop, '] = ', unitStrings[iLoop])
-            if unitStrings[iLoop] == '':
+            if not unitStrings[iLoop]:
                 unitStrings[iLoop] = defaultUnits[dataIndex[iLoop]]
 #            print(' after: unitStrings[', iLoop, '] = ', unitStrings[iLoop])
 
@@ -914,10 +914,10 @@ class LaserTab(QtGui.QWidget):
         self.refreshPlots()
 
     def readFromCSV(self, fileName = None):
-        if fileName is None or fileName == '':
+        if not fileName:
             fileName = QtGui.QFileDialog.getOpenFileName(self, "Import RadTrack particle file -- ",
                                                       self.parent.lastUsedDirectory, "*.csv")
-            if fileName == '':
+            if not fileName:
                 return
             self.parent.lastUsedDirectory = os.path.dirname(fileName)
 
@@ -1011,9 +1011,9 @@ class LaserTab(QtGui.QWidget):
         self.refreshPlots()
 
     def saveToCSV(self, fileName = None):
-        if fileName is None or fileName == '':
+        if not fileName:
             fileName = getSaveFileName(self, 'csv')
-            if fileName == '':
+            if not fileName:
                 return
 
         with open(fileName, 'w'):
@@ -1052,7 +1052,7 @@ class LaserTab(QtGui.QWidget):
         np.savetxt(fileName, f6, fmt='%.12e', delimiter=',', comments='', header=myHeader)
 
     def saveToSDDS(self, sddsFileName = None):
-        if sddsFileName is None or sddsFileName == '':
+        if not sddsFileName:
             sddsFileName = getSaveFileName(self, 'sdds')
             if not sddsFileName:
                 return

@@ -62,10 +62,7 @@ class elementCommon(object):
 
         inputName = inputData[0]
         self.data = inputData[1:]
-        if inputName == '':
-            self.setName(type(self).__name__[0])
-        else:
-            self.setName(inputName)
+        self.setName(inputName if inputName else type(self).__name__[0])
 
     def toolTip(self):
         return self.name + ' (' + type(self).__name__ + ')'

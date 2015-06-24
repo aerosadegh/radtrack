@@ -249,8 +249,7 @@ class RbGlobal(QtGui.QMainWindow):
 
     def importFile(self, openFile = None):
         if not openFile:
-            openFile = QtGui.QFileDialog.getOpenFileName(self, 'Open file', self.lastUsedDirectory,
-                    'All Files (*.*);;' + fileTypeList(self.allExtensions))
+            openFile = QtGui.QFileDialog.getOpenFileName(self, 'Open file', self.lastUsedDirectory, fileTypeList(self.allExtensions))
             if not openFile:
                 return
         self.lastUsedDirectory = os.path.dirname(openFile)
@@ -351,7 +350,7 @@ class RbGlobal(QtGui.QMainWindow):
 
 
     def openProject(self, directory = None):
-        if directory is None or directory == '':
+        if not directory:
             directory = QtGui.QFileDialog.getExistingDirectory(self,
                     'Open project folder',
                     self.lastUsedDirectory)

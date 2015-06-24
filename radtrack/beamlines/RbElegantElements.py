@@ -32,7 +32,7 @@ def importFile(fileName, importDictionary, classDictionary, nameMangler):
         previousLine = ''
         for lineNumber, line in enumerate(f):
             line = stripComments(line, '!')
-            if line == '':
+            if not line:
                 continue
             line = ''.join([previousLine, line]).strip()
             if line.endswith('&'):
@@ -125,7 +125,7 @@ def parseLine(line, importDictionary, classDictionary, nameMangler):
             data = originalElement.data[:]
 
         for token in tokens:
-            if token == '':
+            if not token:
                 break
             parameter, value = token.split('=', 1)
             parameter = parameter.replace('_','').strip().upper()
