@@ -148,11 +148,11 @@ class elementCommon(object):
                 if datum1 != datum2:
                     try:
                         if float(datum1) != float(datum2):
-                            return False
+                            return abs(float(datum1) - float(datum2))/float(datum1) < 1e6
                     except ValueError:
                         try:
                             if rpn(datum1) != rpn(datum2):
-                                return False
+                                return abs(rpn(datum1) - rpn(datum2))/rpn(datum1) < 1e6
                         except ValueError:
                             return False
         return True

@@ -97,10 +97,7 @@ def test_import_export():
                         print fileName
                         print name
                         for thing1, thing2 in zip(e1.data, e2.data):
-                            assert thing1 == thing2 \
-                                    or float(thing1) == float(thing2) \
-                                    or rpn(thing1) == rpn(thing2) \
-                                    or thing1.startswith(thing2)
+                            assert thing1 == thing2
             assert default1 == default2
 
             # Test elegant simulation on exported file
