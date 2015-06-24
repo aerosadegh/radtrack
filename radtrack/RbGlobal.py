@@ -11,7 +11,7 @@ from datetime import datetime
 
 from radtrack.ui.globalgu import Ui_globalgu, _translate
 from radtrack.LaserTab import LaserTab
-from radtrack.rbdcpA import RbDcp
+from radtrack.rbdcp import RbDcp
 from radtrack.RbBunchTransport import RbBunchTransport
 from radtrack.RbLaserTransport import RbLaserTransport
 from radtrack.RbGenesisTransport import RbGenesisTransport
