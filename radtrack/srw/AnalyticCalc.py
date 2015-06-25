@@ -41,7 +41,7 @@ def UndulatorSourceSizeDivergence(lam_rn,L_id):
 def integrand(o, x):
     return kv(o, x)
 
-def SpectralFLux(N_u,Gam,EEc,I_b,Kx):
+def SpectralFlux(N_u,Gam,EEc,I_b,Kx):
     #This only works for the case of a planar ID
     modBes=scipy.integrate.quad(lambda x: scipy.special.kv(5.0/3.0, x),EEc,np.Inf)
     I_s=2.458E10*2*N_u*I_b*Gam*0.511*EEc*modBes[0] #I[phot/(sec mrad 0.1% BW)]
@@ -95,7 +95,7 @@ def multi_particle(params):
         res['L_id'],
     )
     res.update(zip(('RadSpotSize', 'RadSpotDivergence'), v))
-    res['SpectralFluxValue'] = SpectralFLux(
+    res['SpectralFluxValue'] = SpectralFlux(
         params['Number of Periods'],
         params['Relativistic Energy (gamma)'],
         1,
