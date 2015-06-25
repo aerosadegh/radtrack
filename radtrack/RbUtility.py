@@ -438,6 +438,13 @@ __fileTypeDescription['txt'] = 'Text file'
 __fileTypeDescription['fin'] = 'Elegant final properties file'
 __fileTypeDescription['fel'] = 'FEL Calculator file'
 __fileTypeDescription['lat'] = 'Genesis lattice file'
+__fileTypeDescription['png'] = 'PNG Image'
+__fileTypeDescription['jpg'] = 'JPG Image'
+__fileTypeDescription['bmp'] = 'BMP Image'
+__fileTypeDescription['ppm'] = 'PPM Image'
+__fileTypeDescription['tiff'] = 'TIFF Image'
+__fileTypeDescription['xbm'] = 'XBM Image'
+__fileTypeDescription['xpm'] = 'XPM Image'
 
 def fileTypeDescription(ext):
     try:
