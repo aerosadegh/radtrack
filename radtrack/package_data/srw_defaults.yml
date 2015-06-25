@@ -80,105 +80,108 @@ Simulation Complexity:
           Window Top Edge: -0.015
           Window Right Edge: 0.015
           Window Bottom Edge: 0.015
-  SINGLE_PARTICLE:
-    Undulator:
-      Number of Periods: 170
-      Period Length: 0.027
-      Horizontal Magnetic Field: 0
-      Vertical Magnetic Field: 0.865
-      Horizontal Field Component Phase: 0
-      Vertical Field Component Phase: 0
-      Horizontal Field Component Symmetry: -1
-      Vertical Field Component Symmetry: 1
-      Horizontal Undulator Center: 0
-      Vertical Undulator Center: 0
-      Longitudinal Undulator Center: 0
-    Beam:
-      Average Current: 0.5
-      Initial Horizontal Coordinate: 0
-      Initial Vertical Coordinate: 0
-      Initial Longitudinal Coordinate: 0
-      Initial Horizontal Angle: 0
-      Initial Vertical Angle: 0
-      Relativistic Energy (gamma): 5870.925
-    Precision:
-      Calculation Method: 1
-      Relative Precision: 0.01
-      Start Integration: 0
-      End Integration: 0
-      Number of Trajectory Points: 10000
-      Use Terminating Terms: 1
-      Sampling Factor: 0
-    Simulation Kind:
-      E:
-        Wavefront:
-          Number of points along Energy: 10000
-          Number of points along X: 1
-          Number of points along Y: 1
-          Distance to Window: 20
-          Initial Photon Energy: 10
-          Final Photon Energy: 25000
-          Window Left Edge: -0.015
-          Window Top Edge: -0.015
-          Window Right Edge: 0.015
-          Window Bottom Edge: 0.015
-      X:
-        Wavefreont:
-          Number of points along Energy: 1
-          Number of points along X: 100
-          Number of points along Y: 3
-          Distance to Window: 20
-          Initial Photon Energy: 5102
-          Final Photon Energy: 5102
-          Window Left Edge: -0.015
-          Window Top Edge: -0.015
-          Window Right Edge: 0.015
-          Window Bottom Edge: 0.015
-      Y:
-        Wavefront:
-          Number of points along Energy: 1
-          Number of points along X: 3
-          Number of points along Y: 100
-          Distance to Window: 20
-          Initial Photon Energy: 5102
-          Final Photon Energy: 5102
-          Window Left Edge: 0
-          Window Top Edge: -0.015
-          Window Right Edge: 0
-          Window Bottom Edge: 0.015    
-      X_AND_Y:
-        Wavefront:
-          Number of points along Energy: 1
-          Number of points along X: 100
-          Number of points along Y: 100
-          Distance to Window: 20
-          Initial Photon Energy: 5102
-          Final Photon Energy: 5102
-          Window Left Edge: -0.015
-          Window Top Edge: -0.015
-          Window Right Edge: 0.015
-          Window Bottom Edge: 0.015
-      E_AND_X:
-        Wavefront:
-          Number of points along Energy: 1000
-          Number of points along X: 100
-          Number of points along Y: 1
-          Distance to Window: 20
-          Initial Photon Energy: 10
-          Final Photon Energy: 25000
-          Window Left Edge: -0.015
-          Window Top Edge: 0
-          Window Right Edge: 0.015
-          Window Bottom Edge: 0
-      E_AND_Y:
-        Wavefront:
-          Number of points along Energy: 1000
-          Number of points along X: 1
-          Number of points along Y: 100
-          Distance to Window: 20
-          Initial Photon Energy: 10
-          Final Photon Energy: 25000
-          Window Left Edge: 0
-          Window Top Edge: -0.015
-          Window Right Edge: 0
-          Window Bottom Edge: 0.015
+  #SINGLE_PARTICLE:
+  #  Undulator:
+  #    Number of Periods: 170
+  #    Period Length: 0.027
+  #    Horizontal Magnetic Field: 0
+  #    Vertical Magnetic Field: 0.865
+  #####Below are the different undulator parameters
+  #    Horizontal Field Component Phase: 0 
+  #    Vertical Field Component Phase: 0
+  #    Horizontal Field Component Symmetry: -1
+  #    Vertical Field Component Symmetry: 1
+  #    Horizontal Undulator Center: 0
+  #    Vertical Undulator Center: 0
+  #    Longitudinal Undulator Center: 0
+  #  Beam:
+  #    Average Current: 0.5
+  #    Initial Horizontal Coordinate: 0
+  #    Initial Vertical Coordinate: 0
+  #    Initial Longitudinal Coordinate: 0
+  #    Initial Horizontal Angle: 0
+  #    Initial Vertical Angle: 0
+  #    Relativistic Energy (gamma): 5870.925 
+  #####Does not have RMS parameters
+  #  Precision: 
+  #####All different precision parameter in this case
+  #    Calculation Method: 1
+  #    Relative Precision: 0.01
+  #    Start Integration: 0
+  #    End Integration: 0
+  #    Number of Trajectory Points: 10000
+  #    Use Terminating Terms: 1
+  #    Sampling Factor: 0
+  #  Simulation Kind:
+  #    E:
+  #      Wavefront:
+  #        Number of points along Energy: 10000
+  #        Number of points along X: 1
+  #        Number of points along Y: 1
+  #        Distance to Window: 20
+  #        Initial Photon Energy: 10
+  #        Final Photon Energy: 25000
+  #        Window Left Edge: -0.015
+  #        Window Top Edge: -0.015
+  #        Window Right Edge: 0.015
+  #        Window Bottom Edge: 0.015
+  #    X:
+  #      Wavefreont:
+  #        Number of points along Energy: 1
+  #        Number of points along X: 100
+  #        Number of points along Y: 3
+  #        Distance to Window: 20
+  #        Initial Photon Energy: 5102
+  #        Final Photon Energy: 5102
+  #        Window Left Edge: -0.015
+  #        Window Top Edge: -0.015
+  #        Window Right Edge: 0.015
+  #        Window Bottom Edge: 0.015
+  #    Y:
+  #      Wavefront:
+  #        Number of points along Energy: 1
+  #        Number of points along X: 3
+  #        Number of points along Y: 100
+  #        Distance to Window: 20
+  #        Initial Photon Energy: 5102
+  #        Final Photon Energy: 5102
+  #        Window Left Edge: 0
+  #        Window Top Edge: -0.015
+  #        Window Right Edge: 0
+  #        Window Bottom Edge: 0.015    
+  #    X_AND_Y:
+  #      Wavefront:
+  #        Number of points along Energy: 1
+  #        Number of points along X: 100
+  #        Number of points along Y: 100
+  #        Distance to Window: 20
+  #        Initial Photon Energy: 5102
+  #        Final Photon Energy: 5102
+  #        Window Left Edge: -0.015
+  #        Window Top Edge: -0.015
+  #        Window Right Edge: 0.015
+  #        Window Bottom Edge: 0.015
+  #    E_AND_X:
+  #      Wavefront:
+  #        Number of points along Energy: 1000
+  #       Number of points along X: 100
+  #        Number of points along Y: 1
+  #        Distance to Window: 20
+  #        Initial Photon Energy: 10
+  #        Final Photon Energy: 25000
+  #        Window Left Edge: -0.015
+  #        Window Top Edge: 0
+  #        Window Right Edge: 0.015
+  #        Window Bottom Edge: 0
+  #    E_AND_Y:
+  #      Wavefront:
+  #        Number of points along Energy: 1000
+  #        Number of points along X: 1
+  #        Number of points along Y: 100
+  #        Distance to Window: 20
+  #        Initial Photon Energy: 10
+  #        Final Photon Energy: 25000
+  #        Window Left Edge: 0
+  #        Window Top Edge: -0.015
+  #        Window Right Edge: 0
+  #        Window Bottom Edge: 0.015
