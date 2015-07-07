@@ -417,7 +417,7 @@ class FileParseException(Exception):
 def getRealWidget(widget):
     try:
         return getRealWidget(widget.widget())
-    except AttributeError:
+    except Exception:
         return widget
 
 __fileTypeDescription = dict()
