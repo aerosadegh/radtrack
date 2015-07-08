@@ -13,6 +13,7 @@ import math
 import os
 import re
 import sys
+import numpy as np
 
 from pykern import pkarray
 from pykern import pkcompat
@@ -92,6 +93,13 @@ class Controller(rt_controller.Controller):
     def action_precision(self):
         self._pop_up('Precision')
 
+    def save_results(self,file_name,x_vector,y_array):
+	x_vec=[]
+	for i in xrange(0,x_vector[2]):
+            x_vec.append(x_vector[0]+i*(x_vector[1] - x_vector[0])/(x_vector[2]+1E-6))
+	AA=np.vstack((x_vec, y_array))
+	np.savetxt(file_name, np.transpose(AA)) #, fmt=("%5.4f","%5.4f","%5.4f"))
+
     def action_simulate(self):
         msg_list = []
         def msg(m):
@@ -129,13 +137,8 @@ class Controller(rt_controller.Controller):
             fieldInterpMeth,
             beam,
         )
-        f = open('Trajectory.txt', 'w')
-        f.write(pkcompat.locale_str(Xtrajectory))
-        f.write(pkcompat.locale_str(Ytrajectory))
-        f.write(pkcompat.locale_str(ctMesh))
-#        f.write([str(ctMesh[1]),str(ctMesh[1])])
-#        print "%s %s %s " %(str(partTraj.arX),str(partTraj.arY),str(ctMesh))
-        f.close()
+	msg('Saving the results')
+	self.save_results('Trajectory.txt',ctMesh,np.vstack((Xtrajectory,Ytrajectory)))
         msg('Plotting the results')
         msg('NOTE: Close all graph windows to proceed')
         uti_plot.uti_plot_show()
@@ -168,6 +171,7 @@ class Controller(rt_controller.Controller):
             powDenVsX = pkarray.new_float([0]*stkP.mesh.nx)
             for i in range(stkP.mesh.nx):
                 powDenVsX[i] = stkP.arS[stkP.mesh.nx*int(stkP.mesh.ny*0.5) + i]
+	    self.save_results('IntensityVsX.txt',plotMeshX,powDenVsX)
             pkdc('plotMeshX={}', plotMeshX)
             uti_plot.uti_plot1d(
                 powDenVsX,
@@ -191,7 +195,8 @@ class Controller(rt_controller.Controller):
             powDenVsY = pkarray.new_float([0]*stkP.mesh.ny)
             for i in range(stkP.mesh.ny):
                 powDenVsY[i] = stkP.arS[stkP.mesh.ny*int(stkP.mesh.nx*0.5) + i]
-            uti_plot.uti_plot1d(
+	    self.save_results('IntensityVsY.txt',plotMeshY,powDenVsY)
+	    uti_plot.uti_plot1d(
                 powDenVsY,
                 plotMeshY,
                 [
@@ -259,8 +264,8 @@ class Controller(rt_controller.Controller):
         partTraj = srwlib.SRWLPrtTrj()
         partTraj.partInitCond = part
         partTraj.allocate(npTraj, True)
-        partTraj.ctStart = 0
-        partTraj.ctEnd = und.nPer*und.per #magFldCnt.MagFld[0].rz
+        partTraj.ctStart = -0.55*und.nPer*und.per
+        partTraj.ctEnd = 0.55*und.nPer*und.per #magFldCnt.MagFld[0].rz
         partTraj = srwlib.srwl.CalcPartTraj(partTraj, magFldCnt, arPrecPar)
 
         ctMesh = [partTraj.ctStart, partTraj.ctEnd, partTraj.np]
