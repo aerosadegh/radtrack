@@ -6,11 +6,11 @@ from PyQt4.QtCore import Qt
 from radtrack.beamlines.RbElementCommon import *
 from radtrack.beamlines.RbElegantElements import importFile, exportToFile
 from radtrack.beamlines.RbBeamlines import BeamlineCommon
-from radtrack.RbUtility import convertUnitsStringToNumber, convertUnitsString
+from radtrack.RbUtility import convertUnitsStringToNumber
 
 class opticalElement(elementCommon):
     def componentLine(self):
-        sentence = [(param, convertUnitsString(datum, unit)) \
+        sentence = [(param, str(convertUnitsStringToNumber(datum, unit))) \
                 for param, datum, unit in \
                 zip(self.parameterNames, self.data, self.units) if datum]
         sentence = ', '.join(['='.join(phrase) for phrase in sentence])

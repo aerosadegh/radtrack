@@ -2,7 +2,7 @@ import os, glob, subprocess
 from itertools import izip_longest
 import radtrack.beamlines.RbElegantElements as ele
 import radtrack.beamlines.RbOpticalElements as opt
-from radtrack.RbUtility import insideQuote
+from radtrack.RbUtility import insideQuote, rpn
 
 import radtrack.util.resource as resource
 if not os.getenv('RPN_DEFNS', None):
@@ -89,7 +89,6 @@ def test_import_export():
 
             elementDictionary2, default2 = fileHandler.fileImporter(exportFileName)
 
-            #assert elementDictionary1 == elementDictionary2
             if not elementDictionary1 == elementDictionary2:
                 for name in elementDictionary1:
                     e1 = elementDictionary1[name]
@@ -97,8 +96,8 @@ def test_import_export():
                     if not e1 == e2:
                         print fileName
                         print name
-                        for index in range(len(e1.data)):
-                            assert e1.data[index].strip(' "') == e2.data[index].strip(' "')
+                        for thing1, thing2 in zip(e1.data, e2.data):
+                            assert thing1 == thing2
             assert default1 == default2
 
             # Test elegant simulation on exported file

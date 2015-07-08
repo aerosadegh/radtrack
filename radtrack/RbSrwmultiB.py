@@ -11,15 +11,13 @@ from radtrack.ui.newsrw import Ui_Form as Ui_newsrw
 from radtrack.ui.undulatorforthicksrw import Ui_Dialog as und_dlg
 from radtrack.ui.beamforsrw import Ui_Dialog as beam_dlg
 from radtrack.ui.precisionthicksrw import Ui_Dialog as prec_dlg
-from radtrack.srw.uti_plot import *
 from radtrack.srw.AnalyticCalc import *
-try:                 # assume SRW is properly installed
-    from srwlib import *
-except ImportError:  # deprecated hack for Windows
-    from radtrack.srw.srwlib import *
 from xlrd import *
 import radtrack.util.resource as resource
 from RbUtility import *
+import uti_plot
+# Initialize so that SRW doesn't generate files
+uti_plot.uti_plot_init(backend=uti_plot.DEFAULT_BACKEND, fname_format=None)
 
 class rbsrw(QtGui.QWidget):
     def __init__(self, parent = None):

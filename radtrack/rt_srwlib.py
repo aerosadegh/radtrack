@@ -7,12 +7,8 @@ u"""Wrapper for srwlib import
 from __future__ import absolute_import, division, print_function, unicode_literals
 from io import open
 
-try:
-    import srwlib
-    import uti_plot
-except ImportError:
-    from radtrack.srw import srwlib
-    from radtrack.srw import uti_plot
+import srwlib
+import uti_plot
 
-# Initialize so doesn't files
+# Initialize so that SRW doesn't generate files
 uti_plot.uti_plot_init(backend=uti_plot.DEFAULT_BACKEND, fname_format=None)

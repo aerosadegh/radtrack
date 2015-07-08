@@ -255,7 +255,7 @@ class RbDcp(QtGui.QWidget):
                 self.yaxis.setCurrentIndex(53)
             elif self.quickplot.currentIndex() == 1:
                 self.yaxis.setCurrentIndex(55)
-
+                
         self.customgraph()
     
     def customgraph(self):
@@ -284,8 +284,6 @@ class RbDcp(QtGui.QWidget):
         (Xrvec,Yrvec,Ylab,Npar,Ncol,NcolPicked,NElemCol,Npage)=SDDSreshape(self.x,ColumnXAxis,ColumnPicked,NumPage)
         Xlab=[self.x.columnDefinition[ColumnXAxis][2]+", "+self.x.columnDefinition[ColumnXAxis][1]]
         PlotColnS1(Xrvec,Yrvec,linetype,marktype,self.x.description[0],Xlab,Ylab, self.widget.canvas)
-        self.widget.canvas.ax.set_xlabel(xname)
-        self.widget.canvas.ax.set_ylabel(yname)
                 
 def main():
     app = QtGui.QApplication(sys.argv)

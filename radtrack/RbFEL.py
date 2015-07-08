@@ -1,12 +1,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 from PyQt4 import QtGui, QtCore
 from radtrack.ui.fel import Ui_Form
-from  radtrack.RbUtility import displayWithUnitsNumber, \
-                      convertUnitsNumber, \
-                      convertUnitsStringToNumber, \
-                      convertUnitsNumberToString, \
-                      separateNumberUnit, \
-                      roundSigFig
+import  radtrack.RbUtility as util
 from math import pi, sqrt, log10, floor, isinf, isnan
 import numpy
 import sys
@@ -235,7 +230,7 @@ class RbFEL(QtGui.QWidget):
 
     def getValue(self, textBox):
         try:
-            self.valueFromTextBox[textBox] = convertUnitsStringToNumber(str(textBox.text()), textBox.unit)
+            self.valueFromTextBox[textBox] = util.convertUnitsStringToNumber(str(textBox.text()), textBox.unit)
             return self.valueFromTextBox[textBox]
         except ValueError:
             if textBox in self.valueFromTextBox:
@@ -243,7 +238,7 @@ class RbFEL(QtGui.QWidget):
 
     def setResultBox(self, textBox, value):
         self.valueFromTextBox[textBox] = value
-        textBox.setText(displayWithUnitsNumber(roundSigFig(value, 5), textBox.unit))
+        textBox.setText(util.displayWithUnitsNumber(util.roundSigFig(value, 5), textBox.unit))
         textBox.setCursorPosition(0)
 
     def plot(self):
@@ -257,13 +252,13 @@ class RbFEL(QtGui.QWidget):
             return # Combo box choice was left blank
 
         try:
-            xmin = convertUnitsStringToNumber(self.ui.xmin.text(), xTextBox.unit)
-            xmax = convertUnitsStringToNumber(self.ui.xmax.text(), xTextBox.unit)
+            xmin = util.convertUnitsStringToNumber(self.ui.xmin.text(), xTextBox.unit)
+            xmax = util.convertUnitsStringToNumber(self.ui.xmax.text(), xTextBox.unit)
             if xmin > xmax:
                 xmin, xmax = xmax, xmin
 
-            ymin = convertUnitsStringToNumber(self.ui.ymin.text(), yTextBox.unit)
-            ymax = convertUnitsStringToNumber(self.ui.ymax.text(), yTextBox.unit)
+            ymin = util.convertUnitsStringToNumber(self.ui.ymin.text(), yTextBox.unit)
+            ymax = util.convertUnitsStringToNumber(self.ui.ymax.text(), yTextBox.unit)
             if ymin > ymax:
                 ymin, ymax = ymax, ymin
 
@@ -296,7 +291,7 @@ class RbFEL(QtGui.QWidget):
 
             zUnit, zAxisLabel, _ = rangeUnits(zTextBox, Z.flat)
             for z in numpy.nditer(Z, op_flags=['readwrite']):
-                z[...] = convertUnitsNumber(z, zTextBox.unit, zUnit)
+                z[...] = util.convertUnitsNumber(z, zTextBox.unit, zUnit)
 
             # Plotting
             self.ui.plotWidget.canvas.fig.clear()
@@ -339,7 +334,7 @@ class RbFEL(QtGui.QWidget):
         bestX = x0
 
         try:
-            goal = convertUnitsStringToNumber(self.ui.lineEdit.text(), resultTextBox.unit)
+            goal = util.convertUnitsStringToNumber(self.ui.lineEdit.text(), resultTextBox.unit)
             y0 = self.calculateValue(variableTextBox, x0, resultTextBox)
             bestError = abs((y0-goal)/goal)
             for i in range(maximumIterations):
@@ -395,7 +390,7 @@ class RbFEL(QtGui.QWidget):
             value = bestX
             self.ui.solverResult.setText('Failed. Could not find a solution.')
 
-        variableTextBox.setText(displayWithUnitsNumber(roundSigFig(value, 5), variableTextBox.unit))
+        variableTextBox.setText(displayWithUnitsNumber(util.roundSigFig(value, 5), variableTextBox.unit))
         variableTextBox.setCursorPosition(0)
         self.calculateAll()
 
@@ -413,22 +408,17 @@ class RbFEL(QtGui.QWidget):
                 self.calculateSlope(inputBox, inputValue, inputStep, resultBox))/inputStep
 
     def exportToFile(self, fileName = None):
-        if fileName is None or fileName == '':
-            fileName = QtGui.QFileDialog.getSaveFileName(self, 'Save file', self.parent.lastUsedDirectory,
-                    "FEL (*." + self.acceptsFileTypes[0] + ")")
-            if fileName == '':
+        if not fileName:
+            fileName = util.getSaveFileName(self)
+            if not fileName:
                 return
-            self.parent.lastUsedDirectory = os.path.dirname(fileName)
-
-        if not fileName.endswith("." + self.acceptsFileTypes[0]):
-            fileName = fileName + "." + self.acceptsFileTypes[0] 
 
         fileLines = []
         for box in self.textBox.values():
             try:
                 try:
-                    _, unit = separateNumberUnit(box.text())
-                    value = convertUnitsNumberToString(self.valueFromTextBox[box], box.unit, unit)
+                    _, unit = util.separateNumberUnit(box.text())
+                    value = util.convertUnitsNumberToString(self.valueFromTextBox[box], box.unit, unit)
                 except (ValueError, KeyError):
                     value = box.text()
                 fileLines.append(box.objectName() + ':' + value) # text box
@@ -441,9 +431,8 @@ class RbFEL(QtGui.QWidget):
     def importFile(self, fileName = None):
         if not fileName:
             fileName = QtGui.QFileDialog.getOpenFileName(self, 'Open file', self.parent.lastUsedDirectory,
-                    "All Files (*.*);;" +
-                    "FEL (*." + self.acceptsFileTypes[0] + ")")
-            if fileName == '':
+                util.fileTypeLists(self.acceptsFileTypes))
+            if not fileName:
                 return
             self.parent.lastUsedDirectory = os.path.dirname(fileName)
 
@@ -468,7 +457,7 @@ def rangeUnits(textBox, array):
             maxValue = value
     if textBox.unit != '':
         unit = displayWithUnitsNumber(maxValue, textBox.unit).split()[1]
-        rangeInUnits = [convertUnitsNumber(value, textBox.unit, unit) for value in array]
+        rangeInUnits = [util.convertUnitsNumber(value, textBox.unit, unit) for value in array]
     else:
         power = int(round(floor(log10(abs(maxValue)))/3)*3) # round power to nearest multiple of 3
         unit = '10^' + str(power) if power != 0 else ''

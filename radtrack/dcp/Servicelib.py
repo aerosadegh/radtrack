@@ -4,25 +4,6 @@
 import os
 import numpy as np
 
-def IFileTypeCheck(IFileName):
-    with open(IFileName,"r",0) as f:
-        line = f.readline()
-
-        if line.startswith("SDDS1"):
-            return "sdds"
-
-        if line.startswith("#"):
-            return "srw"
-
-        try:
-            if is_number(line.split()[0]):
-                return "ff"
-        except IndexError:
-            pass
-
-        base, ext = os.path.splitext(IFileName)
-        return ext[1:] # remove leading period
-
 def SDDSreshape(x,ColumnXAxis,ColumnPicked,NumPage):
     FlagOK=1
     print np.shape(x.columnData)

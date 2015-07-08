@@ -10,8 +10,10 @@ from io import open
 from pykern import pkarray
 from pykern.pkdebug import pkdc, pkdi, pkdp
 
-from radtrack.rt_srwlib import srwlib, uti_plot
-
+import srwlib
+import uti_plot
+# Initialize so that SRW doesn't generate files
+uti_plot.uti_plot_init(backend=uti_plot.DEFAULT_BACKEND, fname_format=None)
 
 def to_beam(params):
     """Convert params to `SRWLPartBeam`

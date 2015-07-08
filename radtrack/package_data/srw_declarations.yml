@@ -79,7 +79,7 @@
       py_type: float
     -
       label: Number of Points along Trajectory
-      py_type: float
+      py_type: int
 -
   Beam:
     -

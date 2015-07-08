@@ -62,10 +62,7 @@ class elementCommon(object):
 
         inputName = inputData[0]
         self.data = inputData[1:]
-        if inputName == '':
-            self.setName(type(self).__name__[0])
-        else:
-            self.setName(inputName)
+        self.setName(inputName if inputName else type(self).__name__[0])
 
     def toolTip(self):
         return self.name + ' (' + type(self).__name__ + ')'
@@ -141,7 +138,21 @@ class elementCommon(object):
             return False
         if self.name != other.name:
             return False
-        return self.data == other.data
+        if self.data != other.data:
+            if len(self.data) != len(other.data):
+                return False
+            for datum1, datum2 in zip(self.data, other.data):
+                if datum1 != datum2:
+                    try:
+                        if float(datum1) != float(datum2) and abs(float(datum1) - float(datum2))/float(datum1) > 1e6:
+                            return False
+                    except ValueError:
+                        try:
+                            if rpn(datum1) != rpn(datum2) and abs(rpn(datum1) - rpn(datum2))/rpn(datum1) > 1e6:
+                                return False
+                        except ValueError:
+                            return False
+        return True
 
     def __ne__(self, other):
         return not self == other

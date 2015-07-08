@@ -11,7 +11,7 @@ from datetime import datetime
 
 from radtrack.ui.globalgu import Ui_globalgu, _translate
 from radtrack.LaserTab import LaserTab
-from radtrack.rbdcpA import RbDcp
+from radtrack.rbdcp import RbDcp
 from radtrack.RbBunchTransport import RbBunchTransport
 from radtrack.RbLaserTransport import RbLaserTransport
 from radtrack.RbGenesisTransport import RbGenesisTransport
@@ -21,7 +21,7 @@ from radtrack.RbFEL import RbFEL
 from radtrack.genesis.rbgenesis2 import RbGenesis2
 from radtrack.RbSrwTab import RbSrwTab
 from radtrack.RbIntroTab import RbIntroTab
-from radtrack.RbUtility import getRealWidget
+from radtrack.RbUtility import getRealWidget, fileTypeList
 
 class RbGlobal(QtGui.QMainWindow):
     def __init__(self, beta_test=False):
@@ -79,7 +79,8 @@ class RbGlobal(QtGui.QMainWindow):
                                        BunchTab,
                                        RbBunchTransport,
                                        RbDcp,
-                                       RbFEL ]
+                                       RbFEL,
+                                       RbSrwTab ]
         else:
             self.availableTabTypes = [ RbIntroTab,
                                        LaserTab,
@@ -94,6 +95,7 @@ class RbGlobal(QtGui.QMainWindow):
                                        RbSrwTab ]
 
         self.originalNameToTabType = dict()
+        self.allExtensions = []
         for tabType in self.availableTabTypes:
             if not self.beta_test or tabType == RbIntroTab: # For development, show all tabs
                 self.newTab(tabType)
@@ -118,6 +120,10 @@ class RbGlobal(QtGui.QMainWindow):
             actionNew_Tab.triggered.connect(lambda ignore, t = tabType : self.newTab(t))
 
             self.ui.menuNew_Tab.addAction(actionNew_Tab)
+
+            for ext in tabType.acceptsFileTypes:
+                self.allExtensions.append(ext)
+
         self.tabWidget.setCurrentIndex(0)
 
         self.ui.actionOpen_Project.triggered.connect(lambda : self.openProject())
@@ -211,7 +217,6 @@ class RbGlobal(QtGui.QMainWindow):
         newTitle = self.uniqueTabTitle(newWidget.defaultTitle)
         self.tabWidget.addTab(newWidget.container, newTitle)
         self.tabWidget.setCurrentIndex(self.tabWidget.count()-1)
-        self.checkMenus()
 
     def uniqueTabTitle(self, title, ignoreIndex = -1):
         originalTitle = title
@@ -229,14 +234,11 @@ class RbGlobal(QtGui.QMainWindow):
                                 index,
                                 self.tabWidget.tabText(index)))
         self.tabWidget.removeTab(index)
-        self.checkMenus()
 
     def undoCloseTab(self):
         widget, index, title = self.closedTabs.pop()
         self.tabWidget.insertTab(index, widget, title)
-        self.checkMenus()
         self.tabWidget.setCurrentIndex(index)
-        self.checkMenus()
 
     def renameTab(self):
         index = self.tabWidget.currentIndex()
@@ -244,16 +246,10 @@ class RbGlobal(QtGui.QMainWindow):
 
         if ok and newName:
             self.tabWidget.setTabText(index, self.uniqueTabTitle(newName, index))
-            self.checkMenus()
 
     def importFile(self, openFile = None):
         if not openFile:
-            openFile = QtGui.QFileDialog.getOpenFileName(self, 'Open file', self.lastUsedDirectory,
-                    "All Files (*.*);;" +
-                    "Laser Transport (*.rad);;" +
-                    "Bunch Transport (*.lte);;" +
-                    "SDDS (*.sdds);;" +
-                    "SRW (*.srw)")
+            openFile = QtGui.QFileDialog.getOpenFileName(self, 'Open file', self.lastUsedDirectory, fileTypeList(self.allExtensions))
             if not openFile:
                 return
         self.lastUsedDirectory = os.path.dirname(openFile)
@@ -354,7 +350,7 @@ class RbGlobal(QtGui.QMainWindow):
 
 
     def openProject(self, directory = None):
-        if directory is None or directory == '':
+        if not directory:
             directory = QtGui.QFileDialog.getExistingDirectory(self,
                     'Open project folder',
                     self.lastUsedDirectory)
@@ -415,7 +411,9 @@ class RbGlobal(QtGui.QMainWindow):
         menuMap['undo'] = self.ui.actionUndo
         menuMap['redo'] = self.ui.actionRedo
         for function in menuMap:
-            menuMap[function].setEnabled(hasattr(getRealWidget(self.tabWidget.currentWidget()), function))
+            realWidget = getRealWidget(self.tabWidget.currentWidget())
+            menuMap[function].setEnabled(hasattr(realWidget, function) and type(realWidget) not in [RbIntroTab, RbDcp, RbEle])
+
         self.ui.actionReopen_Closed_Tab.setEnabled(len(self.closedTabs) > 0)
 
         # Configure Elegant tab to use tabs for simulation input

@@ -44,6 +44,6 @@ class RbIntroTab(QtGui.QWidget):
                         self.setTabOrder(lastWidget, widget)
                     lastWidget = widget
 
-    def exportToFile(self, fileName = None):
+    def exportToFile(self, fileName):
         with open(fileName, 'w'):
             pass

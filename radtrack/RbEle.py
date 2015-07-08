@@ -165,7 +165,7 @@ class RbEle(QtGui.QWidget):
         self.ui.momentumLineEdit.setVisible(show_momentum)
         enable_button = self.bunch_source_manager.has_selection() \
            and self.beam_line_source_manager.has_selection()
-        if show_momentum and self.ui.momentumLineEdit.text() == '':
+        if show_momentum and not self.ui.momentumLineEdit.text():
             enable_button = False
         self.ui.simulateButton.setEnabled(enable_button)
 
@@ -542,7 +542,7 @@ class ComboManager():
             return False
         file_name = QtGui.QFileDialog.getOpenFileName(
             self.rbele, 'Open', self.rbele.parent.lastUsedDirectory, file_type)
-        if file_name == '':
+        if not file_name:
             self.combo.setCurrentIndex(0)
         else:
             self.rbele.parent.lastUsedDirectory = os.path.dirname(file_name)
