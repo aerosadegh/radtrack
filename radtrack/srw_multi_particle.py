@@ -1,4 +1,4 @@
-s>xu# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 u"""Multiparticle SRW Pane
 
 :copyright: Copyright (c) 2013-2015 RadiaBeam Technologies LLC.  All Rights Reserved.
