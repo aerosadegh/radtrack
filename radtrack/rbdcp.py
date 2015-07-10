@@ -109,6 +109,17 @@ class RbDcp(QtGui.QWidget):
     def importFromFileList(self, listItem):
         self.importFile(listItem.text())
         
+    def importFileFromGlob(self, fileName):
+        filetype = IFileTypeCheck(fileName)
+        if filetype == 'sdds':
+            pass
+        elif filetype == 'srw':
+            pass
+        elif filtype == 'ff':
+            pass
+        else:
+            raise ValueError(filename+' unrecognized file type')
+        
     def importFile(self, openFile = None):
         if not openFile:
             openFile = QtGui.QFileDialog.getOpenFileName(self, 'Open file', self.parent.lastUsedDirectory)
@@ -120,6 +131,8 @@ class RbDcp(QtGui.QWidget):
         ext = os.path.splitext(openFile)[-1].lower().lstrip(".")
         if ext in ['sdds', 'out', 'twi', 'sig', 'cen', 'bun', 'fin']:
             self.showDCP_ele(openFile)
+        elif ext is 'dat':
+            self.showDCP_srw(openFile)
         elif ext == 'save':
             return
         else:
@@ -152,6 +165,8 @@ class RbDcp(QtGui.QWidget):
         #reset data selection
         ColumnPicked = [0]
         ColumnXAxis = -1
+        #get file info
+        phile = QtCore.QFileInfo(openFile)
 
         #SDDS specific code
         self.x=sdds.SDDS(0)
@@ -165,13 +180,53 @@ class RbDcp(QtGui.QWidget):
         for i,a in enumerate(self.x.parameterName):
             paramsOut+=str(a)+'='+str(self.x.parameterData[i])+'\n'
         self.legend.setText(QtGui.QApplication.translate("dcpwidget",\
-            'FILE INFO \n'+self.x.description[0]+stringOut+paramsOut, None, QtGui.QApplication.UnicodeUTF8))
+            'FILE INFO \n'+'File Name: '+phile.fileName()+'\n File Size: '+phile.fileSize()+' bytes \n'+\
+            self.x.description[0]+stringOut+paramsOut, None, QtGui.QApplication.UnicodeUTF8))
 
         #preview of parameters
         self.preview()
 
         #preview of sdds data
         self.sddsprev()
+        
+    def showDCP_srw(self, openFile):
+        #reset data selection
+        ColumnPicked = [0]
+        ColumnXAxis = -1
+        #get file info
+        phile = QtCore.QFileInfo(fnfromglobal)
+        
+        #SRW specific
+        x = SRW()
+        self.x=SRWFileRead1(x,fnfromglobal,MaxNumParam)
+        #get columns
+        (_,_,_,self.Ncol,_,_)=SRWreshape(self.x,ColumnXAxis,ColumnPicked)
+        ColumnPicked = []
+        for i in range(self.Ncol):
+            ColumnPicked.append(i)
+            
+        stringOut=" Columns: "+str(np.shape(x.columnData)[0])+" Pages: 1"+" ColumnElements: "+\
+        str(np.shape(x.columnData)[1])
+        self.legend.setText(QtGui,QApplication.translate("dcpwidget", 'FILE INFO \n'+'File Name: '+\
+            phile.fileName()+'\n File Size: '+phile.fileSize()+' bytes \n'+stringOut, None, QtGui.QApplication.UnicodeUTF8))
+        
+        #    
+        self.preview()
+        self.srwprev()
+        
+    def srwprev(self):
+        ColumnPicked = []
+        for i in range(self.Ncol):
+            ColumnPicked.append(i)
+        (Xrvec,Yrvec,Npar,Ncol,NcolPicked,NElemCol)=SRWreshape(self.x,ColumnXAxis,ColumnPicked)
+        for i, a in enumerate(Yrvec):
+            if size(a)<1000:
+                self.data.setRowCount(shape(Yrvec)[1])
+                for j, b in enumerate(a):
+                    self.data.setItem(j+3,i+1,QtGui.QTableWidgetItem(str(b)))
+            else:
+                for j in range(1000):
+                    self.data.setItem(j+3,i+1,QtGui.QTableWidgetItem(str(a[j])))
         
     def sddsprev(self):
         ColumnPicked = []
