@@ -390,7 +390,7 @@ class RbFEL(QtGui.QWidget):
             value = bestX
             self.ui.solverResult.setText('Failed. Could not find a solution.')
 
-        variableTextBox.setText(displayWithUnitsNumber(util.roundSigFig(value, 5), variableTextBox.unit))
+        variableTextBox.setText(util.displayWithUnitsNumber(util.roundSigFig(value, 5), variableTextBox.unit))
         variableTextBox.setCursorPosition(0)
         self.calculateAll()
 
@@ -456,7 +456,7 @@ def rangeUnits(textBox, array):
         if isfinite(value) and value > maxValue:
             maxValue = value
     if textBox.unit != '':
-        unit = displayWithUnitsNumber(maxValue, textBox.unit).split()[1]
+        unit = util.displayWithUnitsNumber(maxValue, textBox.unit).split()[1]
         rangeInUnits = [util.convertUnitsNumber(value, textBox.unit, unit) for value in array]
     else:
         power = int(round(floor(log10(abs(maxValue)))/3)*3) # round power to nearest multiple of 3
