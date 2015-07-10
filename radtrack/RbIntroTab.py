@@ -1,4 +1,4 @@
-from PyQt4 import QtGui, QtCore
+from PyQt4 import QtGui
 from collections import OrderedDict
 from radtrack.ui.rbintro import Ui_Widget
 

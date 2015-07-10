@@ -610,7 +610,7 @@ class RbCbt(QtGui.QWidget):
         try:
             importedData = self.importer(fileName)
         except IOError as e:
-            QtGui.QMessageBox(QMessageBox.Warning, 'RadTrack', e.message).exec_()
+            QtGui.QMessageBox(QtGui.QMessageBox.Warning, 'RadTrack', e.message).exec_()
             return
 
         if importedData:

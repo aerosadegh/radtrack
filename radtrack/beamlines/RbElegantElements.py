@@ -14,8 +14,7 @@ from collections import OrderedDict
 import os
 from radtrack.beamlines.RbElementCommon import *
 from radtrack.beamlines.RbBeamlines import BeamlineCommon
-from radtrack.RbUtility import wordwrap, convertUnitsString, \
-                               FileParseException, stripComments
+from radtrack.RbUtility import wordwrap, FileParseException, stripComments
 
 # Reads the lattice file named fileName;
 # returns a mapping of names to newly created elements and the name of the default beamline
@@ -24,9 +23,6 @@ def importFile(fileName, importDictionary, classDictionary, nameMangler):
 
     if importDictionary is None:
         importDictionary = OrderedDict()
-
-    with open(fileName) as f:
-        numberOfLines = len([None for line in f])
 
     with open(fileName) as f:
         previousLine = ''
@@ -203,7 +199,6 @@ def collapseBeamline(nameList):
     collapsedList = collapsedListNegatives.pop(0)
     while collapsedListNegatives:
         nextPart = '*' + collapsedListNegatives.pop(0)
-        number = ''
         while collapsedList and collapsedList[-1].isdigit():
             nextPart = collapsedList[-1] + nextPart
             collapsedList = collapsedList[:-1]

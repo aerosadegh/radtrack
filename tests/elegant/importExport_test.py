@@ -1,8 +1,7 @@
 import os, glob, subprocess
-from itertools import izip_longest
 import radtrack.beamlines.RbElegantElements as ele
 import radtrack.beamlines.RbOpticalElements as opt
-from radtrack.RbUtility import insideQuote, rpn
+from radtrack.RbUtility import insideQuote
 
 import radtrack.util.resource as resource
 if not os.getenv('RPN_DEFNS', None):

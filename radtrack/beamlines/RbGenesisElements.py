@@ -8,7 +8,7 @@ from __future__ import print_function, division, unicode_literals, absolute_impo
 from PyQt4.QtCore import Qt
 from radtrack.beamlines.RbElementCommon import *
 from radtrack.beamlines.RbBeamlines import BeamlineCommon
-from radtrack.RbUtility import convertUnitsStringToNumber, convertUnitsString
+from radtrack.RbUtility import convertUnitsString
 
 class genesisElement(elementCommon):
     def componentLine(self):

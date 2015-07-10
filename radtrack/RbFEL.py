@@ -1,5 +1,5 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
-from PyQt4 import QtGui, QtCore
+from PyQt4 import QtGui
 from radtrack.ui.fel import Ui_Form
 import  radtrack.RbUtility as util
 from math import pi, sqrt, log10, floor, isinf, isnan

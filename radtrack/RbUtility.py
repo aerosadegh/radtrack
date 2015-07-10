@@ -279,7 +279,7 @@ rpnOp['Kaq'] = lambda stack : 75.0499e-2
 rpnOp['beta.p'] = lambda stack : stack[-1]/math.sqrt(1 + (stack.pop(-1)**2))
 rpnOp['gamma.p'] = lambda stack : math.sqrt(1 + (stack.pop(-1)**2))
 rpnOp['gamma.beta'] = lambda stack : 1/math.sqrt((stack.pop(-1)**2) - 1)
-rpnOp['p.beta'] = lambda stack : stack[-1]/sqrt(1 - (stack.pop(-1)**2))
+rpnOp['p.beta'] = lambda stack : stack[-1]/math.sqrt(1 - (stack.pop(-1)**2))
 rpnOp['p.gamma'] = lambda stack : math.sqrt((stack.pop(-1)**2) - 1)
 
 # Trigonometry
@@ -287,14 +287,14 @@ rpnOp['dasin'] = lambda stack : (180.0/math.pi)*math.asin(stack.pop(-1))
 rpnOp['asin'] = lambda stack : math.asin(stack.pop(-1))
 rpnOp['sin'] = lambda stack : math.sin(stack.pop(-1))
 rpnOp['dsin'] = lambda stack : math.sin((math.pi/180)*stack.pop(-1))
-rpnOp['dacos'] = lambda stack : (180.0/pi)*math.acos(stack.pop(-1))
+rpnOp['dacos'] = lambda stack : (180.0/math.pi)*math.acos(stack.pop(-1))
 rpnOp['acos'] = lambda stack : math.acos(stack.pop(-1))
 rpnOp['cos'] = lambda stack : math.cos(stack.pop(-1))
 rpnOp['dcos'] = lambda stack : math.cos((math.pi/180)*stack.pop(-1))
-rpnOp['datan'] = lambda stack : (180.0/pi)*math.atan(stack.pop(-1))
+rpnOp['datan'] = lambda stack : (180.0/math.pi)*math.atan(stack.pop(-1))
 rpnOp['atan'] = lambda stack : math.atan(stack.pop(-1))
 rpnOp['tan'] = lambda stack : math.tan(stack.pop(-1))
-rpnOp['dtan'] = lambda stack : math.tan((pi/180)*stack.pop(-1))
+rpnOp['dtan'] = lambda stack : math.tan((math.pi/180)*stack.pop(-1))
 rpnOp['rtod'] = lambda stack : stack.pop(-1)*180/math.pi
 rpnOp['dtor'] = lambda stack : stack.pop(-1)*math.pi/180
 rpnOp['hypot'] = lambda stack : math.hypot(stack.pop(-2), stack.pop(-1))
@@ -320,17 +320,15 @@ rpnOp['ln'] = lambda stack : math.log(stack.pop(-1))
 rpnOp['='] = lambda stack : stack[-1]
 rpnOp['over'] = lambda stack : stack[-2]
 rpnOp['swap'] = lambda stack : stack.pop(-2)
+
 def minmaxN(stack, wantMax):
     N = stack.pop(-1)
     lst = []
-    for loop in range(N):
+    for loop in range(int(N)):
         lst.append(stack.pop())
-    if wantMax:
-        return max(lst)
-    else:
-        return min(lst)
-rpnOp['maxN'] = lambda stack : maxN(stack, True)
-rpnOp['minN'] = lambda stack : maxN(stack, False)
+    return max(lst) if wantMax else min(lst)
+rpnOp['maxN'] = lambda stack : minmaxN(stack, True)
+rpnOp['minN'] = lambda stack : minmaxN(stack, False)
 
 # Booleans
 rpnOp['true'] = lambda stack : True

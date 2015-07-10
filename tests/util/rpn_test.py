@@ -9,7 +9,9 @@ def test_rpn_success():
                 ("5 sqr", 25),
                 ("16 sqr 4 3 -35 * * - sqrt -16 + 2 3 * /", 5.0/3.0),
                 ("2 10x", 100),
-                ("1 4 4 0 dist2", 5.0)]
+                ("1 4 4 0 dist2", 5.0),
+                ("1 2 2 minN", 1),
+                ("1 2 3 3 maxN", 3)]
 
     for test in testList:
         assert rpn(test[0]) == test[1]

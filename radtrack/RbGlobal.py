@@ -4,7 +4,7 @@ Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import sys, os, tempfile, shutil, argh, string, sip, traceback
+import sys, os, shutil, argh, string, sip, traceback, subprocess
 sip.setapi('QString', 2)
 from PyQt4 import QtGui
 from datetime import datetime
@@ -322,7 +322,7 @@ class RbGlobal(QtGui.QMainWindow):
             box = QtGui.QMessageBox(QtGui.QMessageBox.Question, 'File Overwrite Warning',
                     'The chosen directory is not empty.\n' + \
                     'Do you wish to create a new "RadTrack" folder there?')
-            newFolder = box.addButton('Create "RadTrack" folder', QtGui.QMessageBox.ActionRole)
+            box.addButton('Create "RadTrack" folder', QtGui.QMessageBox.ActionRole)
             cancel = box.addButton('Cancel location change', QtGui.QMessageBox.ActionRole)
             box.exec_()
             if box.clickedButton() == cancel:
