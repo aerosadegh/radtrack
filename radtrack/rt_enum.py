@@ -55,7 +55,7 @@ class Enum(enum.Enum):
             return value
         if isinstance(value, int):
             return cls(value)
-        return cls[value]
+        return cls[value.upper()]
 
 def _display_name(e):
     """Lookup display_name for enum

@@ -1,9 +1,9 @@
 ---
-DensityMethod:
+DensityComputation:
   NEAR_FIELD: Near Field
   FAR_FIELD: Far Field
 
-Flux:
+FluxCalculation:
   TOTAL: Total
   PER_UNIT_SURFACE: Per Unit Surface
 

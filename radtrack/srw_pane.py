@@ -21,7 +21,7 @@ class View(QtGui.QWidget):
 
     laid out horizontally.
     """
-    def __init__(self, controller, parent=None, is_multi_particle=False):
+    def __init__(self, controller, parent=None):
         super(View, self).__init__(parent)
         self._controller = controller
         self.setStyleSheet(pkio.read_text(pkresource.filename('srw_pane.css')))

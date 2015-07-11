@@ -63,32 +63,32 @@ def multi_particle(params):
     """
     res = copy.deepcopy(params)
     v = IDWaveLengthPhotonEnergy(
-        params['Period Length'],
+        params['num_periods'],
         #TODO(robnagler) Why is this not res['Bx']?
         0,
-        params['Vertical Magnetic Field'],
-        params['Relativistic Energy (gamma)'],
+        params['vertical_magnetic_field'],
+        params['gamma'],
     )
     res.update(zip(('Kx', 'Ky', 'lam_rn', 'e_phn'), v))
     v = RadiatedPowerPlanarWiggler(
-        params['Period Length'],
+        params['period_len'],
         #TODO(robnagler) Why is this not res['Bx']?
-        params['Vertical Magnetic Field'],
-        params['Number of Periods'],
-        params['Relativistic Energy (gamma)'],
-        params['Average Current'],
+        params['vertical_magnetic_field'],
+        params['num_periods'],
+        params['gamma'],
+        params['avg_current'],
     )
     res.update(zip(('P_W', 'L_id'), v))
     res['E_c'] = CriticalEnergyWiggler(
-        params['Vertical Magnetic Field'],
-        params['Horizontal Magnetic Field'],
-        params['Relativistic Energy (gamma)'],
+        params['vertical_magnetic_field'],
+        params['horizontal_magnetic_field'],
+        params['gamma'],
     )
     res['P_Wdc'] = CentralPowerDensityPlanarWiggler(
-        params['Vertical Magnetic Field'],
-        params['Number of Periods'],
-        params['Relativistic Energy (gamma)'],
-        params['Average Current'],
+        params['vertical_magnetic_field'],
+        params['num_periods'],
+        params['gamma'],
+        params['avg_current'],
     )
     v = UndulatorSourceSizeDivergence(
         res['lam_rn'],
@@ -96,16 +96,16 @@ def multi_particle(params):
     )
     res.update(zip(('RadSpotSize', 'RadSpotDivergence'), v))
     res['SpectralFluxValue'] = SpectralFlux(
-        params['Number of Periods'],
-        params['Relativistic Energy (gamma)'],
+        params['num_periods'],
+        params['gamma'],
         1,
-        params['Average Current'],
+        params['avg_current'],
         res['Kx'],
     )
     res['RadBrightness'] = SpectralCenBrightness(
-        params['Number of Periods'],
-        params['Relativistic Energy (gamma)'],
-        params['Average Current'],
+        params['num_periods'],
+        params['gamma'],
+        params['avg_current'],
     )
     res['lam_rn_3'] = res['lam_rn'] / 3.0
     res['lam_rn_5'] = res['lam_rn'] / 5.0

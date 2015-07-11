@@ -1,187 +1,192 @@
 ---
-Simulation Complexity:
-  MULTI_PARTICLE:
-    Undulator:
-      Number of Periods: 170
-      Period Length: .027
-      Magnetic Field: .865
-      Harmonic Number: 1
-      Undulator Orientation: VERTICAL
-    Beam:
-      Average Current: 0.5
-      Initial Horizontal Coordinate: 0
-      Initial Vertical Coordinate: 0
-      Initial Longitudinal Coordinate: 0
-      Initial Horizontal Angle: 0
-      Initial Vertical Angle: 0
-      Relativistic Energy (gamma): 5870.925
-      RMS Energy Spread: 0.00089
-      RMS Horizontal Width: 3.33E-05
-      RMS Vertical Width: 2.91E-06
-      RMS Horizontal Divergence: 1.65E-05
-      RMS Vertical Divergence: 2.75E-06
-    Precision:
-      Initial Harmonic: 1
-      Final Harmonic: 21
-      Longitudinal Integration Precision: 1.5
-      Azimuthal Integration Precision: 1.5
-      Flux Calculation: PER_UNIT_SURFACE
-      Precision Factor: 1.5
-      Density Computation Method: FAR_FIELD
-      Initial Longitudinal Position: 0
-      Initial Azimuthal Position: 0
-      Number of Points along Trajectory: 10000
-    Simulation Kind:
-      E:
-        Wavefront:
-          Number of points along Energy: 1000
-          Number of points along X: 1
-          Number of points along Y: 1
-          Distance to Window: 20
-          Initial Photon Energy: 10
-          Final Photon Energy: 3000
-          Window Left Edge: -0.0025
-          Window Top Edge: -0.0025
-          Window Right Edge: 0.0025
-          Window Bottom Edge: 0.0025
-      X:
-        Wavefront:
-          Number of points along Energy: 1
-          Number of points along X: 100
-          Number of points along Y: 3
-          Distance to Window: 20
-          Initial Photon Energy: 396
-          Final Photon Energy: 396
-          Window Left Edge: -0.015
-          Window Top Edge: -0.001
-          Window Right Edge: 0.015
-          Window Bottom Edge: 0.001
-      Y:
-        Wavefront:
-          Number of points along Energy: 1
-          Number of points along X: 3
-          Number of points along Y: 100
-          Distance to Window: 20
-          Initial Photon Energy: 396
-          Final Photon Energy: 396
-          Window Left Edge: -0.001
-          Window Top Edge: -0.015
-          Window Right Edge: 0.001
-          Window Bottom Edge: 0.015
-      X_AND_Y:
-        Wavefront:
-          Number of points along Energy: 1
-          Number of points along X: 101
-          Number of points along Y: 100
-          Distance to Window: 20
-          Initial Photon Energy: 396
-          Final Photon Energy: 396
-          Window Left Edge: -0.015
-          Window Top Edge: -0.015
-          Window Right Edge: 0.015
-          Window Bottom Edge: 0.015
-  #SINGLE_PARTICLE:
-  #  Undulator:
-  #    Number of Periods: 170
-  #    Period Length: 0.027
-  #    Horizontal Magnetic Field: 0
-  #    Vertical Magnetic Field: 0.865
-  #####Below are the different undulator parameters
-  #    Horizontal Field Component Phase: 0 
-  #    Vertical Field Component Phase: 0
-  #    Horizontal Field Component Symmetry: -1
-  #    Vertical Field Component Symmetry: 1
-  #    Horizontal Undulator Center: 0
-  #    Vertical Undulator Center: 0
-  #    Longitudinal Undulator Center: 0
-  #  Beam:
-  #    Average Current: 0.5
-  #    Initial Horizontal Coordinate: 0
-  #    Initial Vertical Coordinate: 0
-  #    Initial Longitudinal Coordinate: 0
-  #    Initial Horizontal Angle: 0
-  #    Initial Vertical Angle: 0
-  #    Relativistic Energy (gamma): 5870.925 
-  #####Does not have RMS parameters
-  #  Precision: 
-  #####All different precision parameter in this case
-  #    Calculation Method: 1
-  #    Relative Precision: 0.01
-  #    Start Integration: 0
-  #    End Integration: 0
-  #    Number of Trajectory Points: 10000
-  #    Use Terminating Terms: 1
-  #    Sampling Factor: 0
-  #  Simulation Kind:
-  #    E:
-  #      Wavefront:
-  #        Number of points along Energy: 10000
-  #        Number of points along X: 1
-  #        Number of points along Y: 1
-  #        Distance to Window: 20
-  #        Initial Photon Energy: 10
-  #        Final Photon Energy: 25000
-  #        Window Left Edge: -0.015
-  #        Window Top Edge: -0.015
-  #        Window Right Edge: 0.015
-  #        Window Bottom Edge: 0.015
-  #    X:
-  #      Wavefreont:
-  #        Number of points along Energy: 1
-  #        Number of points along X: 100
-  #        Number of points along Y: 3
-  #        Distance to Window: 20
-  #        Initial Photon Energy: 5102
-  #        Final Photon Energy: 5102
-  #        Window Left Edge: -0.015
-  #        Window Top Edge: -0.015
-  #        Window Right Edge: 0.015
-  #        Window Bottom Edge: 0.015
-  #    Y:
-  #      Wavefront:
-  #        Number of points along Energy: 1
-  #        Number of points along X: 3
-  #        Number of points along Y: 100
-  #        Distance to Window: 20
-  #        Initial Photon Energy: 5102
-  #        Final Photon Energy: 5102
-  #        Window Left Edge: 0
-  #        Window Top Edge: -0.015
-  #        Window Right Edge: 0
-  #        Window Bottom Edge: 0.015    
-  #    X_AND_Y:
-  #      Wavefront:
-  #        Number of points along Energy: 1
-  #        Number of points along X: 100
-  #        Number of points along Y: 100
-  #        Distance to Window: 20
-  #        Initial Photon Energy: 5102
-  #        Final Photon Energy: 5102
-  #        Window Left Edge: -0.015
-  #        Window Top Edge: -0.015
-  #        Window Right Edge: 0.015
-  #        Window Bottom Edge: 0.015
-  #    E_AND_X:
-  #      Wavefront:
-  #        Number of points along Energy: 1000
-  #       Number of points along X: 100
-  #        Number of points along Y: 1
-  #        Distance to Window: 20
-  #        Initial Photon Energy: 10
-  #        Final Photon Energy: 25000
-  #        Window Left Edge: -0.015
-  #        Window Top Edge: 0
-  #        Window Right Edge: 0.015
-  #        Window Bottom Edge: 0
-  #    E_AND_Y:
-  #      Wavefront:
-  #        Number of points along Energy: 1000
-  #        Number of points along X: 1
-  #        Number of points along Y: 100
-  #        Distance to Window: 20
-  #        Initial Photon Energy: 10
-  #        Final Photon Energy: 25000
-  #        Window Left Edge: 0
-  #        Window Top Edge: -0.015
-  #        Window Right Edge: 0
-  #        Window Bottom Edge: 0.015
+simulation_complexity:
+  multi_particle:
+    undulator:
+      num_periods: 170
+      period_len: .027
+      magnetic_field: .865
+      harmonic_number: 1
+      orientation: VERTICAL
+    beam:
+      avg_current: 0.5
+      horizontal_coord: 0
+      vertical_coord: 0
+      longitudinal_coord: 0
+      horizontal_angle: 0
+      vertical_angle: 0
+      gamma: 5870.925
+      rms_energy_spread: 0.00089
+      rms_horizontal_width: 3.33E-05
+      rms_vertical_width: 2.91E-06
+      rms_horizontal_divergence: 1.65E-05
+      rms_vertical_divergence: 2.75E-06
+    precision:
+      spectral_flux:
+        initial_harmonic: 1
+        final_harmonic: 21
+        longitudinal: 1.5
+        azimuthal: 1.5
+        flux_calculation: per_unit_surface
+      power_density:
+        factor: 1.5
+        density_computationx: far_field
+        longitudinal_pos: 0
+        azimuthal_pos: 0
+        num_points_trajectory: 10000
+    simulation_kind:
+      e:
+        wavefront:
+          num_points_energy: 1000
+          num_points_x: 1
+          num_points_y: 1
+          distance_to_window: 20
+          initial_photon_energy: 10
+          final_photon_energy: 3000
+          window_left_edge: -0.0025
+          window_top_edge: -0.0025
+          window_right_edge: 0.0025
+          window_bottom_edge: 0.0025
+      x:
+        wavefront:
+          num_points_energy: 1
+          num_points_x: 100
+          num_points_y: 3
+          distance_to_window: 20
+          initial_photon_energy: 396
+          final_photon_energy: 396
+          window_left_edge: -0.015
+          window_top_edge: -0.001
+          window_right_edge: 0.015
+          window_bottom_edge: 0.001
+      y:
+        wavefront:
+          num_points_energy: 1
+          num_points_x: 3
+          num_points_y: 100
+          distance_to_window: 20
+          initial_photon_energy: 396
+          final_photon_energy: 396
+          window_left_edge: -0.001
+          window_top_edge: -0.015
+          window_right_edge: 0.001
+          window_bottom_edge: 0.015
+      x_and_y:
+        wavefront:
+          num_points_energy: 1
+          num_points_x: 101
+          num_points_y: 100
+          distance_to_window: 20
+          initial_photon_energy: 396
+          final_photon_energy: 396
+          window_left_edge: -0.015
+          window_top_edge: -0.015
+          window_right_edge: 0.015
+          window_bottom_edge: 0.015
+#  single_particle:
+#    undulator:
+#      num_periods: 170
+#      period_len: 0.027
+#      horizontal_magnetic_field: 0
+#      vertical_magnetic_field: 0.865
+#      ####below_are_the_different_undulator_parameters
+#      horizontal_field_component_phase: 0
+#      vertical_field_component_phase: 0
+#      horizontal_field_component_symmetry: -1
+#      vertical_field_component_symmetry: 1
+#      horizontal_undulator_center: 0
+#      vertical_undulator_center: 0
+#      longitudinal_undulator_center: 0
+#    beam:
+#      avg_current: 0.5
+#      initial_horizontal_coord: 0
+#      initial_vertical_coord: 0
+#      initial_longitudinal_coord: 0
+#      initial_horizontal_angle: 0
+#      initial_vertical_angle: 0
+#      gamma: 5870.925
+#      ####does_not_have_rms_parameters
+#    precision:
+#      ####all_different_precision_parameter_in_this_case
+#      #TODO(robnagler) enum
+#      calculation_method: 1
+#      relative_precision: 0.01
+#      start_integration: 0
+#      end_integration: 0
+#      num_points_trajectory: 10000
+#      #TODO(robnagler) enum or bool
+#      use_terminating_terms: 1
+#      sampling_factor: 0
+#    simulation_kind:
+#      e:
+#        wavefront:
+#          num_points_energy: 10000
+#          num_points_x: 1
+#          num_points_y: 1
+#          distance_to_window: 20
+#          initial_photon_energy: 10
+#          final_photon_energy: 25000
+#          window_left_edge: -0.015
+#          window_top_edge: -0.015
+#          window_right_edge: 0.015
+#          window_bottom_edge: 0.015
+#      x:
+#        wavefront:
+#          num_points_energy: 1
+#          num_points_x: 100
+#          num_points_y: 3
+#          distance_to_window: 20
+#          initial_photon_energy: 5102
+#          final_photon_energy: 5102
+#          window_left_edge: -0.015
+#          window_top_edge: -0.015
+#          window_right_edge: 0.015
+#          window_bottom_edge: 0.015
+#      y:
+#        wavefront:
+#          num_points_energy: 1
+#          num_points_x: 3
+#          num_points_y: 100
+#          distance_to_window: 20
+#          initial_photon_energy: 5102
+#          final_photon_energy: 5102
+#          window_left_edge: 0
+#          window_top_edge: -0.015
+#          window_right_edge: 0
+#          window_bottom_edge: 0.015
+#      x_and_y:
+#        wavefront:
+#          num_points_energy: 1
+#          num_points_x: 100
+#          num_points_y: 100
+#          distance_to_window: 20
+#          initial_photon_energy: 5102
+#          final_photon_energy: 5102
+#          window_left_edge: -0.015
+#          window_top_edge: -0.015
+#          window_right_edge: 0.015
+#          window_bottom_edge: 0.015
+#      e_and_x:
+#        wavefront:
+#          num_points_energy: 1000
+#          num_points_x: 100
+#          num_points_y: 1
+#          distance_to_window: 20
+#          initial_photon_energy: 10
+#          final_photon_energy: 25000
+#          window_left_edge: -0.015
+#          window_top_edge: 0
+#          window_right_edge: 0.015
+#          window_bottom_edge: 0
+#      e_and_y:
+#        wavefront:
+#          num_points_energy: 1000
+#          num_points_x: 1
+#          num_points_y: 100
+#          distance_to_window: 20
+#          initial_photon_energy: 10
+#          final_photon_energy: 25000
+#          window_left_edge: 0
+#          window_top_edge: -0.015
+#          window_right_edge: 0
+#          window_bottom_edge: 0.015
+#

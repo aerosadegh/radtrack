@@ -27,19 +27,19 @@ def to_beam(params):
     res = srwlib.SRWLPartBeam()
     res.Iavg = params['Average Current']
     m = res.partStatMom1
-    m.x = params['Initial Horizontal Coordinate']
-    m.y = params['Initial Vertical Coordinate']
-    m.z = params['Initial Longitudinal Coordinate']
-    m.xp = params['Initial Horizontal Angle']
-    m.yp = params['Initial Vertical Angle']
-    m.gamma = params['Relativistic Energy (gamma)']
-    res.arStatMom2[0] = params['RMS Horizontal Width'] ** 2
+    m.x = params['horizontal_coord']
+    m.y = params['vertical_coord']
+    m.z = params['longitudinal_coord']
+    m.xp = params['horizontal_angle']
+    m.yp = params['vertical_angle']
+    m.gamma = params['gamma']
+    res.arStatMom2[0] = params['rms_horizontal_width'] ** 2
     res.arStatMom2[1] = 0
-    res.arStatMom2[2] = params['RMS Horizontal Divergence'] ** 2
-    res.arStatMom2[3] = params['RMS Vertical Width'] ** 2
+    res.arStatMom2[2] = params['rms_horizontal_divergence'] ** 2
+    res.arStatMom2[3] = params['rms_vertical_width'] ** 2
     res.arStatMom2[4] = 0
-    res.arStatMom2[5] = params['RMS Vertical Divergence'] ** 2
-    res.arStatMom2[10] = params['RMS Energy Spread'] ** 2
+    res.arStatMom2[5] = params['rms_vertical_divergence'] ** 2
+    res.arStatMom2[10] = params['rms_energy_spread'] ** 2
     return res
 
 
@@ -55,11 +55,11 @@ def to_flux_precision(params):
     return _precision(
         params,
         (
-            'Initial Harmonic',
-            'Final Harmonic',
-            'Longitudinal Integration Precision',
-            'Azimuthal Integration Precision',
-            'Flux Calculation',
+            'initial_harmonic',
+            'final_harmonic',
+            'longitudinal',
+            'azimuthal',
+            'flux_calculation',
         ),
     )
 
@@ -76,11 +76,11 @@ def to_power_precision(params):
     return _precision(
         params,
         (
-            'Precision Factor',
-            'Density Computation Method',
-            'Initial Longitudinal Position',
-            'Initial Azimuthal Position',
-            'Number of Points along Trajectory',
+            'precision_factor',
+            'density_computation',
+            'longitudinal_pos',
+            'azimuthal_pos',
+            'num_points_trajectory',
         ),
     )
 
@@ -95,15 +95,15 @@ def to_undulator(params):
         (SRWLMagFldU, SRWLMagFldC): converted values
     """
     harmB = srwlib.SRWLMagFldH()
-    harmB.n = params['Harmonic Number']
-    harmB.B = params['Magnetic Field']
-    if params['Undulator Orientation'].has_name('VERTICAL'):
+    harmB.n = params['harmonic_num']
+    harmB.B = params['magnetic_field']
+    if params['orientation'].has_name('VERTICAL'):
         harmB.h_or_v = 'v'
     else:
         harmB.h_or_v = 'h'
     und = srwlib.SRWLMagFldU([harmB])
-    und.per = params['Period Length']
-    und.nPer = params['Number of Periods']
+    und.per = params['period_len']
+    und.nPer = params['num_periods']
     magFldCnt = srwlib.SRWLMagFldC(
         [und],
         pkarray.new_double([0]),
@@ -124,18 +124,18 @@ def to_wavefront(params):
     """
     res = srwlib.SRWLStokes()
     res.allocate(
-        params['Number of points along Energy'],
-        params['Number of points along X'],
-        params['Number of points along Y'],
+        params['num_points_energy'],
+        params['num_points_x'],
+        params['num_points_y'],
     )
     m = res.mesh
-    m.zStart = params['Distance to Window']
-    m.eStart = params['Initial Photon Energy']
-    m.eFin = params['Final Photon Energy']
-    m.xStart = params['Window Left Edge']
-    m.xFin = params['Window Right Edge']
-    m.yStart = params['Window Top Edge']
-    m.yFin = params['Window Bottom Edge']
+    m.zStart = params['distance_to_window']
+    m.eStart = params['initial_photon_energy']
+    m.eFin = params['final_photon_energy']
+    m.xStart = params['window_left_edge']
+    m.xFin = params['window_right_edge']
+    m.yStart = params['window_top_edge']
+    m.yFin = params['window_bottom_edge']
     return res
 
 
