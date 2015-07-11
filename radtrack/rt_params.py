@@ -11,17 +11,141 @@ import __builtin__
 import collections
 import importlib
 import re
+import UserDict
 
 import enum
 import yaml
 
-from pykern.pkdebug import pkdc, pkdi, pkdp
+from pykern.pkdebug import pkdc, pkdp
 from pykern import pkcompat
 from pykern import pkio
 from pykern import pkresource
 from pykern import pkyaml
 
 _cache = {}
+
+class Declaration(UserDict.DictMixin):
+    """Describe a parameter and its children (if any)
+
+    Attributes:
+        children (ordered): OrderedDict of subparameters
+        label (str): displayed to the user (default: generated from name)
+        name (str): programmatic name
+        py_type (type): how to render value (None implies has children)
+        required (list or dict): components need this parameter (may be inherited)
+        units (str): expected units (default: None)
+    """
+    def __init__(self, decl):
+        #TODO(robnagler) more type checking: especially required and children
+        self.name = decl['name']
+        self.label = self._label(decl)
+        self.py_type = self._py_type(decl)
+        self.units = self._units(decl)
+        self.required = self._required(decl)
+        self.children = self._children(decl)
+        assert self.children or self.py_type, \
+            '{}: declaration must be one type or the other'
+
+    def __repr__(self):
+        return 'Declaration("{}")'.format(self.name)
+
+    def __getitem__(self, key):
+        if not (self.children and key in self.children):
+            raise KeyError(key)
+        return self.children[key]
+
+    def keys(self):
+        if not self.children:
+            return []
+        return self.children.keys()
+
+    def _children(self, decl):
+        if 'children' not in decl:
+            return None
+        res = collections.OrderedDict()
+        for c in decl['children']:
+            if pkcompat.isinstance_str(c):
+                d = c
+                n = c
+            else:
+                d = Declaration(c)
+                n = d.name
+            assert n not in res, \
+                '{}: duplicate key in {}'.format(n, self.name)
+            res[n] = d
+        return res
+
+    def _label(self, decl):
+        if 'label' in decl:
+            return decl['label']
+        res = self.name
+        res = re.sub(r'(^|_)([a-z])', lambda x: x.group(2).upper(), res)
+        res = re.sub(r'\bLen\b', 'Length', res)
+        res = re.sub(r'\bNum\b', 'Number of', res)
+        res = re.sub(r'\bCoord\b', 'Coordinate', res)
+        res = re.sub(r'\bAvg\b', 'Average', res)
+        return res
+
+    def _py_type(self, decl):
+        """Parse py_type to Python type instance"""
+        if 'py_type' not in decl:
+            return None
+        t = decl['py_type']
+        try:
+            t = getattr(__builtin__, t)
+            if isinstance(t, type):
+                return t
+        except AttributeError:
+            pass
+        s = re.search(r'^(\w+)\.(\w+)$', decl['py_type'])
+        assert s, \
+            '{py_type}: py_type for {name} not found'.format(*decl)
+        m = importlib.import_module('radtrack.' + s.group(1))
+        t = getattr(m, s.group(2))
+        assert isinstance(t, type), \
+            '{py_type}: py_type for {name} not a type'.format(*decl)
+        return t
+
+    def _required(self, decl):
+        return decl['required']
+
+    def _units(self, decl):
+        return decl['units'] if 'units' in decl else None
+
+
+class Default(UserDict.DictMixin):
+
+    def __init__(self, value, decl, component, parent_type):
+        self.decl = decl
+        if decl.py_type and not decl.children:
+            self.value = _parse_value(value, decl.py_type)
+        elif parent_type:
+            self.value = _parse_value(decl.name, parent_type)
+        self._children(value, decl, component)
+
+    def __repr__(self):
+        return 'Default("{}")'.format(self.decl.name)
+
+    def __getitem__(self, key):
+        if not (self.children and key in self.children):
+            raise KeyError(key)
+        return self.children[key]
+
+    def keys(self):
+        if not self.children:
+            return []
+        return self.children.keys()
+
+    def _children(self, values, decl, component):
+        if not decl.children:
+            self.children = None
+            return
+        self.children = collections.OrderedDict()
+        for child_decl in decl.values():
+            if component not in child_decl.required:
+                continue
+            self.children[child_decl.name] = Default(
+                values[child_decl.name], child_decl, component, decl.py_type)
 
 
 def declarations(file_prefix):
@@ -36,7 +160,7 @@ def declarations(file_prefix):
     return _get(file_prefix, 'declarations', _parse_declarations)
 
 
-def defaults(file_prefix):
+def defaults(file_prefix, decl):
     """Parsed parameter defaults from ``<file_prefix>_defaults.yml``
 
     Args:
@@ -45,7 +169,8 @@ def defaults(file_prefix):
     Returns:
         dict: mapping of default values
     """
-    return _get(file_prefix, 'defaults', _parse_defaults)
+    pkdp('defaults entry')
+    return _get(file_prefix, 'defaults', lambda v, fp: _parse_defaults(v[decl.name], fp, decl))
 
 
 def init_params(defaults, declarations):
@@ -118,12 +243,12 @@ def _get(file_prefix, which, how):
     """
     global _cache
     if which not in _cache:
-        y = pkyaml.load_resource('{}_{}'.format(file_prefix, which))
-        _cache[which] = how(y, file_prefix=file_prefix)
+        values = pkyaml.load_resource('{}_{}'.format(file_prefix, which))
+        _cache[which] = how(values, file_prefix)
     return _cache[which]
 
 
-def _parse_declarations(values, file_prefix=None):
+def _parse_declarations(values, file_prefix):
     """Recurse the parsed YAML declarations; convert values and types
 
     Order preserving so can use for layout.
@@ -132,32 +257,24 @@ def _parse_declarations(values, file_prefix=None):
         values (list): raw YAML as a list
         file_prefix (str): which file to parse
     """
-    res = collections.OrderedDict()
-    for v in values:
-        if len(v) == 1:
-            k = v.keys()[0]
-            v = _parse_declarations(v[k], False)
-            assert not 'label' in v, \
-                '{}.parameter name may not be "label"'.format(k)
-            v['label'] = k
-            #TODO(robnagler) need to solve collisions problem
-            v['is_selector_for_params'] = False
+    root = Declaration({
+        'name': 'root',
+        'children': values,
+        'required': ['srw_multi', 'srw_single'],
+    })
+    _parse_declarations_link(root, root)
+    return root
+
+
+def _parse_declarations_link(decl, root):
+    for k, v in decl.items():
+        if not isinstance(v, Declaration):
+            decl.children[k] = root[k]
         else:
-            for x in (
-                'display_as_checkbox',
-                'display_as_heading',
-                'is_computed_param',
-                'is_selector_for_params',
-                'units',
-            ):
-                if x not in v:
-                    v[x] = None if x == 'units' else False
-            v['py_type'] = _parse_type(v)
-        res[v['label']] = v
-    return res
+            _parse_declarations_link(v, root)
 
 
-def _parse_defaults(values, d=None, file_prefix=None):
+def _parse_defaults(values, file_prefix, decl):
     """Recurse the parsed YAML defaults; convert values by declarations
 
     Args:
@@ -167,46 +284,10 @@ def _parse_defaults(values, d=None, file_prefix=None):
         dict: parsed YAML
     """
     # Need to parse
-    if not d:
-        d = declarations(file_prefix)
-    res = {}
-    for k, v in values.items():
-        sub_d = d[k]
-        if not isinstance(v, dict):
-            res[k] = _parse_value(v, sub_d['py_type'])
-            continue
-        if not sub_d['is_selector_for_params']:
-            res[k] = _parse_defaults(v, sub_d)
-            continue
-        # Selector is strange, because there is a value
-        t = sub_d['py_type']
-        assert isinstance(t, enum.EnumMeta), \
-            '{}: unable to parse value for {}'.format(d['py_type'], d['label'])
-        res[k] = {}
-        for k2, v2 in v.items():
-            res[k][k2] = _parse_defaults(v2, d)
-    return res
+    return Default(values, decl, file_prefix, None)
 
 
 def _parse_value(v, t):
     if hasattr(t, 'from_anything'):
         return t.from_anything(v)
     return t(v)
-
-
-def _parse_type(v):
-    """Parse py_type to Python type instance"""
-    try:
-        t = getattr(__builtin__, v['py_type'])
-        if isinstance(t, type):
-            return t
-    except AttributeError:
-        pass
-    s = re.search(r'^(\w+)\.(\w+)$', v['py_type'])
-    assert s, \
-        '{py_type}: py_type for {label} not found'.format(*v)
-    m = importlib.import_module('radtrack.' + s.group(1))
-    t = getattr(m, s.group(2))
-    assert isinstance(t, type), \
-        '{py_type}: py_type for {label} not a type'.format(*v)
-    return t

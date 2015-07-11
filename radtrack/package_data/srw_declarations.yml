@@ -1,156 +1,274 @@
 ---
 -
-  label: Simulation Complexity
+  name: simulation_complexity
   py_type: srw_enums.SimulationComplexity
-  display_as_checkbox: True
-  is_selector_for_params: True
+  required: [srw_multi, srw_single]
+  children:
+    -
+      name: multi_particle
+      label: Multi-Particle
+      required: [srw_multi]
+      children: [undulator, precision, beam, simulation_kind]
+    -
+      name: single_particle
+      required: [srw_single]
+      children: [undulator, precision, beam, simulation_kind]
 -
-  label: Simulation Kind
+  name: simulation_kind
   py_type: srw_enums.SimulationKind
-  is_selector_for_params: True
+  required: [srw_multi, srw_single]
+  children:
+    -
+      name: e
+      label: e (energy)
+      required: [srw_multi, srw_single]
+      children: [wavefront]
+    -
+      name: x
+      label: x (horizontal)
+      required: [srw_multi, srw_single]
+      children: [wavefront]
+    -
+      name: y
+      label: y (vertical)
+      required: [srw_multi, srw_single]
+      children: [wavefront]
+    -
+      name: x_and_y
+      label: x & y
+      required: [srw_multi, srw_single]
+      children: [wavefront]
+    -
+      name: e_and_x
+      label: e & x
+      required: [srw_single]
+      children: [wavefront]
+    -
+      name: e_and_y
+      label: e & y
+      required: [srw_single]
+      children: [wavefront]
+    -
+      name: e_and_x_and_y
+      label: e & x & y
+      required: [srw_single]
+      children: [wavefront]
+
 -
-  Undulator:
+  name: undulator
+  required: [srw_multi, srw_single]
+  children:
     -
-      label: Number of Periods
+      name: num_periods
       py_type: int
+      required: [srw_multi, srw_single]
     -
-      label: Period Length
+      name: period_len
       py_type: float
       units: cm
+      required: [srw_multi, srw_single]
     -
-      label: Magnetic Field
+      name: magnetic_field
       py_type: float
       units: mT
+      required: [srw_multi]
     -
-      label: Harmonic Number
+      name: harmonic_num
       py_type: int
+      required: [srw_multi]
     -
+      name: orientation
       label: Undulator Orientation
       py_type: srw_enums.UndulatorOrientation
-      display_as_checkbox: True
+      required: [srw_multi]
     -
-      label: Horizontal Magnetic Field
+      name: horizontal_magnetic_field
       py_type: float
       units: mT
-      is_computed_param: True
+      required: [srw_single]
     -
-      label: Vertical Magnetic Field
+      name: vertical_magnetic_field
       py_type: float
       units: mT
-      is_computed_param: True
+      required: [srw_single]
 -
-  Precision:
+  name: precision
+  required: [srw_multi, srw_single]
+  children:
     -
+      name: spectral_flux
       label: Spectral Flux Calculation
-      py_type: str
-      display_as_heading: True
+      py_type: dict
+      required: [srw_multi]
+      children:
+        -
+          name: initial_harmonic
+          #TODO(robnagler) int
+          py_type: float
+          required: [srw_multi]
+        -
+          name: final_harmonic
+          #TODO(robnagler) int
+          py_type: float
+          required: [srw_multi]
+        -
+          name: longitudinal
+          label: Longitudinal Integration Precision
+          py_type: float
+          required: [srw_multi]
+        -
+          name: azimuthal
+          label: Azimuthal Integration Precision
+          py_type: float
+          required: [srw_multi]
+        -
+          name: flux_calculation
+          py_type: srw_enums.FluxCalculation
+          required: [srw_multi]
     -
-      label: Initial Harmonic
-      #TODO(robnagler) int
-      py_type: float
-    -
-      label: Final Harmonic
-      #TODO(robnagler) int
-      py_type: float
-    -
-      label: Longitudinal Integration Precision
-      py_type: float
-    -
-      label: Azimuthal Integration Precision
-      py_type: float
-    -
-      label: Flux Calculation
-      py_type: srw_enums.Flux
-    -
+      name: power_density
       label: Power Density Calculation
-      py_type: str
-      display_as_heading: True
-    -
-      label: Precision Factor
-      py_type: float
-    -
-      label: Density Computation Method
-      py_type: srw_enums.DensityMethod
-    -
-      label: Initial Longitudinal Position
-      py_type: float
-    -
-      label: Initial Azimuthal Position
-      py_type: float
-    -
-      label: Number of Points along Trajectory
-      py_type: int
+      py_type: dict
+      required: [srw_multi]
+      children:
+        -
+          name: factor
+          label: Precision Factor
+          py_type: float
+          required: [srw_multi]
+        -
+          name: density_computation
+          label: Density Computation Method
+          py_type: srw_enums.DensityComputation
+          required: [srw_multi]
+        -
+          name: longitudinal_pos
+          label: Initial Longitudinal Position
+          py_type: float
+          required: [srw_multi]
+        -
+          name: azimuthal_pos
+          label: Initial Azimuthal Position
+          py_type: float
+          required: [srw_multi]
+        -
+          name: num_points_trajectory
+          label: Number of Points along Trajectory
+          py_type: int
+          required: [srw_multi]
 -
-  Beam:
+  name: beam
+  required: [srw_multi, srw_single]
+  children:
     -
+      name: avg_current
       label: Average Current
       py_type: float
       units: mA
+      required: [srw_multi, srw_single]
     -
+      name: horizontal_coord
       label: Initial Horizontal Coordinate
       py_type: float
       units: m
+      required: [srw_multi, srw_single]
     -
+      name: vertical_coord
       label: Initial Vertical Coordinate
       py_type: float
       units: m
+      required: [srw_multi, srw_single]
     -
+      name: longitudinal_coord
       label: Initial Longitudinal Coordinate
       py_type: float
       units: m
+      required: [srw_multi, srw_single]
     -
+      name: horizontal_angle
       label: Initial Horizontal Angle
       py_type: float
+      required: [srw_multi, srw_single]
     -
+      name: vertical_angle
       label: Initial Vertical Angle
       py_type: float
+      required: [srw_multi, srw_single]
     -
+      name: gamma
       label: Relativistic Energy (gamma)
       py_type: float
+      required: [srw_multi]
     -
+      name: rms_energy_spread
       label: RMS Energy Spread
       py_type: float
+      required: [srw_multi]
     -
+      name: rms_horizontal_width
       label: RMS Horizontal Width
       py_type: float
+      required: [srw_multi]
     -
+      name: rms_vertical_width
       label: RMS Vertical Width
       py_type: float
+      required: [srw_multi]
     -
+      name: rms_horizontal_divergence
       label: RMS Horizontal Divergence
       py_type: float
+      required: [srw_multi]
     -
+      name: rms_vertical_divergence
       label: RMS Vertical Divergence
       py_type: float
+      required: [srw_multi]
 -
-  Wavefront:
+  name: wavefront
+  required: [srw_multi, srw_single]
+  children:
     -
+      name: num_points_energy
       label: Number of points along Energy
       py_type: int
+      required: [srw_multi, srw_single]
     -
+      name: num_points_x
       label: Number of points along X
       py_type: int
+      required: [srw_multi, srw_single]
     -
+      name: num_points_y
       label: Number of points along Y
       py_type: int
+      required: [srw_multi, srw_single]
     -
+      name: distance_to_window
       label: Distance to Window
       py_type: float
+      required: [srw_multi, srw_single]
     -
-      label: Initial Photon Energy
+      name: initial_photon_energy
       py_type: float
+      required: [srw_multi, srw_single]
     -
-      label: Final Photon Energy
+      name: final_photon_energy
       py_type: float
+      required: [srw_multi, srw_single]
     -
-      label: Window Left Edge
+      name: window_left_edge
       py_type: float
+      required: [srw_multi, srw_single]
     -
-      label: Window Top Edge
+      name: window_top_edge
       py_type: float
+      required: [srw_multi, srw_single]
     -
-      label: Window Right Edge
+      name: window_right_edge
       py_type: float
+      required: [srw_multi, srw_single]
     -
-      label: Window Bottom Edge
+      name: window_bottom_edge
       py_type: float
+      required: [srw_multi, srw_single]

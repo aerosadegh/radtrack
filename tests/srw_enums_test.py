@@ -14,7 +14,7 @@ from radtrack import srw_enums
 
 def test_density_method():
     """Verify a couple of values exist"""
-    d = srw_enums.DensityMethod
+    d = srw_enums.DensityComputation
     assert d(1) == d.NEAR_FIELD, \
         'DensityMethod.NEAR_FIELD should be 1'
     assert d(2).has_name('FAR_FIELD'), \

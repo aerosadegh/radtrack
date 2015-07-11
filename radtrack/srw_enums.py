@@ -11,13 +11,13 @@ import enum
 from radtrack import rt_enum
 
 @enum.unique
-class DensityMethod(rt_enum.Enum):
+class DensityComputation(rt_enum.Enum):
     NEAR_FIELD = 1
     FAR_FIELD = 2
 
 
 @enum.unique
-class Flux(rt_enum.Enum):
+class FluxCalculation(rt_enum.Enum):
     TOTAL = 1
     PER_UNIT_SURFACE = 2
 

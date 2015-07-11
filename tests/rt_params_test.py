@@ -9,7 +9,7 @@ from io import open
 import os.path
 
 import pytest
-from pykern.pkdebug import pkdc, pkdi, pkdp
+from pykern.pkdebug import pkdc, pkdp
 
 from radtrack import rt_params
 from radtrack import srw_enums
@@ -18,35 +18,38 @@ from radtrack import srw_enums
 def test_declarations():
     """Verify a couple of values exist"""
     d = rt_params.declarations('srw')
-    assert d['Undulator']['Period Length']['units'] == 'cm', \
+    pkdp(d['precision']['spectral_flux'].children)
+    assert d['undulator']['period_len'].units == 'cm', \
         'Undulator period length units should be centimeters'
-    assert d['Precision']['Flux Calculation']['py_type'] \
-        == srw_enums.Flux, \
+    assert d['precision']['spectral_flux']['flux_calculation'].py_type \
+        == srw_enums.FluxCalculation, \
         'Flux Calculation type should be srw_enums.Flux'
-    l = list(iter(d['Precision'].values()))
-    assert 'Azimuthal Integration Precision' == l[4]['label'], \
+    pkdp(d['precision']['spectral_flux'].values()[3])
+    l = list(iter(d['precision']['spectral_flux'].values()))
+    assert 'Azimuthal Integration Precision' == l[3].label, \
         'Result should be ordered'
     _assert_unicode(d)
 
 
 def test_defaults():
     """Verify a couple of values exist"""
-    d = rt_params.defaults('srw')
+    d = rt_params.defaults('srw_multi', rt_params.declarations('srw')['simulation_complexity'])
     assert isinstance(
-        d['Simulation Complexity']['MULTI_PARTICLE']['Undulator']['Undulator Orientation'],
+        d['multi_particle']['undulator']['orientation'].value,
         srw_enums.UndulatorOrientation), \
         'Value must be parsed correctly'
     assert 101 == \
-        d['Simulation Complexity']['MULTI_PARTICLE'] \
-        ['Simulation Kind']['X_AND_Y']['Wavefront']['Number of points along X'], \
+        d['multi_particle'] \
+        ['simulation_kind']['x_and_y']['wavefront']['num_points_x'].value, \
         'Value must be parsed correctly'
     _assert_unicode(d)
 
 
 def test_init_params():
     """Verify a couple of values exist"""
+    decl = rt_params.declarations('srw')
     p = rt_params.init_params(
-        rt_params.defaults('srw')['Simulation Complexity']['MULTI_PARTICLE'],
+        rt_params.defaults('srw_multi', decl)['Simulation Complexity']['MULTI_PARTICLE'],
         rt_params.declarations('srw'),
     )
     assert 0.5 == p['Beam']['Average Current'], \
@@ -59,12 +62,12 @@ def test_init_params():
 def test_iter_declarations():
     """Verify a couple of values exist"""
     declarations = rt_params.declarations('srw');
-    it = rt_params.iter_display_declarations(declarations['Precision'])
+    it = rt_params.iter_display_declarations(declarations['precision'])
     assert 'Spectral Flux Calculation' == it.next()['label'], \
         'When iter_display_declarations, should see headings'
     assert 'Initial Harmonic' == it.next()['label'], \
         'Ensure values are in order '
-    it = rt_params.iter_primary_param_declarations(declarations['Precision'])
+    it = rt_params.iter_primary_param_declarations(declarations['precision'])
     assert 'Initial Harmonic' == it.next()['label'], \
         'When iter_primary_param_declarations, should not see heading'
     it = rt_params.iter_primary_param_declarations(declarations['Undulator'])
@@ -73,8 +76,9 @@ def test_iter_declarations():
 
 
 def _assert_unicode(d, prefix=None):
-    if isinstance(d, dict):
+    if d.children:
         for k, v in d.items():
+            pkdp('{} {}', k, v)
             p = '{}.{}'.format(prefix, k) if prefix else k
             # TODO(robnagler) breaks with PY3
             assert isinstance(k, unicode), \
