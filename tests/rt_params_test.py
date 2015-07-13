@@ -33,36 +33,35 @@ def test_declarations():
 
 def test_defaults():
     """Verify a couple of values exist"""
-    d = rt_params.defaults('srw_multi', rt_params.declarations('srw')['simulation_complexity'])
+    decl = rt_params.declarations('srw')['simulation_complexity']['multi_particle']
+    d = rt_params.defaults('srw_multi', decl)
     assert isinstance(
-        d['multi_particle']['undulator']['orientation'].value,
+        d['undulator']['orientation'].value,
         srw_enums.UndulatorOrientation), \
         'Value must be parsed correctly'
     assert 101 == \
-        d['multi_particle'] \
-        ['simulation_kind']['x_and_y']['wavefront']['num_points_x'].value, \
+        d['simulation_kind']['x_and_y']['wavefront']['num_points_x'].value, \
         'Value must be parsed correctly'
     _assert_unicode(d)
 
 
 def test_init_params():
     """Verify a couple of values exist"""
-    decl = rt_params.declarations('srw')
+    decl = rt_params.declarations('srw')['simulation_complexity']['multi_particle']
     p = rt_params.init_params(
-        rt_params.defaults('srw_multi', decl)['Simulation Complexity']['MULTI_PARTICLE'],
-        rt_params.declarations('srw'),
+        rt_params.defaults('srw_multi', decl),
     )
-    assert 0.5 == p['Beam']['Average Current'], \
+    assert 0.5 == p['beam']['avg_current'], \
         'Value must be converted to type correctly'
-    assert 1000 == p['Simulation Kind']['E']['Wavefront']['Number of points along Energy'], \
+    assert 1000 == p['simulation_kind']['e']['wavefront']['num_points_energy'], \
         'Selectors must be parsed correctly'
     assert p
 
 
 def test_iter_declarations():
     """Verify a couple of values exist"""
-    declarations = rt_params.declarations('srw');
-    it = rt_params.iter_display_declarations(declarations['precision'])
+    decl = rt_params.declarations('srw');
+    it = rt_params.iter_display_declarations(decl['precision'])
     assert 'Spectral Flux Calculation' == it.next()['label'], \
         'When iter_display_declarations, should see headings'
     assert 'Initial Harmonic' == it.next()['label'], \

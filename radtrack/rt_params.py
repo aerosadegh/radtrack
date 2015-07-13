@@ -9,6 +9,7 @@ from io import open
 
 import __builtin__
 import collections
+import copy
 import importlib
 import re
 import UserDict
@@ -170,34 +171,21 @@ def defaults(file_prefix, decl):
         dict: mapping of default values
     """
     pkdp('defaults entry')
-    return _get(file_prefix, 'defaults', lambda v, fp: _parse_defaults(v[decl.name], fp, decl))
+    return _get(file_prefix, 'defaults', lambda v, fp: _parse_defaults(v, fp, decl))
 
 
-def init_params(defaults, declarations):
+def init_params(defaults):
     """Create a tree of default params excluding headings and computed params
 
     Args:
         defaults (dict): used for initializations
-        declarations (dict): relevant expected declarations
 
     Returns:
         dict: nested dictionary of params
     """
     res = {}
-    for k in defaults:
-        res2 = {}
-        res[k] = res2
-        df = defaults[k]
-        d = declarations[k]
-        if d['is_selector_for_params']:
-            for k2 in df:
-                res2[k2] = init_params(df[k2], declarations)
-        else:
-            for d in declarations[k].values():
-                if not isinstance(d, dict) \
-                    or d['is_computed_param'] or d['display_as_heading']:
-                    continue
-                res2[d['label']] = df[d['label']]
+    for k, v in defaults.items():
+        res[k] = init_params(v.children) if v.children else v.value
     return res
 
 
