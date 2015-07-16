@@ -22,7 +22,7 @@ MaxNumParam=999
 MaxNumColum=999
 
 class RbDcp(QtGui.QWidget):
-    acceptsFileTypes = ['save', 'twi','out','sig','cen','dat','txt','sdds','bun','fin']
+    acceptsFileTypes = ['save', 'twi','out','sig','cen','dat','txt','sdds','bun','fin','dat']
     defaultTitle = 'Data Visualization'
     task = 'Analyze simulation results'
     category = 'tools'
@@ -131,7 +131,7 @@ class RbDcp(QtGui.QWidget):
         ext = os.path.splitext(openFile)[-1].lower().lstrip(".")
         if ext in ['sdds', 'out', 'twi', 'sig', 'cen', 'bun', 'fin']:
             self.showDCP_ele(openFile)
-        elif ext is 'dat':
+        elif ext == 'dat':
             self.showDCP_srw(openFile)
         elif ext == 'save':
             return
@@ -173,64 +173,64 @@ class RbDcp(QtGui.QWidget):
         self.x.load(openFile)
 
         #get # of pages and columns
-        (_,_,_,_,self.Ncol,_,_,Npage)=SDDSreshape(self.x,ColumnXAxis,ColumnPicked,NumPage)
-        stringOut="Columns: "+str(self.Ncol)+" Pages: "+str(Npage)+" ColumnElements: "+\
+        (_,_,_,_,Ncol,_,_,Npage)=SDDSreshape(self.x,ColumnXAxis,ColumnPicked,NumPage)
+        stringOut="Columns: "+str(Ncol)+" Pages: "+str(Npage)+" ColumnElements: "+\
         str(np.shape(self.x.columnData)[2])
         paramsOut ='\nPARAMTER INFO \n'
         for i,a in enumerate(self.x.parameterName):
             paramsOut+=str(a)+'='+str(self.x.parameterData[i])+'\n'
         self.legend.setText(QtGui.QApplication.translate("dcpwidget",\
-            'FILE INFO \n'+'File Name: '+phile.fileName()+'\n File Size: '+phile.fileSize()+' bytes \n'+\
+            'FILE INFO \n'+'File Name: '+phile.fileName()+'\nFile Size: '+str(phile.size())+' bytes \n'+\
             self.x.description[0]+stringOut+paramsOut, None, QtGui.QApplication.UnicodeUTF8))
 
         #preview of parameters
-        self.preview()
+        self.preview(Ncol)
 
         #preview of sdds data
-        self.sddsprev()
+        self.sddsprev(Ncol)
         
     def showDCP_srw(self, openFile):
         #reset data selection
         ColumnPicked = [0]
         ColumnXAxis = -1
         #get file info
-        phile = QtCore.QFileInfo(fnfromglobal)
+        phile = QtCore.QFileInfo(openFile)
         
         #SRW specific
         x = SRW()
-        self.x=SRWFileRead1(x,fnfromglobal,MaxNumParam)
+        self.x=SRWFileRead1(x,openFile,MaxNumParam)
         #get columns
-        (_,_,_,self.Ncol,_,_)=SRWreshape(self.x,ColumnXAxis,ColumnPicked)
+        (_,_,_,Ncol,_,_)=SRWreshape(self.x,ColumnXAxis,ColumnPicked)
         ColumnPicked = []
-        for i in range(self.Ncol):
+        for i in range(Ncol):
             ColumnPicked.append(i)
             
-        stringOut=" Columns: "+str(np.shape(x.columnData)[0])+" Pages: 1"+" ColumnElements: "+\
+        stringOut="Columns: "+str(np.shape(x.columnData)[0])+" Pages: 1"+" ColumnElements: "+\
         str(np.shape(x.columnData)[1])
-        self.legend.setText(QtGui,QApplication.translate("dcpwidget", 'FILE INFO \n'+'File Name: '+\
-            phile.fileName()+'\n File Size: '+phile.fileSize()+' bytes \n'+stringOut, None, QtGui.QApplication.UnicodeUTF8))
+        self.legend.setText(QtGui.QApplication.translate("dcpwidget", 'FILE INFO \n'+'File Name: '+\
+            phile.fileName()+'\nFile Size: '+str(phile.size())+' bytes \n'+stringOut, None, QtGui.QApplication.UnicodeUTF8))
         
         #    
-        self.preview()
-        self.srwprev()
+        self.preview(Ncol)
+        self.srwprev(Ncol)
         
-    def srwprev(self):
+    def srwprev(self,Ncol):
         ColumnPicked = []
-        for i in range(self.Ncol):
+        for i in range(Ncol):
             ColumnPicked.append(i)
         (Xrvec,Yrvec,Npar,Ncol,NcolPicked,NElemCol)=SRWreshape(self.x,ColumnXAxis,ColumnPicked)
         for i, a in enumerate(Yrvec):
             if size(a)<1000:
                 self.data.setRowCount(shape(Yrvec)[1])
                 for j, b in enumerate(a):
-                    self.data.setItem(j+3,i+1,QtGui.QTableWidgetItem(str(b)))
+                    self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b)))
             else:
                 for j in range(1000):
-                    self.data.setItem(j+3,i+1,QtGui.QTableWidgetItem(str(a[j])))
+                    self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(a[j])))
         
-    def sddsprev(self):
+    def sddsprev(self,Ncol):
         ColumnPicked = []
-        for i in range(self.Ncol):
+        for i in range(Ncol):
             ColumnPicked.append(i)
         (Xrvec,Yrvec,YLab,Npar,Ncol,NcolPicked,NElemCol,Npage)=SDDSreshape(self.x,ColumnXAxis,ColumnPicked,NumPage) #reshapes file into vectors and a matrix
 
@@ -244,12 +244,12 @@ class RbDcp(QtGui.QWidget):
                 for j in range(1000):
                     self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(a[j])))
                     
-    def preview(self):
+    def preview(self,Ncol):
         self.reset()
 
         #set table sizes
         self.data.setRowCount(1000)
-        self.data.setColumnCount(self.Ncol+1)
+        self.data.setColumnCount(Ncol+1)
 
         for i,a in enumerate(self.x.columnDefinition):
             self.data.setItem(0,i, QtGui.QTableWidgetItem(a[2]))
@@ -338,9 +338,9 @@ class RbDcp(QtGui.QWidget):
                 
         (Xrvec,Yrvec,Ylab,Npar,Ncol,NcolPicked,NElemCol,Npage)=SDDSreshape(self.x,ColumnXAxis,ColumnPicked,NumPage)
         Xlab=[self.x.columnDefinition[ColumnXAxis][2]+", "+self.x.columnDefinition[ColumnXAxis][1]]
-        PlotColnS1(Xrvec,Yrvec,linetype,marktype,self.x.description[0],Xlab,Ylab, self.widget.canvas)
-        self.widget.canvas.ax.set_xlabel(xname)
-        self.widget.canvas.ax.set_ylabel(yname)
+        PlotColnS1(Xrvec,Yrvec,linetype,marktype,self.x.description[0],xname,yname, self.widget.canvas)
+        #self.widget.canvas.ax.set_xlabel(xname)
+        #self.widget.canvas.ax.set_ylabel(yname)
                 
 def main():
     app = QtGui.QApplication(sys.argv)
