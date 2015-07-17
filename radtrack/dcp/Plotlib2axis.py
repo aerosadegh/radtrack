@@ -35,11 +35,12 @@ def PlotColnS1(Xvector, Yvector,LineType,MarkerType,TitleP,Xlab,Ylab,dcp):
     for i in xrange(0,NumVecPlot):
         try:
             if Ylab:
-                if Ylab[i][1]:
-                    Ylabel=Ylab[i][2]+", "+Ylab[i][1]
-                else:
-                    Ylabel=Ylab[i][2]
-                dcp.ax.plot(Xvector, Yvector[i][:], LineType+MarkerType,label=Ylabel)
+                #if Ylab[i][1]:
+                #    Ylabel=Ylab[i][2]+", "+Ylab[i][1]
+                #else:
+                #    Ylabel=Ylab[i][2]
+                dcp.ax.plot(Xvector, Yvector[i][:], LineType+MarkerType)
+                dcp.ax.set_ylabel(Ylab)
                 legend( loc='upper left', numpoints = 1 )
             else:
                 dcp.ax.plot(Xvector, Yvector1[i][:], LineType+MarkerType1)
