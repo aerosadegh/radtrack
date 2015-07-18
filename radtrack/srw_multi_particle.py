@@ -15,7 +15,7 @@ import numpy as np
 
 from pykern import pkarray
 from pykern import pkcompat
-from pykern.pkdebug import pkdc
+from pykern.pkdebug import pkdc, pkdp
 from radtrack import rt_controller
 from radtrack import rt_jinja
 from radtrack import rt_params
@@ -47,7 +47,7 @@ class Controller(rt_controller.Controller):
 
     def action_analyze(self):
         args = copy.deepcopy(self.params['undulator'])
-        if args['orientation'].has_name('vertical'):
+        if args['orientation'].has_name('VERTICAL'):
             args['horizontal_magnetic_field'] = 0
             args['vertical_magnetic_field'] = args['magnetic_field']
         else:
