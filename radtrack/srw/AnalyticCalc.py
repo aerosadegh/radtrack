@@ -63,7 +63,7 @@ def multi_particle(params):
     """
     res = copy.deepcopy(params)
     v = IDWaveLengthPhotonEnergy(
-        params['num_periods'],
+        params['period_len'],
         #TODO(robnagler) Why is this not res['Bx']?
         0,
         params['vertical_magnetic_field'],
