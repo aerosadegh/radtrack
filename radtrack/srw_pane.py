@@ -7,12 +7,13 @@ u"""Main panel for simulation
 from __future__ import absolute_import, division, print_function, unicode_literals
 from io import open
 
-from radtrack.rt_qt import QtCore, QtGui, i18n_text, set_id, set_param
+from radtrack.rt_qt import QtCore, QtGui
 
 from pykern.pkdebug import pkdc, pkdi, pkdp
 from pykern import pkio
 from pykern import pkresource
 
+from radtrack import rt_qt
 from radtrack import rt_params
 from radtrack import srw_enums
 
@@ -65,9 +66,9 @@ class View(QtGui.QWidget):
         def _selector():
             """Create simulation kind selector"""
             hb = QtGui.QHBoxLayout()
-            label = set_id(QtGui.QLabel(param_widget), 'form_field')
+            label = rt_qt.set_id(QtGui.QLabel(param_widget), 'form_field')
             #TODO: Labels should be looked up
-            i18n_text('Simulation Kind: ', label)
+            rt_qt.i18n_text('Simulation Kind: ', label)
             hb.addWidget(label, alignment=QtCore.Qt.AlignRight)
             self.simulation_kind = QtGui.QComboBox(param_widget)
             hb.addWidget(self.simulation_kind)
@@ -75,33 +76,30 @@ class View(QtGui.QWidget):
 
         def _models():
             self._wavefront_models = {}
-            params = self._controller.params['Simulation Kind']
-            decl = list(
-                rt_params.iter_primary_param_declarations(
-                    self._controller.declarations['Wavefront']),
-            )
+            params = self._controller.params['simulation_kind']
             first_sk = None
-            for sk in srw_enums.SimulationKind:
-                #TODO (robnagler) move to iterator somewhere else
-                if sk.name not in params:
-                    continue
+            sk_defaults = self._controller.defaults['simulation_kind']
+            for sk_name in sk_defaults:
+                sk = srw_enums.SimulationKind.from_anything(sk_name)
+                wf_defaults = sk_defaults[sk_name]['wavefront']
                 if not first_sk:
                     first_sk = sk
                 self.simulation_kind.addItem(
-                    i18n_text(sk.display_name),
+                    rt_qt.i18n_text(sk.display_name),
                     userData=sk.value,
                 )
-                m = QtGui.QStandardItemModel(len(decl), 2);
-                p = params[sk.name]['Wavefront']
-                for (row, d) in enumerate(decl):
+                m = QtGui.QStandardItemModel(len(wf_defaults), 2);
+                p = params[sk_name]['wavefront']
+                for (row, n) in enumerate(wf_defaults):
+                    d = wf_defaults[n]
                     item = QtGui.QStandardItem()
-                    i18n_text(d['label'], item)
+                    rt_qt.i18n_text(d.decl.label, item)
                     m.setItem(row, 0, item)
                     item = QtGui.QStandardItem()
-                    set_param(d, p, item)
+                    rt_qt.set_widget_value(d.decl, p[d.decl.name], item)
                     m.setItem(row, 1, item)
-                self._wavefront_models[sk.name] = m
-            return self._wavefront_models[first_sk.name]
+                self._wavefront_models[sk_name] = m
+            return self._wavefront_models[first_sk.name.lower()]
 
         def _view():
             v = WavefrontParams(param_widget)
@@ -132,12 +130,12 @@ class View(QtGui.QWidget):
             """Creates a stretchable TextEdit area with label above"""
             vbox = QtGui.QVBoxLayout()
             main.addLayout(vbox, stretch=1)
-            qlabel = set_id(QtGui.QLabel(self), 'heading')
+            qlabel = rt_qt.set_id(QtGui.QLabel(self), 'heading')
             qlabel.setMinimumHeight(self.simulation_kind.sizeHint().height())
-            i18n_text(label, qlabel)
+            rt_qt.i18n_text(label, qlabel)
             vbox.addWidget(qlabel, alignment=QtCore.Qt.AlignCenter)
             text = QtGui.QTextEdit(self)
-            i18n_text(desc, text)
+            rt_qt.i18n_text(desc, text)
             text.setReadOnly(True)
             vbox.addWidget(text)
             self._result_text[name] = text

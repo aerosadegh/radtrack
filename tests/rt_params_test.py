@@ -58,20 +58,24 @@ def test_init_params():
     assert p
 
 
-def test_iter_declarations():
+def test_iter_defaults():
     """Verify a couple of values exist"""
-    decl = rt_params.declarations('srw');
-    it = rt_params.iter_display_declarations(decl['precision'])
-    assert 'Spectral Flux Calculation' == it.next()['label'], \
-        'When iter_display_declarations, should see headings'
-    assert 'Initial Harmonic' == it.next()['label'], \
-        'Ensure values are in order '
-    it = rt_params.iter_primary_param_declarations(declarations['precision'])
-    assert 'Initial Harmonic' == it.next()['label'], \
-        'When iter_primary_param_declarations, should not see heading'
-    it = rt_params.iter_primary_param_declarations(declarations['Undulator'])
-    assert 5 == len(list(it)), \
-        'When iter_primary_param_declarations, should not see computed params'
+    decl = rt_params.declarations('srw')
+    defaults = rt_params.defaults('srw_multi', decl)
+    it = defaults['precision'].iter_leaves()
+    assert 'Initial Harmonic' == it.next().decl.label, \
+        'Ensure values are in order of leaves'
+    assert 'Final Harmonic' == it.next().decl.label, \
+        'Ensure see we can traverse to second leaf'
+    it = defaults['precision'].iter_nodes()
+    assert 'Precision' == it.next().decl.label, \
+        'Ensure parent is first value'
+    assert 'Spectral Flux Calculation' == it.next().decl.label, \
+        'Ensure see first parent node'
+    assert 'Initial Harmonic' == it.next().decl.label, \
+        'Ensure see first leaf'
+    assert 'Final Harmonic' == it.next().decl.label, \
+        'Ensure see we can traverse to second leaf'
 
 
 def _assert_unicode(d, prefix=None):
