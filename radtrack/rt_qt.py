@@ -96,28 +96,27 @@ def set_id(widget, id_name):
     return widget
 
 
-def set_param(declaration, params, widget):
+def set_widget_value(declaration, param, widget):
     """Sets parameter value accordingly on widget
 
     Args:
         declaration (dict): declaration for parameter
-        params (dict): value is at label
+        param (dict): value
         widget (widget): what to set on
 
     Returns:
         str: value that was set
     """
-    p = params[declaration['label']]
-    t = declaration['py_type']
+    t = declaration.py_type
     if isinstance(t, enum.EnumMeta):
-        if declaration['display_as_checkbox']:
-            widget.setChecked(t(ENUM_TRUE_INDEX) == p)
-        else:
-            widget.setCurrentIndex(list(t).index(p))
-        return i18n_text(p.display_name)
-    if declaration['units']:
-        l = RbUtility.displayWithUnitsNumber(p, declaration['units'])
+        widget.setCurrentIndex(list(t).index(param))
+        return i18n_text(param.display_name)
+    if issubclass(t, bool):
+        widget.setChecked(param)
+        return i18n_text(declaration.label)
+    if declaration.units:
+        l = RbUtility.displayWithUnitsNumber(param, declaration.units)
     else:
-        l = str(p)
+        l = str(param)
     widget.setText(l)
     return l

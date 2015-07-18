@@ -7,9 +7,10 @@ u"""Pop up window to enter params for a section of SRW.
 from __future__ import absolute_import, division, print_function, unicode_literals
 from io import open
 
+import collections
 import enum
 
-from radtrack.rt_qt import QtCore, QtGui, i18n_text, set_id, set_param, ENUM_TRUE_INDEX, ENUM_FALSE_INDEX
+from radtrack.rt_qt import QtCore, QtGui
 
 from pykern import pkcompat
 from pykern import pkresource
@@ -18,13 +19,14 @@ from pykern.pkdebug import pkdc, pkdp
 
 from radtrack import RbUtility
 from radtrack import rt_params
+from radtrack import rt_qt
 
 class Window(QtGui.QDialog):
-    def __init__(self, declarations, params, file_prefix, parent=None):
+    def __init__(self, defaults, params, file_prefix, parent=None):
         super(Window, self).__init__(parent)
-        self.setWindowTitle(i18n_text(declarations['label']))
+        self.setWindowTitle(rt_qt.i18n_text(defaults.decl.label))
         self.setStyleSheet(pkio.read_text(pkresource.filename(file_prefix + '_popup.css')))
-        self._form = Form(declarations, params, self)
+        self._form = Form(defaults, params, self)
 
     def get_params(self,):
         """Convert values in the window to "param" values"""
@@ -39,9 +41,9 @@ class Form(object):
     MARGIN_HEIGHT = 20
     MARGIN_WIDTH = 30
 
-    def __init__(self, declarations, params, window):
+    def __init__(self, defaults, params, window):
         super(Form, self).__init__()
-        self._declarations = declarations
+        self._defaults = defaults
         self._frame = QtGui.QWidget(window)
         self._layout = QtGui.QFormLayout(self._frame)
         self._layout.setFieldGrowthPolicy(QtGui.QFormLayout.AllNonFixedFieldsGrow)
@@ -51,52 +53,49 @@ class Form(object):
         self._set_geometry(sizes)
 
     def _get_params(self):
-        def num(d, w):
+        def _num(d, w):
             # need type checking
             if w is None:
                 return None
             v = w.text()
-            if d['units']:
-                v = RbUtility.convertUnitsStringToNumber(v, d['units'])
-            return d['py_type'](v)
+            if d.units:
+                v = RbUtility.convertUnitsStringToNumber(v, d.units)
+            return d.py_type(v)
 
-        res = {}
-        for d in rt_params.iter_primary_param_declarations(self._declarations):
-            f = self._fields[d['label']]
-            w = f['widget']
-            if isinstance(d['py_type'], enum.EnumMeta):
-                if d['display_as_checkbox']:
-                    v = d['py_type'](ENUM_TRUE_INDEX if w.isChecked() else ENUM_FALSE_INDEX)
+        def _iter_children(parent_defaults):
+            res = collections.OrderedDict()
+            for df in parent_defaults.children.values():
+                d = df.decl
+                if df.children:
+                    res[d.name] = _iter_children(df)
+                    continue
+                f = self._fields[d.name]
+                w = f['widget']
+                if issubclass(d.py_type, bool):
+                    v = w.isChecked()
+                elif isinstance(d.py_type, enum.EnumMeta):
+                    v = d.py_type(w.itemData(w.currentIndex()).toInt()[0])
+                elif issubclass(d.py_type, float) or issubclass(d.py_type, int):
+                    v = _num(d, w)
                 else:
-                    v = d['py_type'](w.itemData(w.currentIndex()).toInt()[0])
-            elif d['py_type'] in (float, int):
-                v = num(d, w)
-            else:
-                raise AssertionError('bad type: ' + str(d['py_type']))
-            res[d['label']] = v
-        return res
+                    raise AssertionError('bad type: ' + str(d.py_type))
+                res[d.name] = v
+            return res
+
+        return pkdp(_iter_children(self._defaults))
 
     def _init_buttons(self, window):
-        self._buttons = set_id(QtGui.QDialogButtonBox(window), 'standard')
-        #self._buttons.setOrientation(QtCore.Qt.Horizontal)
+        self._buttons = rt_qt.set_id(QtGui.QDialogButtonBox(window), 'standard')
         self._buttons.setCenterButtons(1)
         self._buttons.setStandardButtons(
             QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
         for b in self._buttons.buttons():
             b.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        # s = QtGui.QSpacerItem(
-        #     self.CHAR_WIDTH,
-        #     self.CHAR_HEIGHT,
-        #     QtGui.QSizePolicy.Expanding,
-        #     QtGui.QSizePolicy.Expanding,
-        # )
-        # self._layout.addItem(s)
         self._layout.addRow(self._buttons)
         QtCore.QObject.connect(
             self._buttons, QtCore.SIGNAL('accepted()'), window.accept)
         QtCore.QObject.connect(
             self._buttons, QtCore.SIGNAL('rejected()'), window.reject)
-        ###QtCore.QMetaObject.connectSlotsByName(window)
 
     def _init_fields(self, params):
         """Create widgets"""
@@ -109,54 +108,59 @@ class Form(object):
 
         def _label(d):
             qlabel = QtGui.QLabel(self._frame)
-            l = i18n_text(d['label'], qlabel)
+            l = rt_qt.i18n_text(d.label, qlabel)
             if len(l) > res['max_label']:
                 res['max_label'] = len(l)
             return qlabel
 
         def _heading(qlabel):
-            set_id(qlabel, 'heading')
+            rt_qt.set_id(qlabel, 'heading')
             qlabel.setAlignment(QtCore.Qt.AlignCenter)
             self._layout.addRow(qlabel)
 
-        def _value_widget(d):
-            t = d['py_type']
-            if not isinstance(t, enum.EnumMeta):
-                widget = QtGui.QLineEdit(self._frame)
-                v = set_param(d, params, widget)
+        def _value_widget(d, p):
+            t = d.py_type
+            if isinstance(t, enum.EnumMeta):
+                widget = QtGui.QComboBox(self._frame)
+                v = ''
+                for e in t:
+                    n = rt_qt.i18n_text(e.display_name)
+                    widget.addItem(n, userData=e.value)
+                    if len(n) > len(v):
+                        v = n
+                rt_qt.set_widget_value(d, p, widget)
+            elif issubclass(t, bool):
+                widget = QtGui.QCheckBox(self._frame)
+                v = rt_qt.i18n_text(d.label, widget)
+                rt_qt.set_widget_value(d, p, widget)
             else:
-                if d['display_as_checkbox']:
-                    widget = QtGui.QCheckBox(self._frame)
-                    v = i18n_text(t(ENUM_TRUE_INDEX).display_name, widget)
-                else:
-                    widget = QtGui.QComboBox(self._frame)
-                    v = ''
-                    for e in t:
-                        n = i18n_text(e.display_name)
-                        widget.addItem(n, userData=e.value)
-                        if len(n) > len(v):
-                            v = n
-                set_param(d, params, widget)
+                widget = QtGui.QLineEdit(self._frame)
+                v = rt_qt.set_widget_value(d, p, widget)
             return (widget, v)
 
-        for d in rt_params.iter_display_declarations(self._declarations):
-            qlabel = _label(d)
-            if d['display_as_heading']:
-                _heading(qlabel)
+        def _iter_children(parent_default, p):
+            for df in parent_default.children.values():
+                d = df.decl
+                qlabel = _label(d)
+                if df.children:
+                    _heading(qlabel)
+                    res['num'] += 1
+                    widget = None
+                    _iter_children(df, p[d.name])
+                else:
+                    rt_qt.set_id(qlabel, 'form_field')
+                    (widget, value) = _value_widget(d, p[d.name])
+                    self._layout.addRow(qlabel, widget)
+                    if len(value) > res['max_value']:
+                        res['max_value'] = len(value)
+                self._fields[d.name] = {
+                    'qlabel': qlabel,
+                    'declaration': d,
+                    'widget': widget,
+                }
                 res['num'] += 1
-                widget = None
-            else:
-                set_id(qlabel, 'form_field')
-                (widget, value) = _value_widget(d)
-                self._layout.addRow(qlabel, widget)
-                if len(value) > res['max_value']:
-                    res['max_value'] = len(value)
-            self._fields[d['label']] = {
-                'qlabel': qlabel,
-                'declaration': d,
-                'widget': widget,
-            }
-            res['num'] += 1
+
+        _iter_children(self._defaults, params)
         return res
 
     def _set_geometry(self, sizes):

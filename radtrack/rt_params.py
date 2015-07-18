@@ -36,9 +36,10 @@ class Declaration(UserDict.DictMixin):
         required (list or dict): components need this parameter (may be inherited)
         units (str): expected units (default: None)
     """
-    def __init__(self, decl):
+    def __init__(self, decl, qualifier=None):
         #TODO(robnagler) more type checking: especially required and children
         self.name = decl['name']
+        self.qualified_name = qualifier + '.' + self.name if qualifier else self.name
         self.label = self._label(decl)
         self.py_type = self._py_type(decl)
         self.units = self._units(decl)
@@ -69,7 +70,7 @@ class Declaration(UserDict.DictMixin):
                 d = c
                 n = c
             else:
-                d = Declaration(c)
+                d = Declaration(c, self.qualified_name)
                 n = d.name
             assert n not in res, \
                 '{}: duplicate key in {}'.format(n, self.name)
@@ -80,7 +81,8 @@ class Declaration(UserDict.DictMixin):
         if 'label' in decl:
             return decl['label']
         res = self.name
-        res = re.sub(r'(^|_)([a-z])', lambda x: x.group(2).upper(), res)
+        res = re.sub(r'(^|_)([a-z])', lambda x: x.group(1) + x.group(2).upper(), res)
+        res = re.sub(r'_', ' ', res)
         res = re.sub(r'\bLen\b', 'Length', res)
         res = re.sub(r'\bNum\b', 'Number of', res)
         res = re.sub(r'\bCoord\b', 'Coordinate', res)
@@ -116,20 +118,45 @@ class Declaration(UserDict.DictMixin):
 
 class Default(UserDict.DictMixin):
 
-    def __init__(self, value, decl, component, parent_type):
+    def __init__(self, value, decl, component, parent_type=None, qualifier=None):
         self.decl = decl
+        self.qualified_name = qualifier + '.' + decl.qualified_name if qualifier else decl.qualified_name
         if decl.py_type and not decl.children:
             self.value = _parse_value(value, decl.py_type)
         elif parent_type:
             self.value = _parse_value(decl.name, parent_type)
-        self._children(value, decl, component)
+        self.children = self._children(value, decl, component)
+
+    def iter_leaves(self):
+        if not self.children:
+            yield self
+        else:
+            for c in self.children.values():
+                for l in c.iter_leaves():
+                    yield l
+
+    def iter_leaves(self):
+        if not self.children:
+            yield self
+        else:
+            for c in self.children.values():
+                for l in c.iter_leaves():
+                    yield l
+
+    def iter_nodes(self):
+        yield self
+        if not self.children:
+            return
+        for c in self.children.values():
+            for l in c.iter_nodes():
+                yield l
 
     def __repr__(self):
-        return 'Default("{}")'.format(self.decl.name)
+        return 'Default("{}")'.format(self.decl.qualified_name)
 
     def __getitem__(self, key):
         if not (self.children and key in self.children):
-            raise KeyError(key)
+            raise KeyError('{}: no key in {}'.format(key, self))
         return self.children[key]
 
     def keys(self):
@@ -139,14 +166,15 @@ class Default(UserDict.DictMixin):
 
     def _children(self, values, decl, component):
         if not decl.children:
-            self.children = None
-            return
-        self.children = collections.OrderedDict()
+            return None
+        res = collections.OrderedDict()
         for child_decl in decl.values():
             if component not in child_decl.required:
                 continue
-            self.children[child_decl.name] = Default(
-                values[child_decl.name], child_decl, component, decl.py_type)
+            d = Default(
+                values[child_decl.name], child_decl, component, decl.py_type, self.qualified_name)
+            res[child_decl.name] = d
+        return res
 
 
 def declarations(file_prefix):
@@ -170,7 +198,6 @@ def defaults(file_prefix, decl):
     Returns:
         dict: mapping of default values
     """
-    pkdp('defaults entry')
     return _get(file_prefix, 'defaults', lambda v, fp: _parse_defaults(v, fp, decl))
 
 
@@ -183,38 +210,10 @@ def init_params(defaults):
     Returns:
         dict: nested dictionary of params
     """
-    res = {}
+    res = collections.OrderedDict()
     for k, v in defaults.items():
         res[k] = init_params(v.children) if v.children else v.value
     return res
-
-
-def iter_display_declarations(declarations):
-    """Iterate over primary params and headings
-
-    Args:
-        declarations (OrderedDict): what to iterate
-
-    Yields:
-        declaration (dict): values of `declarations`
-    """
-    for d in declarations.values():
-        if isinstance(d, dict) and not d['is_computed_param']:
-            yield d
-
-
-def iter_primary_param_declarations(declarations):
-    """Iterate over primary params and not headings
-
-    Args:
-        declarations (OrderedDict): what to iterate
-
-    Yields:
-        declaration (dict): values of `declarations`
-    """
-    for d in declarations.values():
-        if isinstance(d, dict) and not d['is_computed_param'] and not d['display_as_heading']:
-            yield d
 
 
 def _get(file_prefix, which, how):
@@ -246,9 +245,9 @@ def _parse_declarations(values, file_prefix):
         file_prefix (str): which file to parse
     """
     root = Declaration({
-        'name': 'root',
+        'name': '',
         'children': values,
-        'required': ['srw_multi', 'srw_single'],
+        'required': None,
     })
     _parse_declarations_link(root, root)
     return root
@@ -272,7 +271,7 @@ def _parse_defaults(values, file_prefix, decl):
         dict: parsed YAML
     """
     # Need to parse
-    return Default(values, decl, file_prefix, None)
+    return Default(values, decl, file_prefix)
 
 
 def _parse_value(v, t):

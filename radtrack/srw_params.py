@@ -25,7 +25,7 @@ def to_beam(params):
         SRWLPartBeam: converted values
     """
     res = srwlib.SRWLPartBeam()
-    res.Iavg = params['Average Current']
+    res.Iavg = params['avg_current']
     m = res.partStatMom1
     m.x = params['horizontal_coord']
     m.y = params['vertical_coord']
@@ -53,7 +53,7 @@ def to_flux_precision(params):
         list: five elements for flux
     """
     return _precision(
-        params,
+        params['spectral_flux'],
         (
             'initial_harmonic',
             'final_harmonic',
@@ -74,9 +74,9 @@ def to_power_precision(params):
         list: five elements for power density
     """
     return _precision(
-        params,
+        params['power_density'],
         (
-            'precision_factor',
+            'factor',
             'density_computation',
             'longitudinal_pos',
             'azimuthal_pos',

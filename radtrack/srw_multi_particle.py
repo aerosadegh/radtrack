@@ -38,25 +38,22 @@ class Controller(rt_controller.Controller):
     ACTION_NAMES = ('Precision', 'Undulator', 'Beam', 'Analyze', 'Simulate')
 
     def init(self, parent_widget=None):
-        # TODO(robnagler) necessary?
-        self.declarations = rt_params.declarations(FILE_PREFIX)
-        defaults = rt_params.defaults(FILE_PREFIX)
-        self.params = rt_params.init_params(
-            defaults['Simulation Complexity']['MULTI_PARTICLE'],
-            self.declarations,
-        )
-        self._view = srw_pane.View(self, parent_widget, is_multi_particle=True)
+        self.defaults = rt_params.defaults(
+            FILE_PREFIX + '_multi',
+            rt_params.declarations(FILE_PREFIX)['simulation_complexity']['multi_particle'])
+        self.params = rt_params.init_params(self.defaults)
+        self._view = srw_pane.View(self, parent_widget)
         return self._view
 
     def action_analyze(self):
-        args = copy.deepcopy(self.params['Undulator'])
-        if args['Undulator Orientation'].has_name('VERTICAL'):
-            args['Horizontal Magnetic Field'] = 0
-            args['Vertical Magnetic Field'] = args['Magnetic Field']
+        args = copy.deepcopy(self.params['undulator'])
+        if args['orientation'].has_name('vertical'):
+            args['horizontal_magnetic_field'] = 0
+            args['vertical_magnetic_field'] = args['magnetic_field']
         else:
-            args['Horizontal Magnetic Field'] = args['Magnetic Field']
-            args['Vertical Magnetic Field'] = 0
-        args.update(self.params['Beam'])
+            args['horizontal_magnetic_field'] = args['magnetic_field']
+            args['vertical_magnetic_field'] = 0
+        args.update(self.params['beam'])
         values = AnalyticCalc.multi_particle(args)
         res = rt_jinja.render(
             '''
@@ -86,10 +83,10 @@ class Controller(rt_controller.Controller):
         self._view.set_result_text('analysis', res)
 
     def action_beam(self):
-        self._pop_up('Beam')
+        self._pop_up('beam')
 
     def action_precision(self):
-        self._pop_up('Precision')
+        self._pop_up('precision')
 
     def save_results(self,file_name,x_vector,y_array):
 	x_vec=[]
@@ -104,15 +101,15 @@ class Controller(rt_controller.Controller):
             msg_list.append(m + '... \n \n')
             self._view.set_result_text('simulation', ''.join(msg_list))
 
-        (und, magFldCnt) = srw_params.to_undulator(self.params['Undulator'])
-        beam = srw_params.to_beam(self.params['Beam'])
+        (und, magFldCnt) = srw_params.to_undulator(self.params['undulator'])
+        beam = srw_params.to_beam(self.params['beam'])
         simulation_kind = self._view.current_simulation_kind()
-        wp = self.params['Simulation Kind'][simulation_kind.name]['Wavefront']
+        wp = self.params['simulation_kind'][simulation_kind.name.lower()]['wavefront']
         stkF = srw_params.to_wavefront(wp)
         stkP = srw_params.to_wavefront(wp)
         pkdc('simulation_kind={}', simulation_kind)
-        ar_prec_f = srw_params.to_flux_precision(self.params['Precision'])
-        ar_prec_p = srw_params.to_power_precision(self.params['Precision'])
+        ar_prec_f = srw_params.to_flux_precision(self.params['precision'])
+        ar_prec_p = srw_params.to_power_precision(self.params['precision'])
 
         #for trajectory calculations:
 
@@ -225,7 +222,7 @@ class Controller(rt_controller.Controller):
         uti_plot.uti_plot_show()
 
     def action_undulator(self):
-        self._pop_up('Undulator')
+        self._pop_up('undulator')
 
     def name_to_action(self, name):
         """Returns button action"""
@@ -233,7 +230,7 @@ class Controller(rt_controller.Controller):
 
     def _pop_up(self, which):
         pu = rt_popup.Window(
-            self.declarations[which],
+            self.defaults[which],
             self.params[which],
             file_prefix=FILE_PREFIX,
             parent=self._view,
