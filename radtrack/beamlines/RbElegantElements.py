@@ -305,9 +305,9 @@ class elegantElement(elementCommon):
             if self.data[index]:
                 phrase = (self.parameterNames[index], '"' + self.data[index].strip('"') + '"')
                 try:
-                    rpn(self.data[index])
-                except ValueError: # not an rpn expression (includes literal numbers)
-                    try:
+                    rpn(self.data[index]) # if data is an rpn expression, keep as text
+                except ValueError:
+                    try: # attempt to convert non-rpn data with units to the default units
                         phrase = ((self.parameterNames[index],
                             str(convertUnitsStringToNumber(self.data[index], self.units[index]))))
                     except ValueError: # Unit conversion failed (keep original phrase as text)
