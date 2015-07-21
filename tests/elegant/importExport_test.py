@@ -1,4 +1,4 @@
-import os, glob, subprocess
+import os, glob, subprocess, string
 import radtrack.beamlines.RbElegantElements as ele
 import radtrack.beamlines.RbOpticalElements as opt
 from radtrack.RbUtility import insideQuote
@@ -95,8 +95,11 @@ def test_import_export():
                     if not e1 == e2:
                         print fileName
                         print name
-                        for thing1, thing2 in zip(e1.data, e2.data):
-                            assert thing1 == thing2
+                        if not e1.isBeamline():
+                            assert compareNormalizedElementData(e1, e2)
+                        else:
+                            for index in range(max(len(e1.data), len(e2.data))):
+                                assert compareNormalizedElementData(e1.data[index], e2.data[index])
             assert default1 == default2
 
             # Test elegant simulation on exported file
@@ -120,6 +123,19 @@ def test_import_export():
                 for fileName in glob.glob(os.path.splitext(elegantTestFile)[0] + '.*'):
                     os.remove(fileName)
                 os.remove(exportFileName)
+
+def compareNormalizedElementData(e1, e2):
+    print e1.data
+    print e2.data
+    for thing1, thing2 in zip(e1.data, e2.data):
+        for thing in [thing1, thing2]:
+            thing = string.replace(thing, '-0', '-')
+            if thing.startswith('.'):
+                thing = '0' + thing
+        if thing1 != thing2 and float(thing1) != float(thing2):
+            return False
+    return True
+
 
 if __name__ == '__main__':
     test_import_export()

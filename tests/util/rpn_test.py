@@ -11,7 +11,8 @@ def test_rpn_success():
                 ("2 10x", 100),
                 ("1 4 4 0 dist2", 5.0),
                 ("1 2 2 minN", 1),
-                ("1 2 3 3 maxN", 3)]
+                ("1 2 3 3 maxN", 3),
+                ("1.23", 1.23)]
 
     for test in testList:
         assert rpn(test[0]) == test[1]
