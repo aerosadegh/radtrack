@@ -346,7 +346,7 @@ class RbDcp(QtGui.QWidget):
         except IndexError:
             yu = ''
             xu = ''
-        PlotColnS1(Xrvec,Yrvec,linetype,marktype,self.x.description[0],xname+xu,yname+yu, self.widget.canvas)
+        PlotColnS1(Xrvec,Yrvec,linetype,marktype,self.x.description[0],xname+xu,[yname+yu], self.widget.canvas)
                 
 def main():
     app = QtGui.QApplication(sys.argv)
