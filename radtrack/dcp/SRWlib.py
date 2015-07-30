@@ -18,8 +18,10 @@ def SRWFileRead1(self,IFileName,MaxNumParam):
     Ncol=0
     k=0
     f=open(IFileName,"r",0) 
-    for line in f.readlines(): # read into line.       
-        k=k+1
+    for line in f.readlines(): # read into line.
+        if k == 0:
+            self.columnName = line.split(':')[0].split(',')       
+        k+=1
 #        print "%d %s" %(k,line)
         if line.find("#") == 0: 
             if line.find("#",1,MaxNumParam) <= 0: #check if srw or not  

@@ -20,6 +20,4 @@ testCases = [
 def test_beamline_expand_collapse():
     for case in testCases:
         assert collapseBeamline(case[0][:]) == case[1]
-        assert expandBeamline(collapseBeamline(case[0][:])) == case[0]
-        assert case[0] == expandBeamline(case[1])
-        assert collapseBeamline(expandBeamline(case[1])) == case[1]
+        assert expandBeamline(case[1][:]) == case[0] 

@@ -315,6 +315,7 @@ class RbDcp(QtGui.QWidget):
     
     def customgraph(self):
         ColumnXAxis=0
+        ColumnPicked = []
         xname = self.xaxis.currentText()
         yname = self.yaxis.currentText()
         linetype = ''
@@ -322,8 +323,6 @@ class RbDcp(QtGui.QWidget):
         if (self.currentFiletype == 'twi') or (self.currentFiletype =='sig'):
             linetype = '-'
             marktype = ''
-            
-        ColumnPicked = []
 
         #resets display
         self.widget.canvas.ax.clear()
@@ -335,12 +334,19 @@ class RbDcp(QtGui.QWidget):
             
             if yname == a:
                 ColumnPicked.append(i)
-                
-        (Xrvec,Yrvec,Ylab,Npar,Ncol,NcolPicked,NElemCol,Npage)=SDDSreshape(self.x,ColumnXAxis,ColumnPicked,NumPage)
-        Xlab=[self.x.columnDefinition[ColumnXAxis][2]+", "+self.x.columnDefinition[ColumnXAxis][1]]
-        PlotColnS1(Xrvec,Yrvec,linetype,marktype,self.x.description[0],xname,yname, self.widget.canvas)
-        #self.widget.canvas.ax.set_xlabel(xname)
-        #self.widget.canvas.ax.set_ylabel(yname)
+        
+        if self.currentFiletype == 'dat':
+            (Xrvec,Yrvec,Npar,Ncol,NcolPicked,NElemCol)=SRWreshape(self.x,ColumnXAxis,ColumnPicked)
+        else:
+            (Xrvec,Yrvec,Ylab,Npar,Ncol,NcolPicked,NElemCol,Npage)=SDDSreshape(self.x,ColumnXAxis,ColumnPicked,NumPage)
+        #Xlab=[self.x.columnDefinition[ColumnXAxis][2]+", "+self.x.columnDefinition[ColumnXAxis][1]]
+        try:
+            yu = ' ['+self.x.columnDefinition[ColumnPicked[0]][1]+']'
+            xu = ' ['+self.x.columnDefinition[ColumnXAxis][1]+']'
+        except IndexError:
+            yu = ''
+            xu = ''
+        PlotColnS1(Xrvec,Yrvec,linetype,marktype,self.x.description[0],xname+xu,[yname+yu], self.widget.canvas)
                 
 def main():
     app = QtGui.QApplication(sys.argv)

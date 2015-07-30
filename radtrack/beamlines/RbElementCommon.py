@@ -87,7 +87,7 @@ class elementCommon(object):
 
     def displayLine(self):
         sentence = [(param, datum) for (param, datum) in \
-                zip(self.parameterNames, self.data) if datum != '']
+                zip(self.parameterNames, self.data) if datum]
 
         #add "=" in within phrases, then add ', ' between those groups
         sentence = ', '.join(['='.join(phrase) for phrase in sentence])
@@ -138,21 +138,7 @@ class elementCommon(object):
             return False
         if self.name != other.name:
             return False
-        if self.data != other.data:
-            if len(self.data) != len(other.data):
-                return False
-            for datum1, datum2 in zip(self.data, other.data):
-                if datum1 != datum2:
-                    try:
-                        if float(datum1) != float(datum2) and abs(float(datum1) - float(datum2))/float(datum1) > 1e6:
-                            return False
-                    except ValueError:
-                        try:
-                            if rpn(datum1) != rpn(datum2) and abs(rpn(datum1) - rpn(datum2))/rpn(datum1) > 1e6:
-                                return False
-                        except ValueError:
-                            return False
-        return True
+        return self.data == other.data
 
     def __ne__(self, other):
         return not self == other

@@ -403,7 +403,7 @@ def characterEscaped(line, position):
             and not characterEscaped(line, position - 1)
 
 def removeWhitespace(string):
-    return ''.join(string)
+    return ''.join(string.split())
 
 
 # Generic Exception class for file read errors

@@ -28,19 +28,19 @@ def PlotColnS(Xvector, Yvector,LineType,MarkerType,TitleP,Xlab,Ylab):
     plt.show()
     return 
 
-def PlotColnS1(Xvector, Yvector,LineType,MarkerType,TitleP,Xlab,Ylab,dcp):
+'''def PlotColnS1(Xvector, Yvector,LineType,MarkerType,TitleP,Xlab,Ylab,dcp):
 # plotting multiple curves from coln using formats from B. Soliday's sdds-lib
     figure
     NumVecPlot=np.shape(Yvector)[0]
     for i in xrange(0,NumVecPlot):
         try:
             if Ylab:
-                #if Ylab[i][1]:
-                #    Ylabel=Ylab[i][2]+", "+Ylab[i][1]
-                #else:
-                #    Ylabel=Ylab[i][2]
+                if Ylab[i][1]:
+                    Ylabel=Ylab[i][2]+", "+Ylab[i][1]
+                else:
+                    Ylabel=Ylab[i][2]
                 dcp.ax.plot(Xvector, Yvector[i][:], LineType+MarkerType)
-                dcp.ax.set_ylabel(Ylab)
+                #dcp.ax.set_ylabel(Ylab)
                 legend( loc='upper left', numpoints = 1 )
             else:
                 dcp.ax.plot(Xvector, Yvector1[i][:], LineType+MarkerType1)
@@ -49,8 +49,36 @@ def PlotColnS1(Xvector, Yvector,LineType,MarkerType,TitleP,Xlab,Ylab,dcp):
 
     dcp.ax.set_title(TitleP)
     dcp.ax.set_xlabel(Xlab)
+    dcp.ax.set_ylabel(Ylab[0])
     dcp.draw()
-    return 
+    return'''
+    
+def PlotColnS1(Xvector, Yvector,LineType,MarkerType,TitleP,Xlab,Ylab,dcp):
+    # plotting multiple curves from coln using formats from B. Soliday's sdds-lib
+    figure
+    NumVecPlot=len(Yvector)
+    for i in xrange(0,NumVecPlot):
+        try:
+#            plot(Xvector, Yvector[i][0][:],LineType+MarkerType)
+            if Ylab:
+                if np.shape(Ylab)[0] >2:
+                    if Ylab[i][1]:
+                        Ylabel=Ylab[i][2]+", "+Ylab[i][1]
+                    else:
+                        Ylabel=Ylab[i][2]
+                    dcp.ax.plot(Xvector, Yvector[i,:], LineType+MarkerType,label=Ylabel)
+                    legend( loc='upper left', numpoints = 1 )
+                else:
+                    dcp.ax.plot(Xvector, Yvector[i][:], LineType+MarkerType)
+        except ValueError:
+            print "%d " %(i)               
+    dcp.ax.set_title(TitleP)
+    dcp.ax.set_xlabel(Xlab)
+    dcp.ax.set_ylabel(Ylab[0])
+    #grid()
+    #plt.show()
+    dcp.draw()
+    return  
     
 def PlotColnS2(Xvector, Yvector1, Yvector2,LineType,MarkerType1,MarkerType2,TitleP,Xlab,Ylab,dcp):
     # plotting multiple curves from coln using twinx()

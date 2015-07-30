@@ -14,7 +14,7 @@ from collections import OrderedDict
 import os
 from radtrack.beamlines.RbElementCommon import *
 from radtrack.beamlines.RbBeamlines import BeamlineCommon
-from radtrack.RbUtility import wordwrap, FileParseException, stripComments
+from radtrack.RbUtility import wordwrap, FileParseException, stripComments, removeWhitespace
 
 # Reads the lattice file named fileName;
 # returns a mapping of names to newly created elements and the name of the default beamline
@@ -245,8 +245,7 @@ def isSingleGroup(lineString):
 # Example input:  "(2*(a, b, a), 5*c)" (string)
 # Result: ["a", "b", "a", "a", "b", "a", "c", "c", "c", "c", "c"] (list of strings)
 def expandBeamline(beamString):
-    # Remove all whitespace
-    beamString = ''.join(beamString.split())
+    beamString = removeWhitespace(beamString)
 
     # Make sure parentheses are well-formed
     if not checkParentheses(beamString):
@@ -304,11 +303,16 @@ class elegantElement(elementCommon):
         phrases = []
         for index in range(len(self.data)):
             if self.data[index]:
+                phrase = (self.parameterNames[index], '"' + self.data[index].strip('"') + '"')
                 try:
-                    phrases.append((self.parameterNames[index],
-                                    str(convertUnitsStringToNumber(self.data[index], self.units[index]))))
-                except ValueError: # unit conversion failed
-                    phrases.append((self.parameterNames[index], '"' + self.data[index].strip('"') + '"'))
+                    rpn(self.data[index]) # if data is an rpn expression, keep as text
+                except ValueError:
+                    try: # attempt to convert non-rpn data with units to the default units
+                        phrase = ((self.parameterNames[index],
+                            str(convertUnitsStringToNumber(self.data[index], self.units[index]))))
+                    except ValueError: # Unit conversion failed (keep original phrase as text)
+                        pass
+                phrases.append(phrase)
 
         #add "=" in within phrases, then add ', ' between those groups
         sentence = ', '.join(['='.join(phrase) for phrase in phrases])
