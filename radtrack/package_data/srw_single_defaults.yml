@@ -3,7 +3,7 @@
 polarization: LINEAR_HORIZONTAL
 intensity: SINGLE_ELECTRON_INTENSITY
 undulator:
-  num_id_periods: 40.5
+  num_periods: 40.5
   period_len: .049
   horizontal_magnetic_field: 0
   vertical_magnetic_field: .57
@@ -103,15 +103,3 @@ simulation_kind:
       window_top_edge: -.0025
       window_right_edge: 0
       window_bottom_edge: .0025
-  e_and_x_and_y:
-    wavefront:
-      num_points_energy: 1000
-      num_points_x: 30
-      num_points_y: 30
-      distance_to_window: 20
-      initial_photon_energy: 10
-      final_photon_energy: 3000
-      window_left_edge: 0
-      window_top_edge: 0
-      window_right_edge: 0
-      window_bottom_edge: 0

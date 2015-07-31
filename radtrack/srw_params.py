@@ -24,6 +24,7 @@ def to_beam(params):
     Returns:
         SRWLPartBeam: converted values
     """
+
     res = srwlib.SRWLPartBeam()
     res.Iavg = params['avg_current']
     m = res.partStatMom1
@@ -33,13 +34,14 @@ def to_beam(params):
     m.xp = params['horizontal_angle']
     m.yp = params['vertical_angle']
     m.gamma = params['gamma']
-    res.arStatMom2[0] = params['rms_horizontal_width'] ** 2
-    res.arStatMom2[1] = 0
-    res.arStatMom2[2] = params['rms_horizontal_divergence'] ** 2
-    res.arStatMom2[3] = params['rms_vertical_width'] ** 2
-    res.arStatMom2[4] = 0
-    res.arStatMom2[5] = params['rms_vertical_divergence'] ** 2
-    res.arStatMom2[10] = params['rms_energy_spread'] ** 2
+    if 'rms_horizontal_width' in params:
+        res.arStatMom2[0] = params['rms_horizontal_width'] ** 2
+        res.arStatMom2[1] = 0
+        res.arStatMom2[2] = params['rms_horizontal_divergence'] ** 2
+        res.arStatMom2[3] = params['rms_vertical_width'] ** 2
+        res.arStatMom2[4] = 0
+        res.arStatMom2[5] = params['rms_vertical_divergence'] ** 2
+        res.arStatMom2[10] = params['rms_energy_spread'] ** 2
     return res
 
 
@@ -152,7 +154,7 @@ def to_undulator_single_particle(params):
                 'v',
                 params['vertical_magnetic_field'],
                 params['vertical_phase'],
-                parasm['vertical_symmetry'],
+                params['vertical_symmetry'],
                 1,
             ),
             srwlib.SRWLMagFldH(
@@ -160,7 +162,7 @@ def to_undulator_single_particle(params):
                 'h',
                 params['horizontal_magnetic_field'],
                 params['horizontal_phase'],
-                parasm['horizontal_symmetry'],
+                params['horizontal_symmetry'],
                 1,
             ),
         ],
@@ -176,7 +178,7 @@ def to_undulator_single_particle(params):
     return (und, magFldCnt)
 
 
-def to_wavefront(params):
+def to_wavefront_multi_particle(params):
     """Convert params to SRWLStokes Wavefront valuesa
 
     Args:
@@ -186,6 +188,32 @@ def to_wavefront(params):
         SRWLStokes: converted values
     """
     res = srwlib.SRWLStokes()
+    res.allocate(
+        params['num_points_energy'],
+        params['num_points_x'],
+        params['num_points_y'],
+    )
+    m = res.mesh
+    m.zStart = params['distance_to_window']
+    m.eStart = params['initial_photon_energy']
+    m.eFin = params['final_photon_energy']
+    m.xStart = params['window_left_edge']
+    m.xFin = params['window_right_edge']
+    m.yStart = params['window_top_edge']
+    m.yFin = params['window_bottom_edge']
+    return res
+
+
+def to_wavefront_single_particle(params):
+    """Convert params to SRWLStokes Wavefront valuesa
+
+    Args:
+        params (dict): RT values in canonical formn
+
+    Returns:
+        SRWLStokes: converted values
+    """
+    res = srwlib.SRWLWfr()
     res.allocate(
         params['num_points_energy'],
         params['num_points_x'],

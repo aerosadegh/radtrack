@@ -105,124 +105,89 @@ class Controller(rt_controller.Controller):
         (und, magFldCnt) = srw_params.to_undulator_single_particle(
             self.params['undulator'])
         arPrecPar = srw_params.to_precision_single_particle(self.params['precision'])
-
-##### TODO
-
-        beam = srw_params.to_beam(self.params['beam'])
+        wfrE = srw_params.to_wavefront_single_particle(self._view.current_wavefront_params())
+        wfrE.partBeam = srw_params.to_beam(self.params['beam'])
+        wfrXY = srw_params.to_wavefront_single_particle(self._view.current_wavefront_params())
+        wfrXY.partBeam = srw_params.to_beam(self.params['beam'])
         simulation_kind = self._view.current_simulation_kind()
-        wp = self._view.current_wavefront_params()
-        stkF = srw_params.to_wavefront(wp)
-        stkP = srw_params.to_wavefront(wp)
-        pkdc('simulation_kind={}', simulation_kind)
-        ar_prec_f = srw_params.to_flux_precision(self.params['precision'])
-        ar_prec_p = srw_params.to_power_precision(self.params['precision'])
-
-        #for trajectory calculations:
-
-        #Need to reflect in the GUI:
-        arPrecPar = [1] #General Precision parameters for Trajectory calculation:
-        #[0]: integration method No:
-        #1- fourth-order Runge-Kutta (precision is driven by number of points)
-        #2- fifth-order Runge-Kutta
-        #[1],[2],[3],[4],[5]: absolute precision values for X[m],X'[rad],Y[m],Y'[rad],Z[m] (yet to be tested!!) - to be taken into account only for R-K fifth order or higher
-        #[6]: tolerance (default = 1) for R-K fifth order or higher
-        #[7]: max. number of auto-steps for R-K fifth order or higher (default = 5000)
-        fieldInterpMeth = 4 #Magnetic Field Interpolation Method, to be entered into 3D field structures below (to be used e.g. for trajectory calculation):
-        #1- bi-linear (3D), 2- bi-quadratic (3D), 3- bi-cubic (3D), 4- 1D cubic spline (longitudinal) + 2D bi-cubic
-
-        msg('Performing trajectory calculation')
-        (Xtrajectory, Ytrajectory, ctMesh) = self._trajectory(
-            und,
-            magFldCnt,
-            arPrecPar,
-            fieldInterpMeth,
-            beam,
-        )
-	msg('Saving the results')
-	self.save_results('Trajectory.txt',ctMesh,np.vstack((Xtrajectory,Ytrajectory)))
-        msg('Plotting the results')
-        msg('NOTE: Close all graph windows to proceed')
-        uti_plot.uti_plot_show()
-
+        Polar = self.params['polarization'].value
+        Intens = self.params['intensity'].value
+        skv = simulation_kind.value
         if simulation_kind.has_name('E'):
             msg('Performing Electric Field (spectrum vs photon energy) calculation')
-            pkdc('ar_prec_f={}', ar_prec_f)
-            srwlib.srwl.CalcStokesUR(stkF, beam, und, ar_prec_f)
+            srwlib.srwl.CalcElecFieldSR(wfrE, 0, magFldCnt, arPrecPar)
             msg('Extracting Intensity from calculated Electric Field')
+            arI1 = pkarray.new_float([0]*wfrE.mesh.ne)
+            pkdp(Polar)
+            srwlib.srwl.CalcIntFromElecField(arI1, wfrE, Polar, Intens, skv, wfrE.mesh.eStart, 0, 0)
             msg('Plotting the results')
             uti_plot.uti_plot1d(
-                stkF.arS,
-                [stkF.mesh.eStart, stkF.mesh.eFin, stkF.mesh.ne],
-                [
-                    'Photon Energy [eV]',
-                    'Flux [ph/s/.1%bw]',
-                    'Flux through Finite Aperture',
-                ],
+                arI1,
+                [wfrE.mesh.eStart, wfrE.mesh.eFin, wfrE.mesh.ne],
+                ['Photon energy, eV','Spectral intensity, ph/s/0.1%BW','Intensity vs photon energy'],
             )
         elif simulation_kind.has_name('X'):
-            msg('Performing Power Density calculation (from field) vs x-coordinate calculation')
-            pkdc('simulation_kind={}', simulation_kind)
-            pkdc('stkP={}', stkP)
-            pkdc('beam={}', beam)
-            pkdc('und={}', und)
-            srwlib.srwl.CalcPowDenSR(stkP, beam, 0, magFldCnt, ar_prec_p)
+            msg('Performing Electric Field (intensity vs x-coordinate) calculation')
+            srwlib.srwl.CalcElecFieldSR(wfrXY, 0, magFldCnt, arPrecPar)
             msg('Extracting Intensity from calculated Electric Field')
+            arI1 = pkarray.new_float([0]*wfrXY.mesh.nx)
+            srwlib.srwl.CalcIntFromElecField(arI1, wfrXY, Polar, Intens, skv, 0, wfrXY.mesh.xStart, 0)
             msg('Plotting the results')
-            plotMeshX = [1000*stkP.mesh.xStart, 1000*stkP.mesh.xFin, stkP.mesh.nx]
-            powDenVsX = pkarray.new_float([0]*stkP.mesh.nx)
-            for i in range(stkP.mesh.nx):
-                powDenVsX[i] = stkP.arS[stkP.mesh.nx*int(stkP.mesh.ny*0.5) + i]
-	    self.save_results('IntensityVsX.txt',plotMeshX,powDenVsX)
-            pkdc('plotMeshX={}', plotMeshX)
             uti_plot.uti_plot1d(
-                powDenVsX,
-                plotMeshX,
-                [
-                    'Horizontal Position [mm]',
-                    'Power Density [W/mm^2]',
-                    'Power Density\n(horizontal cut at y = 0)',
-                ],
+                arI1,
+                [wfrXY.mesh.xStart, wfrXY.mesh.xFin, wfrXY.mesh.nx],
+                ['Horizontal Position [m]','Spectral intensity, ph/s/0.1%BW','Intensity vs x-coordinate'],
             )
         elif simulation_kind.has_name('Y'):
-            msg('Performing Power Density calculation (from field) vs x-coordinate calculation')
-            pkdc('simulation_kind={}', simulation_kind)
-            pkdc('stkP={}', stkP)
-            pkdc('beam={}', beam)
-            pkdc('und={}', und)
-            srwlib.srwl.CalcPowDenSR(stkP, beam, 0, magFldCnt, ar_prec_p)
+            msg('Performing Electric Field (intensity vs y-coordinate) calculation')
+            srwlib.srwl.CalcElecFieldSR(wfrXY, 0, magFldCnt, arPrecPar)
             msg('Extracting Intensity from calculated Electric Field')
+            arI1 = pkarray.new_float([0]*wfrXY.mesh.ny)
+            srwlib.srwl.CalcIntFromElecField(arI1, wfrXY, Polar, Intens, skv, 0, wfrXY.mesh.yStart, 0)
             msg('Plotting the results')
-            plotMeshY = [1000*stkP.mesh.yStart, 1000*stkP.mesh.yFin, stkP.mesh.ny]
-            powDenVsY = pkarray.new_float([0]*stkP.mesh.ny)
-            for i in range(stkP.mesh.ny):
-                powDenVsY[i] = stkP.arS[stkP.mesh.ny*int(stkP.mesh.nx*0.5) + i]
-	    self.save_results('IntensityVsY.txt',plotMeshY,powDenVsY)
-	    uti_plot.uti_plot1d(
-                powDenVsY,
-                plotMeshY,
-                [
-                    'Vertical Position [mm]',
-                    'Power Density [W/mm^2]',
-                    'Power Density\n(vertical cut at x = 0)',
-                ],
+            uti_plot.uti_plot1d(
+                arI1,
+                [wfrXY.mesh.yStart, wfrXY.mesh.yFin, wfrXY.mesh.ny],
+                ['Vertical Position [m]','Spectral intensity, ph/s/0.1%BW','Intensity vs y-coordinate'],
             )
         elif simulation_kind.has_name('X_AND_Y'):
             msg('Performing Electric Field (intensity vs x- and y-coordinate) calculation')
-            srwlib.srwl.CalcPowDenSR(stkP, beam, 0, magFldCnt, ar_prec_p)
+            srwlib.srwl.CalcElecFieldSR(wfrXY, 0, magFldCnt, arPrecPar)
             msg('Extracting Intensity from calculated Electric Field')
+            arI1 = pkarray.new_float([0]*wfrXY.mesh.nx*wfrXY.mesh.ny)
+            srwlib.srwl.CalcIntFromElecField(arI1, wfrXY, Polar, Intens, skv, wfrXY.mesh.eStart, wfrXY.mesh.xStart, wfrXY.mesh.yStart)
             msg('Plotting the results')
-            plotMeshX = [1000*stkP.mesh.xStart, 1000*stkP.mesh.xFin, stkP.mesh.nx]
-            plotMeshY = [1000*stkP.mesh.yStart, 1000*stkP.mesh.yFin, stkP.mesh.ny]
             uti_plot.uti_plot2d(
-                stkP.arS,
-                plotMeshX,
-                plotMeshY,
-                [
-                    'Horizontal Position [mm]',
-                    'Vertical Position [mm]',
-                    'Power Density',
-                ],
-            )
+                arI1,
+                [1*wfrXY.mesh.xStart, 1*wfrXY.mesh.xFin, wfrXY.mesh.nx],
+                [1*wfrXY.mesh.yStart, 1*wfrXY.mesh.yFin, wfrXY.mesh.ny],
+                ['Horizontal Position [m]', 'Vertical Position [m]', 'Intensity at ' + str(wfrXY.mesh.eStart) + ' eV'])
+
+        elif simulation_kind.has_name('E_AND_X'):
+            msg('Performing Electric Field (intensity vs energy- and x-coordinate) calculation')
+            srwlib.srwl.CalcElecFieldSR(wfrXY, 0, magFldCnt, arPrecPar)
+            msg('* Extracting Intensity from calculated Electric Field')
+            arI1 = pkarray.new_float([0]*wfrXY.mesh.ne*wfrXY.mesh.nx)
+            srwlib.srwl.CalcIntFromElecField(arI1, wfrXY, Polar, Intens, skv, wfrXY.mesh.eStart, wfrXY.mesh.xStart, wfrXY.mesh.yStart)
+            msg('Plotting the results')
+            uti_plot.uti_plot2d(
+                arI1,
+                [1*wfrXY.mesh.eStart, 1*wfrXY.mesh.eFin, wfrXY.mesh.ne],
+                [1*wfrXY.mesh.xStart, 1*wfrXY.mesh.xFin, wfrXY.mesh.nx],
+                ['Energy [eV]', 'Horizontal Position [m]', 'Intensity integrated from ' + str(wfrXY.mesh.yStart) + ' to ' + str(wfrXY.mesh.yFin) + ' ,m in y-coordinate'])
+
+        elif simulation_kind.has_name('E_AND_Y'):
+            msg('Performing Electric Field (intensity vs energy- and y-coordinate) calculation')
+            srwlib.srwl.CalcElecFieldSR(wfrXY, 0, magFldCnt, arPrecPar)
+            msg('Extracting Intensity from calculated Electric Field')
+            arI1 = pkarray.new_float([0]*wfrXY.mesh.ne*wfrXY.mesh.ny)
+            srwlib.srwl.CalcIntFromElecField(arI1, wfrXY, Polar, Intens, skv, wfrXY.mesh.eStart, wfrXY.mesh.xStart, wfrXY.mesh.yStart)
+            msg('Plotting the results')
+            uti_plot.uti_plot2d(
+                arI1,
+                [1*wfrXY.mesh.eStart, 1*wfrXY.mesh.eFin, wfrXY.mesh.ne],
+                [1*wfrXY.mesh.yStart, 1*wfrXY.mesh.yFin, wfrXY.mesh.ny],
+                ['Energy [eV]', 'Vertical Position [m]', 'Intensity integrated from ' + str(wfrXY.mesh.xStart) + ' to ' + str(wfrXY.mesh.xFin)+ ' ,m in x-coordinate'])
         else:
             raise AssertionError('{}: invalid simulation_kind'.format(simulation_kind))
         uti_plot.uti_plot_show()

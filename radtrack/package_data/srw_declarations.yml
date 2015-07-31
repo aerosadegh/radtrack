@@ -12,7 +12,7 @@
     -
       name: single_particle
       required: [srw_single]
-      children: [undulator, precision, beam, simulation_kind]
+      children: [undulator, precision, beam, simulation_kind, polarization, intensity]
 -
   name: polarization
   py_type: srw_enums.Polarization
@@ -54,11 +54,6 @@
     -
       name: e_and_y
       label: e & y
-      required: [srw_single]
-      children: [wavefront]
-    -
-      name: e_and_x_and_y
-      label: e & x & y
       required: [srw_single]
       children: [wavefront]
 
