@@ -21,18 +21,38 @@ from radtrack import RbUtility
 from radtrack import rt_params
 from radtrack import rt_qt
 
-def set_widget_value(declaration, param, widget):
+def get_widget_value(decl, widget):
+    def _num(d, w):
+        # need type checking
+        if w is None:
+            return None
+        v = w.text()
+        if d.units:
+            v = RbUtility.convertUnitsStringToNumber(v, d.units)
+        return d.py_type(v)
+
+    if issubclass(decl.py_type, bool):
+        return widget.isChecked()
+    if isinstance(decl.py_type, enum.EnumMeta):
+        return decl.py_type(widget.itemData(widget.currentIndex()).toInt()[0])
+    elif issubclass(decl.py_type, float) or issubclass(decl.py_type, int):
+        return _num(decl, widget)
+    else:
+        raise AssertionError('bad type: ' + str(decl.py_type))
+
+
+def set_widget_value(decl, param, widget):
     """Sets parameter value accordingly on widget
 
     Args:
-        declaration (dict): declaration for parameter
+        decl (dict): decl for parameter
         param (dict): value
         widget (widget): what to set on
 
     Returns:
         str: value that was set
     """
-    t = declaration.py_type
+    t = decl.py_type
     if isinstance(t, enum.EnumMeta):
         widget.setCurrentIndex(list(t).index(param))
         return rt_qt.i18n_text(param.display_name)
@@ -40,8 +60,8 @@ def set_widget_value(declaration, param, widget):
         widget.setChecked(param)
         # Approximate size of checkbox
         return ' '
-    if declaration.units:
-        l = RbUtility.displayWithUnitsNumber(param, declaration.units)
+    if decl.units:
+        l = RbUtility.displayWithUnitsNumber(param, decl.units)
     else:
         l = str(param)
     widget.setText(l)
@@ -97,16 +117,7 @@ class Form(object):
                     res[d.name] = _iter_children(df)
                     continue
                 f = self._fields[d.name]
-                w = f['widget']
-                if issubclass(d.py_type, bool):
-                    v = w.isChecked()
-                elif isinstance(d.py_type, enum.EnumMeta):
-                    v = d.py_type(w.itemData(w.currentIndex()).toInt()[0])
-                elif issubclass(d.py_type, float) or issubclass(d.py_type, int):
-                    v = _num(d, w)
-                else:
-                    raise AssertionError('bad type: ' + str(d.py_type))
-                res[d.name] = v
+                res[d.name] = get_widget_value(d, f['widget'])
             return res
 
         return _iter_children(self._defaults)
@@ -182,7 +193,6 @@ class Form(object):
                         res['max_value'] = len(value)
                 self._fields[d.name] = {
                     'qlabel': qlabel,
-                    'declaration': d,
                     'widget': widget,
                 }
                 res['num'] += 1

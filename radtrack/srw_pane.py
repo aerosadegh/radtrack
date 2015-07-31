@@ -41,6 +41,17 @@ class View(QtGui.QWidget):
             '{}: simulation_kind_value invalid'.format(v)
         return srw_enums.SimulationKind(i)
 
+    def current_wavefront_params(self):
+        skn = self.current_simulation_kind().name.lower()
+        # return self._controller.params['simulation_kind'][skn]['wavefront']
+        m = self._wavefront_models[skn]
+        defaults = self._controller.defaults['simulation_kind'][skn]['wavefront']
+        res = {}
+        for (row, n) in enumerate(defaults):
+            df = defaults[n]
+            res[df.decl.name] = rt_popup.get_widget_value(df.decl, m.item(row, 1))
+        return res
+
     def set_result_text(self, which, text):
         w = self._result_text[which]
         w.setText(text)
@@ -168,7 +179,7 @@ class View(QtGui.QWidget):
     def _simulation_kind_changed(self):
         """Called when checkbox changes. Sets model on view appropriately"""
         self._wavefront_view.setModel(
-            self._wavefront_models[self.current_simulation_kind().name])
+            self._wavefront_models[self.current_simulation_kind().name.lower()])
 
 
 class WavefrontParams(QtGui.QTableView):

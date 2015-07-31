@@ -110,7 +110,7 @@ class Controller(rt_controller.Controller):
 
         beam = srw_params.to_beam(self.params['beam'])
         simulation_kind = self._view.current_simulation_kind()
-        wp = self.params['simulation_kind'][simulation_kind.name.lower()]['wavefront']
+        wp = self._view.current_wavefront_params()
         stkF = srw_params.to_wavefront(wp)
         stkP = srw_params.to_wavefront(wp)
         pkdc('simulation_kind={}', simulation_kind)
