@@ -14,6 +14,14 @@
       required: [srw_single]
       children: [undulator, precision, beam, simulation_kind]
 -
+  name: polarization
+  py_type: srw_enums.Polarization
+  required: [srw_single]
+-
+  name: intensity
+  py_type: srw_enums.Intensity
+  required: [srw_single]
+-
   name: simulation_kind
   py_type: srw_enums.SimulationKind
   required: [srw_multi, srw_single]
@@ -61,16 +69,21 @@
     -
       name: num_periods
       py_type: int
-      required: [srw_multi, srw_single]
+      required: [srw_multi]
+    -
+      name: num_id_periods
+      label: Number of ID Periods
+      py_type: int
+      required: [srw_single]
     -
       name: period_len
       py_type: float
-      units: cm
+      units: m
       required: [srw_multi, srw_single]
     -
       name: magnetic_field
       py_type: float
-      units: mT
+      units: T
       required: [srw_multi]
     -
       name: harmonic_num
@@ -83,18 +96,93 @@
       required: [srw_multi]
     -
       name: horizontal_magnetic_field
+      label: Peak Horizontal Field
       py_type: float
-      units: mT
+      units: T
       required: [srw_single]
     -
       name: vertical_magnetic_field
+      label: Peak Vertical Field
       py_type: float
-      units: mT
+      units: T
+      required: [srw_single]
+    -
+      name: horizontal_phase
+      label: Initial Phase of the Horizontal field component
+      py_type: float
+      required: [srw_single]
+    -
+      name: vertical_phase
+      label: Initial Phase of the Vertical field component
+      py_type: float
+      required: [srw_single]
+    -
+      #TODO(robnagler) bool?
+      name: horizontal_symmetry
+      label: Symmetry of the Horizontal field component vs Longitudinal position
+      py_type: int
+      required: [srw_single]
+    -
+      #TODO(robnagler) bool?
+      name: vertical_symmetry
+      label: Symmetry of the Vertical field component vs Longitudinal position
+      py_type: int
+      required: [srw_single]
+    -
+      name: horizontal_coord
+      label: Horizontal Coordinate of Undulator Center
+      py_type: float
+      units: m
+      required: [srw_single]
+    -
+      name: vertical_coord
+      label: Vertical Coordinate of Undulator Center
+      py_type: float
+      units: m
+      required: [srw_single]
+    -
+      name: longitudinal_coord
+      label: Longitudinal Coordinate of Undulator Center
+      py_type: float
+      units: m
       required: [srw_single]
 -
   name: precision
   required: [srw_multi, srw_single]
   children:
+    -
+      name: sr_calculation_method
+      label: SR Calculation Method
+      py_type: srw_enums.SRCalculationMethod
+      required: [srw_single]
+    -
+      name: relative
+      label: Relative Precision
+      py_type: float
+      required: [srw_single]
+    -
+      name: start_integration
+      py_type: float
+      units: m
+      required: [srw_single]
+    -
+      name: end_integration
+      py_type: float
+      units: m
+      required: [srw_single]
+    -
+      name: num_points_trajectory_calculation
+      label: Number of Points for Trajectory Calculation
+      py_type: int
+      required: [srw_single]
+    -
+      name: use_terminating_terms
+      py_type: bool
+      required: [srw_single]
+    -
+      name: sampling_factor
+      py_type: int
+      required: [srw_single]
     -
       name: spectral_flux
       label: Spectral Flux Calculation
@@ -164,7 +252,7 @@
       name: avg_current
       label: Average Current
       py_type: float
-      units: mA
+      units: A
       required: [srw_multi, srw_single]
     -
       name: horizontal_coord
@@ -198,7 +286,7 @@
       name: gamma
       label: Relativistic Energy (gamma)
       py_type: float
-      required: [srw_multi]
+      required: [srw_multi, srw_single]
     -
       name: rms_energy_spread
       label: RMS Energy Spread

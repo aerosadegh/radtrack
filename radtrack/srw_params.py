@@ -85,8 +85,31 @@ def to_power_precision(params):
     )
 
 
-def to_undulator(params):
-    """Convert params to `SRWLMagFldU` and `SRWLMagFldC`
+def to_precision_single_particle(params):
+    """Convert params to single particle precision list
+
+    Args:
+        params (dict): RT values in canonical form
+
+    Returns:
+        list: elements for power density
+    """
+    return _precision(
+        params,
+        (
+            'sr_calculation_method',
+            'relative',
+            'start_integration',
+            'end_integration',
+            'num_points_trajectory_calculation',
+            'use_terminating_terms',
+            'sampling_factor',
+        ),
+    )
+
+
+def to_undulator_multi_particle(params):
+    """Convert multi-particle params to `SRWLMagFldU` and `SRWLMagFldC`
 
     Args:
         params (dict): RT values in canonical form
@@ -109,6 +132,46 @@ def to_undulator(params):
         pkarray.new_double([0]),
         pkarray.new_double([0]),
         pkarray.new_double([0]),
+    )
+    return (und, magFldCnt)
+
+
+def to_undulator_single_particle(params):
+    """Convert single particle params to `SRWLMagFldU` and `SRWLMagFldC`
+
+    Args:
+        params (dict): RT values in canonical form
+
+    Returns:
+        (SRWLMagFldU, SRWLMagFldC): converted values
+    """
+    und = srwlib.SRWLMagFldU(
+        [
+            srwlib.SRWLMagFldH(
+                1,
+                'v',
+                params['vertical_magnetic_field'],
+                params['vertical_phase'],
+                parasm['vertical_symmetry'],
+                1,
+            ),
+            srwlib.SRWLMagFldH(
+                1,
+                'h',
+                params['horizontal_magnetic_field'],
+                params['horizontal_phase'],
+                parasm['horizontal_symmetry'],
+                1,
+            ),
+        ],
+        params['period_len'],
+        params['num_id_periods'],
+    )
+    magFldCnt = srwlib.SRWLMagFldC(
+        [und],
+        pkarray.new_double([params['horizontal_coord']]),
+        pkarray.new_double([params['vertical_coord']]),
+        pkarray.new_double([params['longitudinal_coord']]),
     )
     return (und, magFldCnt)
 
@@ -139,9 +202,13 @@ def to_wavefront(params):
     return res
 
 
-def _fix_enum_value(v):
-    return v.value if hasattr(v, 'value') else v
+def _fix_type_value(v):
+    if isinstance(v, bool):
+        return int(v)
+    if hasattr(v, 'value'):
+        return v.value
+    return v
 
 
 def _precision(params, labels):
-    return [_fix_enum_value(params[k]) for k in labels]
+    return [_fix_type_value(params[k]) for k in labels]

@@ -13,8 +13,9 @@ from pykern.pkdebug import pkdc, pkdi, pkdp
 from pykern import pkio
 from pykern import pkresource
 
-from radtrack import rt_qt
 from radtrack import rt_params
+from radtrack import rt_popup
+from radtrack import rt_qt
 from radtrack import srw_enums
 
 class View(QtGui.QWidget):
@@ -96,7 +97,7 @@ class View(QtGui.QWidget):
                     rt_qt.i18n_text(d.decl.label, item)
                     m.setItem(row, 0, item)
                     item = QtGui.QStandardItem()
-                    rt_qt.set_widget_value(d.decl, p[d.decl.name], item)
+                    rt_popup.set_widget_value(d.decl, p[d.decl.name], item)
                     m.setItem(row, 1, item)
                 self._wavefront_models[sk_name] = m
             return self._wavefront_models[first_sk.name.lower()]

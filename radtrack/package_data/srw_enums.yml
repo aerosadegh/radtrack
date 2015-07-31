@@ -23,3 +23,23 @@ SimulationKind:
 UndulatorOrientation:
   HORIZONTAL: Horizontal
   VERTICAL: Vertical
+
+SRCalculationMethod:
+  MANUAL: Manual
+  AUTO_UNDULATOR: Auto-Undulator
+  AUTO_WIGGLER: Auto-Wiggler
+
+Polarization:
+  LINEAR_HORIZONTAL: Linear Horizontal
+  LINEAR_VERTICAL: Linear Vertical
+  LINEAR_45_DEGREES: Linear 45 Degrees
+  LINEAR_135_DEGREES: Linear 135 Degrees
+  CIRCULAR_RIGHT: Circular Right
+  CIRCULAR_LEFT: Circular Left
+  TOTAL: Total
+
+Intensity:
+  SINGLE_ELECTRON_INTENSITY: Single Electron Intensity
+  SINGLE_ELECTRON_FLUX: Single Electron Flux
+  REAL_PART_OF_ELECTRON_E_FIELD: Real Part of Electron E-Field
+  IMAGINARY_PART_OF_ELECTRON_E_FIELD: Imaginary Part of Electron E-Field

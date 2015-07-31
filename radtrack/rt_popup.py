@@ -21,6 +21,33 @@ from radtrack import RbUtility
 from radtrack import rt_params
 from radtrack import rt_qt
 
+def set_widget_value(declaration, param, widget):
+    """Sets parameter value accordingly on widget
+
+    Args:
+        declaration (dict): declaration for parameter
+        param (dict): value
+        widget (widget): what to set on
+
+    Returns:
+        str: value that was set
+    """
+    t = declaration.py_type
+    if isinstance(t, enum.EnumMeta):
+        widget.setCurrentIndex(list(t).index(param))
+        return rt_qt.i18n_text(param.display_name)
+    if issubclass(t, bool):
+        widget.setChecked(param)
+        # Approximate size of checkbox
+        return ' '
+    if declaration.units:
+        l = RbUtility.displayWithUnitsNumber(param, declaration.units)
+    else:
+        l = str(param)
+    widget.setText(l)
+    return l
+
+
 class Window(QtGui.QDialog):
     def __init__(self, defaults, params, file_prefix, parent=None):
         super(Window, self).__init__(parent)
@@ -82,7 +109,7 @@ class Form(object):
                 res[d.name] = v
             return res
 
-        return pkdp(_iter_children(self._defaults))
+        return _iter_children(self._defaults)
 
     def _init_buttons(self, window):
         self._buttons = rt_qt.set_id(QtGui.QDialogButtonBox(window), 'standard')
@@ -128,14 +155,14 @@ class Form(object):
                     widget.addItem(n, userData=e.value)
                     if len(n) > len(v):
                         v = n
-                rt_qt.set_widget_value(d, p, widget)
+                set_widget_value(d, p, widget)
             elif issubclass(t, bool):
                 widget = QtGui.QCheckBox(self._frame)
-                v = rt_qt.i18n_text(d.label, widget)
-                rt_qt.set_widget_value(d, p, widget)
+                v = rt_qt.i18n_text(d.label)
+                set_widget_value(d, p, widget)
             else:
                 widget = QtGui.QLineEdit(self._frame)
-                v = rt_qt.set_widget_value(d, p, widget)
+                v = set_widget_value(d, p, widget)
             return (widget, v)
 
         def _iter_children(parent_default, p):

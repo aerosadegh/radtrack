@@ -33,14 +33,14 @@ from radtrack.srw import AnalyticCalc
 FILE_PREFIX = 'srw'
 
 class Controller(rt_controller.Controller):
-    """Implements contol flow for SRW multiparticle tab"""
+    """Implements contol flow for SRW single-particle tab"""
 
     ACTION_NAMES = ('Precision', 'Undulator', 'Beam', 'Analyze', 'Simulate')
 
     def init(self, parent_widget=None):
         self.defaults = rt_params.defaults(
-            FILE_PREFIX + '_multi',
-            rt_params.declarations(FILE_PREFIX)['simulation_complexity']['multi_particle'])
+            FILE_PREFIX + '_single',
+            rt_params.declarations(FILE_PREFIX)['simulation_complexity']['single_particle'])
         self.params = rt_params.init_params(self.defaults)
         self._view = srw_pane.View(self, parent_widget)
         return self._view
@@ -97,12 +97,17 @@ class Controller(rt_controller.Controller):
 
     def action_simulate(self):
         msg_list = []
+
         def msg(m):
             msg_list.append(m + '... \n \n')
             self._view.set_result_text('simulation', ''.join(msg_list))
 
-        (und, magFldCnt) = srw_params.to_undulator_multi_particle(
+        (und, magFldCnt) = srw_params.to_undulator_single_particle(
             self.params['undulator'])
+        arPrecPar = srw_params.to_precision_single_particle(self.params['precision'])
+
+##### TODO
+
         beam = srw_params.to_beam(self.params['beam'])
         simulation_kind = self._view.current_simulation_kind()
         wp = self.params['simulation_kind'][simulation_kind.name.lower()]['wavefront']
