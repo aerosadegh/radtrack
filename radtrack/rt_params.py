@@ -23,7 +23,6 @@ from pykern import pkio
 from pykern import pkresource
 from pykern import pkyaml
 
-_cache = {}
 
 class Declaration(UserDict.DictMixin):
     """Describe a parameter and its children (if any)
@@ -217,7 +216,7 @@ def init_params(defaults):
 
 
 def _get(file_prefix, which, how):
-    """Get from cache or parse and validate YAML file.
+    """Parse and validate YAML file.
 
     Args:
         file_prefix (str): which file to parse
@@ -228,11 +227,9 @@ def _get(file_prefix, which, how):
         dict: parsed YAML file; declarations are an OrderedDict;
               defaults are a regular dict.
     """
-    global _cache
-    if which not in _cache:
-        values = pkyaml.load_resource('{}_{}'.format(file_prefix, which))
-        _cache[which] = how(values, file_prefix)
-    return _cache[which]
+    fn = '{}_{}'.format(file_prefix, which)
+    values = pkyaml.load_resource(fn)
+    return how(values, file_prefix)
 
 
 def _parse_declarations(values, file_prefix):

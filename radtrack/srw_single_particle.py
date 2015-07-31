@@ -13,6 +13,8 @@ import re
 import sys
 import numpy as np
 
+from radtrack.rt_qt import QtGui
+
 from pykern import pkarray
 from pykern import pkcompat
 from pykern.pkdebug import pkdc, pkdp
@@ -47,14 +49,8 @@ class Controller(rt_controller.Controller):
 
     def action_analyze(self):
         args = copy.deepcopy(self.params['undulator'])
-        if args['orientation'].has_name('VERTICAL'):
-            args['horizontal_magnetic_field'] = 0
-            args['vertical_magnetic_field'] = args['magnetic_field']
-        else:
-            args['horizontal_magnetic_field'] = args['magnetic_field']
-            args['vertical_magnetic_field'] = 0
         args.update(self.params['beam'])
-        values = AnalyticCalc.multi_particle(args)
+        values = AnalyticCalc.compute_all(args)
         res = rt_jinja.render(
             '''
             Kx: $Kx
@@ -118,7 +114,6 @@ class Controller(rt_controller.Controller):
             srwlib.srwl.CalcElecFieldSR(wfrE, 0, magFldCnt, arPrecPar)
             msg('Extracting Intensity from calculated Electric Field')
             arI1 = pkarray.new_float([0]*wfrE.mesh.ne)
-            pkdp(Polar)
             srwlib.srwl.CalcIntFromElecField(arI1, wfrE, Polar, Intens, skv, wfrE.mesh.eStart, 0, 0)
             msg('Plotting the results')
             uti_plot.uti_plot1d(

@@ -52,7 +52,7 @@ def SpectralCenBrightness(N_u,Gam,I_b):
     I_s=1.325E10*2*N_u*I_b*1E-3*Gam*0.511E0*Gam*0.511E0*1.45 #I[phot/(sec mrad2 0.1% BW)]
     return (I_s)
 
-def multi_particle(params):
+def compute_all(params):
     """Perform multiparticle analytical calc.
 
     Args:
