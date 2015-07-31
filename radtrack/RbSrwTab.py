@@ -1,7 +1,10 @@
-from PyQt4 import QtGui
-from radtrack.RbSrwsingleA import rbsrw as rbsrwsingle
-from radtrack import srw_multi_particle
 
+from radtrack.rt_qt import QtGui
+
+from radtrack import srw_multi_particle
+from radtrack import srw_single_particle
+
+from pykern.pkdebug import pkdc, pkdp
 
 class RbSrwTab(QtGui.QWidget):
     defaultTitle = 'SRW'
@@ -18,8 +21,9 @@ class RbSrwTab(QtGui.QWidget):
 
         self.stackwidget = QtGui.QStackedWidget(self)
         self.stackwidget.addWidget(
-            srw_multi_particle.Controller.init_widget(self))
-        self.stackwidget.addWidget(rbsrwsingle(self))
+            srw_multi_particle.Controller.init_widget(self.stackwidget))
+        self.stackwidget.addWidget(
+            srw_single_particle.Controller.init_widget(self.stackwidget))
         self.srw_particle = QtGui.QCheckBox(self)
         self.srw_particle.setText('Single-Particle')
 
@@ -40,5 +44,3 @@ class RbSrwTab(QtGui.QWidget):
 
     def togglesrw(self):
         self.stackwidget.setCurrentIndex(int(self.srw_particle.isChecked()))
-        print self.stackwidget.currentIndex()
-        print int(self.srw_particle.isChecked())

@@ -9,7 +9,7 @@ from io import open
 
 from radtrack.rt_qt import QtCore, QtGui
 
-from pykern.pkdebug import pkdc, pkdi, pkdp
+from pykern.pkdebug import pkdc, pkdp
 from pykern import pkio
 from pykern import pkresource
 
@@ -35,7 +35,7 @@ class View(QtGui.QWidget):
 
     def current_simulation_kind(self):
         v = self.simulation_kind.itemData(
-                self.simulation_kind.currentIndex())
+            self.simulation_kind.currentIndex())
         (i, ok) = v.toInt()
         assert ok, \
             '{}: simulation_kind_value invalid'.format(v)
@@ -75,12 +75,25 @@ class View(QtGui.QWidget):
         param_vbox = QtGui.QVBoxLayout()
         param_widget = QtGui.QWidget(self)
 
-        def _selector():
+        def _global_param(name):
+            try:
+                df = self._controller.defaults[name]
+            except AttributeError:
+                return
+            hb = QtGui.QHBoxLayout()
+            label = rt_qt.set_id(QtGui.QLabel(param_widget), 'form_field')
+            rt_qt.i18n_text(df.decl.label, label)
+            hb.addWidget(label, alignment=QtCore.Qt.AlignLeft)
+            w = rt_popup.value_widget(df.decl, df.value, param_widget)[0]
+            hb.addWidget(w)
+            param_vbox.addLayout(hb)
+
+        def _selector(decl):
             """Create simulation kind selector"""
             hb = QtGui.QHBoxLayout()
             label = rt_qt.set_id(QtGui.QLabel(param_widget), 'form_field')
             #TODO: Labels should be looked up
-            rt_qt.i18n_text('Simulation Kind: ', label)
+            rt_qt.i18n_text(decl.label, label)
             hb.addWidget(label, alignment=QtCore.Qt.AlignRight)
             self.simulation_kind = QtGui.QComboBox(param_widget)
             hb.addWidget(self.simulation_kind)
@@ -130,7 +143,9 @@ class View(QtGui.QWidget):
             self.simulation_kind.currentIndexChanged.connect(
                 self._simulation_kind_changed)
 
-        _selector()
+        _global_param('polarization')
+        _global_param('intensity')
+        _selector(self._controller.defaults['simulation_kind'].decl)
         _view()
         self._add_vertical_stretch_spacer(param_vbox)
         main.addLayout(param_vbox)
