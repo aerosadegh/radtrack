@@ -68,13 +68,8 @@
   children:
     -
       name: num_periods
-      py_type: int
-      required: [srw_multi]
-    -
-      name: num_id_periods
-      label: Number of ID Periods
-      py_type: int
-      required: [srw_single]
+      py_type: float
+      required: [srw_multi, srw_single]
     -
       name: period_len
       py_type: float

@@ -165,7 +165,7 @@ def to_undulator_single_particle(params):
             ),
         ],
         params['period_len'],
-        params['num_id_periods'],
+        params['num_periods'],
     )
     magFldCnt = srwlib.SRWLMagFldC(
         [und],
