@@ -54,7 +54,7 @@ class Controller(rt_controller.Controller):
             args['horizontal_magnetic_field'] = args['magnetic_field']
             args['vertical_magnetic_field'] = 0
         args.update(self.params['beam'])
-        values = AnalyticCalc.multi_particle(args)
+        values = AnalyticCalc.compute_all(args)
         res = rt_jinja.render(
             '''
             Kx: $Kx
@@ -108,8 +108,8 @@ class Controller(rt_controller.Controller):
         beam = srw_params.to_beam(self.params['beam'])
         simulation_kind = self._view.current_simulation_kind()
         wp = self._view.current_wavefront_params()
-        stkF = srw_params.to_wavefront(wp)
-        stkP = srw_params.to_wavefront(wp)
+        stkF = srw_params.to_wavefront_multi_particle(wp)
+        stkP = srw_params.to_wavefront_multi_particle(wp)
         pkdc('simulation_kind={}', simulation_kind)
         ar_prec_f = srw_params.to_flux_precision(self.params['precision'])
         ar_prec_p = srw_params.to_power_precision(self.params['precision'])

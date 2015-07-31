@@ -67,6 +67,26 @@ def set_widget_value(decl, param, widget):
     widget.setText(l)
     return l
 
+def value_widget(d, p, parent):
+    t = d.py_type
+    if isinstance(t, enum.EnumMeta):
+        widget = QtGui.QComboBox(parent)
+        v = ''
+        for e in t:
+            n = rt_qt.i18n_text(e.display_name)
+            widget.addItem(n, userData=e.value)
+            if len(n) > len(v):
+                v = n
+        set_widget_value(d, p, widget)
+    elif issubclass(t, bool):
+        widget = QtGui.QCheckBox(parent)
+        v = rt_qt.i18n_text(d.label)
+        set_widget_value(d, p, widget)
+    else:
+        widget = QtGui.QLineEdit(parent)
+        v = set_widget_value(d, p, widget)
+    return (widget, v)
+
 
 class Window(QtGui.QDialog):
     def __init__(self, defaults, params, file_prefix, parent=None):
@@ -100,14 +120,6 @@ class Form(object):
         self._set_geometry(sizes)
 
     def _get_params(self):
-        def _num(d, w):
-            # need type checking
-            if w is None:
-                return None
-            v = w.text()
-            if d.units:
-                v = RbUtility.convertUnitsStringToNumber(v, d.units)
-            return d.py_type(v)
 
         def _iter_children(parent_defaults):
             res = collections.OrderedDict()
@@ -156,26 +168,6 @@ class Form(object):
             qlabel.setAlignment(QtCore.Qt.AlignCenter)
             self._layout.addRow(qlabel)
 
-        def _value_widget(d, p):
-            t = d.py_type
-            if isinstance(t, enum.EnumMeta):
-                widget = QtGui.QComboBox(self._frame)
-                v = ''
-                for e in t:
-                    n = rt_qt.i18n_text(e.display_name)
-                    widget.addItem(n, userData=e.value)
-                    if len(n) > len(v):
-                        v = n
-                set_widget_value(d, p, widget)
-            elif issubclass(t, bool):
-                widget = QtGui.QCheckBox(self._frame)
-                v = rt_qt.i18n_text(d.label)
-                set_widget_value(d, p, widget)
-            else:
-                widget = QtGui.QLineEdit(self._frame)
-                v = set_widget_value(d, p, widget)
-            return (widget, v)
-
         def _iter_children(parent_default, p):
             for df in parent_default.children.values():
                 d = df.decl
@@ -187,7 +179,7 @@ class Form(object):
                     _iter_children(df, p[d.name])
                 else:
                     rt_qt.set_id(qlabel, 'form_field')
-                    (widget, value) = _value_widget(d, p[d.name])
+                    (widget, value) = value_widget(d, p[d.name], self._frame)
                     self._layout.addRow(qlabel, widget)
                     if len(value) > res['max_value']:
                         res['max_value'] = len(value)

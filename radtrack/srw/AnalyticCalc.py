@@ -63,7 +63,7 @@ def UndulatorAngleCoordinateOscillation(Kx, Ky, Gam, lam_u):
     
 #def TuningCurveSpectralFlux():
 
-def multi_particle(params):
+def compute_all(params):
     """Perform multiparticle analytical calc.
 
     Args:
