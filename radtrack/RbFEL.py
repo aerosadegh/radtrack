@@ -23,7 +23,7 @@ class RbFEL(QtGui.QWidget):
 
     def __init__(self, parent = None):
         QtGui.QWidget.__init__(self, parent)
-        
+
         if parent == None:
             self.parent = self
             self.parent.lastUsedDirectory = os.path.expanduser('~')
@@ -155,10 +155,10 @@ class RbFEL(QtGui.QWidget):
             self.textBoxFromDictName[thing.dictName] = thing
             if hasattr(thing, 'isReadOnly'):
                 if thing.isReadOnly():
-                    if str(thing.objectName()).startswith("Bunch length"):
+                    if thing.objectName().startswith("Bunch length"):
                         thing.setToolTip("FWHM")
                     else:
-                        thing.setToolTip('') 
+                        thing.setToolTip('')
                     self.ui.z.addItem(thing.objectName())
                     self.ui.target.addItem(thing.objectName())
                 else:
@@ -209,7 +209,7 @@ class RbFEL(QtGui.QWidget):
                 pass
 
         self.container = self
- 
+
     def calculateAll(self):
         self.updateBoxes(calculate(self.userInputDict()))
 
@@ -230,16 +230,20 @@ class RbFEL(QtGui.QWidget):
 
     def getValue(self, textBox):
         try:
-            self.valueFromTextBox[textBox] = util.convertUnitsStringToNumber(str(textBox.text()), textBox.unit)
+            self.valueFromTextBox[textBox] = util.convertUnitsStringToNumber(textBox.text(), textBox.unit)
             return self.valueFromTextBox[textBox]
         except ValueError:
             if textBox in self.valueFromTextBox:
                 del self.valueFromTextBox[textBox]
 
     def setResultBox(self, textBox, value):
-        self.valueFromTextBox[textBox] = value
-        textBox.setText(util.displayWithUnitsNumber(util.roundSigFig(value, 5), textBox.unit))
-        textBox.setCursorPosition(0)
+        if value is not None:
+            self.valueFromTextBox[textBox] = value
+            textBox.setText(util.displayWithUnitsNumber(util.roundSigFig(value, 5), textBox.unit))
+            textBox.setCursorPosition(0)
+        else:
+            self.unsetValue(textBox)
+
 
     def plot(self):
         try:
@@ -495,6 +499,32 @@ def calculate(userInputDict):
     radiatedWaveLength = userInputDict['radiatedwavelength']
 
     resultDict = dict()
+    for name in [
+                 'bunchLengthFWHM_sec',
+                 'bunchLengthFWHM_m',
+                 'gamma',
+                 'rmsBeamSize',
+                 'peakElectronDensity',
+                 'geometricEmittance',
+                 'undulatorPeriod',
+                 'undulatorParameter',
+                 'undulatorWaveNumber',
+                 'oneDFELParameter',
+                 'oneDGainLength',
+                 'RayleighRange',
+                 'diffractionFactor',
+                 'photonEmittance',
+                 'emitanceFactor',
+                 'energySpreadFactor',
+                 'threeDEffectTotal',
+                 'threeDFELParameter',
+                 'threeDGainLength',
+                 'SASEpowerAtSaturation',
+                 'pulsedSASEenergy',
+                 'averagePower',
+                 'saturationLength'
+                ]:
+        resultDict[name] = None
 
     try:
         bunchLengthFWHM_sec = charge/peakCurrent
@@ -553,10 +583,10 @@ def calculate(userInputDict):
         resultDict['energySpreadFactor'] = energySpreadFactor
 
         threeDEffectTotal = 0
-        resultDict['threeDEffectTotal'] = threeDEffectTotal
-
         for row in mingXieMatrix:
             threeDEffectTotal += row[0]*(diffractionFactor**row[1])*(emitanceFactor**row[2])*(energySpreadFactor**row[3])
+        resultDict['threeDEffectTotal'] = threeDEffectTotal
+
         threeDFELParameter = oneDFELParameter/(1+threeDEffectTotal)
         resultDict['threeDFELParameter'] = threeDFELParameter
 
