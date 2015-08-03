@@ -43,3 +43,26 @@ class SimulationKind(rt_enum.Enum):
 class UndulatorOrientation(rt_enum.Enum):
     HORIZONTAL = 0
     VERTICAL = 1
+
+@enum.unique
+class SRCalculationMethod(rt_enum.Enum):
+    MANUAL = 0
+    AUTO_UNDULATOR = 1
+    AUTO_WIGGLER = 2
+
+@enum.unique
+class Polarization(rt_enum.Enum):
+    LINEAR_HORIZONTAL = 0
+    LINEAR_VERTICAL = 1
+    LINEAR_45_DEGREES = 2
+    LINEAR_135_DEGREES = 3
+    CIRCULAR_RIGHT = 4
+    CIRCULAR_LEFT = 5
+    TOTAL = 6
+
+@enum.unique
+class Intensity(rt_enum.Enum):
+    SINGLE_ELECTRON_INTENSITY = 0
+    SINGLE_ELECTRON_FLUX = 1
+    REAL_PART_OF_ELECTRON_E_FIELD = 2
+    IMAGINARY_PART_OF_ELECTRON_E_FIELD = 3

@@ -13,8 +13,9 @@ from pykern.pkdebug import pkdc, pkdi, pkdp
 from pykern import pkio
 from pykern import pkresource
 
-from radtrack import rt_qt
 from radtrack import rt_params
+from radtrack import rt_popup
+from radtrack import rt_qt
 from radtrack import srw_enums
 
 class View(QtGui.QWidget):
@@ -39,6 +40,17 @@ class View(QtGui.QWidget):
         assert ok, \
             '{}: simulation_kind_value invalid'.format(v)
         return srw_enums.SimulationKind(i)
+
+    def current_wavefront_params(self):
+        skn = self.current_simulation_kind().name.lower()
+        # return self._controller.params['simulation_kind'][skn]['wavefront']
+        m = self._wavefront_models[skn]
+        defaults = self._controller.defaults['simulation_kind'][skn]['wavefront']
+        res = {}
+        for (row, n) in enumerate(defaults):
+            df = defaults[n]
+            res[df.decl.name] = rt_popup.get_widget_value(df.decl, m.item(row, 1))
+        return res
 
     def set_result_text(self, which, text):
         w = self._result_text[which]
@@ -96,7 +108,7 @@ class View(QtGui.QWidget):
                     rt_qt.i18n_text(d.decl.label, item)
                     m.setItem(row, 0, item)
                     item = QtGui.QStandardItem()
-                    rt_qt.set_widget_value(d.decl, p[d.decl.name], item)
+                    rt_popup.set_widget_value(d.decl, p[d.decl.name], item)
                     m.setItem(row, 1, item)
                 self._wavefront_models[sk_name] = m
             return self._wavefront_models[first_sk.name.lower()]
@@ -167,7 +179,7 @@ class View(QtGui.QWidget):
     def _simulation_kind_changed(self):
         """Called when checkbox changes. Sets model on view appropriately"""
         self._wavefront_view.setModel(
-            self._wavefront_models[self.current_simulation_kind().name])
+            self._wavefront_models[self.current_simulation_kind().name.lower()])
 
 
 class WavefrontParams(QtGui.QTableView):

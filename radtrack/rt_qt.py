@@ -94,29 +94,3 @@ def set_id(widget, id_name):
         '{}: unknown id_name'.format(id_name)
     widget.setObjectName(id_name)
     return widget
-
-
-def set_widget_value(declaration, param, widget):
-    """Sets parameter value accordingly on widget
-
-    Args:
-        declaration (dict): declaration for parameter
-        param (dict): value
-        widget (widget): what to set on
-
-    Returns:
-        str: value that was set
-    """
-    t = declaration.py_type
-    if isinstance(t, enum.EnumMeta):
-        widget.setCurrentIndex(list(t).index(param))
-        return i18n_text(param.display_name)
-    if issubclass(t, bool):
-        widget.setChecked(param)
-        return i18n_text(declaration.label)
-    if declaration.units:
-        l = RbUtility.displayWithUnitsNumber(param, declaration.units)
-    else:
-        l = str(param)
-    widget.setText(l)
-    return l
