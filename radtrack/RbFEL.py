@@ -300,8 +300,8 @@ class RbFEL(QtGui.QWidget):
             # Plotting
             self.ui.plotWidget.canvas.fig.clear()
             self.ui.plotWidget.canvas.ax = self.ui.plotWidget.canvas.fig.add_subplot(111)
-            c = self.ui.plotWidget.canvas.ax.imshow(numpy.flipud(Z), cmap = 'hot', \
-                    extent = [min(xRangeUnits), max(xRangeUnits), \
+            c = self.ui.plotWidget.canvas.ax.imshow(numpy.flipud(Z), cmap = 'hot',
+                    extent = [min(xRangeUnits), max(xRangeUnits),
                     min(yRangeUnits), max(yRangeUnits)],
                     aspect = 'auto')
             self.ui.plotWidget.canvas.ax.set_xlabel(xAxisLabel)
@@ -404,11 +404,11 @@ class RbFEL(QtGui.QWidget):
         return result[resultBox.dictName]
 
     def calculateSlope(self, inputBox, inputValue, inputStep, resultBox):
-        return (self.calculateValue(inputBox, inputValue + inputStep, resultBox) \
+        return (self.calculateValue(inputBox, inputValue + inputStep, resultBox)
                 - self.calculateValue(inputBox, inputValue, resultBox))/inputStep
 
     def calculateSecondDerivitive(self, inputBox, inputValue, inputStep, resultBox):
-        return (self.calculateSlope(inputBox, inputValue + inputStep, inputStep, resultBox) - \
+        return (self.calculateSlope(inputBox, inputValue + inputStep, inputStep, resultBox) -
                 self.calculateSlope(inputBox, inputValue, inputStep, resultBox))/inputStep
 
     def exportToFile(self, fileName = None):
@@ -526,25 +526,44 @@ def calculate(userInputDict):
                 ]:
         resultDict[name] = None
 
+    errorsToCatch = (UnboundLocalError, TypeError, ZeroDivisionError, OverflowError)
     try:
         bunchLengthFWHM_sec = charge/peakCurrent
         resultDict['bunchLengthFWHM_sec'] = bunchLengthFWHM_sec
+    except errorsToCatch:
+        pass
 
+    try:
         bunchLengthFWHM_m = bunchLengthFWHM_sec*c
         resultDict['bunchLengthFWHM_m'] = bunchLengthFWHM_m
+    except errorsToCatch:
+        pass
 
+    try:
         gamma = (kineticEnergy/e_mass)+1
         resultDict['gamma'] = gamma
+    except errorsToCatch:
+        pass
 
+    try:
         rmsBeamSize = sqrt(averageBetaFunction*normalizedSliceEmittance/gamma)
         resultDict['rmsBeamSize'] = rmsBeamSize
+    except errorsToCatch:
+        pass
 
+    try:
         peakElectronDensity = peakCurrent/(e_charge*c*2*pi*(rmsBeamSize**2))
         resultDict['peakElectronDensity'] = peakElectronDensity
+    except errorsToCatch:
+        pass
 
+    try:
         geometricEmittance = normalizedSliceEmittance/gamma
         resultDict['geometricEmittance'] = geometricEmittance
+    except errorsToCatch:
+        pass
 
+    try:
         betaR = sqrt(1-1/(gamma**2)) # relativistic beta
         undulatorConstant = e_charge*undulatorField/(2*pi*betaR*e_mass_kg*c)
         A = (undulatorConstant**2)/2.0
@@ -554,58 +573,105 @@ def calculate(userInputDict):
         C2 = (2.0/3.0)**(1.0/3.0)
         undulatorPeriod = X/C1 - C2/X
         resultDict['undulatorPeriod'] = undulatorPeriod
+    except errorsToCatch:
+        pass
 
+    try:
         undulatorParameter = undulatorConstant*undulatorPeriod
         resultDict['undulatorParameter'] = undulatorParameter
+    except errorsToCatch:
+        pass
 
+    try:
         undulatorWaveNumber = 2*pi/undulatorPeriod
         resultDict['undulatorWaveNumber'] = undulatorWaveNumber
+    except errorsToCatch:
+        pass
 
+    try:
         oneDFELParameter = ((pi*e_radius*peakElectronDensity*(undulatorParameter**2)/(undulatorWaveNumber**2))**(1.0/3.0))/(2*gamma)
         resultDict['oneDFELParameter'] = oneDFELParameter
+    except errorsToCatch:
+        pass
 
+    try:
         oneDGainLength = undulatorPeriod/(4*pi*sqrt(3)*oneDFELParameter)
         resultDict['oneDGainLength'] = oneDGainLength
+    except errorsToCatch:
+        pass
 
+    try:
         RayleighRange = 4*pi*(rmsBeamSize**2)/radiatedWaveLength
         resultDict['RayleighRange'] = RayleighRange
+    except errorsToCatch:
+        pass
 
+    try:
         diffractionFactor = oneDGainLength/RayleighRange
         resultDict['diffractionFactor'] = diffractionFactor
+    except errorsToCatch:
+        pass
 
+    try:
         photonEmittance = radiatedWaveLength/(4*pi)
         resultDict['photonEmittance'] = photonEmittance
+    except errorsToCatch:
+        pass
 
+    try:
         emitanceFactor = (geometricEmittance/photonEmittance)*(oneDGainLength/averageBetaFunction)
         resultDict['emitanceFactor'] = emitanceFactor
+    except errorsToCatch:
+        pass
 
+    try:
         energySpreadFactor = slicedEnergySpread/(oneDFELParameter*sqrt(3))
         resultDict['energySpreadFactor'] = energySpreadFactor
+    except errorsToCatch:
+        pass
 
+    try:
         threeDEffectTotal = 0
         for row in mingXieMatrix:
             threeDEffectTotal += row[0]*(diffractionFactor**row[1])*(emitanceFactor**row[2])*(energySpreadFactor**row[3])
         resultDict['threeDEffectTotal'] = threeDEffectTotal
+    except errorsToCatch:
+        pass
 
+    try:
         threeDFELParameter = oneDFELParameter/(1+threeDEffectTotal)
         resultDict['threeDFELParameter'] = threeDFELParameter
+    except errorsToCatch:
+        pass
 
+    try:
         threeDGainLength = oneDGainLength*(1+threeDEffectTotal)
         resultDict['threeDGainLength'] = threeDGainLength
+    except errorsToCatch:
+        pass
 
+    try:
         SASEpowerAtSaturation = e_mass_kg*(c**2)*gamma*threeDFELParameter*peakCurrent/e_charge
         resultDict['SASEpowerAtSaturation'] = SASEpowerAtSaturation
+    except errorsToCatch:
+        pass
 
+    try:
         pulsedSASEenergy = SASEpowerAtSaturation*bunchLengthFWHM_sec
         resultDict['pulsedSASEenergy'] = pulsedSASEenergy
+    except errorsToCatch:
+        pass
 
+    try:
         averagePower = pulsedSASEenergy*repititionRate
         resultDict['averagePower'] = averagePower
+    except errorsToCatch:
+        pass
 
+    try:
         saturationLength = undulatorPeriod/threeDFELParameter
         resultDict['saturationLength'] = saturationLength
-
-    except (UnboundLocalError, TypeError, ZeroDivisionError):
+    except errorsToCatch:
         pass
 
     return resultDict
