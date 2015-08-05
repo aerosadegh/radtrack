@@ -51,6 +51,17 @@ def SpectralCenBrightness(N_u,Gam,I_b):
     #This only works for the case of a planar ID
     I_s=1.325E10*2*N_u*I_b*1E-3*Gam*0.511E0*Gam*0.511E0*1.45 #I[phot/(sec mrad2 0.1% BW)]
     return (I_s)
+    
+def UndulatorAngleCoordinateOscillation(Kx, Ky, Gam, lam_u):
+    xpmax=Ky/Gam
+    xmax=Ky/2/3.14159265359*lam_u/Gam # wrong formulae
+    zslip=lam_u/4*Ky**2/Gam**2
+ #   print (xpmax, xmax, zslip)
+    return (xpmax, xmax, zslip)
+
+#def TuningCurveSpectralBrightness():
+    
+#def TuningCurveSpectralFlux():
 
 def multi_particle(params):
     """Perform multiparticle analytical calc.
