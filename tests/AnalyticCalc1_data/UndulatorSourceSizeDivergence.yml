@@ -1,0 +1,7 @@
+---    
+UndulatorSourceSizeDivergence: 
+  - 
+    Input:
+      lam_rn: 1.324e-09 
+      L_id: 4.59 
+    Expect: [8.7718048723e-06, 1.20072440115e-05]

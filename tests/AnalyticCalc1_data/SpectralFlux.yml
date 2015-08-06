@@ -1,0 +1,10 @@
+---    
+SpectralFlux: 
+  - 
+    Input:
+      N_u: 170
+      Gam: 5870.925
+      EEc: 1
+      I_b: 0.5
+      Kx: 2.181
+    Expect: 8.166e+15

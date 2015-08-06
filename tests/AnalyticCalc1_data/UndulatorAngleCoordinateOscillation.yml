@@ -1,0 +1,9 @@
+---    
+UndulatorAngleCoordinateOscillation: 
+  - 
+    Input:
+      Kx: 0
+      Ky: 2.181
+      Gam: 5870.925
+      lam_u: 0.027
+    Expect: [0.00037149171553034656, 1.5963680567971527e-06, 9.315411392768396e-10]

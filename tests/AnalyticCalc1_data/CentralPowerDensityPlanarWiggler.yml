@@ -1,0 +1,9 @@
+---    
+CentralPowerDensityPlanarWiggler:
+  - 
+    Input:
+      Bx: 0.865
+      N_u: 170
+      Gam: 5870.925
+      I_b: 0.5
+    Expect: 7.180e+03

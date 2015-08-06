@@ -1,0 +1,29 @@
+  ANALYTIC:
+    Undulator:
+      Number of Periods: 40 #60 80 90
+      Period Length: .1 
+      Magnetic Field Horizontal: 1.0 
+      Magnetic Field Vertical: 2.0
+      Undulator Orientation: VERTICAL
+    Beam:
+      Average Current: 0.5
+      Relativistic Energy (gamma): 6000.00
+    Answers:
+      test_IDWaveLengthPhotonEnergy:
+        Kx: 18.68
+        Ky: 9.34
+        lam_r: 3.04290277778e-07
+        e_ph: 4.07735734793
+      test_CriticalEnergyWiggler:
+        E_c: 31257.3822454
+      test_RadiatedPowerPlanarWiggler:
+        P_W: 47580.165104
+      test_CentralPowerDensityPlanarWiggler:
+        P_Wdc: 4079.754504
+      test_UndulatorSourceSizeDivergence:
+        sig_r: 0.000124162936838
+        sig_rp: 0.000195028933039
+      test_SpectralFlux:
+        I_s: 1.96370834437e+15
+      test_SpectralCenBrightness:
+        I_s: 7.224173586e+15

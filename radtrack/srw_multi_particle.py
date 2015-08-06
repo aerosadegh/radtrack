@@ -92,7 +92,9 @@ class Controller(rt_controller.Controller):
 	x_vec=[]
 	for i in xrange(0,x_vector[2]):
             x_vec.append(x_vector[0]+i*(x_vector[1] - x_vector[0])/(x_vector[2]+1E-6))
-	AA=np.vstack((x_vec, y_array))
+        pkdc (np.shape(x_vec))
+        pkdc (np.shape(y_array[0:np.shape(x_vec)[0]]))
+	AA=np.vstack((x_vec, y_array[0:np.shape(x_vec)[0]]))
 	np.savetxt(file_name, np.transpose(AA)) #, fmt=("%5.4f","%5.4f","%5.4f"))
 
     def action_simulate(self):
@@ -142,8 +144,10 @@ class Controller(rt_controller.Controller):
         if simulation_kind.has_name('E'):
             msg('Performing Electric Field (spectrum vs photon energy) calculation')
             pkdc('ar_prec_f={}', ar_prec_f)
-            srwlib.srwl.CalcStokesUR(stkF, beam, und, ar_prec_f)
             msg('Extracting Intensity from calculated Electric Field')
+            srwlib.srwl.CalcStokesUR(stkF, beam, und, ar_prec_f)            
+	    msg('Saving the results')
+	    self.save_results('Spectrum.txt',[stkF.mesh.eStart, stkF.mesh.eFin, stkF.mesh.ne],stkF.arS)            
             msg('Plotting the results')
             uti_plot.uti_plot1d(
                 stkF.arS,

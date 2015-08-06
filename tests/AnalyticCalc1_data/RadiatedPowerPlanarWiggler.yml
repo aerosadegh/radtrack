@@ -1,0 +1,10 @@
+---    
+RadiatedPowerPlanarWiggler: 
+  - 
+    Input:
+      lam_u: 0.027
+      Bx: 0.865
+      N_u: 170
+      Gam: 5870.925
+      I_b: 0.5
+    Expect: [9.778e+03, 4.59]

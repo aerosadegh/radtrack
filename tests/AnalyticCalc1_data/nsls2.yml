@@ -1,0 +1,70 @@
+---
+IDWaveLengthPhotonEnergy:
+  -
+    Input:
+      lam_u: 0.027
+      Bx: 0.0
+      By: 0.865
+      Gam: 5870.925
+    Expect: [2.181, 0.0, 1.324e-09, 937.427]
+    
+CriticalEnergyWiggler:
+  -
+    Input:
+      Bx: 0.0
+      By: 0.865
+      Gam: 5870.925
+    Expect: 4.478e+03
+    
+RadiatedPowerPlanarWiggler: 
+  - 
+    Input:
+      lam_u: 0.027
+      By: 0.865
+      N_u: 170
+      Gam: 5870.925
+      I_b: 0.5
+    Expect: [9.778e+03 Lam_u*N_u]
+
+CentralPowerDensityPlanarWiggler:
+  - 
+    Input:
+      Bx: 0.865
+      N_u: 170
+      Gam: 5870.925
+      I_b: 0.5
+    Expect: 7.180e+03
+
+UndulatorSourceSizeDivergence: #IDWaveLengthPhotonEnergy.Expect[3] #Lam_u*N_u
+  - 
+    Input:
+      lam_rn: 112 
+      L_id: 112 
+    Expect: [8.7718048723e-06 1.20072440115e-05]
+
+SpectralFlux: 
+  - 
+    Input:
+      N_u: 170
+      Gam: 5870.925
+      EEc: 1
+      I_b: 0.5
+      Ky: 93.4*By*lam_u
+    Expect: 8.166e+15
+
+SpectralCenBrightness: 
+  - 
+    Input:
+      N_u: 170
+      Gam: 5870.925
+      I_b: 0.5
+    Expect: 2.940e+16
+
+UndulatorAngleCoordinateOscillation: #Kx, Ky, Gam, lam_u
+  - 
+    Input:
+      Kx: 93.4*Bx*lam_u
+      Ky: 93.4*By*lam_u
+      Gam: 5870.925
+      lam_u: 0.027
+    Expect: [1 1 1]

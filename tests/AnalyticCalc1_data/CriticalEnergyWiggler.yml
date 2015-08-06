@@ -1,0 +1,8 @@
+---    
+CriticalEnergyWiggler:
+  -
+    Input:
+      Bx: 0.0
+      By: 0.865
+      Gam: 5870.925
+    Expect: 4.478e+03

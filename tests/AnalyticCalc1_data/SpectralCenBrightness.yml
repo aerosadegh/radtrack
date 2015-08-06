@@ -1,0 +1,8 @@
+---    
+SpectralCenBrightness: 
+  - 
+    Input:
+      N_u: 170
+      Gam: 5870.925
+      I_b: 0.5
+    Expect: 2.940e+16
