@@ -1,5 +1,5 @@
 ### RadTrack
-
+![alt tag](http://radiasoft.net/wp-content/uploads/2013/09/RadiaSoftLogoTransparent1.png)
 RadTrack is an open source framework for working with codes that model particle dynamics and electromagnetic radiation.
 
 #### Setting Up Development
