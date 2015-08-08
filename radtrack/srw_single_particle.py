@@ -101,13 +101,13 @@ class Controller(rt_controller.Controller):
         (und, magFldCnt) = srw_params.to_undulator_single_particle(
             self.params['undulator'])
         arPrecPar = srw_params.to_precision_single_particle(self.params['precision'])
-        wfrE = srw_params.to_wavefront_single_particle(self._view.current_wavefront_params())
+        wfrE = srw_params.to_wavefront_single_particle(self._view.get_wavefront_params())
         wfrE.partBeam = srw_params.to_beam(self.params['beam'])
-        wfrXY = srw_params.to_wavefront_single_particle(self._view.current_wavefront_params())
+        wfrXY = srw_params.to_wavefront_single_particle(self._view.get_wavefront_params())
         wfrXY.partBeam = srw_params.to_beam(self.params['beam'])
-        simulation_kind = self._view.current_simulation_kind()
-        Polar = self.params['polarization']
-        Intens = self.params['intensity']
+        simulation_kind = self._view.get_global_param('simulation_kind')
+        Polar = self._view.get_global_param('polarization').value
+        Intens = self._view.get_global_param('intensity').value
         skv = simulation_kind.value
         if simulation_kind == 'E':
             msg('Performing Electric Field (spectrum vs photon energy) calculation')

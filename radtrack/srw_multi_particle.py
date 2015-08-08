@@ -106,8 +106,8 @@ class Controller(rt_controller.Controller):
         (und, magFldCnt) = srw_params.to_undulator_multi_particle(
             self.params['undulator'])
         beam = srw_params.to_beam(self.params['beam'])
-        simulation_kind = self._view.current_simulation_kind()
-        wp = self._view.current_wavefront_params()
+        simulation_kind = self._view.get_global_param('simulation_kind')
+        wp = self._view.get_wavefront_params()
         stkF = srw_params.to_wavefront_multi_particle(wp)
         stkP = srw_params.to_wavefront_multi_particle(wp)
         pkdc('simulation_kind={}', simulation_kind)

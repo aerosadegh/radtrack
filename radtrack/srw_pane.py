@@ -26,6 +26,7 @@ class View(QtGui.QWidget):
     def __init__(self, controller, parent=None):
         super(View, self).__init__(parent)
         self._controller = controller
+        self.global_params = {}
         self.setStyleSheet(pkio.read_text(pkresource.filename('srw_pane.css')))
         main = QtGui.QHBoxLayout()
         self._add_action_buttons(main)
@@ -33,14 +34,14 @@ class View(QtGui.QWidget):
         self._add_result_texts(main)
         self.setLayout(main)
 
-    def current_simulation_kind(self):
+    def get_global_param(self, name):
         return rt_popup.get_widget_value(
-            self._controller.defaults['simulation_kind'].decl,
-            self.simulation_kind,
+            self._controller.defaults[name].decl,
+            self.global_params[name],
         );
 
-    def current_wavefront_params(self):
-        skn = self.current_simulation_kind().name.lower()
+    def get_wavefront_params(self):
+        skn = self.get_global_param('simulation_kind').name.lower()
         # return self._controller.params['simulation_kind'][skn]['wavefront']
         m = self._wavefront_models[skn]
         defaults = self._controller.defaults['simulation_kind'][skn]['wavefront']
@@ -82,9 +83,10 @@ class View(QtGui.QWidget):
             label = rt_qt.set_id(QtGui.QLabel(param_widget), 'form_field')
             rt_qt.i18n_text(df.decl.label, label)
             hb.addWidget(label, alignment=QtCore.Qt.AlignRight)
-            res = rt_popup.value_widget(df.decl, df.value, param_widget)
+            res = rt_popup.value_widget(df, df.value, param_widget)
             hb.addWidget(res[0])
             param_vbox.addLayout(hb)
+            self.global_params[name] = res[0]
             return res
 
         def _models():
@@ -97,10 +99,6 @@ class View(QtGui.QWidget):
                 wf_defaults = sk_defaults[sk_name]['wavefront']
                 if not first_sk:
                     first_sk = sk
-                #self.simulation_kind.addItem(
-                #    rt_qt.i18n_text(sk.display_name),
-                #    userData=sk.value,
-                                  #)
                 m = QtGui.QStandardItemModel(len(wf_defaults), 2);
                 p = params[sk_name]['wavefront']
                 for (row, n) in enumerate(wf_defaults):
@@ -128,14 +126,13 @@ class View(QtGui.QWidget):
             first = _models()
             v.setModel(first)
             self._wavefront_view = v
-            self.simulation_kind.currentIndexChanged.connect(
+            self.global_params['simulation_kind'].currentIndexChanged.connect(
                 self._simulation_kind_changed)
 
         _global_param('polarization')
         _global_param('intensity')
         # XSself._controller.defaults['simulation_kind'].value = srw_enums.SimulationKind.E
-        res = _global_param('simulation_kind')
-        self.simulation_kind = res[0]
+        _global_param('simulation_kind')
         _view()
         self._add_vertical_stretch_spacer(param_vbox)
         main.addLayout(param_vbox)
@@ -148,7 +145,8 @@ class View(QtGui.QWidget):
             vbox = QtGui.QVBoxLayout()
             main.addLayout(vbox, stretch=1)
             qlabel = rt_qt.set_id(QtGui.QLabel(self), 'heading')
-            qlabel.setMinimumHeight(self.simulation_kind.sizeHint().height())
+            for v in self.global_params.values():
+                qlabel.setMinimumHeight(v.sizeHint().height())
             rt_qt.i18n_text(label, qlabel)
             vbox.addWidget(qlabel, alignment=QtCore.Qt.AlignCenter)
             text = QtGui.QTextEdit(self)
@@ -184,7 +182,7 @@ class View(QtGui.QWidget):
     def _simulation_kind_changed(self):
         """Called when checkbox changes. Sets model on view appropriately"""
         self._wavefront_view.setModel(
-            self._wavefront_models[self.current_simulation_kind().name.lower()])
+            self._wavefront_models[self.get_global_param('simulation_kind').name.lower()])
 
 
 class WavefrontParams(QtGui.QTableView):
