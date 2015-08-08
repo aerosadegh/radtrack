@@ -67,6 +67,26 @@ def set_widget_value(decl, param, widget):
     widget.setText(l)
     return l
 
+def value_widget(d, p, parent):
+    t = d.py_type
+    if isinstance(t, enum.EnumMeta):
+        widget = QtGui.QComboBox(parent)
+        v = ''
+        for e in t:
+            n = rt_qt.i18n_text(e.display_name)
+            widget.addItem(n, userData=e.value)
+            if len(n) > len(v):
+                v = n
+        set_widget_value(d, p, widget)
+    elif issubclass(t, bool):
+        widget = QtGui.QCheckBox(parent)
+        v = rt_qt.i18n_text(d.label)
+        set_widget_value(d, p, widget)
+    else:
+        widget = QtGui.QLineEdit(parent)
+        v = set_widget_value(d, p, widget)
+    return (widget, v)
+
 
 def value_widget(d, p, parent):
     t = d.py_type
