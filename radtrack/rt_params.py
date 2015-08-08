@@ -120,11 +120,15 @@ class Default(UserDict.DictMixin):
     def __init__(self, value, decl, component, parent_type=None, qualifier=None):
         self.decl = decl
         self.qualified_name = qualifier + '.' + decl.qualified_name if qualifier else decl.qualified_name
-        if decl.py_type and not decl.children:
-            self.value = _parse_value(value, decl.py_type)
+        self.children = self._children(value, decl, component)
+        if decl.py_type:
+            if decl.children:
+                self.value = self.children[next(iter(self.children))].value
+            else:
+                self.value = _parse_value(value, decl.py_type)
         elif parent_type:
             self.value = _parse_value(decl.name, parent_type)
-        self.children = self._children(value, decl, component)
+
 
     def iter_leaves(self):
         if not self.children:

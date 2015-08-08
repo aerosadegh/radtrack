@@ -14,6 +14,7 @@ from pykern import pkinspect
 from pykern import pkio
 from pykern import pkresource
 from pykern import pkyaml
+from pykern import pkcompat
 
 #: look up display names
 _display_name_cache = {}
@@ -28,19 +29,9 @@ class Enum(enum.Enum):
 
     def __init__(self, *args):
         super(Enum, self).__init__(*args)
+        assert isinstance(self.value, int), \
+            '{}: must in instance of int'.format(self.value)
         self.display_name = _display_name(self)
-
-    def has_name(self, name):
-        """Compares `name` with `self.name`
-
-        Args:
-            name (str): string name to compare
-
-        Returns:
-            bool: True if self has `name`
-
-        """
-        return self.name == name
 
     @classmethod
     def from_anything(cls, value):
@@ -55,7 +46,43 @@ class Enum(enum.Enum):
             return value
         if isinstance(value, int):
             return cls(value)
-        return cls[value.upper()]
+        if pkcompat.isinstance_str(value):
+            return cls[value.upper()]
+        raise AssertionError('{}: is not an instance of {}'.format(value, cls))
+
+    def __cmp__(self, anything):
+        """Compares `anything` with `self`
+
+        Args:
+            anything (object): name, enum, value etc. to compare
+
+        Returns:
+            int: -1, 0, 1 or NotImplemented if types don't compare
+
+        """
+        if anything is None:
+            return 1
+        try:
+            return self.value.__cmp__(
+                self.__class__.from_anything(anything).value)
+        except AssertionError as e:
+            return NotImplemented
+
+    def __le__(self, other):
+        return self.__cmp__(other) <= 0
+
+    def __lt__(self, other):
+        return self.__cmp__(other) < 0
+
+    def __ge__(self, other):
+        return self.__cmp__(other) >= 0
+
+    def __gt__(self, other):
+        return self.__cmp__(other) > 0
+
+    def __eq__(self, other):
+        return self.__cmp__(other) == 0
+
 
 def _display_name(e):
     """Lookup display_name for enum

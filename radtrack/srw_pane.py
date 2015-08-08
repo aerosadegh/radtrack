@@ -34,12 +34,10 @@ class View(QtGui.QWidget):
         self.setLayout(main)
 
     def current_simulation_kind(self):
-        v = self.simulation_kind.itemData(
-            self.simulation_kind.currentIndex())
-        (i, ok) = v.toInt()
-        assert ok, \
-            '{}: simulation_kind_value invalid'.format(v)
-        return srw_enums.SimulationKind(i)
+        return rt_popup.get_widget_value(
+            self._controller.defaults['simulation_kind'].decl,
+            self.simulation_kind,
+        );
 
     def current_wavefront_params(self):
         skn = self.current_simulation_kind().name.lower()
@@ -78,26 +76,16 @@ class View(QtGui.QWidget):
         def _global_param(name):
             try:
                 df = self._controller.defaults[name]
-            except AttributeError:
+            except KeyError:
                 return
             hb = QtGui.QHBoxLayout()
             label = rt_qt.set_id(QtGui.QLabel(param_widget), 'form_field')
             rt_qt.i18n_text(df.decl.label, label)
-            hb.addWidget(label, alignment=QtCore.Qt.AlignLeft)
-            w = rt_popup.value_widget(df.decl, df.value, param_widget)[0]
-            hb.addWidget(w)
-            param_vbox.addLayout(hb)
-
-        def _selector(decl):
-            """Create simulation kind selector"""
-            hb = QtGui.QHBoxLayout()
-            label = rt_qt.set_id(QtGui.QLabel(param_widget), 'form_field')
-            #TODO: Labels should be looked up
-            rt_qt.i18n_text(decl.label, label)
             hb.addWidget(label, alignment=QtCore.Qt.AlignRight)
-            self.simulation_kind = QtGui.QComboBox(param_widget)
-            hb.addWidget(self.simulation_kind)
+            res = rt_popup.value_widget(df.decl, df.value, param_widget)
+            hb.addWidget(res[0])
             param_vbox.addLayout(hb)
+            return res
 
         def _models():
             self._wavefront_models = {}
@@ -109,10 +97,10 @@ class View(QtGui.QWidget):
                 wf_defaults = sk_defaults[sk_name]['wavefront']
                 if not first_sk:
                     first_sk = sk
-                self.simulation_kind.addItem(
-                    rt_qt.i18n_text(sk.display_name),
-                    userData=sk.value,
-                )
+                #self.simulation_kind.addItem(
+                #    rt_qt.i18n_text(sk.display_name),
+                #    userData=sk.value,
+                                  #)
                 m = QtGui.QStandardItemModel(len(wf_defaults), 2);
                 p = params[sk_name]['wavefront']
                 for (row, n) in enumerate(wf_defaults):
@@ -145,7 +133,9 @@ class View(QtGui.QWidget):
 
         _global_param('polarization')
         _global_param('intensity')
-        _selector(self._controller.defaults['simulation_kind'].decl)
+        # XSself._controller.defaults['simulation_kind'].value = srw_enums.SimulationKind.E
+        res = _global_param('simulation_kind')
+        self.simulation_kind = res[0]
         _view()
         self._add_vertical_stretch_spacer(param_vbox)
         main.addLayout(param_vbox)

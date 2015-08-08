@@ -67,6 +67,7 @@ def set_widget_value(decl, param, widget):
     widget.setText(l)
     return l
 
+
 def value_widget(d, p, parent):
     t = d.py_type
     if isinstance(t, enum.EnumMeta):

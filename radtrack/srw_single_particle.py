@@ -106,10 +106,10 @@ class Controller(rt_controller.Controller):
         wfrXY = srw_params.to_wavefront_single_particle(self._view.current_wavefront_params())
         wfrXY.partBeam = srw_params.to_beam(self.params['beam'])
         simulation_kind = self._view.current_simulation_kind()
-        Polar = self.params['polarization'].value
-        Intens = self.params['intensity'].value
+        Polar = self.params['polarization']
+        Intens = self.params['intensity']
         skv = simulation_kind.value
-        if simulation_kind.has_name('E'):
+        if simulation_kind == 'E':
             msg('Performing Electric Field (spectrum vs photon energy) calculation')
             srwlib.srwl.CalcElecFieldSR(wfrE, 0, magFldCnt, arPrecPar)
             msg('Extracting Intensity from calculated Electric Field')
@@ -121,7 +121,7 @@ class Controller(rt_controller.Controller):
                 [wfrE.mesh.eStart, wfrE.mesh.eFin, wfrE.mesh.ne],
                 ['Photon energy, eV','Spectral intensity, ph/s/0.1%BW','Intensity vs photon energy'],
             )
-        elif simulation_kind.has_name('X'):
+        elif simulation_kind == 'X':
             msg('Performing Electric Field (intensity vs x-coordinate) calculation')
             srwlib.srwl.CalcElecFieldSR(wfrXY, 0, magFldCnt, arPrecPar)
             msg('Extracting Intensity from calculated Electric Field')
@@ -133,7 +133,7 @@ class Controller(rt_controller.Controller):
                 [wfrXY.mesh.xStart, wfrXY.mesh.xFin, wfrXY.mesh.nx],
                 ['Horizontal Position [m]','Spectral intensity, ph/s/0.1%BW','Intensity vs x-coordinate'],
             )
-        elif simulation_kind.has_name('Y'):
+        elif simulation_kind == 'Y':
             msg('Performing Electric Field (intensity vs y-coordinate) calculation')
             srwlib.srwl.CalcElecFieldSR(wfrXY, 0, magFldCnt, arPrecPar)
             msg('Extracting Intensity from calculated Electric Field')
@@ -145,7 +145,7 @@ class Controller(rt_controller.Controller):
                 [wfrXY.mesh.yStart, wfrXY.mesh.yFin, wfrXY.mesh.ny],
                 ['Vertical Position [m]','Spectral intensity, ph/s/0.1%BW','Intensity vs y-coordinate'],
             )
-        elif simulation_kind.has_name('X_AND_Y'):
+        elif simulation_kind == 'X_AND_Y':
             msg('Performing Electric Field (intensity vs x- and y-coordinate) calculation')
             srwlib.srwl.CalcElecFieldSR(wfrXY, 0, magFldCnt, arPrecPar)
             msg('Extracting Intensity from calculated Electric Field')
@@ -158,7 +158,7 @@ class Controller(rt_controller.Controller):
                 [1*wfrXY.mesh.yStart, 1*wfrXY.mesh.yFin, wfrXY.mesh.ny],
                 ['Horizontal Position [m]', 'Vertical Position [m]', 'Intensity at ' + str(wfrXY.mesh.eStart) + ' eV'])
 
-        elif simulation_kind.has_name('E_AND_X'):
+        elif simulation_kind == 'E_AND_X':
             msg('Performing Electric Field (intensity vs energy- and x-coordinate) calculation')
             srwlib.srwl.CalcElecFieldSR(wfrXY, 0, magFldCnt, arPrecPar)
             msg('* Extracting Intensity from calculated Electric Field')
@@ -171,7 +171,7 @@ class Controller(rt_controller.Controller):
                 [1*wfrXY.mesh.xStart, 1*wfrXY.mesh.xFin, wfrXY.mesh.nx],
                 ['Energy [eV]', 'Horizontal Position [m]', 'Intensity integrated from ' + str(wfrXY.mesh.yStart) + ' to ' + str(wfrXY.mesh.yFin) + ' ,m in y-coordinate'])
 
-        elif simulation_kind.has_name('E_AND_Y'):
+        elif simulation_kind == 'E_AND_Y':
             msg('Performing Electric Field (intensity vs energy- and y-coordinate) calculation')
             srwlib.srwl.CalcElecFieldSR(wfrXY, 0, magFldCnt, arPrecPar)
             msg('Extracting Intensity from calculated Electric Field')
