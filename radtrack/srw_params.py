@@ -122,7 +122,7 @@ def to_undulator_multi_particle(params):
     harmB = srwlib.SRWLMagFldH()
     harmB.n = params['harmonic_num']
     harmB.B = params['magnetic_field']
-    if params['orientation'].has_name('VERTICAL'):
+    if params['orientation'] == 'VERTICAL':
         harmB.h_or_v = 'v'
     else:
         harmB.h_or_v = 'h'

@@ -23,7 +23,6 @@ from pykern import pkio
 from pykern import pkresource
 from pykern import pkyaml
 
-_cache = {}
 
 class Declaration(UserDict.DictMixin):
     """Describe a parameter and its children (if any)
@@ -121,11 +120,15 @@ class Default(UserDict.DictMixin):
     def __init__(self, value, decl, component, parent_type=None, qualifier=None):
         self.decl = decl
         self.qualified_name = qualifier + '.' + decl.qualified_name if qualifier else decl.qualified_name
-        if decl.py_type and not decl.children:
-            self.value = _parse_value(value, decl.py_type)
+        self.children = self._children(value, decl, component)
+        if decl.py_type:
+            if decl.children:
+                self.value = self.children[next(iter(self.children))].value
+            else:
+                self.value = _parse_value(value, decl.py_type)
         elif parent_type:
             self.value = _parse_value(decl.name, parent_type)
-        self.children = self._children(value, decl, component)
+
 
     def iter_leaves(self):
         if not self.children:
@@ -217,7 +220,7 @@ def init_params(defaults):
 
 
 def _get(file_prefix, which, how):
-    """Get from cache or parse and validate YAML file.
+    """Parse and validate YAML file.
 
     Args:
         file_prefix (str): which file to parse
@@ -228,11 +231,9 @@ def _get(file_prefix, which, how):
         dict: parsed YAML file; declarations are an OrderedDict;
               defaults are a regular dict.
     """
-    global _cache
-    if which not in _cache:
-        values = pkyaml.load_resource('{}_{}'.format(file_prefix, which))
-        _cache[which] = how(values, file_prefix)
-    return _cache[which]
+    fn = '{}_{}'.format(file_prefix, which)
+    values = pkyaml.load_resource(fn)
+    return how(values, file_prefix)
 
 
 def _parse_declarations(values, file_prefix):

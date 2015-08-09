@@ -13,6 +13,8 @@ import re
 import sys
 import numpy as np
 
+from radtrack.rt_qt import QtGui
+
 from pykern import pkarray
 from pykern import pkcompat
 from pykern.pkdebug import pkdc, pkdp
@@ -47,14 +49,8 @@ class Controller(rt_controller.Controller):
 
     def action_analyze(self):
         args = copy.deepcopy(self.params['undulator'])
-        if args['orientation'].has_name('VERTICAL'):
-            args['horizontal_magnetic_field'] = 0
-            args['vertical_magnetic_field'] = args['magnetic_field']
-        else:
-            args['horizontal_magnetic_field'] = args['magnetic_field']
-            args['vertical_magnetic_field'] = 0
         args.update(self.params['beam'])
-        values = AnalyticCalc.multi_particle(args)
+        values = AnalyticCalc.compute_all(args)
         res = rt_jinja.render(
             '''
             Kx: $Kx
@@ -105,20 +101,19 @@ class Controller(rt_controller.Controller):
         (und, magFldCnt) = srw_params.to_undulator_single_particle(
             self.params['undulator'])
         arPrecPar = srw_params.to_precision_single_particle(self.params['precision'])
-        wfrE = srw_params.to_wavefront_single_particle(self._view.current_wavefront_params())
+        wfrE = srw_params.to_wavefront_single_particle(self._view.get_wavefront_params())
         wfrE.partBeam = srw_params.to_beam(self.params['beam'])
-        wfrXY = srw_params.to_wavefront_single_particle(self._view.current_wavefront_params())
+        wfrXY = srw_params.to_wavefront_single_particle(self._view.get_wavefront_params())
         wfrXY.partBeam = srw_params.to_beam(self.params['beam'])
-        simulation_kind = self._view.current_simulation_kind()
-        Polar = self.params['polarization'].value
-        Intens = self.params['intensity'].value
+        simulation_kind = self._view.get_global_param('simulation_kind')
+        Polar = self._view.get_global_param('polarization').value
+        Intens = self._view.get_global_param('intensity').value
         skv = simulation_kind.value
-        if simulation_kind.has_name('E'):
+        if simulation_kind == 'E':
             msg('Performing Electric Field (spectrum vs photon energy) calculation')
             srwlib.srwl.CalcElecFieldSR(wfrE, 0, magFldCnt, arPrecPar)
             msg('Extracting Intensity from calculated Electric Field')
             arI1 = pkarray.new_float([0]*wfrE.mesh.ne)
-            pkdp(Polar)
             srwlib.srwl.CalcIntFromElecField(arI1, wfrE, Polar, Intens, skv, wfrE.mesh.eStart, 0, 0)
             msg('Plotting the results')
             uti_plot.uti_plot1d(
@@ -126,7 +121,7 @@ class Controller(rt_controller.Controller):
                 [wfrE.mesh.eStart, wfrE.mesh.eFin, wfrE.mesh.ne],
                 ['Photon energy, eV','Spectral intensity, ph/s/0.1%BW','Intensity vs photon energy'],
             )
-        elif simulation_kind.has_name('X'):
+        elif simulation_kind == 'X':
             msg('Performing Electric Field (intensity vs x-coordinate) calculation')
             srwlib.srwl.CalcElecFieldSR(wfrXY, 0, magFldCnt, arPrecPar)
             msg('Extracting Intensity from calculated Electric Field')
@@ -138,7 +133,7 @@ class Controller(rt_controller.Controller):
                 [wfrXY.mesh.xStart, wfrXY.mesh.xFin, wfrXY.mesh.nx],
                 ['Horizontal Position [m]','Spectral intensity, ph/s/0.1%BW','Intensity vs x-coordinate'],
             )
-        elif simulation_kind.has_name('Y'):
+        elif simulation_kind == 'Y':
             msg('Performing Electric Field (intensity vs y-coordinate) calculation')
             srwlib.srwl.CalcElecFieldSR(wfrXY, 0, magFldCnt, arPrecPar)
             msg('Extracting Intensity from calculated Electric Field')
@@ -150,7 +145,7 @@ class Controller(rt_controller.Controller):
                 [wfrXY.mesh.yStart, wfrXY.mesh.yFin, wfrXY.mesh.ny],
                 ['Vertical Position [m]','Spectral intensity, ph/s/0.1%BW','Intensity vs y-coordinate'],
             )
-        elif simulation_kind.has_name('X_AND_Y'):
+        elif simulation_kind == 'X_AND_Y':
             msg('Performing Electric Field (intensity vs x- and y-coordinate) calculation')
             srwlib.srwl.CalcElecFieldSR(wfrXY, 0, magFldCnt, arPrecPar)
             msg('Extracting Intensity from calculated Electric Field')
@@ -163,7 +158,7 @@ class Controller(rt_controller.Controller):
                 [1*wfrXY.mesh.yStart, 1*wfrXY.mesh.yFin, wfrXY.mesh.ny],
                 ['Horizontal Position [m]', 'Vertical Position [m]', 'Intensity at ' + str(wfrXY.mesh.eStart) + ' eV'])
 
-        elif simulation_kind.has_name('E_AND_X'):
+        elif simulation_kind == 'E_AND_X':
             msg('Performing Electric Field (intensity vs energy- and x-coordinate) calculation')
             srwlib.srwl.CalcElecFieldSR(wfrXY, 0, magFldCnt, arPrecPar)
             msg('* Extracting Intensity from calculated Electric Field')
@@ -176,7 +171,7 @@ class Controller(rt_controller.Controller):
                 [1*wfrXY.mesh.xStart, 1*wfrXY.mesh.xFin, wfrXY.mesh.nx],
                 ['Energy [eV]', 'Horizontal Position [m]', 'Intensity integrated from ' + str(wfrXY.mesh.yStart) + ' to ' + str(wfrXY.mesh.yFin) + ' ,m in y-coordinate'])
 
-        elif simulation_kind.has_name('E_AND_Y'):
+        elif simulation_kind == 'E_AND_Y':
             msg('Performing Electric Field (intensity vs energy- and y-coordinate) calculation')
             srwlib.srwl.CalcElecFieldSR(wfrXY, 0, magFldCnt, arPrecPar)
             msg('Extracting Intensity from calculated Electric Field')

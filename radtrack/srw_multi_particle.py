@@ -47,14 +47,14 @@ class Controller(rt_controller.Controller):
 
     def action_analyze(self):
         args = copy.deepcopy(self.params['undulator'])
-        if args['orientation'].has_name('VERTICAL'):
+        if args['orientation'] == 'VERTICAL':
             args['horizontal_magnetic_field'] = 0
             args['vertical_magnetic_field'] = args['magnetic_field']
         else:
             args['horizontal_magnetic_field'] = args['magnetic_field']
             args['vertical_magnetic_field'] = 0
         args.update(self.params['beam'])
-        values = AnalyticCalc.multi_particle(args)
+        values = AnalyticCalc.compute_all(args)
         res = rt_jinja.render(
             '''
             Kx: $Kx
@@ -106,10 +106,10 @@ class Controller(rt_controller.Controller):
         (und, magFldCnt) = srw_params.to_undulator_multi_particle(
             self.params['undulator'])
         beam = srw_params.to_beam(self.params['beam'])
-        simulation_kind = self._view.current_simulation_kind()
-        wp = self._view.current_wavefront_params()
-        stkF = srw_params.to_wavefront(wp)
-        stkP = srw_params.to_wavefront(wp)
+        simulation_kind = self._view.get_global_param('simulation_kind')
+        wp = self._view.get_wavefront_params()
+        stkF = srw_params.to_wavefront_multi_particle(wp)
+        stkP = srw_params.to_wavefront_multi_particle(wp)
         pkdc('simulation_kind={}', simulation_kind)
         ar_prec_f = srw_params.to_flux_precision(self.params['precision'])
         ar_prec_p = srw_params.to_power_precision(self.params['precision'])
@@ -141,13 +141,13 @@ class Controller(rt_controller.Controller):
         msg('NOTE: Close all graph windows to proceed')
         uti_plot.uti_plot_show()
 
-        if simulation_kind.has_name('E'):
+        if simulation_kind == 'E':
             msg('Performing Electric Field (spectrum vs photon energy) calculation')
             pkdc('ar_prec_f={}', ar_prec_f)
             msg('Extracting Intensity from calculated Electric Field')
-            srwlib.srwl.CalcStokesUR(stkF, beam, und, ar_prec_f)            
+            srwlib.srwl.CalcStokesUR(stkF, beam, und, ar_prec_f)
 	    msg('Saving the results')
-	    self.save_results('Spectrum.txt',[stkF.mesh.eStart, stkF.mesh.eFin, stkF.mesh.ne],stkF.arS)            
+	    self.save_results('Spectrum.txt',[stkF.mesh.eStart, stkF.mesh.eFin, stkF.mesh.ne],stkF.arS)
             msg('Plotting the results')
             uti_plot.uti_plot1d(
                 stkF.arS,
@@ -158,7 +158,7 @@ class Controller(rt_controller.Controller):
                     'Flux through Finite Aperture',
                 ],
             )
-        elif simulation_kind.has_name('X'):
+        elif simulation_kind == 'X':
             msg('Performing Power Density calculation (from field) vs x-coordinate calculation')
             pkdc('simulation_kind={}', simulation_kind)
             pkdc('stkP={}', stkP)
@@ -184,7 +184,7 @@ class Controller(rt_controller.Controller):
                     'Power Density\n(horizontal cut at y = 0)',
                 ],
             )
-        elif simulation_kind.has_name('Y'):
+        elif simulation_kind == 'Y':
             msg('Performing Power Density calculation (from field) vs x-coordinate calculation')
             pkdc('simulation_kind={}', simulation_kind)
             pkdc('stkP={}', stkP)
@@ -207,7 +207,7 @@ class Controller(rt_controller.Controller):
                     'Power Density\n(vertical cut at x = 0)',
                 ],
             )
-        elif simulation_kind.has_name('X_AND_Y'):
+        elif simulation_kind == 'X_AND_Y':
             msg('Performing Electric Field (intensity vs x- and y-coordinate) calculation')
             srwlib.srwl.CalcPowDenSR(stkP, beam, 0, magFldCnt, ar_prec_p)
             msg('Extracting Intensity from calculated Electric Field')
