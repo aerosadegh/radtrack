@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+#C:\d from old\RadiaBeam\RadSoft\radtrack\tests>py.test ProcessSRWOutput_test.py
 u"""PyTest for :mod:`radiasoft.AnalyticCalc`
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
@@ -55,3 +56,5 @@ def test_1():
 	plot(z_dist,x_trajectory)
 	grid()
 	plt.show()
+
+test_1()

@@ -166,6 +166,8 @@ class Controller(rt_controller.Controller):
             pkdc('und={}', und)
             srwlib.srwl.CalcPowDenSR(stkP, beam, 0, magFldCnt, ar_prec_p)
             msg('Extracting Intensity from calculated Electric Field')
+            msg('Saving the results')
+#	    self.save_results('IntensityVsX.txt',[stkP.mesh.eStart, stkP.mesh.eFin, stkP.mesh.ne],stkP.arS)            
             msg('Plotting the results')
             plotMeshX = [1000*stkP.mesh.xStart, 1000*stkP.mesh.xFin, stkP.mesh.nx]
             powDenVsX = pkarray.new_float([0]*stkP.mesh.nx)
