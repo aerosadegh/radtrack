@@ -16,12 +16,15 @@ from pykern import pkyaml
 
 from radtrack.srw import AnalyticCalc
 
+def str2num(s):
+    return ("." in s and [float(s)] or [int(s)])[0]
+
 def test_1():
 	d = pkunit.data_dir()
 	## Testing actual SRW calculations 
 	##Reading SRW data SPECTRUM
 	IFileName="Spectrum.txt"
-	f=open(str(d.join(IFileName)),"r",1000)
+	f=open(str(d.join(IFileName)),"r")#,1000)
 	e_p=[]
 	I_rad=[]
 	for line in f.readlines():
@@ -33,17 +36,19 @@ def test_1():
 
 	##Reading SRW data TRAJECTORY
 	IFileName="Trajectory.txt"
-	f=open(str(d.join(IFileName)),"r",10000)
+	f=open(str(d.join(IFileName)),"r")#,10000)
 	z_dist=[]
 	x_trajectory=[]
 	for line in f.readlines():
 	    words = line.split()
 	    z_dist.append(words[0])
 	    x_trajectory.append(words[1])
-	print (np.shape(z_dist))
-	print (min(x_trajectory)) 
-	print (max(x_trajectory[1:10000]))
-	print (x_trajectory[1:10])
+	minX=min(map(float, x_trajectory))
+	maxX=max(map(float, x_trajectory))
+#	print (np.shape(z_dist))
+	print ('Length of ID, m', max((map(float, z_dist))))
+	print('Oscillation Amplitude, mm',(maxX-minX)/2)
+#	print (x_trajectory[1:10])
 	f.close()
 
 	#Plotting

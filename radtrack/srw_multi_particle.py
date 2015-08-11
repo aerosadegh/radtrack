@@ -126,7 +126,7 @@ class Controller(rt_controller.Controller):
         #[7]: max. number of auto-steps for R-K fifth order or higher (default = 5000)
         fieldInterpMeth = 4 #Magnetic Field Interpolation Method, to be entered into 3D field structures below (to be used e.g. for trajectory calculation):
         #1- bi-linear (3D), 2- bi-quadratic (3D), 3- bi-cubic (3D), 4- 1D cubic spline (longitudinal) + 2D bi-cubic
-
+	TestDir='..//tests/'
         msg('Performing trajectory calculation')
         (Xtrajectory, Ytrajectory, ctMesh) = self._trajectory(
             und,
@@ -136,7 +136,7 @@ class Controller(rt_controller.Controller):
             beam,
         )
 	msg('Saving the results')
-	self.save_results('Trajectory.txt',ctMesh,np.vstack((Xtrajectory,Ytrajectory)))
+	self.save_results(TestDir +'Trajectory.txt',ctMesh,np.vstack((Xtrajectory,Ytrajectory)))
         msg('Plotting the results')
         msg('NOTE: Close all graph windows to proceed')
         uti_plot.uti_plot_show()
@@ -147,7 +147,7 @@ class Controller(rt_controller.Controller):
             msg('Extracting Intensity from calculated Electric Field')
             srwlib.srwl.CalcStokesUR(stkF, beam, und, ar_prec_f)
 	    msg('Saving the results')
-	    self.save_results('Spectrum.txt',[stkF.mesh.eStart, stkF.mesh.eFin, stkF.mesh.ne],stkF.arS)
+	    self.save_results(TestDir +'Spectrum.txt',[stkF.mesh.eStart, stkF.mesh.eFin, stkF.mesh.ne],stkF.arS)
             msg('Plotting the results')
             uti_plot.uti_plot1d(
                 stkF.arS,
@@ -167,7 +167,7 @@ class Controller(rt_controller.Controller):
             srwlib.srwl.CalcPowDenSR(stkP, beam, 0, magFldCnt, ar_prec_p)
             msg('Extracting Intensity from calculated Electric Field')
             msg('Saving the results')
-#	    self.save_results('IntensityVsX.txt',[stkP.mesh.eStart, stkP.mesh.eFin, stkP.mesh.ne],stkP.arS)            
+	    self.save_results(TestDir +'IntensityVsX.txt',[stkP.mesh.eStart, stkP.mesh.eFin, stkP.mesh.ne],stkP.arS)            
             msg('Plotting the results')
             plotMeshX = [1000*stkP.mesh.xStart, 1000*stkP.mesh.xFin, stkP.mesh.nx]
             powDenVsX = pkarray.new_float([0]*stkP.mesh.nx)
@@ -197,7 +197,8 @@ class Controller(rt_controller.Controller):
             powDenVsY = pkarray.new_float([0]*stkP.mesh.ny)
             for i in range(stkP.mesh.ny):
                 powDenVsY[i] = stkP.arS[stkP.mesh.ny*int(stkP.mesh.nx*0.5) + i]
-	    self.save_results('IntensityVsY.txt',plotMeshY,powDenVsY)
+		msg('Saving the results')
+	    self.save_results(TestDir +'IntensityVsY.txt',plotMeshY,powDenVsY)
 	    uti_plot.uti_plot1d(
                 powDenVsY,
                 plotMeshY,
