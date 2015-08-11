@@ -19,7 +19,7 @@ def test_declarations():
     """Verify a couple of values exist"""
     d = rt_params.declarations('srw')
     pkdp(d['precision']['spectral_flux'].children)
-    assert d['undulator']['period_len'].units == 'cm', \
+    assert d['undulator']['period_len'].units == 'm', \
         'Undulator period length units should be centimeters'
     assert d['precision']['spectral_flux']['flux_calculation'].py_type \
         == srw_enums.FluxCalculation, \
@@ -60,7 +60,7 @@ def test_init_params():
 
 def test_iter_defaults():
     """Verify a couple of values exist"""
-    decl = rt_params.declarations('srw')
+    decl = rt_params.declarations('srw')['simulation_complexity']['multi_particle']
     defaults = rt_params.defaults('srw_multi', decl)
     it = defaults['precision'].iter_leaves()
     assert 'Initial Harmonic' == it.next().decl.label, \
