@@ -1,0 +1,761 @@
+-
+  name: undulator
+  required: [genesis]
+  children:
+    _
+      name: undulator_parameter
+      py_type: float
+      label: RMS Undulator Parameter (AW0)
+      required: [genesis]
+    -
+      name: period_len
+      py_type: float
+      units: m
+      label: undulator period length (XLAMD)
+      required: [genesis]
+    -
+      name: undulator_type
+      py_type: genesis_enumss.UndulatorType
+      label: Undulator Type (IWITYP)
+      required: [genesis]  
+    -
+      name: horizontal_focus
+      py_type: float
+      label: Normalized natural horizontal focusing of the undulator (XKX)
+      rquired: [genesis]
+    -
+      name: vertical_focus
+      py_type: float
+      label: Normalized natural verticl focusing of the undulator (XKY)
+    -
+      name: coupling_factor
+      py_type: float
+      label: coupling factor of the electron beam to the radiation field (FBESS0)
+      required: [genesis]
+    -
+      name: num_periods
+      py_type: int
+      label: number of periods (NWIG)
+      required: [genesis]
+    -
+      name: num_section
+      py_type: int
+      label: number of sections of the undulator (NSEC)
+      required: [genesis]
+    -
+      name: virtual_undulator_parameter
+      py_type: float
+      label: virtual undulator parameter (AWD)
+      required: [genesis]
+    -
+      name: taper_start
+      py_type: float
+      unit: m
+      label: start of undulator tapering (WCOEFZ(1))
+      required: [genesis]
+    -
+      name: taper_field
+      py_type: float
+      label: relative change of the undulator field over the entire taper length (WCOEFZ(2))
+      required: [genesis]
+    -
+      name: taper_type
+      py_type: genesis_enumss.TaperType
+      label: taper model (WCOEFZ(3))
+      required: [genesis]
+    -
+      name: error_type
+      py_type: genesis_enumss.ErrorType
+      label: type of undulator field errors (IERTYP)
+      required: [genesis]
+    -
+      name: error
+      py_type: float
+      label: RMS Undulator Field Error (DELAW)
+      required: [genesis]
+    -
+      name: rng_seed
+      py_type: int
+      label: random number generator seed for field errors (ISEED)
+      required : [genesis]
+    -
+      name: horizontal_misalignment
+      py_type: float
+      unit: m
+      label: horizontal misalignment of undulator (AWX)
+      required: [genesis]
+    -
+      name: vertical_misalignment
+      py_type: float
+      unit: m
+      label: vertical misalignment of undulator (AWY)
+      required: [genesis]     
+
+
+_
+  name: Beam
+  required: [genesis]
+  children:
+    -
+      name: num_particle
+      py_type: int
+      label: number of macro particles per slice (NPART)
+      required: [genesis]
+    -
+      name: gamma
+      py_type: float
+      label: Relativistic Energy in terms of of electron rest mass (GAMMA0)
+      required: [genesis]
+    -
+      name: rms_energy_spread
+      py_type: float
+      label: RMS Energy Spread (DELGAM)
+      required: [genesis]
+    -
+      name: rms_horizontal_width
+      py_type: float
+      unit: m
+      label: RMS Horizontal Width (RXBEAM)
+      required: [genesis]
+    -
+      name: rms_vertical_width
+      py_type: float
+      unit: m
+      label: RMS Vertical Width (RYBEAM)
+      required: [genesis]
+    -
+      name: rms_horizontal_emittance
+      py_type: float
+      unit: m
+      label: RMS Horizontal Emittance (EMITX)
+      required: [genesis]
+    -
+      name: rms_vertical_emittance
+      py_type: float
+      unit: m
+      label: RMS Vertical Emittance (EMITY)
+      required: [genesis]
+    -
+      name: horizontal_alpha
+      py_type: float
+      label: Horizontal Alpha (ALPHAX)
+      required: [genesis]
+    -
+      name: vertical_alpha
+      py_type: float
+      label: Vertical Alpha (ALPHAY)
+      required: [genesis]
+    -
+      name: horizontal_coord
+      py_type: float
+      label: Initial Horizontal Coordinate (XBEAM)
+      units: m
+      required: [genesis]
+    -
+      name: vertical_coord
+      py_type: float
+      label: Initial Vertical Coordinate (YBEAM)
+      units: m
+      required: [genesis]
+    -
+      name: horizontal_angle
+      py_type: float
+      label: Horizontal Angle (PXBEAM)
+      required: [genesis]
+    -
+      name: vertical_angle
+      py_type: float
+      label: Vertical Angle (PYBEAM)
+      required: [genesis]
+    -
+      name: peak_current
+      py_type: float
+      label: Peak Current (CURPEAK)
+      units: A
+      required: [genesis]
+    -
+      name: bunch_factor
+      py_type: float
+      label: Bunching Factor (BUNCH)
+      required: [genesis]
+    -
+      name: bunch_phase
+      py_tyoe: float
+      label: Bunching Phase (BUNCHPHASE)
+      required: [genesis]
+    -
+      name: energy_modulation
+      py_type: float
+      label: Energy Modulation (EMOD)
+      required: [genesis]
+    -
+      name: energy_modulation_phase
+      py_type: float
+      label: Energy Modulation Phase (EMODPHASE)
+      required: [genesis]
+      
+      
+-
+  name: radiation
+  required: [genesis]
+  children:
+    -
+      name: resonant_wavelength
+      py_type: float
+      units: m
+      label: Resonant Radiation Wavelength (XLAMDS)
+      required: [genesis]
+    -
+      name: input_power
+      py_type: float
+      units: W
+      label: input_radiation_power (PRAD0)
+      required: [genesis]
+    -
+      name: rayleigh_length
+      py_type: float
+      units: m
+      label: Rayleigh Length (ZRAYL)
+      required: [genesis]
+    -
+      name: rayleigh_waist
+      py_type: float
+      units: m
+      label: Rayleigh Wasit (ZWAIST)
+      required: [genesis]
+    -
+      name:num_harmonic
+      py_type: int
+      label: Harmonic Number (NHARM)
+      required: [genesis]
+    -
+      name: all_harmonic
+      py_type: genesis_enums.AllHarmonic
+      label: Calculate All Harmonics (IALLHARM)
+      required: [genesis]
+    -
+      name: harmonic_coupling
+      py_type: genesis_enums.HarmonicCoupling
+      label: Couple Harmonic to Beam (IHARMSC)
+      required: [genesis]
+    -
+      name: harmonic_power
+      py_type: float
+      units: W
+      label: Harmonic Radiation Power (PRADH0)
+      required: [genesis]
+
+
+-
+  name: particle_loading
+  required: [genesis]
+  children:
+    -
+      name: ham_particle_phase
+      py_type: int
+      label: Hammersley Base for Particle Phase (ILDPSI)
+      required: [genesis]
+    -
+      name: ham_energy_distribution
+      py_type: int
+      label: Hammersley Base for Energy Distribution (ILDGAM)
+      required: [genesis]
+    -
+      name: ham_horizontal_distribution
+      py_type: int
+      label: Hammersley Base for Hoizontal Distribution (ILDX)
+      required: [genesis]
+    - 
+      name: ham_vertical_distribution
+      py_type: int
+      label: Hammersley base for Vertical Distribution (ILDY)
+      required: [genesis]
+    -
+      name: ham_horizontal_angle
+      py_type: int
+      label: Hammersley Base for Horizontal Angle (ILDPX)
+      required: [genesis]
+    - 
+      name: ham_vertical_angle
+      py_type: int
+      label: Hammersley Base for Vertical Angle (ILDPY)
+      required: [genesis]
+    -
+      name: energy_profile
+      py_type: genesis_enums.EnergyProfile
+      label: Energy Profile (ITGAUS)
+      required: [genesis]
+    -
+      name: generate_gaus
+      py_type: genesis_enums.GenerateGaus
+      label: Method to Generating Gaussian (ITGAMGAUS)
+      required: [genesis]
+    -
+      name: ham_all
+      py_type: genesis_enums.HamAll
+      label: Use Same Hammerslet for all Slices (IALL)
+      required: [genesis]
+    -
+      name: rng_sn_seed
+      py_type: int
+      label: Random Number Generator for Shot Noise (IPSEED)
+      required: [genesis]
+    -
+      name: num_bins
+      py_type: int
+      label: Number of Bins for Phase (NBINS)
+      required: [genesis]
+      
+      
+_
+  name: mesh
+  required: [genesis]
+  children:
+    -
+      name: num_grid
+      py_type: int
+      label: Number of Grid Points (NCAR)
+      required: [genesis]
+    -
+      name: boundary
+      py_type: genesis_enums.Boundary
+      label: Boundary Conditions (LBC)
+      required: [genesis]
+    -
+      name: auto_grid_size
+      py_type: float
+      label: Grid Size From Genesis(RMAX0)
+      required: [genesis]
+    -
+      name: direct_grid_size
+      py_type: float
+      units: m
+      label: Grid Size (DGRID)
+      required: [genesis]
+    - 
+      name: azimuthal_modes
+      py_type: int
+      label: Space Charge Azimuthal Modes (NSCR)
+      required: [genesis]
+    - 
+      name: rad_grid
+      py_type: int
+      label: Space Charge Radial Grid Points (NPTR)
+      required: [genesis]
+    -
+      name: rad_grid_size
+      py_type: float
+      units: m
+      label: Space Charge Radial Grid Size (RMAX0SC)
+      required: [genesis]
+    -
+      name: sc_calc
+      py_type: genesis_enums.SCCalc
+      label: Calculate Space Charge at each Step (ISCRKUP)
+      required: [genesis]
+      
+      
+-
+  name: focusing
+  required: [genesis]
+  children:
+    -
+      name: focus_strength
+      py_type: float
+      units: T/m
+      label: Focusing Quad Strength (QUADF)
+      required: [genesis]
+    -
+      name: defocus_strength
+      py_type: float
+      untis: T/m
+      label: Defocusing Quad Strength (QUADD)
+      required: [genesis]
+    -
+      name: focus_length
+      py_type: float
+      label: Focusing Quad Length as Multiple of Undulator Period (FL)
+      required: [genesis]
+    -
+      name: defocus_length
+      py_type: float
+      label: Defocusing Quad Length as Multiple of Undulator Period (DL)
+      required: [genesis]
+    -
+      name: drift_length
+      py_type: float
+      label: Drift Length as Multiple of Undulator Period (DRL)
+      required: [genesis]
+    -
+      name: cell_start
+      py_type: genesis_enums.CellStart
+      label: Cell Start Position (F1ST)
+      required: [genesis]
+    -
+      name: max_horizontal_misalignment
+      py_type: float
+      untis: m
+      label: Max Horizontal Misalignment (QFDX)
+      required: [genesis]
+    -
+      name: max_vertical_misalignment
+      py_type: float
+      untis: m
+      label: Max Vertical Misalignment (QFDY)
+      required: [genesis]
+    -
+      name: solenoid_strength
+      py_type: float
+      units: T
+      label: Solenoid Field Strength (SOLEN)
+      required: [genesis]
+    -
+      name: solenoid_length
+      py_type: float
+      label: Solenoid Length (SL)
+      required: [genesis]
+      
+      
+-
+  name: time_dependence
+  required: [genesis]
+  children:
+    -
+      name: set_time_dependent
+      py_type: genesis_enums.TimeDep
+      label: Set Time Dependent Simulation (ITDP)
+      required: [genesis]
+    -
+      name: bunch_length
+      py_type: float
+      units: m
+      label: Bunch Length (CURLEN)
+      required: [gensis]
+    -
+      name: slice_separation
+      py_type: float
+      label: Separation of beam slices in terms of radiation wavelength (ZSEP)
+      required: [genesis]
+    -
+      name: num_slice
+      py_type: float
+      label: Number of Slices (NSLICE)
+      required: [genesis]
+    -
+      name: start_slice
+      py_type: int
+      label: Position of First Slice (NTAIL)
+      required: [genesis]
+    -
+      name: shotnoise
+      py_type: float
+      label: Shotnoise (SHOTNOISE)
+      required: [genesis]
+    - 
+      name: shotnoise_algorithm
+      py_type: genesis_enums.ShotnoiseAlgorithm
+      label: Shotnoise Algorithm (ISNTYP)
+      required: [genesis]
+
+
+_
+  name: simulation_control
+  required: [genesis]
+  children:
+    -
+      name: step_size
+      py_type: float
+      label: Integration Step Size in terms of undulator period length (DELZ)
+      required: [genesis]
+    -
+      name: integration_length
+      py_type: float
+      units: m
+      label: Total Integration Length (ZSTOP)
+      required: [genesis]
+    -
+      name: orbit_correct
+      py_type: genesis_enums.OrbitCorrect
+      label: Orbit Correction (IORB)
+      required: [genesis]
+    -
+      name: energy_loss
+      py_type: genesis_enums.EnergyLoss
+      label: Include Energy Loss (ISRAVG)
+      required: [genesis]
+    -
+      name: energy_spread
+      py_type: genesis_enums.EnergySpread
+      label: Include Energy Spread (ISRSIG)
+      required: [genesis]
+    -
+      name: eloss
+      py_type: float
+      units: eV/m
+      label: Externally applied energy loss of the electron beam (ELOSS)
+      required: [genesis]
+
+
+-
+  name: scan
+  required: [genesis]
+  children:
+    -
+      name: scan_variable
+      py_type: genesis_enums.ScanVar
+      labels: Select the parameter for a scan over (ISCAN)
+      required: [genesis]
+    -
+      name: num_scan
+      py_type: int
+      labels: Number of steps per scan (NSCAN)
+      required: [genesis]
+    -
+      name: scan_range
+      py_type: float
+      labels: Scan Over Range (SVAR)
+      required: [genesis]
+-
+  name: IO_Control
+  required: [genesis]
+  children
+    -
+      name: output_num_step
+      py_type: int
+      labels: Number of Steps to Output at (IPHSTY)
+      required: [genesis]
+    -
+      name: output_num_slice
+      py_type: int
+      labels: Number of Slices to Output at (ISHSTY)
+      required: [genesis]
+    -
+      name: particle_dist_num_step
+      py_type: int
+      labels: Number of Steps to Output Particle Data(IPPART)
+      required: [genesis]
+    -
+      name: particle_dist_num_slice
+      py_type: int
+      labels: Number of Slices to Output Particle Data (ISPART)
+      required: [genesis]
+    -
+      name: field_dist_num_step
+      py_type: int
+      label: Number of Steps to Output Field Data (IPRADI)
+      required: [genesis]
+    -
+      name: field_dist_num_slice
+      py_type: int
+      label: Number of Slices to Output Field Data (ISRADI)
+      required: [genesis]
+    -
+      name: time_window
+      py_type: genesis_enums.TimeWindow
+      label: Match Time Window (IOTAIL)
+      required: [genesis]
+    -
+      name: output_filename
+      py_type: str
+      label: Output Filename (OUTPUTFILE)
+      required: [genesis]
+    -
+      name: mag_input_filename
+      py_type: str
+      label: Input Magnetic Field File (MAGINFILE)
+      required: [genesis]
+    -
+      name: mag_output_filename
+      py_type: str
+      label: Ouput Magnetic Field Filename (MAGOUTFILE)
+      required: [genesis]
+    -
+      name: dump_all
+      py_type: genesis_enums.DumpAll
+      label: Dump Particle and Field Data (IDUMP)
+      required: [genesis]
+    -
+      name: dump_field
+      py_type: genesiss_enum.DumpField
+      label: Dump Field Data (IDMPFLD)
+      required: [genesis]
+    -
+      name: dump_particle
+      py_type: genesis_enums.DumpParticle
+      label: Dump Particle Data (IDMPPAR)
+      required: [genesis]
+    - 
+      name: beam_file
+      py_type: str
+      label: Input Beam File (BEAMFILE)
+      required: [genesis]
+    -
+      name: rad_file
+      py_type: str
+      label: Input Radiation File (RADFILE)
+      required: [genesis]
+    -
+      name: phase_file
+      py_type: str
+      label: Input 6D Phase File (DISTFILE)
+      required: [genesis]
+    -
+      name: ndcut
+      py_type: int
+      label: Cutting Time Window (NDCUT)
+      required: [genesis]
+    -
+      name: field_file
+      py_type: str
+      label: Input Field File (FIELDFILE)
+      required: [genesis]
+    - 
+      name: align_rad
+      py_type: genesis_enums.AlignRad
+      label: Align Radiation (ALIGNRADF)
+      required: [genesis]
+    -
+      name: offset_rad
+      py_type: int
+      label: Skip Slices (OFFSETRADF)
+      required: [genesis]
+    -
+      name: part_dist_file
+      py_type: str
+      label: Input Particle Distribution File (PARTFILE)
+      required: [genesis]
+    -
+      name: convharm
+      py_type: int
+      label: Up Convert to Harmonic (CONVHARM)
+      required: [genesis]
+    -
+      name: chicane_field
+      py_type: float
+      units: T
+      label: Chicane Magnetic Field (IBFIELD)
+      required: [genesis]
+    -
+      name: chicane_mag_length
+      py_type: float
+      units: m
+      label: Bending Magnet Length (IMAGL)
+      required: [genesis]
+    -
+      name: chicane_drift
+      py_type: float
+      units: m
+      label: Drift Length (IDRIL)
+      required: [genesis]
+    -
+      name: log
+      py_type: genesis_enums.Log
+      label: Runtime and Error Log (ILOG)
+      required: [genesis]
+    -
+      name: output_parameters
+      py_type: list
+      label: Select Parameters to Output
+      required: [genesis]
+      children:
+        -
+          name: rad_power
+          py_type: genesis_enums.RadPower
+          label: Radiation Power
+          required: [genesis]
+        -
+          name: power_growth
+          py_type: genesis_enums.PowerGrow
+          label: logarithmic derivative of power growth
+          required: [genesis]
+        -
+          name: power_density
+          py_type: genesis_enums.PowerDensity
+          label: power density at undulator axis
+          required: [genesis]
+        - 
+          name: rad_phase
+          py_type: genesis_enums.RadPower
+          label: radiation phase at the undulator axis
+          required: [genesis]
+        - 
+          name: rad_size
+          py_type: genesis_enums.RadSize
+          label: transverse radiation size
+          required: [genesis]
+        _
+          name: rms_diffract_angle
+          py_type: genesis_enums.DiffractAngle
+          label: rms diffraction angle of the radiation
+          required: [genesis]
+        - 
+          name: beam_energy
+          py_type: genesis_enums.BeamEnergy
+          label: beam energy
+          required: [genesis]
+        - 
+          name: bunch_factor
+          py_type: genesis_enums.BunchFactor
+          label: bunching factor
+          required: [genesis]
+        - 
+          name: beam_size_x
+          py_type: genesis_enums.BSX
+          label: beam size in x
+          required: [genesis]
+        - 
+          name: beam_size_y
+          py_type: genesis_enums.BSY
+          label: beam size in y
+          required: [genesis]
+        -
+          name: error_energy_conserve
+          py_type: genesis_enums.EnergyError
+          label: error in energy conservation
+          required: [genesis]
+        -
+          name: beam_pos_x
+          py_type: genesis_enums.BPX
+          label: beam position in x
+          required: [genesis]
+        -
+          name: beam_pos_y
+          py_type: genesis_enums.BPY
+          label: beam position in y
+          required: [genesis]
+       -
+         name: energy_spread
+         py_type: genesis_enums.EnergySpread
+         label: energy spread
+         required: [genesis]
+       -
+         name: field_intensity
+         py_type: genesis_enums.FieldIntensity 
+         label: on-axis field intensity in the far field zone
+         required: [genesis]
+       - 
+         name: second_harmonic
+         py_type: genesis_enums.SecondHarmonic
+         label: output of 2nd harmonic
+         required: [genesis]
+       - 
+         name: third_harmonic
+         py_type: genesis_enums.ThirdHarmonic
+         label: output of 3rd harmonic
+         required: [genesis]
+       -
+         name: fourth_harmonic
+         py_type: genesis_enums.FourthHarmonic
+         label: output of 4th harmonic
+         required: [genesis]
+       -
+         name: fifth_harmonic
+         py_type: genesis_enums.FifthHarmonic
+         label: output of 5th harmonic
+         required: [genesis]
+    -
+      name: ff_spectrum
+      py_type: genesis_enums.FFspectrum
+      label: Calculate Spectrum
+      required: [genesis]
+      

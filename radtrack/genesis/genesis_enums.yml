@@ -1,0 +1,194 @@
+---
+UndulatorType:
+  PLANAR: Planar
+  HELICAL: Helical
+  
+TaperType:
+  NONE: None
+  LINEAR: Linear
+  QUADRATIC: Quadratic
+  
+ErrorType:
+  GAUSSIAN_MINMIZE: Gaussian Minimize
+  UNIFORM_MINIMIZE: Uniform Minimize
+  NONE: None
+  UNIFORM: Uniform
+  GAUSSIAN: Gaussian
+  
+AllHarmonic:
+  YES: Yes
+  NO: No
+  
+HarmonicCoupling:
+  YES: Yes
+  NO: No  
+
+EnergyProfile:
+  UNIFORM: Uniform
+  GAUSSIAN: Gaussian
+  
+GenerateGaus:
+  JOINTPROBABILITY: Joint Probability Function
+  INVERTEDERROR: Inverted Error Function
+  
+HamAll:
+  YES: Yes
+  NO: No
+  
+Boundary:
+  DIRECHLET: Direchlet
+  NEUMANN: Neumann
+  
+SCCalc:
+  YES: Yes
+  NO: No
+  
+CellStart:
+  FULL: Full
+  HALF: Half
+  
+TimeDep:
+  YES: Yes
+  NO: No
+  
+ShotnoiseAlgorithm:
+  FAWLEY: Fawley
+  PENNMAN: Pennman
+  
+OrbitCorrect:
+  YES: Yes
+  NO: No
+  
+ScanVar:
+  GAMMA0: GAMMA0
+  DELGAM: DELGAM
+  CURPEAK: CURPEAK
+  XLAMDS: XLAMDS
+  AW0: AW0
+  ISEED: ISEED
+  PXBEAM: PXBEAM
+  PYBEAM: PYBEAM
+  XBEAM: XBEAM
+  YBEAM: YBEAM
+  RXBEAM: RXBEAM
+  RYBEAM: RYBEAM
+  XLAMD: XLAMD
+  DELAW: DELAW
+  ALPHAX: ALPHAX
+  ALPHAY: ALPHAY
+  EMITX: EMITX
+  EMITY: EMITY
+  PRAD0: PRAD0
+  ZRAYL: ZRAYL
+  ZWAIST: ZWAIST
+  AWD: AWD
+  BEAMFILE: BEAMFILE
+  BEAMOPT: BEAMOPT
+  BEAMGAM: BEAMGAM
+  
+MatchTimeWindow:
+  YES: Yes
+  NO: No
+  
+DumpAll:
+  YES: Yes
+  NO: No  
+  
+DumpField:
+  YES: Yes
+  NO: No 
+  
+DumpParticle:
+  YES: Yes
+  NO: No 
+  
+AlignRad:
+  YES: Yes
+  NO: No
+  
+Log:
+  YES: Yes 
+  NO: No
+  
+RadPower:
+  YES: Yes 
+  NO: No
+  
+PowerGrow:
+  YES: Yes 
+  NO: No
+
+PowerDensity:
+  YES: Yes 
+  NO: No
+  
+RadPower:
+  YES: Yes 
+  NO: No
+  
+RadSize:
+  YES: Yes 
+  NO: No
+  
+DiffractAngle:
+  YES: Yes 
+  NO: No
+  
+BeamEnergy:
+  YES: Yes 
+  NO: No
+  
+BunchFactor:
+  YES: Yes 
+  NO: No
+  
+BSX:
+  YES: Yes 
+  NO: No
+  
+BSY:
+  YES: Yes 
+  NO: No
+  
+EnergyError:
+  YES: Yes 
+  NO: No
+  
+BPX:
+  YES: Yes 
+  NO: No
+  
+BPY:
+  YES: Yes 
+  NO: No
+  
+EnergySpread:
+  YES: Yes 
+  NO: No
+  
+FieldIntensity:
+  YES: Yes 
+  NO: No
+  
+SecondHarmonic:
+  YES: Yes 
+  NO: No
+  
+ThirdHarmonic:
+  YES: Yes 
+  NO: No
+  
+FourthHarmonic:
+  YES: Yes 
+  NO: No
+  
+FifthHarmonic:
+  YES: Yes 
+  NO: No
+  
+FFSpectrum:
+  NEAR_FIELD: near field on-axis intensity and phase  
+  FAR_FIELD: far field on-axis intensity and phase
+  TOTAL:  near field total radiation power  
+  
+  
