@@ -15,6 +15,10 @@ ErrorType:
   UNIFORM: Uniform
   GAUSSIAN: Gaussian
   
+CutCol:
+  YES: YEes
+  NO: No
+    
 AllHarmonic:
   YES: Yes
   NO: No
@@ -40,8 +44,8 @@ Boundary:
   NEUMANN: Neumann
   
 SCCalc:
-  YES: Yes
-  NO: No
+  ONCE: Once
+  FOUR: Four
   
 CellStart:
   FULL: Full
@@ -59,6 +63,14 @@ OrbitCorrect:
   YES: Yes
   NO: No
   
+EnergyLoss:
+  YES: Yes
+  NO: No
+  
+EnergySpread:
+  YES: Yes
+  NO: No
+    
 ScanVar:
   GAMMA0: GAMMA0
   DELGAM: DELGAM

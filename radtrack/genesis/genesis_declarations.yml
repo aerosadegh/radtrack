@@ -50,7 +50,7 @@
     -
       name: taper_start
       py_type: float
-      unit: m
+      units: m
       label: start of undulator tapering (WCOEFZ(1))
       required: [genesis]
     -
@@ -81,13 +81,13 @@
     -
       name: horizontal_misalignment
       py_type: float
-      unit: m
+      units: m
       label: horizontal misalignment of undulator (AWX)
       required: [genesis]
     -
       name: vertical_misalignment
       py_type: float
-      unit: m
+      units: m
       label: vertical misalignment of undulator (AWY)
       required: [genesis]     
 
@@ -114,25 +114,25 @@ _
     -
       name: rms_horizontal_width
       py_type: float
-      unit: m
+      units: m
       label: RMS Horizontal Width (RXBEAM)
       required: [genesis]
     -
       name: rms_vertical_width
       py_type: float
-      unit: m
+      units: m
       label: RMS Vertical Width (RYBEAM)
       required: [genesis]
     -
       name: rms_horizontal_emittance
       py_type: float
-      unit: m
+      units: m
       label: RMS Horizontal Emittance (EMITX)
       required: [genesis]
     -
       name: rms_vertical_emittance
       py_type: float
-      unit: m
+      units: m
       label: RMS Vertical Emittance (EMITY)
       required: [genesis]
     -
@@ -174,18 +174,25 @@ _
       units: A
       required: [genesis]
     -
+      name: cut_col
+      py_type: genesis_enums.CutCol
+      labels: Collimate Halo/Tails
+      required: [genesis]
+    -
       name: bunch_factor
       py_type: float
       label: Bunching Factor (BUNCH)
       required: [genesis]
     -
       name: bunch_phase
-      py_tyoe: float
+      py_type: float
+      units: rad
       label: Bunching Phase (BUNCHPHASE)
       required: [genesis]
     -
       name: energy_modulation
       py_type: float
+      units: rad
       label: Energy Modulation (EMOD)
       required: [genesis]
     -
@@ -551,7 +558,7 @@ _
       required: [genesis]
     -
       name: time_window
-      py_type: genesis_enums.TimeWindow
+      py_type: genesis_enums.MatchTimeWindow
       label: Match Time Window (IOTAIL)
       required: [genesis]
     -
@@ -576,7 +583,7 @@ _
       required: [genesis]
     -
       name: dump_field
-      py_type: genesiss_enum.DumpField
+      py_type: genesis_enums.DumpField
       label: Dump Field Data (IDMPFLD)
       required: [genesis]
     -
@@ -653,6 +660,11 @@ _
       label: Runtime and Error Log (ILOG)
       required: [genesis]
     -
+      name: ff_spectrum
+      py_type: genesis_enums.FFspectrum
+      label: Calculate Spectrum
+      required: [genesis]
+    -
       name: output_parameters
       py_type: list
       label: Select Parameters to Output
@@ -723,39 +735,34 @@ _
           py_type: genesis_enums.BPY
           label: beam position in y
           required: [genesis]
-       -
-         name: energy_spread
-         py_type: genesis_enums.EnergySpread
-         label: energy spread
-         required: [genesis]
-       -
-         name: field_intensity
-         py_type: genesis_enums.FieldIntensity 
-         label: on-axis field intensity in the far field zone
-         required: [genesis]
-       - 
-         name: second_harmonic
-         py_type: genesis_enums.SecondHarmonic
-         label: output of 2nd harmonic
-         required: [genesis]
-       - 
-         name: third_harmonic
-         py_type: genesis_enums.ThirdHarmonic
-         label: output of 3rd harmonic
-         required: [genesis]
-       -
-         name: fourth_harmonic
-         py_type: genesis_enums.FourthHarmonic
-         label: output of 4th harmonic
-         required: [genesis]
-       -
-         name: fifth_harmonic
-         py_type: genesis_enums.FifthHarmonic
-         label: output of 5th harmonic
-         required: [genesis]
-    -
-      name: ff_spectrum
-      py_type: genesis_enums.FFspectrum
-      label: Calculate Spectrum
-      required: [genesis]
+        -
+          name: energy_spread
+          py_type: genesis_enums.EnergySpread
+          label: energy spread
+          required: [genesis]
+        -
+          name: field_intensity
+          py_type: genesis_enums.FieldIntensity 
+          label: on-axis field intensity in the far field zone
+          required: [genesis]
+        - 
+          name: second_harmonic
+          py_type: genesis_enums.SecondHarmonic
+          label: output of 2nd harmonic
+          required: [genesis]
+        - 
+          name: third_harmonic
+          py_type: genesis_enums.ThirdHarmonic
+          label: output of 3rd harmonic
+          required: [genesis]
+        -
+          name: fourth_harmonic
+          py_type: genesis_enums.FourthHarmonic
+          label: output of 4th harmonic
+          required: [genesis]
+        -
+          name: fifth_harmonic
+          py_type: genesis_enums.FifthHarmonic
+          label: output of 5th harmonic
+          required: [genesis]
       
