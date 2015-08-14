@@ -19,6 +19,20 @@ from radtrack.srw import AnalyticCalc
 def str2num(s):
     return ("." in s and [float(s)] or [int(s)])[0]
 
+def maxelements(seq):
+    ''' Return list of position(s) of largest element '''
+    max_indices = []
+    if seq:
+        max_val = seq[0]
+        for i,val in ((i,val) for i,val in enumerate(seq) if val >= max_val):
+            if val == max_val:
+                max_indices.append(i)
+            else:
+                max_val = val
+                max_indices = [i]
+
+    return max_indices
+
 def test_1():
 	d = pkunit.data_dir()
 	## Testing actual SRW calculations 
@@ -32,6 +46,12 @@ def test_1():
 	    e_p.append(words[0])
 	    I_rad.append(words[1])
 	print (np.shape(e_p))
+	I_radf=map(float,I_rad)
+	maxI=max(I_radf)
+	print('Spectral Amplitude, ph/s/mrad2',maxI)
+	print(I_radf.index(max(I_radf)))
+	maxIn=maxelements(I_radf)
+	print(maxIn)
 	f.close()
 
 	##Reading SRW data TRAJECTORY
