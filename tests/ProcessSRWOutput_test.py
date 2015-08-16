@@ -33,6 +33,29 @@ def maxelements(seq):
 
     return max_indices
 
+def FindingSpectralMaxima(seq, deltI):
+	print('size:',np.shape(seq)[0])
+	if seq:
+		j=0
+		maxV=[]
+		maxI=[]
+		maxIj=0
+		for i in xrange(0, np.shape(seq)[0]-deltI-1):
+#			print(i, seq[i])
+			if seq[i+1]>seq[i]:
+				maxVj=seq[i+1]
+				maxIj=i+1
+#				print(maxIj)
+			if (maxIj>0) & (i>maxIj+deltI):
+				j=j+1
+				maxV.append(maxVj)
+				maxI.append(maxIj)
+#				print(j,maxI,maxV)
+				maxIj=1000000
+	else:
+		print('Input array is empty')
+	return (maxV, maxI)
+
 def test_1():
 	d = pkunit.data_dir()
 	## Testing actual SRW calculations 
@@ -44,14 +67,16 @@ def test_1():
 	for line in f.readlines():
 	    words = line.split()
 	    e_p.append(words[0])
-	    I_rad.append(words[1])
-	print (np.shape(e_p))
+	    I_rad.append(words[1])	
 	I_radf=map(float,I_rad)
 	maxI=max(I_radf)
+#	print (I_radf)
 	print('Spectral Amplitude, ph/s/mrad2',maxI)
 	print(I_radf.index(max(I_radf)))
 	maxIn=maxelements(I_radf)
 	print(maxIn)
+	(maxV, maxI)=FindingSpectralMaxima(I_radf,5)
+	print(maxI, maxV)
 	f.close()
 
 	##Reading SRW data TRAJECTORY
@@ -73,12 +98,23 @@ def test_1():
 
 	#Plotting
 	plot(e_p,I_rad)
+	j=0
+	for i in maxI:
+		plt.scatter(e_p[i], maxV[j], color='red')
+		j=j+1
 	#    title(TitleP)
 	#    xlabel(Xlab)
 	#    ylabel(Ylab)
+	
 	grid()
 	plt.show()
 	plot(z_dist,x_trajectory)
+	(maxVt, maxIt)=FindingSpectralMaxima(map(float,x_trajectory),20)
+	print(maxIt, maxVt)
+	j=0
+	for i in maxIt:
+		plt.scatter(z_dist[i], maxVt[j], color='red')
+		j=j+1
 	grid()
 	plt.show()
 
