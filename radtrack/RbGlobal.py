@@ -18,7 +18,7 @@ from radtrack.RbGenesisTransport import RbGenesisTransport
 from radtrack.BunchTab import BunchTab
 from radtrack.RbEle import RbEle
 from radtrack.RbFEL import RbFEL
-from radtrack.genesis.rbgenesis2 import RbGenesis2
+#from radtrack.genesis.rbgenesis2 import RbGenesis2
 from radtrack.RbSrwTab import RbSrwTab
 from radtrack.RbIntroTab import RbIntroTab
 from radtrack.RbUtility import getRealWidget, fileTypeList
@@ -90,7 +90,6 @@ class RbGlobal(QtGui.QMainWindow):
                                        RbEle,
                                        RbDcp,
                                        RbFEL,
-                                       RbGenesis2,
                                        RbGenesisTransport,
                                        RbSrwTab ]
 

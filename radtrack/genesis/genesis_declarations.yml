@@ -175,7 +175,7 @@ _
       required: [genesis]
     -
       name: cut_col
-      py_type: genesis_enums.CutCol
+      py_type: float
       labels: Collimate Halo/Tails
       required: [genesis]
     -
@@ -199,6 +199,16 @@ _
       name: energy_modulation_phase
       py_type: float
       label: Energy Modulation Phase (EMODPHASE)
+      required: [genesis]
+    -
+      name: conditx
+      py_type: float
+      label: horizontally conditioned (conditx)
+      required: [genesis]
+    -
+      name: condity
+      py_type: float
+      label:: vertically conditioned (condity)
       required: [genesis]
       
       
@@ -237,12 +247,12 @@ _
       required: [genesis]
     -
       name: all_harmonic
-      py_type: genesis_enums.AllHarmonic
+      py_type: bool
       label: Calculate All Harmonics (IALLHARM)
       required: [genesis]
     -
       name: harmonic_coupling
-      py_type: genesis_enums.HarmonicCoupling
+      py_type: bool
       label: Couple Harmonic to Beam (IHARMSC)
       required: [genesis]
     -
@@ -299,7 +309,7 @@ _
       required: [genesis]
     -
       name: ham_all
-      py_type: genesis_enums.HamAll
+      py_type: bool
       label: Use Same Hammerslet for all Slices (IALL)
       required: [genesis]
     -
@@ -375,7 +385,7 @@ _
     -
       name: defocus_strength
       py_type: float
-      untis: T/m
+      units: T/m
       label: Defocusing Quad Strength (QUADD)
       required: [genesis]
     -
@@ -429,7 +439,7 @@ _
   children:
     -
       name: set_time_dependent
-      py_type: genesis_enums.TimeDep
+      py_type: bool
       label: Set Time Dependent Simulation (ITDP)
       required: [genesis]
     -
@@ -482,17 +492,17 @@ _
       required: [genesis]
     -
       name: orbit_correct
-      py_type: genesis_enums.OrbitCorrect
+      py_type: bool
       label: Orbit Correction (IORB)
       required: [genesis]
     -
       name: energy_loss
-      py_type: genesis_enums.EnergyLoss
+      py_type: bool
       label: Include Energy Loss (ISRAVG)
       required: [genesis]
     -
       name: energy_spread
-      py_type: genesis_enums.EnergySpread
+      py_type: bool
       label: Include Energy Spread (ISRSIG)
       required: [genesis]
     -
@@ -558,7 +568,7 @@ _
       required: [genesis]
     -
       name: time_window
-      py_type: genesis_enums.MatchTimeWindow
+      py_type: bool
       label: Match Time Window (IOTAIL)
       required: [genesis]
     -
@@ -578,17 +588,17 @@ _
       required: [genesis]
     -
       name: dump_all
-      py_type: genesis_enums.DumpAll
+      py_type: bool
       label: Dump Particle and Field Data (IDUMP)
       required: [genesis]
     -
       name: dump_field
-      py_type: genesis_enums.DumpField
+      py_type: bool
       label: Dump Field Data (IDMPFLD)
       required: [genesis]
     -
       name: dump_particle
-      py_type: genesis_enums.DumpParticle
+      py_type: bool
       label: Dump Particle Data (IDMPPAR)
       required: [genesis]
     - 
@@ -618,7 +628,7 @@ _
       required: [genesis]
     - 
       name: align_rad
-      py_type: genesis_enums.AlignRad
+      py_type: bool
       label: Align Radiation (ALIGNRADF)
       required: [genesis]
     -
@@ -656,7 +666,7 @@ _
       required: [genesis]
     -
       name: log
-      py_type: genesis_enums.Log
+      py_type: bool
       label: Runtime and Error Log (ILOG)
       required: [genesis]
     -
@@ -665,104 +675,115 @@ _
       label: Calculate Spectrum
       required: [genesis]
     -
+      name: trama
+      py_type: bool
+      label: Apply Transport Matrix 
+      required: [genesis]
+      children:
+        -
+          name: itram
+          py_type: matrix
+          label: Transport Matrix
+          required: [genesis]
+    -
       name: output_parameters
       py_type: list
-      label: Select Parameters to Output
+      label: Select Parameters to Output (LOUT)
       required: [genesis]
       children:
         -
           name: rad_power
-          py_type: genesis_enums.RadPower
+          py_type: bool
           label: Radiation Power
           required: [genesis]
         -
           name: power_growth
-          py_type: genesis_enums.PowerGrow
+          py_type: bool
           label: logarithmic derivative of power growth
           required: [genesis]
         -
           name: power_density
-          py_type: genesis_enums.PowerDensity
+          py_type: bool
           label: power density at undulator axis
           required: [genesis]
         - 
           name: rad_phase
-          py_type: genesis_enums.RadPower
+          py_type: bool
           label: radiation phase at the undulator axis
           required: [genesis]
         - 
           name: rad_size
-          py_type: genesis_enums.RadSize
+          py_type: bool
           label: transverse radiation size
           required: [genesis]
         _
           name: rms_diffract_angle
-          py_type: genesis_enums.DiffractAngle
+          py_type: bool
           label: rms diffraction angle of the radiation
           required: [genesis]
         - 
           name: beam_energy
-          py_type: genesis_enums.BeamEnergy
+          py_type: bool
           label: beam energy
           required: [genesis]
         - 
           name: bunch_factor
-          py_type: genesis_enums.BunchFactor
+          py_type: bool
           label: bunching factor
           required: [genesis]
         - 
           name: beam_size_x
-          py_type: genesis_enums.BSX
+          py_type: bool
           label: beam size in x
           required: [genesis]
         - 
           name: beam_size_y
-          py_type: genesis_enums.BSY
+          py_type: bool
           label: beam size in y
           required: [genesis]
         -
           name: error_energy_conserve
-          py_type: genesis_enums.EnergyError
+          py_type: bool
           label: error in energy conservation
           required: [genesis]
         -
           name: beam_pos_x
-          py_type: genesis_enums.BPX
+          py_type: bool
           label: beam position in x
           required: [genesis]
         -
           name: beam_pos_y
-          py_type: genesis_enums.BPY
+          py_type: bool
           label: beam position in y
           required: [genesis]
         -
           name: energy_spread
-          py_type: genesis_enums.EnergySpread
+          py_type: bool
           label: energy spread
           required: [genesis]
         -
           name: field_intensity
-          py_type: genesis_enums.FieldIntensity 
+          py_type: bool
           label: on-axis field intensity in the far field zone
           required: [genesis]
         - 
           name: second_harmonic
-          py_type: genesis_enums.SecondHarmonic
+          py_type: bool
           label: output of 2nd harmonic
           required: [genesis]
         - 
           name: third_harmonic
-          py_type: genesis_enums.ThirdHarmonic
+          py_type: bool
           label: output of 3rd harmonic
           required: [genesis]
         -
           name: fourth_harmonic
-          py_type: genesis_enums.FourthHarmonic
+          py_type: bool
           label: output of 4th harmonic
           required: [genesis]
         -
           name: fifth_harmonic
-          py_type: genesis_enums.FifthHarmonic
+          py_type: bool
           label: output of 5th harmonic
           required: [genesis]
       
