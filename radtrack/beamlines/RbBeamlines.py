@@ -7,6 +7,7 @@ Created on Wed Aug 28 18:35:56 2013
 
 from __future__ import print_function, division, unicode_literals, absolute_import
 from PyQt4.QtCore import QPointF
+from PyQt4.QtGui import QGraphicsScene
 import math
 
 from radtrack.beamlines.RbElementCommon import sanitizeName
@@ -50,10 +51,22 @@ class BeamlineCommon(object):
         if searchElement == self or searchElement in self.data:
             return True
 
-        return any([element.contains(searchElement) for element in self.data])
+        for element in self.data:
+            if element.contains(searchElement):
+                return True
+        return False
 
     def getLength(self):
         return math.fsum([element.getLength() for element in self.data])
+
+    def getDisplacement(self):
+        position, _ = self.newPosition()
+        return math.sqrt(position.x()**2 + position.y()**2)
+
+    def newPosition(self, position = QPointF(0, 0), angle = 0):
+        for thing in self.data:
+            position, angle = thing.newPosition(position, angle)
+        return position, angle
 
     def getAngle(self):
         return math.fsum([element.getAngle() for element in self.data])
@@ -106,6 +119,11 @@ class ReverseBeamline(object):
 
     def getNumberOfElements(self):
         return self.originalBeamline.getNumberOfElements()
+
+    def newPosition(self, beamPosition, angle):
+        for element in reversed(self.originalBeamline.data):
+            beamPosition, angle = element.reverse().newPosition(beamPosition, angle)
+        return beamPosition, angle
 
     def __eq__(self, other):
         try:

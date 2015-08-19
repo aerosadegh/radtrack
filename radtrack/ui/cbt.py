@@ -217,10 +217,11 @@ class Ui_tree(QtCore.QObject):
         self.treeWidget.headerItem().setText(0, self.translateUTF8("Element"))
         self.treeWidget.headerItem().setText(1, self.translateUTF8("Description"))
         self.treeWidget.headerItem().setText(2, self.translateUTF8("Length"))
-        self.treeWidget.headerItem().setText(3, self.translateUTF8("Bend"))
-        self.treeWidget.headerItem().setText(4, self.translateUTF8("Element Count"))
-        self.treeWidget.headerItem().setText(5, "")
+        self.treeWidget.headerItem().setText(3, self.translateUTF8("Start-End Distance"))
+        self.treeWidget.headerItem().setText(4, self.translateUTF8("Bend"))
+        self.treeWidget.headerItem().setText(5, self.translateUTF8("Element Count"))
         self.treeWidget.headerItem().setText(6, "")
+        self.treeWidget.headerItem().setText(7, "")
 
         for button in self.buttons:
             button.setText(self.translateUTF8(str(button.objectName())))

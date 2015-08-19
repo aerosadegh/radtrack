@@ -1,9 +1,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 import os, shutil
 from collections import OrderedDict
-import sip
-sip.setapi('QString', 2)
-from PyQt4 import QtGui, QtCore
+import radtrack.rt_qt as rt_qt
 
 from radtrack.ui.cbt import Ui_tree, genDialog, advDialog
 from radtrack.RbUtility import displayWithUnitsNumber, \
@@ -13,11 +11,11 @@ from radtrack.RbUtility import displayWithUnitsNumber, \
                       getSaveFileName
 
 
-class RbCbt(QtGui.QWidget):
+class RbCbt(rt_qt.QtGui.QWidget):
     category = 'beam lines'
 
     def __init__(self, module, parent = None):
-        QtGui.QWidget.__init__(self)
+        rt_qt.QtGui.QWidget.__init__(self)
         
         #customize for simulation type
         self.beamlineType = module.beamlineType
@@ -31,7 +29,7 @@ class RbCbt(QtGui.QWidget):
         self.ui = Ui_tree(self, module)
 
         #undo/redo 
-        self.undoStack = QtGui.QUndoStack()
+        self.undoStack = rt_qt.QtGui.QUndoStack()
 
         #connections
         self.ui.workingBeamline.lengthChange.connect(self.callAfterWorkingBeamlineChanges)
@@ -59,17 +57,17 @@ class RbCbt(QtGui.QWidget):
 
         #### Keyboard shortcuts ####
         # Copy element in tree widget
-        QtGui.QShortcut(QtGui.QKeySequence.Copy, self).activated.connect(lambda : self.copyElement(self.ui.treeWidget.currentItem()))
+        rt_qt.QtGui.QShortcut(rt_qt.QtGui.QKeySequence.Copy, self).activated.connect(lambda : self.copyElement(self.ui.treeWidget.currentItem()))
 
         # Zooming the preview window
-        QtGui.QShortcut(QtGui.QKeySequence.ZoomIn, self).activated.connect(lambda : self.zoomPreview(1))
-        QtGui.QShortcut(QtGui.QKeySequence.ZoomOut, self).activated.connect(lambda : self.zoomPreview(-1))
+        rt_qt.QtGui.QShortcut(rt_qt.QtGui.QKeySequence.ZoomIn, self).activated.connect(lambda : self.zoomPreview(1))
+        rt_qt.QtGui.QShortcut(rt_qt.QtGui.QKeySequence.ZoomOut, self).activated.connect(lambda : self.zoomPreview(-1))
         
         #text
         self.addToBeamClickText = self.ui.translateUTF8('Add to current beam line')
         self.beamlineTreeLabel = self.ui.translateUTF8('Beamlines')
-        self.beamlineListLabelDefault = self.ui.translateUTF8('New Beamline: ')
-        self.ui.label.setText(self.beamlineListLabelDefault)
+        self.dragTargetMessage = u'Drag elements here \u2192'
+        self.ui.label.setText(self.dragTargetMessage)
         self.emptyWorkingBeamlineCheck()
 
         #user interaction state
@@ -143,7 +141,7 @@ class RbCbt(QtGui.QWidget):
         else:
             self.elementPreview()
         # Allow workingBeamline list and beamline preview to accept drops from treeWidget
-        self.ui.workingBeamline.setDragDropMode(QtGui.QAbstractItemView.DropOnly)
+        self.ui.workingBeamline.setDragDropMode(rt_qt.QtGui.QAbstractItemView.DropOnly)
         self.ui.graphicsView.setAcceptDrops(True)
 
     def treeItemDoubleClicked(self, item, column):
@@ -152,29 +150,29 @@ class RbCbt(QtGui.QWidget):
 
     def elementTreeHovered(self, item, column):
         if item.text(column) == self.addToBeamClickText:
-            self.ui.treeWidget.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+            self.ui.treeWidget.setCursor(rt_qt.QtGui.QCursor(rt_qt.QtCore.Qt.PointingHandCursor))
         else:
             self.elementTreeExit()
 
     def elementTreeExit(self):
-        self.ui.treeWidget.setCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
+        self.ui.treeWidget.setCursor(rt_qt.QtGui.QCursor(rt_qt.QtCore.Qt.ArrowCursor))
 
     def listClick(self):
         # Draw current working beamline
         self.workingBeamlinePreview()
         # Allow workingBeamline elements to be moved around without copying
-        self.ui.workingBeamline.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
+        self.ui.workingBeamline.setDragDropMode(rt_qt.QtGui.QAbstractItemView.InternalMove)
         # Don't allow drags to beamline preview
         self.ui.graphicsView.setAcceptDrops(False)
 
     def createContextMenu(self, name, location, globalPos):
         element = self.elementDictionary.get(name)
 
-        mouseMenu = QtGui.QMenu(self)
+        mouseMenu = rt_qt.QtGui.QMenu(self)
 
         if element:
             if location == 'picture':
-                menuTitle = QtGui.QAction(element.toolTip(), mouseMenu)
+                menuTitle = rt_qt.QtGui.QAction(element.toolTip(), mouseMenu)
                 menuTitle.setEnabled(False)
                 mouseMenu.addAction(menuTitle)
                 mouseMenu.addSeparator()
@@ -203,6 +201,20 @@ class RbCbt(QtGui.QWidget):
                 mouseMenu.addAction(self.ui.translateUTF8('Add multiple copies ...'), self.listMultipleCopy)
 
                 mouseMenu.addAction(self.ui.translateUTF8('Remove from beam line'), self.removeFromWorkingBeamline)
+
+            containingBeamlines = []
+            for bl in self.elementDictionary.values():
+                if bl.isBeamline() and bl != element:
+                    if bl.contains(element):
+                        containingBeamlines.append(bl)
+            if containingBeamlines:
+                mouseMenu.addSeparator()
+                blMenu = rt_qt.QtGui.QMenu('Contained in beamlines', self)
+                for bl in containingBeamlines:
+                    entry = rt_qt.QtGui.QAction(bl.name, self)
+                    entry.setEnabled(False)
+                    blMenu.addAction(entry)
+                mouseMenu.addMenu(blMenu)
 
         if location == 'picture' and not self.ui.graphicsView.scene().zeroSized():
             mouseMenu.addSeparator()
@@ -264,7 +276,7 @@ class RbCbt(QtGui.QWidget):
         self.undoStack.push(undoAction)
 
     def getNumberOfCopies(self, elementName):
-        return QtGui.QInputDialog.getInt(self, \
+        return rt_qt.QtGui.QInputDialog.getInt(self, \
                 "Add multiple copies", \
                 "Number of copies of " \
                 + elementName + " to add:", \
@@ -361,8 +373,7 @@ class RbCbt(QtGui.QWidget):
 
     def setWorkingBeamline(self, beamline = None):
         self.workingBeamlineName = beamline.name if (beamline and beamline.name in self.elementDictionary) else ''
-        self.ui.label.setText(('Editing element: ' + self.workingBeamlineName) if self.workingBeamlineName else \
-                self.beamlineListLabelDefault)
+        self.ui.label.setText(('Editing "' + self.workingBeamlineName + '"') if self.workingBeamlineName else self.dragTargetMessage)
         self.ui.workingBeamline.clear()
         if beamline:
             self.ui.workingBeamline.addItems([element.name for element in beamline.data])
@@ -399,8 +410,8 @@ class RbCbt(QtGui.QWidget):
         if not self.drawPreviewEnabled:
             return
 
-        drawMessage = QtGui.QProgressDialog('Drawing beam line ...', 'Cancel', 0, 5, self.parent)
-        drawMessage.setMinimumDuration(100)
+        drawMessage = rt_qt.QtGui.QProgressDialog('Drawing beam line ...', 'Cancel', 0, 5, self.parent)
+        drawMessage.setMinimumDuration(500)
         drawMessage.setValue(0)
         if element:
             self.lastDrawnElement = element
@@ -437,7 +448,7 @@ class RbCbt(QtGui.QWidget):
         drawMessage.setValue(drawMessage.maximum())
 
     def visibleSceneRect(self):
-        viewportRect = QtCore.QRect(0,0,self.ui.graphicsView.viewport().width(),
+        viewportRect = rt_qt.QtCore.QRect(0,0,self.ui.graphicsView.viewport().width(),
                                         self.ui.graphicsView.viewport().height())
         return self.ui.graphicsView.mapToScene(viewportRect).boundingRect()
 
@@ -458,7 +469,7 @@ class RbCbt(QtGui.QWidget):
         while length*resolution > float(vis.width())*widthFraction:
             length = length/10.0
 
-        textItem = QtGui.QGraphicsTextItem(displayWithUnitsNumber(length, 'm'))
+        textItem = rt_qt.QtGui.QGraphicsTextItem(displayWithUnitsNumber(length, 'm'))
 
         pixLength = int(length*resolution)
         if pixLength < 1:
@@ -466,13 +477,13 @@ class RbCbt(QtGui.QWidget):
 
         # line showing length given by textItem
         try:
-            rightEnd = QtCore.QPoint(vis.right()-vis.width()/10,
+            rightEnd = rt_qt.QtCore.QPoint(vis.right()-vis.width()/10,
                                      vis.bottom()-vis.height()/10)
         except OverflowError:
             self.zoomPreview(1)
             return
-        leftEnd = rightEnd - QtCore.QPoint(pixLength,0)
-        self.lengthLegend.append(QtGui.QGraphicsLineItem(leftEnd.x(),
+        leftEnd = rightEnd - rt_qt.QtCore.QPoint(pixLength,0)
+        self.lengthLegend.append(rt_qt.QtGui.QGraphicsLineItem(leftEnd.x(),
                                                          leftEnd.y(),
                                                          rightEnd.x(),
                                                          rightEnd.y()))
@@ -481,12 +492,12 @@ class RbCbt(QtGui.QWidget):
             self.zoomPreview(-1)
             return
         # left upright bracket
-        self.lengthLegend.append(QtGui.QGraphicsLineItem(leftEnd.x(),
+        self.lengthLegend.append(rt_qt.QtGui.QGraphicsLineItem(leftEnd.x(),
                                                          leftEnd.y()+endHeight,
                                                          leftEnd.x(),
                                                          leftEnd.y()-endHeight))
         # right upright bracket
-        self.lengthLegend.append(QtGui.QGraphicsLineItem(rightEnd.x(),
+        self.lengthLegend.append(rt_qt.QtGui.QGraphicsLineItem(rightEnd.x(),
                                                          rightEnd.y()+endHeight,
                                                          rightEnd.x(),
                                                          rightEnd.y()-endHeight))
@@ -510,9 +521,9 @@ class RbCbt(QtGui.QWidget):
     def zoomPreview(self, wheelClicks):
         scale = 1.2**wheelClicks
         self.zoomScale = self.zoomScale*scale
-        self.ui.graphicsView.setTransformationAnchor(QtGui.QGraphicsView.AnchorUnderMouse)
+        self.ui.graphicsView.setTransformationAnchor(rt_qt.QtGui.QGraphicsView.AnchorUnderMouse)
         self.ui.graphicsView.scale(scale, scale)
-        self.ui.graphicsView.setTransformationAnchor(QtGui.QGraphicsView.NoAnchor)
+        self.ui.graphicsView.setTransformationAnchor(rt_qt.QtGui.QGraphicsView.NoAnchor)
         self.drawLengthScale()
 
     def savePreviewImage(self):
@@ -524,8 +535,8 @@ class RbCbt(QtGui.QWidget):
         self.parent.lastUsedDirectory = os.path.dirname(fileName)
 
         view = self.ui.graphicsView
-        questionBox = QtGui.QMessageBox(QtGui.QMessageBox.Question, 'RadTrack', 'Render entire beamline or just the viewable portion?')
-        responses = [questionBox.addButton(text , QtGui.QMessageBox.ActionRole) for text in ['Entire Beamline', 'Viewable Portion']]
+        questionBox = rt_qt.QtGui.QMessageBox(rt_qt.QtGui.QMessageBox.Question, 'RadTrack', 'Render entire beamline or just the viewable portion?')
+        responses = [questionBox.addButton(text , rt_qt.QtGui.QMessageBox.ActionRole) for text in ['Entire Beamline', 'Viewable Portion']]
         questionBox.exec_()
 
         if questionBox.clickedButton() == responses[0]:
@@ -539,43 +550,43 @@ class RbCbt(QtGui.QWidget):
                          boundingRectangle.height()])*self.zoomScale
         scale = min([1.0, maxImageDimension/sceneSize])
         self.zoomScale = self.zoomScale*scale
-        view.setTransformationAnchor(QtGui.QGraphicsView.AnchorViewCenter)
+        view.setTransformationAnchor(rt_qt.QtGui.QGraphicsView.AnchorViewCenter)
         view.scale(scale, scale)
-        view.setTransformationAnchor(QtGui.QGraphicsView.NoAnchor)
+        view.setTransformationAnchor(rt_qt.QtGui.QGraphicsView.NoAnchor)
 
         try:
-            progress = QtGui.QProgressDialog('Creating Image ...', 'Cancel', 0, 6, self)
+            progress = rt_qt.QtGui.QProgressDialog('Creating Image ...', 'Cancel', 0, 6, self)
             progress.setMinimumDuration(0)
             progress.setValue(0)
-            image = QtGui.QImage((boundingRectangle.size()*self.zoomScale).toSize(),
-                    QtGui.QImage.Format_ARGB32_Premultiplied)
+            image = rt_qt.QtGui.QImage((boundingRectangle.size()*self.zoomScale).toSize(),
+                    rt_qt.QtGui.QImage.Format_ARGB32_Premultiplied)
             if progress.wasCanceled():
                 return
             progress.setValue(1)
             progress.setLabelText('Filling Background ...')
             if fileExtension in ['png', 'tiff', 'xpm']:
-                image.fill(QtGui.QColor('transparent'))
+                image.fill(rt_qt.QtGui.QColor('transparent'))
             else:
-                image.fill(QtGui.QColor('white'))
+                image.fill(rt_qt.QtGui.QColor('white'))
             if progress.wasCanceled():
                 return
 
             progress.setValue(2)
             progress.setLabelText('Creating Painter ...')
-            painter = QtGui.QPainter(image)
+            painter = rt_qt.QtGui.QPainter(image)
             if progress.wasCanceled():
                 return
 
             progress.setValue(3)
             progress.setLabelText('Rendering Image ...')
-            view.scene().render(painter, QtCore.QRectF(), boundingRectangle)
+            view.scene().render(painter, rt_qt.QtCore.QRectF(), boundingRectangle)
             if progress.wasCanceled():
                 return
 
             progress.setValue(4)
             progress.setLabelText('Saving Image ...')
             if not image.save(fileName):
-                QtGui.QMessageBox(QtGui.QMessageBox.Warning,
+                rt_qt.QtGui.QMessageBox(rt_qt.QtGui.QMessageBox.Warning,
                                  'RadTrack', "Image (" + fileName + ") was not saved.").exec_()
                 progress.reset()
                 return
@@ -610,7 +621,7 @@ class RbCbt(QtGui.QWidget):
         try:
             importedData = self.importer(fileName)
         except IOError as e:
-            QtGui.QMessageBox(QtGui.QMessageBox.Warning, 'RadTrack', e.message).exec_()
+            rt_qt.QtGui.QMessageBox(rt_qt.QtGui.QMessageBox.Warning, 'RadTrack', e.message).exec_()
             return
 
         if importedData:
@@ -633,14 +644,14 @@ class RbCbt(QtGui.QWidget):
                             shutil.copy2(path, self.parent.sessionDirectory)
                         except IOError:
                             if not ignoreMissingImportFiles:
-                                box = QtGui.QMessageBox(QtGui.QMessageBox.Warning,
+                                box = rt_qt.QtGui.QMessageBox(rt_qt.QtGui.QMessageBox.Warning,
                                                         'Missing File Reference',
                                                         'The file "' + path.replace('\\', '/') + '" specified by element "' + \
                                                         element.name + '" cannot be found.\n\n' +\
                                                         'Do you wish to ignore future warnings of this type?',
-                                                        QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, self)
+                                                        rt_qt.QtGui.QMessageBox.Yes | rt_qt.QtGui.QMessageBox.No, self)
                                 box.exec_()
-                                if box.standardButton(box.clickedButton()) == QtGui.QMessageBox.Yes:
+                                if box.standardButton(box.clickedButton()) == rt_qt.QtGui.QMessageBox.Yes:
                                     ignoreMissingImportFiles = True
 
     def exportToFile(self, outputFileName = None):
@@ -656,7 +667,7 @@ class RbCbt(QtGui.QWidget):
         # Large pictures seem to crash python on exiting RadTrack,
         # so clear the picture before exiting.
         self.ui.graphicsView.scene().clear()
-        QtGui.QWidget.closeEvent(self, event)
+        rt_qt.QtGui.QWidget.closeEvent(self, event)
 
 
         
@@ -664,14 +675,15 @@ def populateTreeItem(addToBeamClickText, item, element):
     item.setText(0, element.name)
     item.setText(1, element.displayLine())
     item.setText(2, displayWithUnitsNumber(roundSigFig(element.getLength(), 4), 'm'))
-    item.setText(3, str(roundSigFig(convertUnitsNumber(element.getAngle(), 'rad', 'deg'), 4))+' deg')
-    item.setText(4, str(element.getNumberOfElements()) if element.isBeamline() else '')
-    item.setText(5, addToBeamClickText)
-    item.setForeground(5, QtCore.Qt.red)
-    font = item.font(5)
+    item.setText(3, displayWithUnitsNumber(roundSigFig(element.getDisplacement(), 4), 'm'))
+    item.setText(4, str(roundSigFig(convertUnitsNumber(element.getAngle(), 'rad', 'deg'), 4))+' deg')
+    item.setText(5, str(element.getNumberOfElements()) if element.isBeamline() else '')
+    item.setText(6, addToBeamClickText)
+    item.setForeground(6, rt_qt.QtCore.Qt.red)
+    font = item.font(6)
     font.setBold(True)
     font.setUnderline(True)
-    item.setFont(5, font)
+    item.setFont(6, font)
 
 def itemsInGroup(group):
     return [group.child(i) for i in range(group.childCount())]
@@ -680,9 +692,9 @@ def itemsInGroup(group):
 
 
 # Undo Commands
-class commandEditElement(QtGui.QUndoCommand):
+class commandEditElement(rt_qt.QtGui.QUndoCommand):
     def __init__(self, widget, currentElement, newElement):
-        QtGui.QUndoCommand.__init__(self)
+        rt_qt.QtGui.QUndoCommand.__init__(self)
         self.widget = widget
         self.activeElement = currentElement
         self.oldElement = type(self.activeElement)([self.activeElement.name] + self.activeElement.data[:])
@@ -731,9 +743,9 @@ class commandEditElement(QtGui.QUndoCommand):
         self.widget.emptyWorkingBeamlineCheck()
 
 
-class commandLoadElements(QtGui.QUndoCommand):
+class commandLoadElements(rt_qt.QtGui.QUndoCommand):
     def __init__(self, widget, elements):
-        QtGui.QUndoCommand.__init__(self)
+        rt_qt.QtGui.QUndoCommand.__init__(self)
         self.widget = widget
 
         self.createdElements = elements
@@ -743,14 +755,14 @@ class commandLoadElements(QtGui.QUndoCommand):
         self.groupPositions = []
         newGroups = []
         newGroupPosition = len(self.widget.topLevelTreeItems())
-        itemCreateProgress = QtGui.QProgressDialog('Creating items ...',
+        itemCreateProgress = rt_qt.QtGui.QProgressDialog('Creating items ...',
                 None, # Don't show a cancel button
                 0,
                 len(self.createdElements)-1)
         itemCreateProgress.setMinimumDuration(0)
         itemCreateProgress.setValue(0)
         for i, element in enumerate(self.createdElements):
-            self.items.append(QtGui.QTreeWidgetItem())
+            self.items.append(rt_qt.QtGui.QTreeWidgetItem())
             if element.name.startswith('-'):
                 self.createGroups.append(False)
                 self.groups.append(None)
@@ -777,7 +789,7 @@ class commandLoadElements(QtGui.QUndoCommand):
                         break
                 else: # group not found
                     self.createGroups.append(True)
-                    self.groups.append(QtGui.QTreeWidgetItem())
+                    self.groups.append(rt_qt.QtGui.QTreeWidgetItem())
                     self.groups[-1].setText(0, typeName)
                     if element.isBeamline():
                         self.groupPositions.append(0)
@@ -788,7 +800,7 @@ class commandLoadElements(QtGui.QUndoCommand):
             itemCreateProgress.setValue(i)
 
     def redo(self):
-        treeAddProgress = QtGui.QProgressDialog('Adding to element tree ...',
+        treeAddProgress = rt_qt.QtGui.QProgressDialog('Adding to element tree ...',
                 None, # Don't show a cancel button
                 0,
                 len(self.createdElements)-1)
@@ -824,9 +836,9 @@ class commandLoadElements(QtGui.QUndoCommand):
             self.widget.elementPreview()
 
             
-class commandEditBeam(QtGui.QUndoCommand):
+class commandEditBeam(rt_qt.QtGui.QUndoCommand):
     def __init__(self, widget):
-        QtGui.QUndoCommand.__init__(self)
+        rt_qt.QtGui.QUndoCommand.__init__(self)
         self.widget = widget
 
         self.previousList = self.widget.preListSave[:]
@@ -852,9 +864,9 @@ class commandEditBeam(QtGui.QUndoCommand):
         self.action(self.nextList, self.nextListName, self.nextListLabel)
 
 
-class commandDeleteElement(QtGui.QUndoCommand):
+class commandDeleteElement(rt_qt.QtGui.QUndoCommand):
     def __init__(self, widget, name):
-        QtGui.QUndoCommand.__init__(self)
+        rt_qt.QtGui.QUndoCommand.__init__(self)
         self.widget = widget
         self.element = self.widget.elementDictionary[name]
         self.treeItem = self.widget.findElementInTreeByName(self.element.name)

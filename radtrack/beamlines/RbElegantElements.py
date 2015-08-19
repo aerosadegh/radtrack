@@ -297,7 +297,7 @@ fileExtension = 'lte'
 class elegantElement(elementCommon):
     def componentLine(self):
         quote = '"' if ':' in self.name else ''
-        comma = ',' if ''.join(''.join(self.data).split()) else '' # check for all whitespace data
+        comma = ',' if removeWhitespace(''.join(self.data)) else '' # check for all whitespace data
         declaration = quote + self.name + quote + ':  ' + type(self).__name__ + comma
 
         phrases = []
@@ -454,7 +454,7 @@ class ELSE(elegantElement, zeroLengthPic):
     dataType = ['string']
     parameterDescription = ['Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
 
-class EMATRIX(elegantElement, zeroLengthPic):
+class EMATRIX(particleDrift, elegantElement):
     elementDescription = 'Explicit matrix input with data in the element definition, rather than in a file.'
     parameterNames = ['L', 'ANGLE', 'DX', 'DY', 'DZ', 'TILT', 'YAW', 'PITCH', 'ORDER', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'DELTAP', 'R11', 'R12', 'R13', 'R14', 'R15', 'R16', 'R21', 'R22', 'R23', 'R24', 'R25', 'R26', 'R31', 'R32', 'R33', 'R34', 'R35', 'R36', 'R41', 'R42', 'R43', 'R44', 'R45', 'R46', 'R51', 'R52', 'R53', 'R54', 'R55', 'R56', 'R61', 'R62', 'R63', 'R64', 'R65', 'R66', 'T111', 'T121', 'T122', 'T131', 'T132', 'T133', 'T141', 'T142', 'T143', 'T144', 'T151', 'T152', 'T153', 'T154', 'T155', 'T161', 'T162', 'T163', 'T164', 'T165', 'T166', 'T211', 'T221', 'T222', 'T231', 'T232', 'T233', 'T241', 'T242', 'T243', 'T244', 'T251', 'T252', 'T253', 'T254', 'T255', 'T261', 'T262', 'T263', 'T264', 'T265', 'T266', 'T311', 'T321', 'T322', 'T331', 'T332', 'T333', 'T341', 'T342', 'T343', 'T344', 'T351', 'T352', 'T353', 'T354', 'T355', 'T361', 'T362', 'T363', 'T364', 'T365', 'T366', 'T411', 'T421', 'T422', 'T431', 'T432', 'T433', 'T441', 'T442', 'T443', 'T444', 'T451', 'T452', 'T453', 'T454', 'T455', 'T461', 'T462', 'T463', 'T464', 'T465', 'T466', 'T511', 'T521', 'T522', 'T531', 'T532', 'T533', 'T541', 'T542', 'T543', 'T544', 'T551', 'T552', 'T553', 'T554', 'T555', 'T561', 'T562', 'T563', 'T564', 'T565', 'T566', 'T611', 'T621', 'T622', 'T631', 'T632', 'T633', 'T641', 'T642', 'T643', 'T644', 'T651', 'T652', 'T653', 'T654', 'T655', 'T661', 'T662', 'T663', 'T664', 'T665', 'T666', 'GROUP']
     units = ['m', 'rad', 'm', 'm', 'm', 'rad', 'rad', 'rad', ' ', 'm', ' ', 'm', ' ', 'm', ' ', ' ', ' ', 'm', ' ', 'm', ' ', 'm', '1/m', ' ', '1/m', ' ', '1/m', ' ', ' ', 'm', ' ', 'm', ' ', 'm', '1/m', ' ', '1/m', ' ', '1/m', ' ', ' ', 'm', ' ', 'm', ' ', 'm', '1/m', ' ', '1/m', ' ', '1/m', ' ', '1/m', ' ', 'm', '1/m', ' ', '1/m', ' ', 'm', ' ', 'm', '1/m', ' ', '1/m', ' ', '1/m', ' ', 'm', ' ', 'm', ' ', 'm', '1/m^2', '1/m', ' ', '1/m^2', '1/m', '1/m^2', '1/m', ' ', '1/m', ' ', '1/m^2', '1/m', '1/m^2', '1/m', '1/m^2', '1/m', ' ', '1/m', '1', '1/m', ' ', '1/m', ' ', 'm', '1/m', ' ', '1/m', ' ', 'm', ' ', 'm', '1/m', ' ', '1/m', ' ', '1/m', ' ', 'm', ' ', 'm', ' ', 'm', '1/m^2', '1/m', ' ', '1/m^2', '1/m', '1/m^2', '1/m', ' ', '1/m', ' ', '1/m^2', '1/m', '1/m^2', '1/m', '1/m^2', '1/m', ' ', '1/m', '1', '1/m', ' ', '1/m', ' ', 'm', '1/m', ' ', '1/m', ' ', 'm', ' ', 'm', '1/m', ' ', '1/m', ' ', '1/m', ' ', 'm', ' ', 'm', ' ', 'm', '1/m^2', '1/m', ' ', '1/m^2', '1/m', '1/m^2', '1/m', ' ', '1/m', ' ', '1/m^2', '1/m', '1/m^2', '1/m', '1/m^2', '1/m', ' ', '1/m', '1', '1/m', ' ', ' ']

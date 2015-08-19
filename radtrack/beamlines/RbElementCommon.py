@@ -90,9 +90,7 @@ class elementCommon(object):
                 zip(self.parameterNames, self.data) if datum]
 
         #add "=" in within phrases, then add ', ' between those groups
-        sentence = ', '.join(['='.join(phrase) for phrase in sentence])
-
-        return type(self).__name__ + ', ' + sentence
+        return ', '.join(['='.join(phrase) for phrase in sentence])
 
     def contains(self, searchElement):
         return False
@@ -114,6 +112,10 @@ class elementCommon(object):
 
     def getAngle(self):
         return self.findParameter(['ANGLE', 'KICK', 'HKICK'])
+
+    def getDisplacement(self):
+        position, _ = self.newPosition(pycore.QPointF(0, 0), 0)
+        return sqrt(position.x()**2 + position.y()**2)
 
     def getPeriods(self):
         return self.findParameter(['PERIODS', 'POLES'])
@@ -179,6 +181,12 @@ class alphaPic:
 
         return pos, exitAngle
 
+    def newPosition(self, pos, angle):
+        alphaAngle = 40.71*pi/180
+        exitAngle = angle + (pi - 2*alphaAngle)
+        return pos, exitAngle
+
+
 class bendPic:
     def picture(self, scene, pos = pycore.QPointF(0,0), angle = 0):
         xSize = self.getLength()*self.getResolution()
@@ -217,6 +225,17 @@ class bendPic:
         angleNew = angle + bendAngle
         return exitPoint, angleNew
 
+    def newPosition(self, pos, angle):
+        xSize = self.getLength()
+        bendAngle = self.getAngle()
+
+        transform = pygui.QTransform().rotateRadians(.5*bendAngle)*placement(pos,angle)
+
+        exitPoint = transform.map(pycore.QPointF(xSize, 0))
+        angleNew = angle + bendAngle
+        return exitPoint, angleNew
+
+
 
 class driftPic:
     def getNumberOfElements(self):
@@ -238,6 +257,13 @@ class driftPic:
         line.setZValue(-1) # place underneath all other elements
         scene.addItem(line)
         return exitPoint, angle
+
+    def newPosition(self, pos, angle):
+        length = self.getLength()
+        exitPoint = placement(pos,angle).map(pycore.QPointF(length, 0))
+
+        return exitPoint, angle
+
 
 class aperturePic(driftPic):
     def picture(self, scene, pos = pycore.QPointF(0,0), angle = 0):
@@ -319,6 +345,11 @@ class reflectiveGratingPic:
         return pos, angle-(pi-rotationAngle*2)
 
 
+    def newPosition(self, pos, angle):
+        rotationAngle = self.findParameter(['THETA'])
+        return pos, angle-(pi-rotationAngle*2)
+
+
 class gratingPic:
     def picture(self, scene, pos = pycore.QPointF(0,0), angle = 0):
         ySize = self.getRadius()*self.getResolution()
@@ -343,6 +374,11 @@ class gratingPic:
             scene.addItem(item)
 
         return pos, angle
+
+
+    def newPosition(self, pos, angle):
+        return pos, angle
+
 
 
 class lensPic:
@@ -378,6 +414,9 @@ class lensPic:
 
         return exitPoint, angle
 
+    def newPosition(self, pos, angle):
+        return pos, angle
+
 
 class magnetPic:
     def picture(self, scene, pos = pycore.QPointF(0,0), angle = 0):
@@ -401,6 +440,11 @@ class magnetPic:
 
         scene.addItem(item)
 
+        return exitPoint, angle
+
+    def newPosition(self, pos, angle):
+        length = self.getLength()
+        exitPoint = placement(pos, angle).map(pycore.QPointF(length, 0))
         return exitPoint, angle
 
 
@@ -429,6 +473,10 @@ class mirrorPic:
         item.setToolTip(self.toolTip())
         scene.addItem(item)
 
+        return pos, angle-(pi-rotationAngle*2)
+
+    def newPosition(self, pos, angle):
+        rotationAngle = self.findParameter(['THETA'])
         return pos, angle-(pi-rotationAngle*2)
 
 
@@ -472,6 +520,9 @@ class recircPic:
 
         return pos, angle
 
+    def newPosition(self, pos, angle):
+        return pos, angle
+
 
 class solenoidPic:
     def picture(self, scene, pos = pycore.QPointF(0,0), angle = 0):
@@ -504,6 +555,11 @@ class solenoidPic:
         pen = pygui.QPen(pycore.Qt.black)
         drawPath(self, x, y, pen, placement(pos, angle), scene)
 
+        return exitPoint, angle
+
+    def newPosition(self, pos, angle):
+        length = self.getLength()
+        exitPoint = placement(pos, angle).map(pycore.QPointF(length, 0))
         return exitPoint, angle
 
 
@@ -570,6 +626,11 @@ class undulatorPic:
 
         return exitPoint, angle
 
+    def newPosition(self, pos, angle):
+        length  = self.getLength()
+        exitPoint = placement(pos, angle).map(pycore.QPointF(length, 0))
+        return exitPoint, angle
+
 
 class watchPic:
     def picture(self, scene, pos = pycore.QPointF(0,0), angle = 0):
@@ -590,6 +651,9 @@ class watchPic:
 
         return pos, angle
 
+    def newPosition(self, pos, angle):
+        return pos, angle
+
 class zeroLengthPic:
     def picture(self, scene, pos = pycore.QPointF(0,0), angle = 0):
         size = self.getResolution()/2
@@ -607,6 +671,9 @@ class zeroLengthPic:
 
         scene.addItem(screen)
 
+        return pos, angle
+
+    def newPosition(self, pos, angle):
         return pos, angle
 
 
@@ -636,4 +703,9 @@ class rfPic(zeroLengthPic):
         rectangle.setToolTip(self.toolTip())
         scene.addItem(rectangle)
 
+        return exitPoint, angle
+
+    def newPosition(self, pos, angle):
+        length = self.getLength()
+        exitPoint = placement(pos,angle).map(pycore.QPointF(length, 0))
         return exitPoint, angle
