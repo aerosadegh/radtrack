@@ -51,7 +51,7 @@ def SpectralCenBrightness(N_u,Gam,I_b):
     #This only works for the case of a planar ID
     I_s=1.325E10*2*N_u*I_b*1E-3*Gam*0.511E0*Gam*0.511E0*1.45 #I[phot/(sec mrad2 0.1% BW)]
     return (I_s)
-    
+
 def UndulatorAngleCoordinateOscillation(Kx, Ky, Gam, lam_u):
     xpmax=Ky/Gam
     xmax=Ky/2/3.14159265359*lam_u/Gam # wrong formulae
@@ -60,7 +60,7 @@ def UndulatorAngleCoordinateOscillation(Kx, Ky, Gam, lam_u):
     return (xpmax, xmax, zslip)
 
 #def TuningCurveSpectralBrightness():
-    
+
 #def TuningCurveSpectralFlux():
 
 def compute_all(params):
@@ -72,7 +72,7 @@ def compute_all(params):
     Returns:
         dict: copy of `params` and results
     """
-    res = copy.deepcopy(params)
+    res = _merge_params(params)
     v = IDWaveLengthPhotonEnergy(
         params['period_len'],
         #TODO(robnagler) Why is this not res['Bx']?
@@ -122,4 +122,24 @@ def compute_all(params):
     res['lam_rn_5'] = res['lam_rn'] / 5.0
     res['e_phn_3'] = res['e_phn'] / 3.0
     res['e_phn_5'] = res['e_phn'] / 5.0
+    return res
+
+
+def _merge_params(params):
+    """Convert params to args to :func:`compute_all`
+
+    Args:
+        params (dict): RT values in canonical form
+
+    Returns:
+        dict: Merged params
+    """
+    res = copy.deepcopy(self.params['undulator'])
+    if res['orientation'] == 'VERTICAL':
+        res['horizontal_magnetic_field'] = 0
+        res['vertical_magnetic_field'] = res['magnetic_field']
+    else:
+        res['horizontal_magnetic_field'] = res['magnetic_field']
+        res['vertical_magnetic_field'] = 0
+    res.update(self.params['beam'])
     return res

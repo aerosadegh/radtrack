@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-u"""Simplify jinja templating.
+"""Simplify jinja templating.
 
 :copyright: Copyright (c) 2015 Bivio Software, Inc.  All Rights Reserved.
 :license: http://www.apache.org/licenses/LICENSE-2.0.html
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-from io import open
+from __future__ import absolute_import, division, print_function
 
 from pykern.pkdebug import pkdc, pkdi, pkdp
 import re
@@ -47,6 +46,7 @@ def render(template, params):
     )
     je.filters['rt_filter'] = _rt_filter
     jt = je.from_string(_template(template))
+    # TODO: Maybe a namespace need vars(params) if only can be dict
     return jt.render(params)
 
 

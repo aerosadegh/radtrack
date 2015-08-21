@@ -4,11 +4,13 @@ u"""Mapping of rt_params to srw_params.
 :copyright: Copyright (c) 2015 Bivio Software, Inc.  All Rights Reserved.
 :license: http://www.apache.org/licenses/LICENSE-2.0.html
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-from io import open
+from __future__ import absolute_import, division, print_function
+
+import argparse
 
 from pykern import pkarray
 from pykern.pkdebug import pkdc, pkdi, pkdp
+from pykern.pknamespace import Namespace
 
 import srwlib
 import uti_plot
@@ -113,12 +115,15 @@ def to_precision_single_particle(params):
 def to_undulator_multi_particle(params):
     """Convert multi-particle params to `SRWLMagFldU` and `SRWLMagFldC`
 
+    Adds to params.
+
     Args:
         params (dict): RT values in canonical form
 
     Returns:
-        (SRWLMagFldU, SRWLMagFldC): converted values
+        Namespace: returns its argument (params)
     """
+    res = Namespace()
     harmB = srwlib.SRWLMagFldH()
     harmB.n = params['harmonic_num']
     harmB.B = params['magnetic_field']
@@ -126,28 +131,31 @@ def to_undulator_multi_particle(params):
         harmB.h_or_v = 'v'
     else:
         harmB.h_or_v = 'h'
-    und = srwlib.SRWLMagFldU([harmB])
-    und.per = params['period_len']
-    und.nPer = params['num_periods']
-    magFldCnt = srwlib.SRWLMagFldC(
-        [und],
+    res.und = srwlib.SRWLMagFldU([harmB])
+    res.und.per = params['period_len']
+    res.und.nPer = params['num_periods']
+    res.magFldCnt = srwlib.SRWLMagFldC(
+        [res.und],
         pkarray.new_double([0]),
         pkarray.new_double([0]),
         pkarray.new_double([0]),
     )
-    return (und, magFldCnt)
+    return res
 
 
 def to_undulator_single_particle(params):
     """Convert single particle params to `SRWLMagFldU` and `SRWLMagFldC`
 
+    Adds to params.
+
     Args:
         params (dict): RT values in canonical form
 
     Returns:
-        (SRWLMagFldU, SRWLMagFldC): converted values
+        Namespace: returns its argument (params)
     """
-    und = srwlib.SRWLMagFldU(
+    res = Namespace()
+    res.und = srwlib.SRWLMagFldU(
         [
             srwlib.SRWLMagFldH(
                 1,
@@ -169,65 +177,37 @@ def to_undulator_single_particle(params):
         params['period_len'],
         params['num_periods'],
     )
-    magFldCnt = srwlib.SRWLMagFldC(
-        [und],
+    res.magFldCnt = srwlib.SRWLMagFldC(
+        [res.und],
         pkarray.new_double([params['horizontal_coord']]),
         pkarray.new_double([params['vertical_coord']]),
         pkarray.new_double([params['longitudinal_coord']]),
     )
-    return (und, magFldCnt)
+    return res
 
 
 def to_wavefront_multi_particle(params):
     """Convert params to SRWLStokes Wavefront valuesa
 
     Args:
-        params (dict): RT values in canonical formn
+        params (dict): RT values in canonical form
 
     Returns:
         SRWLStokes: converted values
     """
-    res = srwlib.SRWLStokes()
-    res.allocate(
-        params['num_points_energy'],
-        params['num_points_x'],
-        params['num_points_y'],
-    )
-    m = res.mesh
-    m.zStart = params['distance_to_window']
-    m.eStart = params['initial_photon_energy']
-    m.eFin = params['final_photon_energy']
-    m.xStart = params['window_left_edge']
-    m.xFin = params['window_right_edge']
-    m.yStart = params['window_top_edge']
-    m.yFin = params['window_bottom_edge']
-    return res
+    return _to_wavefront(params, srwlib.SRWLStokes())
 
 
 def to_wavefront_single_particle(params):
     """Convert params to SRWLStokes Wavefront valuesa
 
     Args:
-        params (dict): RT values in canonical formn
+        params (dict): RT values in canonical form
 
     Returns:
         SRWLStokes: converted values
     """
-    res = srwlib.SRWLWfr()
-    res.allocate(
-        params['num_points_energy'],
-        params['num_points_x'],
-        params['num_points_y'],
-    )
-    m = res.mesh
-    m.zStart = params['distance_to_window']
-    m.eStart = params['initial_photon_energy']
-    m.eFin = params['final_photon_energy']
-    m.xStart = params['window_left_edge']
-    m.xFin = params['window_right_edge']
-    m.yStart = params['window_top_edge']
-    m.yFin = params['window_bottom_edge']
-    return res
+    return _to_wavefront(params, srwlib.SRWLWfr())
 
 
 def _fix_type_value(v):
@@ -240,3 +220,20 @@ def _fix_type_value(v):
 
 def _precision(params, labels):
     return [_fix_type_value(params[k]) for k in labels]
+
+
+def _to_wavefront(params, obj):
+    obj.allocate(
+        params['num_points_energy'],
+        params['num_points_x'],
+        params['num_points_y'],
+    )
+    m = obj.mesh
+    m.zStart = params['distance_to_window']
+    m.eStart = params['initial_photon_energy']
+    m.eFin = params['final_photon_energy']
+    m.xStart = params['window_left_edge']
+    m.xFin = params['window_right_edge']
+    m.yStart = params['window_top_edge']
+    m.yFin = params['window_bottom_edge']
+    return obj

@@ -13,10 +13,10 @@ from pykern.pkdebug import pkdc, pkdp
 from pykern import pkio
 from pykern import pkresource
 
-from radtrack import rt_params
 from radtrack import rt_popup
 from radtrack import rt_qt
 from radtrack import srw_enums
+
 
 class View(QtGui.QWidget):
     """Pane with buttons, parameters, and results windows.
