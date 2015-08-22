@@ -10,7 +10,7 @@ import argparse
 
 from pykern import pkarray
 from pykern.pkdebug import pkdc, pkdi, pkdp
-from pykern.pknamespace import Namespace
+from pykern import pkcollections
 
 import srwlib
 import uti_plot
@@ -121,9 +121,9 @@ def to_undulator_multi_particle(params):
         params (dict): RT values in canonical form
 
     Returns:
-        Namespace: returns its argument (params)
+        pkcollections.OrderedMapping: returns its argument (params)
     """
-    res = Namespace()
+    res = pkcollections.OrderedMapping()
     harmB = srwlib.SRWLMagFldH()
     harmB.n = params['harmonic_num']
     harmB.B = params['magnetic_field']
@@ -152,9 +152,9 @@ def to_undulator_single_particle(params):
         params (dict): RT values in canonical form
 
     Returns:
-        Namespace: returns its argument (params)
+        pkcollections.OrderedMapping: returns its argument (params)
     """
-    res = Namespace()
+    res = pkcollections.OrderedMapping()
     res.und = srwlib.SRWLMagFldU(
         [
             srwlib.SRWLMagFldH(

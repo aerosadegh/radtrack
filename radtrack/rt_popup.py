@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-u"""Pop up window to enter params for a section of SRW.
+"""Pop up window to enter params for a section of SRW.
 
 :copyright: Copyright (c) 2015 Bivio Software, Inc.  All Rights Reserved.
 :license: http://www.apache.org/licenses/LICENSE-2.0.html
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-from io import open
+from __future__ import absolute_import, division, print_function
 
 import collections
 import enum
@@ -15,6 +14,7 @@ from radtrack.rt_qt import QtCore, QtGui
 from pykern import pkcompat
 from pykern import pkresource
 from pykern import pkio
+from pykern import pkcollections
 from pykern.pkdebug import pkdc, pkdp
 
 from radtrack import RbUtility
@@ -77,7 +77,8 @@ def value_widget(default, value, parent):
         v = ''
         choices = t
         if default.children:
-            choices = [x.value for x in default.children.values()]
+            choices = pkcollections.map_values(
+                default.children, lambda x: x.value)
         for e in choices:
             n = rt_qt.i18n_text(e.display_name)
             widget.addItem(n, userData=e.value)
@@ -129,7 +130,7 @@ class Form(object):
 
         def _iter_children(parent_defaults):
             res = collections.OrderedDict()
-            for df in parent_defaults.children.values():
+            for df in pkcollections.map_values(parent_defaults.children):
                 d = df.decl
                 if df.children:
                     res[d.name] = _iter_children(df)
@@ -175,7 +176,7 @@ class Form(object):
             self._layout.addRow(qlabel)
 
         def _iter_children(parent_default, p):
-            for df in parent_default.children.values():
+            for df in pkcollections.map_values(parent_default.children):
                 d = df.decl
                 qlabel = _label(d)
                 if df.children:

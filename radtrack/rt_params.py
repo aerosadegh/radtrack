@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-u"""Parameter declaration parser
+"""Parameter declaration parser
 
 :copyright: Copyright (c) 2015 Bivio Software, Inc.  All Rights Reserved.
 :license: http://www.apache.org/licenses/LICENSE-2.0.html
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-from io import open
+from __future__ import absolute_import, division, print_function
 
 import __builtin__
 import collections
@@ -20,6 +19,7 @@ import yaml
 from pykern.pkdebug import pkdc, pkdp
 from pykern import pkcompat
 from pykern import pkio
+from pykern import pkcollections
 from pykern import pkresource
 from pykern import pkyaml
 
@@ -58,12 +58,12 @@ class Declaration(UserDict.DictMixin):
     def keys(self):
         if not self.children:
             return []
-        return self.children.keys()
+        return pkcollections.map_keys(self.children)
 
     def _children(self, decl):
         if 'children' not in decl:
             return None
-        res = collections.OrderedDict()
+        res = pkcollections.OrderedMapping()
         for c in decl['children']:
             if pkcompat.isinstance_str(c):
                 d = c
@@ -134,7 +134,7 @@ class Default(UserDict.DictMixin):
         if not self.children:
             yield self
         else:
-            for c in self.children.values():
+            for c in pkcollections.map_values(self.children):
                 for l in c.iter_leaves():
                     yield l
 
@@ -142,7 +142,7 @@ class Default(UserDict.DictMixin):
         if not self.children:
             yield self
         else:
-            for c in self.children.values():
+            for c in pkcollections.map_values(self.children):
                 for l in c.iter_leaves():
                     yield l
 
@@ -150,7 +150,7 @@ class Default(UserDict.DictMixin):
         yield self
         if not self.children:
             return
-        for c in self.children.values():
+        for c in pkcollections.map_values(self.children):
             for l in c.iter_nodes():
                 yield l
 
@@ -165,12 +165,12 @@ class Default(UserDict.DictMixin):
     def keys(self):
         if not self.children:
             return []
-        return self.children.keys()
+        return pkcollections.map_keys(self.children)
 
     def _children(self, values, decl, component):
         if not decl.children:
             return None
-        res = collections.OrderedDict()
+        res = pkcollections.OrderedMapping()
         for child_decl in decl.values():
             if component not in child_decl.required:
                 continue
@@ -211,10 +211,11 @@ def init_params(defaults):
         defaults (dict): used for initializations
 
     Returns:
-        dict: nested dictionary of params
+        OrderedMapping: nested dictionary of params
     """
-    res = collections.OrderedDict()
-    for k, v in defaults.items():
+    res = pkcollections.OrderedMapping()
+    for k in defaults:
+        v = defaults[k]
         res[k] = init_params(v.children) if v.children else v.value
     return res
 

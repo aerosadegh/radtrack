@@ -11,6 +11,7 @@ from radtrack.rt_qt import QtCore, QtGui
 
 from pykern.pkdebug import pkdc, pkdp
 from pykern import pkio
+from pykern import pkcollections
 from pykern import pkresource
 
 from radtrack import rt_popup
@@ -35,17 +36,25 @@ class View(QtGui.QWidget):
         self.setLayout(main)
 
     def get_global_param(self, name):
+        #TODO (robnagler) hide the abstraction for now
+        if name == 'wavefront':
+            return self.get_wavefront_params()
+        try:
+            v = self.global_params[name]
+        except KeyError:
+            # We allow non-existent params
+            return None
         return rt_popup.get_widget_value(
             self._controller.defaults[name].decl,
-            self.global_params[name],
-        );
+            v,
+        )
 
     def get_wavefront_params(self):
         skn = self.get_global_param('simulation_kind').name.lower()
         # return self._controller.params['simulation_kind'][skn]['wavefront']
         m = self._wavefront_models[skn]
         defaults = self._controller.defaults['simulation_kind'][skn]['wavefront']
-        res = {}
+        res = pkcollections.OrderedMapping()
         for (row, n) in enumerate(defaults):
             df = defaults[n]
             res[df.decl.name] = rt_popup.get_widget_value(df.decl, m.item(row, 1))

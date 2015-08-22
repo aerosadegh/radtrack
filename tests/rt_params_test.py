@@ -80,7 +80,8 @@ def test_iter_defaults():
 
 def _assert_unicode(d, prefix=None):
     if d.children:
-        for k, v in d.items():
+        for k in d:
+            v = d[k]
             pkdp('{} {}', k, v)
             p = '{}.{}'.format(prefix, k) if prefix else k
             # TODO(robnagler) breaks with PY3

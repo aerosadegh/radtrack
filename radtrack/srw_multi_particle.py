@@ -4,115 +4,155 @@
 :copyright: Copyright (c) 2013-2015 RadiaBeam Technologies LLC.  All Rights Reserved.
 :license: http://www.apache.org/licenses/LICENSE-2.0.html
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-from io import open
-import copy
-import math
-import os
-import re
-import sys
-import numpy as np
+from __future__ import absolute_import, division, print_function
 
 from pykern import pkarray
-from pykern import pkcompat
+from pykern import pkcollections
 from pykern.pkdebug import pkdc, pkdp
-from radtrack import rt_controller
-from radtrack import rt_jinja
-from radtrack import rt_params
-from radtrack import rt_popup
-from radtrack import srw_pane
+
 from radtrack import srw_params
-from radtrack import srw_run
+from radtrack import srw_controller
 
 import srwlib
 import uti_plot
-# Initialize so that SRW doesn't generate files
-uti_plot.uti_plot_init(backend=uti_plot.DEFAULT_BACKEND, fname_format=None)
 
-from radtrack.srw import AnalyticCalc
 
-FILE_PREFIX = 'srw'
+class Controller(srw_controller.Controller):
 
-class Controller(rt_controller.Controller):
-    """Implements contol flow for SRW multiparticle tab"""
+    SRW_MODE = 'multi'
 
-    ACTION_NAMES = ('Precision', 'Undulator', 'Beam', 'Analyze', 'Simulate')
+    def simulate(self, msg_callback):
+        """Run a multi-particle (thick) simulation and return results
 
-    def init(self, parent_widget=None):
-        self.defaults = rt_params.defaults(
-            FILE_PREFIX + '_multi',
-            rt_params.declarations(FILE_PREFIX)['simulation_complexity']['multi_particle'])
-        self.params = rt_params.init_params(self.defaults)
-        self._view = srw_pane.View(self, parent_widget)
-        return self._view
+        Args:
+            msg_callback (function): Called at various stages to log output
 
-    def action_analyze(self):
-        values = AnalyticCalc.compute_all(self.params)
-        res = rt_jinja.render(
-            '''
-            Kx: $Kx
-            Ky: $Ky
-            Wavelength (m)      Phot. energy (eV)
-            1st harmonic: $lam_rn   $e_phn
-            3rd harmonic: $lam_rn_3   $e_phn_3
-            5th harmonic: $lam_rn_5  $e_phn_5
-            Critical energy: $E_c eV
-            -----------------------------------
-            Rad spot size: $RadSpotSize m
-            Rad divergence: $RadSpotDivergence rad
-            -----------------------------------
-            Length of ID: $L_id m
-            Radiated power: $P_W W
-            Central Power Density:
-            $P_Wdc W/mrad2
-            Spectral flux:
-            $SpectralFluxValue phot/(sec mrad 0.1% BW)
-            Spectral Central Brightness:
-            $RadBrightness phot/(sec mrad2 0.1% BW)
-            -----------------------------------
-            ''',
-            values,
-        )
-        self._view.set_result_text('analysis', res)
+        Returns:
+            OrderedMapping: results and params (see code for format)
+        """
+        params = self.params
+        p = pkcollections.OrderedMapping()
+        for k in 'simulation_kind', 'wavefront':
+            v = params[k]
+            p[k] = v.value if hasattr(v, 'value') else v
+        pkcollections.mapping_merge(
+            p, srw_params.to_undulator_multi_particle(params.undulator))
+        p.beam = srw_params.to_beam(params.beam)
+        p.stkF = srw_params.to_wavefront_multi_particle(p.wavefront)
+        p.stkP = srw_params.to_wavefront_multi_particle(p.wavefront)
+        p.ar_prec_f = srw_params.to_flux_precision(params.precision)
+        p.ar_prec_p = srw_params.to_power_precision(params.precision)
+        p.arPrecPar = [1] #General Precision parameters for Trajectory calculation:
+        p.fieldInterpMeth = 4
+        p.plots = []
 
-    def action_beam(self):
-        self._pop_up('beam')
+        msg_callback('Performing trajectory calculation')
+        self._trajectory(p)
+        if params.simulation_kind == 'E':
+            msg_callback('Performing Electric Field (spectrum vs photon energy) calculation')
+            msg_callback('Extracting Intensity from calculated Electric Field')
+            srwlib.srwl.CalcStokesUR(p.stkF, p.beam, p.und, p.ar_prec_f)
+            p.plots.append([
+                uti_plot.uti_plot1d,
+                p.stkF.arS,
+                [p.stkF.mesh.eStart, p.stkF.mesh.eFin, p.stkF.mesh.ne],
+                [
+                    'Photon Energy [eV]',
+                    'Flux [ph/s/.1%bw]',
+                    'Flux through Finite Aperture',
+                ],
+            ])
+        elif params.simulation_kind == 'X':
+            msg_callback('Performing Power Density calculation (from field) vs x-coordinate calculation')
+            srwlib.srwl.CalcPowDenSR(p.stkP, p.beam, 0, p.magFldCnt, p.ar_prec_p)
+            msg_callback('Extracting Intensity from calculated Electric Field')
+            p.plotMeshX = [1000*p.stkP.mesh.xStart, 1000*p.stkP.mesh.xFin, p.stkP.mesh.nx]
+            p.powDenVsX = pkarray.new_float([0]*p.stkP.mesh.nx)
+            for i in xrange(p.stkP.mesh.nx):
+                powDenVsX[i] = p.stkP.arS[p.stkP.mesh.nx*int(p.stkP.mesh.ny*0.5) + i]
+            p.plots.append([
+                uti_plot.uti_plot1d,
+                p.powDenVsX,
+                p.plotMeshX,
+                [
+                    'Horizontal Position [mm]',
+                    'Power Density [W/mm^2]',
+                    'Power Density\n(horizontal cut at y = 0)',
+                ],
+            ])
+        elif params.simulation_kind == 'Y':
+            msg_callback('Performing Power Density calculation (from field) vs x-coordinate calculation')
+            srwlib.srwl.CalcPowDenSR(p.stkP, p.beam, 0, p.magFldCnt, p.ar_prec_p)
+            msg_callback('Extracting Intensity from calculated Electric Field')
+            p.plotMeshY = [1000*p.stkP.mesh.yStart, 1000*p.stkP.mesh.yFin, p.stkP.mesh.ny]
+            p.powDenVsY = pkarray.new_float([0]*p.stkP.mesh.ny)
+            for i in xrange(p.stkP.mesh.ny):
+                p.powDenVsY[i] = p.stkP.arS[p.stkP.mesh.ny*int(p.stkP.mesh.nx*0.5) + i]
+            p.plots.append([
+                uti_plot.uti_plot1d,
+                p.powDenVsY,
+                p.plotMeshY,
+                [
+                    'Vertical Position [mm]',
+                    'Power Density [W/mm^2]',
+                    'Power Density\n(vertical cut at x = 0)',
+                ],
+            ])
+        elif params.simulation_kind == 'X_AND_Y':
+            msg_callback('Performing Electric Field (intensity vs x- and y-coordinate) calculation')
+            srwlib.srwl.CalcPowDenSR(p.stkP, p.beam, 0, p.magFldCnt, p.ar_prec_p)
+            msg_callback('Extracting Intensity from calculated Electric Field')
+            p.plotMeshX = [1000*p.stkP.mesh.xStart, 1000*p.stkP.mesh.xFin, p.stkP.mesh.nx]
+            p.plotMeshY = [1000*p.stkP.mesh.yStart, 1000*p.stkP.mesh.yFin, p.stkP.mesh.ny]
+            p.plots.append([
+                uti_plot.uti_plot2d,
+                p.stkP.arS,
+                p.plotMeshX,
+                p.plotMeshY,
+                [
+                    'Horizontal Position [mm]',
+                    'Vertical Position [mm]',
+                    'Power Density',
+                ],
+            ])
+        else:
+            raise AssertionError('{}: invalid simulation_kind'.format(params.simulation_kind))
+        return p
 
-    def action_precision(self):
-        self._pop_up('precision')
-
-    def action_simulate(self):
-        msg_list = []
-        def msg(m):
-            msg_list.append(m + '... \n \n')
-            self._view.set_result_text('simulation', ''.join(msg_list))
-
-        self.params['simulation_kind'] = self._view.get_global_param(
-            'simulation_kind')
-        self.params['wavefront'] = self._view.get_wavefront_params()
-        res = srw_run.simulate_multi_particle(self.params, msg)
-        msg('Plotting the results')
-        for plot in res.plots:
-            plot[0](*plot[1:])
-        msg('NOTE: Close all graph windows to proceed')
-        uti_plot.uti_plot_show()
-
-    def action_undulator(self):
-        self._pop_up('undulator')
-
-    def name_to_action(self, name):
-        """Returns button action"""
-        return getattr(self, 'action_' + name.lower())
-
-    def _pop_up(self, which):
-        pu = rt_popup.Window(
-            self.defaults[which],
-            self.params[which],
-            file_prefix=FILE_PREFIX,
-            parent=self._view,
-        )
-        if pu.exec_():
-            self.params[which] = pu.get_params()
+    def _trajectory(self, p):
+        # Done specifying undulator mag field
+        # Initial coordinates of particle trajectory through the ID
+        part = srwlib.SRWLParticle()
+        part.x = p.beam.partStatMom1.x
+        part.y = p.beam.partStatMom1.y
+        part.xp = p.beam.partStatMom1.xp
+        part.yp = p.beam.partStatMom1.yp
+        part.gamma = 3/0.51099890221e-03 #Relative Energy self.beam.partStatMom1.gamma #
+        part.relE0 = 1
+        part.nq = -1
+        zcID = 0
+        # number of trajectory points along longitudinal axis
+        npTraj = 10001
+        #Definitions and allocation for the Trajectory waveform
+        part.z = zcID #- 0.5*magFldCnt.MagFld[0].rz
+        p.partTraj = srwlib.SRWLPrtTrj()
+        p.partTraj.partInitCond = part
+        p.partTraj.allocate(npTraj, True)
+        p.partTraj.ctStart = -0.55 * p.und.nPer * p.und.per
+        p.partTraj.ctEnd = 0.55 * p.und.nPer * p.und.per #magFldCnt.MagFld[0].rz
+        p.partTraj = srwlib.srwl.CalcPartTraj(p.partTraj, p.magFldCnt, p.arPrecPar)
+        p.ctMesh = [p.partTraj.ctStart, p.partTraj.ctEnd, p.partTraj.np]
+        for i in range(p.partTraj.np):
+            p.partTraj.arX[i] *= 1000
+            p.partTraj.arY[i] *= 1000
+        p.plots.append([
+            uti_plot.uti_plot1d,
+            p.partTraj.arX, p.ctMesh, ['ct [m]', 'Horizontal Position [mm]'],
+        ])
+        p.plots.append([
+            uti_plot.uti_plot1d,
+            p.partTraj.arY, p.ctMesh, ['ct [m]', 'Vertical Position [mm]'],
+        ])
 
 
 Controller.run_if_main()
