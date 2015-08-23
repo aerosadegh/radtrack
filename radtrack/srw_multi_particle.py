@@ -16,7 +16,7 @@ from radtrack import srw_params
 import srwlib
 import uti_plot
 
-def simulate(params, msg_callback):
+def simulate(params, msg_callback=lambda _: _):
     """Run a multi-particle (thick) simulation and return results
 
     Args:

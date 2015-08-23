@@ -115,7 +115,7 @@ class Declaration(UserDict.DictMixin):
 
 class Default(UserDict.DictMixin):
 
-    def __init__(self, value, decl, component, parent_type=None, qualifier=None):
+    def __init__(self, value, component, decl, parent_type=None, qualifier=None):
         self.decl = decl
         self.qualified_name = qualifier + '.' + decl.qualified_name if qualifier else decl.qualified_name
         self.children = self._children(value, decl, component)
@@ -173,7 +173,12 @@ class Default(UserDict.DictMixin):
             if component not in child_decl.required:
                 continue
             d = Default(
-                values[child_decl.name], child_decl, component, decl.py_type, self.qualified_name)
+                values[child_decl.name],
+                component,
+                child_decl,
+                decl.py_type,
+                self.qualified_name,
+            )
             res[child_decl.name] = d
         return res
 
@@ -195,28 +200,30 @@ def defaults(file_prefix, decl):
 
     Args:
         file_prefix (str): which file to parse
-        decl (OrderedMapping): how to parse file
+        decl (OrderedMapping): how to parse data
 
     Returns:
         OrderedMapping: mapping of default values
     """
-    return _get(file_prefix, 'defaults', lambda v, fp: _parse_defaults(v, fp, decl))
+    return _get(
+        file_prefix,
+        'defaults',
+        lambda v, fp: defaults_from_dict(v, fp, decl),
+    )
 
 
-def from_file(file_name, component, decl):
-    """Parsed parameter values from file_name.
-
-    If you want to load a resource, the use :mod:`pykern.pkresource`
+def defaults_from_dict(values, component, decl):
+    """Parsed parameter values from already parsed YAML.
 
     Args:
-        file_name (str): which file to parse
+        values (dict): read from YAML
         component (str): which component in decl, e.g. 'srw_multi'
-        decl (OrderedMapping): how to parse file
+        decl (OrderedMapping): how to parse the data
 
     Returns:
         OrderedMapping: mapping of values
     """
-    return _get(file_name, None, lambda v, _: _parse_defaults(v, component, decl))
+    return Default(values, component, decl)
 
 
 def init_params(defaults):
@@ -275,19 +282,6 @@ def _parse_declarations_link(decl, root):
             decl.children[k] = root[k]
         else:
             _parse_declarations_link(v, root)
-
-
-def _parse_defaults(values, file_prefix, decl):
-    """Recurse the parsed YAML defaults; convert values by declarations
-
-    Args:
-        values (list): raw YAML as a list
-        file_prefix (str): which file to parse
-    Returns:
-        dict: parsed YAML
-    """
-    # Need to parse
-    return Default(values, decl, file_prefix)
 
 
 def _parse_value(v, t):
