@@ -1,10 +1,15 @@
+# -*- coding: utf-8 -*-
+"""SRW Tab
+
+:copyright: Copyright (c) 2015 RadiaSoft LLC.  All Rights Reserved.
+:license: http://www.apache.org/licenses/LICENSE-2.0.html
+"""
+from pykern.pkdebug import pkdc, pkdp
 
 from radtrack.rt_qt import QtGui
 
-from radtrack import srw_multi_particle
-from radtrack import srw_single_particle
+from radtrack import srw_controller
 
-from pykern.pkdebug import pkdc, pkdp
 
 class RbSrwTab(QtGui.QWidget):
     defaultTitle = 'SRW'
@@ -18,21 +23,18 @@ class RbSrwTab(QtGui.QWidget):
         else:
             self.parent = self
         QtGui.QWidget.__init__(self)
-
         self.stackwidget = QtGui.QStackedWidget(self)
         self.stackwidget.addWidget(
-            srw_multi_particle.Controller.init_widget(self.stackwidget))
+            srw_controller.MultiParticle.init_widget(self.stackwidget))
         self.stackwidget.addWidget(
-            srw_single_particle.Controller.init_widget(self.stackwidget))
+            srw_controller.SingleParticle.init_widget(self.stackwidget))
         self.srw_particle = QtGui.QCheckBox(self)
         self.srw_particle.setText('Single-Particle')
-
         layout = QtGui.QVBoxLayout(self)
         self.setLayout(layout)
         layout.addWidget(self.srw_particle)
         layout.addWidget(self.stackwidget)
         self.srw_particle.stateChanged.connect(self.togglesrw)
-
         self.container = self
 
     def exportToFile(self, fileName = None):
@@ -44,3 +46,7 @@ class RbSrwTab(QtGui.QWidget):
 
     def togglesrw(self):
         self.stackwidget.setCurrentIndex(int(self.srw_particle.isChecked()))
+
+if '__main__' == __name__:
+    from radtrack import rt_qt
+    rt_qt.run_app(lambda: RbSrwTab(None))

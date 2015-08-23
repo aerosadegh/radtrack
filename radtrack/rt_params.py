@@ -7,7 +7,6 @@
 from __future__ import absolute_import, division, print_function
 
 import __builtin__
-import collections
 import copy
 import importlib
 import re
@@ -20,7 +19,6 @@ from pykern.pkdebug import pkdc, pkdp
 from pykern import pkcompat
 from pykern import pkio
 from pykern import pkcollections
-from pykern import pkresource
 from pykern import pkyaml
 
 
@@ -187,7 +185,7 @@ def declarations(file_prefix):
         file_prefix (str): which file to parse
 
     Returns:
-        OrderedDict: mapping of declarations
+        OrderedMapping: mapping of declarations
     """
     return _get(file_prefix, 'declarations', _parse_declarations)
 
@@ -197,11 +195,28 @@ def defaults(file_prefix, decl):
 
     Args:
         file_prefix (str): which file to parse
+        decl (OrderedMapping): how to parse file
 
     Returns:
-        dict: mapping of default values
+        OrderedMapping: mapping of default values
     """
     return _get(file_prefix, 'defaults', lambda v, fp: _parse_defaults(v, fp, decl))
+
+
+def from_file(file_name, component, decl):
+    """Parsed parameter values from file_name.
+
+    If you want to load a resource, the use :mod:`pykern.pkresource`
+
+    Args:
+        file_name (str): which file to parse
+        component (str): which component in decl, e.g. 'srw_multi'
+        decl (OrderedMapping): how to parse file
+
+    Returns:
+        OrderedMapping: mapping of values
+    """
+    return _get(file_name, None, lambda v, _: _parse_defaults(v, component, decl))
 
 
 def init_params(defaults):
@@ -220,21 +235,20 @@ def init_params(defaults):
     return res
 
 
-def _get(file_prefix, which, how):
+def _get(file_name_or_prefix, which, how):
     """Parse and validate YAML file.
 
     Args:
-        file_prefix (str): which file to parse
-        which (str): "declarations" or "defaults"
+        file_name_or_prefix (str): which file to parse
+        which (str): "declarations" or "defaults" or None
         how (callable): parser
 
     Returns:
-        dict: parsed YAML file; declarations are an OrderedDict;
-              defaults are a regular dict.
+        OrderedMapping: parsed YAML file
     """
-    fn = '{}_{}'.format(file_prefix, which)
+    fn = '{}_{}'.format(file_name_or_prefix, which) if which else file_name_or_prefix
     values = pkyaml.load_resource(fn)
-    return how(values, file_prefix)
+    return how(values, file_name_or_prefix)
 
 
 def _parse_declarations(values, file_prefix):

@@ -16,13 +16,15 @@ from radtrack import rt_params
 from radtrack import rt_popup
 from radtrack import srw_pane
 from radtrack import srw_params
+from radtrack import srw_multi_particle
+from radtrack import srw_single_particle
 from radtrack.srw import AnalyticCalc
-
 
 # Must be last, because srw_params initializes srwlib and uti_plot
 import uti_plot
 
-class Controller(rt_controller.Controller):
+
+class Base(rt_controller.Controller):
     """Implements contol flow for SRW multiparticle tab"""
 
     ACTION_NAMES = ('Precision', 'Undulator', 'Beam', 'Analyze', 'Simulate')
@@ -78,9 +80,8 @@ class Controller(rt_controller.Controller):
         def msg(m):
             msg_list.append(m + '... \n \n')
             self._view.set_result_text('simulation', ''.join(msg_list))
-
         self.params['wavefront'] = self._view.get_wavefront_params()
-        for k in ('wavefront', 'simulation_kind', 'polarization', 'intensity'):
+        for k in 'wavefront', 'simulation_kind', 'polarization', 'intensity':
             self.params[k] = self._view.get_global_param(k)
         res = self.simulate(msg)
         msg('Plotting the results')
@@ -105,3 +106,19 @@ class Controller(rt_controller.Controller):
         )
         if pu.exec_():
             self.params[which] = pu.get_params()
+
+
+class MultiParticle(Base):
+
+    SRW_MODE = 'multi'
+
+    def simulate(self, msg_callback):
+        return srw_multi_particle.simulate(self.params, msg_callback)
+
+
+class SingleParticle(Base):
+
+    SRW_MODE = 'single'
+
+    def simulate(self, msg_callback):
+        return srw_single_particle.simulate(self.params, msg_callback)
