@@ -34,8 +34,6 @@ def simulate(params, msg_callback):
         p[k] = v.value if hasattr(v, 'value') else v
     pkcollections.mapping_merge(
         p, srw_params.to_undulator_single_particle(params.undulator))
-    p.stkF = srw_params.to_wavefront_multi_particle(p.wavefront)
-    p.stkP = srw_params.to_wavefront_multi_particle(p.wavefront)
     p.arPrecPar = srw_params.to_precision_single_particle(params.precision)
     p.wfrE = srw_params.to_wavefront_single_particle(p.wavefront)
     p.wfrE.partBeam = srw_params.to_beam(params.beam)
