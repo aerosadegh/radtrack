@@ -2,7 +2,7 @@
 """Simulation of SR from 2 dipole edges
 
 """
-from future import absolute_import, division, print_function
+from __future__ import absolute_import, division, print_function
 
 from pykern.pkdebug import pkdc, pkdp
 from pykern import pkarray
@@ -26,8 +26,8 @@ part.nq = -1 #Electron Charge
 L_bend=0.3
 L_drift=0.6
 L_total=2*L_bend+L_drift
-bend1=srwlib.SRWLMagFldM(_G=1.0, m=1, n_or_s='n', Leff=L_bend, Ledge=0.1)
-drift1 = srwlib.SRWLMagFldM(_G=0.0,_m=1, n_or_s='n', Leff=L_drift) #Drift
+bend1=srwlib.SRWLMagFldM(_G=1.0, _m=1, _n_or_s='n', _Leff=L_bend, _Ledge=0.1)
+drift1 = srwlib.SRWLMagFldM(_G=0.0,_m=1, _n_or_s='n', _Leff=L_drift) #Drift
 """
        :param _G: field parameter [T] for dipole, [T/m] for quadrupole (negative means defocusing for x), [T/m^2] for sextupole, [T/m^3] for octupole
         :param _m: multipole order 1 for dipole, 2 for quadrupoole, 3 for sextupole, 4 for octupole
@@ -116,6 +116,11 @@ uti_plot.uti_plot2d(arI2, [1000*wfr2.mesh.xStart, 1000*wfr2.mesh.xFin, wfr2.mesh
 [1000*wfr2.mesh.yStart, 1000*wfr2.mesh.yFin, wfr2.mesh.ny], 
 ['Horizontal Position [mm]', 'Vertical Position [mm]', 
 'Intensity at ' + str(wfr2.mesh.eStart) + ' eV'])
+
+#arI1 = array('f', [0]*wfr1.mesh.ne)
+#uti_plot.uti_plot1d(arI1,  [p.wfrXY.mesh.yStart, p.wfrXY.mesh.yFin, p.wfrXY.mesh.ny],
+#['Vertical Position [m]','Spectral intensity, ph/s/0.1%BW',
+#'Intensity vs y-coordinate'])
 
 uti_plot.uti_plot_show()
 print('done')
