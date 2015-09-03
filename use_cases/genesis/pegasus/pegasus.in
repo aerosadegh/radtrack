@@ -1,0 +1,44 @@
+ $NEWRUN
+ NPART=8192,
+ XKX=0.,
+ XKY=1.,
+ IWITYP=1,
+ XLAMD=0.0205,
+ AW0=0.735, 
+ AWD=0.735,
+ CURPEAK=134.2,
+ GAMMA0=35.2,
+ DELGAM=.05,
+ EMITX=2.e-6, 
+ EMITY=2.e-6,
+ RXBEAM=112.1e-6, 
+ RYBEAM=112.1e-6,
+ ALPHAX=0.,
+ ALPHAY=0.,
+ XLAMDS=12.83E-6, 
+ PRAD0=.1,
+ ZRAYL=.5, 
+ ZWAIST=0.0,
+ RMAX0=9.0, 
+ NCAR=151,
+ NSCZ=1,
+ NSCR=1,
+ NWIG=49,
+ DELZ=1.,
+ ZSEP=98.,
+ NSEC=2,
+ FL=49.,
+ DL=0.,
+ DRL=0.,
+ QUADF=1.23,
+ QUADD=0.,
+ F1ST=0.,
+ ITDP=0,
+ $end
+
+
+
+
+
+
+
