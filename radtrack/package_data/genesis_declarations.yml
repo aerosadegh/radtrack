@@ -93,7 +93,7 @@
 
 
 _
-  name: Beam
+  name: beam
   required: [genesis]
   children:
     -
