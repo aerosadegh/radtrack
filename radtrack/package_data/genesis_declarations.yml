@@ -2,7 +2,7 @@
   name: undulator
   required: [genesis]
   children:
-    _
+    -
       name: undulator_parameter
       py_type: float
       label: RMS Undulator Parameter
@@ -15,7 +15,7 @@
       required: [genesis]
     -
       name: undulator_type
-      py_type: genesis_enumss.UndulatorType
+      py_type: genesis_enums.UndulatorType
       label: Undulator Type
       required: [genesis]  
     -
@@ -60,12 +60,12 @@
       required: [genesis]
     -
       name: taper_type
-      py_type: genesis_enumss.TaperType
+      py_type: genesis_enums.TaperType
       label: taper model (WCOEFZ(3))
       required: [genesis]
     -
       name: error_type
-      py_type: genesis_enumss.ErrorType
+      py_type: genesis_enums.ErrorType
       label: type of undulator field errors 
       required: [genesis]
     -
@@ -90,9 +90,7 @@
       units: m
       label: vertical misalignment of undulator (AWY)
       required: [genesis]     
-
-
-_
+-
   name: beam
   required: [genesis]
   children:
@@ -209,9 +207,7 @@ _
       name: condity
       py_type: float
       label:: vertically conditioned (condity)
-      required: [genesis]
-      
-      
+      required: [genesis]  
 -
   name: radiation
   required: [genesis]
@@ -261,8 +257,6 @@ _
       units: W
       label: Harmonic Radiation Power
       required: [genesis]
-
-
 -
   name: particle_loading
   required: [genesis]
@@ -321,10 +315,8 @@ _
       name: num_bins
       py_type: int
       label: Number of Bins for Phase
-      required: [genesis]
-      
-      
-_
+      required: [genesis]   
+-
   name: mesh
   required: [genesis]
   children:
@@ -369,9 +361,7 @@ _
       name: sc_calc
       py_type: genesis_enums.SCCalc
       label: Calculate Space Charge at each Step
-      required: [genesis]
-      
-      
+      required: [genesis] 
 -
   name: focusing
   required: [genesis]
@@ -430,9 +420,7 @@ _
       name: solenoid_length
       py_type: float
       label: Solenoid Length
-      required: [genesis]
-      
-      
+      required: [genesis]  
 -
   name: time_dependence
   required: [genesis]
@@ -473,9 +461,7 @@ _
       py_type: genesis_enums.ShotnoiseAlgorithm
       label: Shotnoise Algorithm
       required: [genesis]
-
-
-_
+-
   name: simulation_control
   required: [genesis]
   children:
@@ -511,8 +497,6 @@ _
       units: eV/m
       label: Externally applied energy loss of the electron beam
       required: [genesis]
-
-
 -
   name: scan
   required: [genesis]
@@ -535,7 +519,7 @@ _
 -
   name: IO_Control
   required: [genesis]
-  children
+  children:
     -
       name: output_num_step
       py_type: int
@@ -716,7 +700,7 @@ _
           py_type: bool
           label: transverse radiation size
           required: [genesis]
-        _
+        -
           name: rms_diffract_angle
           py_type: bool
           label: rms diffraction angle of the radiation

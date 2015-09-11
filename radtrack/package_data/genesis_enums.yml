@@ -67,7 +67,7 @@ ScanVar:
   BEAMGAM: BEAMGAM
 
   
-FFSpectrum:
+FFspectrum:
   NEAR_FIELD: near field on-axis intensity and phase  
   FAR_FIELD: far field on-axis intensity and phase
   TOTAL:  near field total radiation power  
