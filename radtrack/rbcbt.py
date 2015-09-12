@@ -679,7 +679,7 @@ def populateTreeItem(addToBeamClickText, item, element):
     item.setText(4, str(roundSigFig(convertUnitsNumber(element.getAngle(), 'rad', 'deg'), 4))+' deg')
     item.setText(5, str(element.getNumberOfElements()) if element.isBeamline() else '')
     item.setText(6, addToBeamClickText)
-    item.setForeground(6, rt_qt.QtCore.Qt.red)
+    item.setForeground(6, rt_qt.QtCore.Qt.blue)
     font = item.font(6)
     font.setBold(True)
     font.setUnderline(True)
