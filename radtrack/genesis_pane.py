@@ -27,14 +27,14 @@ class View(QtGui.QWidget):
         self.setStyleSheet(pkio.read_text(pkresource.filename('srw_pane.css')))
         main = QtGui.QHBoxLayout()
         self._add_action_buttons(main)
-        self._add_param_vbox(main)
+        #self._add_param_vbox(main)
         self._add_result_texts(main)
         self.setLayout(main)
         
     def _add_action_buttons(self, main):
         """Buttons on the left size"""
         frame = QtGui.QWidget(self)
-        gbox = QtGui.QVBoxLayout()
+        gbox = QtGui.QGridLayout()
         frame.setLayout(gbox)
         for i , n in enumerate(self._controller.ACTION_NAMES):
             a = QtGui.QPushButton(n, frame)
@@ -45,7 +45,7 @@ class View(QtGui.QWidget):
                 columnspan=2
             gbox.addWidget(a,i/2,i%2,1,columnspan)
             a.clicked.connect(self._controller.name_to_action(n))
-        gbox.addStretch()
+        #gbox.addStretch()
         main.addWidget(frame)
         
     def _add_result_texts(self, main):

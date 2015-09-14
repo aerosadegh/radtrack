@@ -4,14 +4,14 @@ UndulatorType:
   HELICAL: Helical
   
 TaperType:
-  NONE: None
+  NONE: NONE
   LINEAR: Linear
   QUADRATIC: Quadratic
   
 ErrorType:
   GAUSSIAN_MINMIZE: Gaussian Minimize
   UNIFORM_MINIMIZE: Uniform Minimize
-  NONE: None
+  NONE: NONE
   UNIFORM: Uniform
   GAUSSIAN: Gaussian
 
@@ -40,6 +40,7 @@ ShotnoiseAlgorithm:
   PENNMAN: Pennman
     
 ScanVar:
+  NONE: NONE
   GAMMA0: GAMMA0
   DELGAM: DELGAM
   CURPEAK: CURPEAK

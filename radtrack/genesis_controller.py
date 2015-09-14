@@ -9,6 +9,7 @@ from pykern import pkarray
 from pykern import pkcompat
 from pykern.pkdebug import pkdc, pkdp
 
+from radtrack import genesis_pane
 from radtrack import rt_controller
 from radtrack import rt_jinja
 from radtrack import rt_params
@@ -16,8 +17,8 @@ from radtrack import rt_popup
 
 class Base(rt_controller.Controller):
     """Implements contol flow for Genesis tab"""
-    ACTION_NAMES = ('Undulator', 'Beam', 'Radiation', 'Particle Loading','Mesh','Focusing', 'Time Dependence',
-        'Simulation Control','Scan','I/O','Simulate')
+    ACTION_NAMES = ('Undulator', 'Beam', 'Radiation', 'Particle_Loading','Mesh','Focusing', 'Time_Dependence',
+        'Simulation_Control','Scan','IO_Control','Simulate')
     
     FILE_PREFIX = 'genesis'
     
@@ -55,8 +56,8 @@ class Base(rt_controller.Controller):
     def action_scan(self):
         self._pop_up('scan')
         
-    def action_IO_control(self):
-        self._pop_up('IO_control')
+    def action_io_control(self):
+        self._pop_up('io_control')
         
     def action_simulate(self):
         pass

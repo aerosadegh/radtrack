@@ -22,11 +22,12 @@
       name: horizontal_focus
       py_type: float
       label: normalized natural horizontal focusing
-      rquired: [genesis]
+      required: [genesis]
     -
       name: vertical_focus
       py_type: float
       label: normalized natural verticl focusing of the undulator
+      required: [genesis]
     -
       name: coupling_factor
       py_type: float
@@ -174,7 +175,7 @@
     -
       name: cut_col
       py_type: float
-      labels: Collimate Halo/Tails
+      label: Collimate Halo/Tails
       required: [genesis]
     -
       name: bunch_factor
@@ -206,7 +207,7 @@
     -
       name: condity
       py_type: float
-      label:: vertically conditioned (condity)
+      label: vertically conditioned
       required: [genesis]  
 -
   name: radiation
@@ -401,13 +402,13 @@
     -
       name: max_horizontal_misalignment
       py_type: float
-      untis: m
+      units: m
       label: Max Horizontal Misalignment
       required: [genesis]
     -
       name: max_vertical_misalignment
       py_type: float
-      untis: m
+      units: m
       label: Max Vertical Misalignment
       required: [genesis]
     -
@@ -504,17 +505,17 @@
     -
       name: scan_variable
       py_type: genesis_enums.ScanVar
-      labels: Select the parameter for a scan over
+      label: Select the parameter for a scan over
       required: [genesis]
     -
       name: num_scan
       py_type: int
-      labels: Number of steps per scan
+      label: Number of steps per scan
       required: [genesis]
     -
       name: scan_range
       py_type: float
-      labels: Scan Over Range
+      label: Scan Over Range
       required: [genesis]
 -
   name: IO_Control
@@ -523,22 +524,22 @@
     -
       name: output_num_step
       py_type: int
-      labels: Number of Steps to Output at
+      label: Number of Steps to Output at
       required: [genesis]
     -
       name: output_num_slice
       py_type: int
-      labels: Number of Slices to Output at
+      label: Number of Slices to Output at
       required: [genesis]
     -
       name: particle_dist_num_step
       py_type: int
-      labels: Number of Steps to Output Particle Data
+      label: Number of Steps to Output Particle Data
       required: [genesis]
     -
       name: particle_dist_num_slice
       py_type: int
-      labels: Number of Slices to Output Particle Data
+      label: Number of Slices to Output Particle Data
       required: [genesis]
     -
       name: field_dist_num_step
@@ -663,12 +664,12 @@
       py_type: bool
       label: Apply Transport Matrix 
       required: [genesis]
-      children:
-        -
-          name: itram
-          py_type: matrix
-          label: Transport Matrix
-          required: [genesis]
+    #  children:
+    #-
+    #  name: itram
+    #  py_type: int
+    #  label: Transport Matrix
+    #  required: [genesis]
     -
       name: output_parameters
       py_type: list

@@ -65,6 +65,7 @@ class ShotnoiseAlgorithm(rt_enum.Enum):
     
 @enum.unique
 class ScanVar(rt_enum.Enum):
+    NONE = 0
     GAMMA0 = 1
     DELGAM = 2
     CURPEAK = 3
