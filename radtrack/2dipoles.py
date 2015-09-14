@@ -103,13 +103,17 @@ elecBeam.arStatMom2[4] = 0 #<(y-<y>)(y'-<y'>)>
 elecBeam.arStatMom2[5] = sigYp*sigYp #<(y'-<y'>)^2>
 elecBeam.arStatMom2[10] = sigEperE*sigEperE #<(E-<E>)^2>/<E>^2
 
-el1=0
+el1=1
+# This defines mesh for either filament beam calculation or for heat load calc
 if el1==0:
 	wfr2 = srwlib.SRWLWfr() #For intensity distribution at fixed photon energy
 else:
 	wfr2 = srwlib.SRWLStokes() 
-	
-wfr2.allocate(1, 401, 401) #Numbers of points vs Photon Energy, Horizontal and Vertical Positions
+
+wfr2.mesh.ne= 1	
+wfr2.mesh.nx=401
+wfr2.mesh.ny=401
+wfr2.allocate(wfr2.mesh.ne, wfr2.mesh.nx, wfr2.mesh.ny) #Numbers of points vs Photon Energy, Horizontal and Vertical Positions
 wfr2.mesh.zStart = 0.3 #Longitudinal Position [m] at which SR has to be calculated
 wfr2.mesh.eStart = 2.1 #Initial Photon Energy [eV]
 wfr2.mesh.eFin = 2.1 #Final Photon Energy [eV]
@@ -118,6 +122,10 @@ wfr2.mesh.xFin = 0.01 #Final Horizontal Position [m]
 wfr2.mesh.yStart = -0.01 #Initial Vertical Position [m]
 wfr2.mesh.yFin = 0.01 #Final Vertical Position [m]
 wfr2.partBeam = elecBeam
+
+#This defines mesh for "thick" beam calculation
+meshRes = srwlib.SRWLRadMesh(wfr2.mesh.eStart, wfr2.mesh.eFin, wfr2.mesh.ne, wfr2.mesh.xStart, 
+wfr2.mesh.xFin, wfr2.mesh.nx, wfr2.mesh.yStart, wfr2.mesh.yFin, wfr2.mesh.ny, wfr2.mesh.zStart) #to ensure correct final mesh if _opt_bl==None
 
 meth = 2 #SR calculation method: 0- "manual", 1- "auto-undulator", 2- "auto-wiggler"
 relPrec = 0.01 #relative precision
@@ -131,7 +139,13 @@ arPrecPar = [meth, relPrec, zStartInteg, zEndInteg, npTraj, useTermin, sampFactN
 if el1==0:
 	srwlib.srwl.CalcElecFieldSR(wfr2, elecBeam, magFldCnt, arPrecPar)
 else:
-	srwlib.srwl.CalcPowDenSR(wfr2, elecBeam, 0, magFldCnt, arPrecPar)
+# This computes heat load	
+#	srwlib.srwl.CalcPowDenSR(wfr2, elecBeam, 0, magFldCnt, arPrecPar)
+#This computes "thick" electron beam
+	srwlib.srwl_wfr_emit_prop_multi_e(elecBeam,magFldCnt, meshRes, meth, 
+	relPrec, 5, _n_part_avg_proc=1, _n_save_per=100, 
+	_file_path=None, _sr_samp_fact=-1, _opt_bl=None, _pres_ang=0, _char=0, 
+	_x0=0, _y0=0, _e_ph_integ=0, _rand_meth=1)
 
 print('done')
 print('   Extracting Intensity from calculated Electric Field ... ', end='')
@@ -148,16 +162,23 @@ if el1==0:
 	#1-D distribution
 	wfr2.mesh.nx=400
 	arI1 = array('f', [0]*wfr2.mesh.nx)
-	uti_plot.uti_plot1d(arI2, [wfr2.mesh.xStart, wfr2.mesh.xFin, wfr2.mesh.nx], 
+	uti_plot.uti_plot1d(arI2, [wfr2.mesh.xStart, wfr2.mesh.xFin*0, wfr2.mesh.nx], 
 	['Photon Energy [eV]', 'Intensity [ph/s/.1%bw/mm^2]', 'Distribution'])
 else:
-	plotMeshX = [1000*wfr2.mesh.xStart, 1000*wfr2.mesh.xFin, wfr2.mesh.nx]
+	# 1-D dsitribution
+	plotMeshX = [1000*wfr2.mesh.xStart, 1000*wfr2.mesh.xFin*0, wfr2.mesh.nx]
         powDenVsX = array('f', [0]*wfr2.mesh.nx)
         for i in range(wfr2.mesh.nx): powDenVsX[i] = wfr2.arS[wfr2.mesh.nx*int(wfr2.mesh.ny*0.5) + i]
         print(plotMeshX)
         uti_plot.uti_plot1d(powDenVsX, plotMeshX, ['Horizontal Position [mm]', 'Power Density [W/mm^2]', 'Power Density\n(horizontal cut at y = 0)'])
 
-
+	#2-D distribution
+	arI2 = array('f', [0]*wfr2.mesh.nx*wfr2.mesh.ny) #"flat" array to take 2D intensity data
+	srwlib.srwl.CalcIntFromElecField(arI2, meshRes, 6, 0, 3, wfr2.mesh.eStart, 0, 0)
+	uti_plot.uti_plot2d(arI2, [1000*wfr2.mesh.xStart, 1000*wfr2.mesh.xFin, wfr2.mesh.nx], 
+	[1000*wfr2.mesh.yStart, 1000*wfr2.mesh.yFin, wfr2.mesh.ny], 
+	['Horizontal Position [mm]', 'Vertical Position [mm]', 
+	'Intensity at ' + str(wfr2.mesh.eStart) + ' eV'])
 
 uti_plot.uti_plot_show()
 print('done')
