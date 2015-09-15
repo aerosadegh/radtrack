@@ -98,7 +98,7 @@
     -
       name: num_particle
       py_type: int
-      label: number of macro particles per slice
+      label: Number of Macro Particles Per Slice
       required: [genesis]
     -
       name: gamma
@@ -518,7 +518,7 @@
       label: Scan Over Range
       required: [genesis]
 -
-  name: IO_Control
+  name: io_control
   required: [genesis]
   children:
     -

@@ -101,7 +101,7 @@ scan:
   scan_variable: NONE
   num_scan: 3
   scan_range: 0.01
-IO_Control:
+io_control:
   output_num_step: 1
   output_num_slice: 1
   particle_dist_num_step: 0
