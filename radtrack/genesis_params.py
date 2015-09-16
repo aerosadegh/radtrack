@@ -11,7 +11,7 @@ from pykern import pkarray
 from pykern.pkdebug import pkdc, pkdi, pkdp
 
 def to_beam(params):
-'''Convert beam params to dict with Genesis keys'''
+    '''Convert beam params to dict with Genesis keys'''
     res = dict()
     res['NPART']=params['num_particle']
     res['GAMMA0']=params['gamma']
@@ -21,7 +21,7 @@ def to_beam(params):
     res['EMITX']=params['rms_horizontal_emittance']
     res['EMITY']=params['rms_vertical_emittance']
     res['ALPHAX']=params['horizontal_alpha']
-    res['ALPHAY']=parmas['vertical_alpha']
+    res['ALPHAY']=params['vertical_alpha']
     res['XBEAM']=params['horizontal_coord']
     res['YBEAM']=params['vertical_coord']
     res['PXBEAM']=params['horizontal_angle']
@@ -38,10 +38,10 @@ def to_beam(params):
     return res
     
 def to_undulator(params):
-'''Convert undulator params to dict with Genesis keys'''
+    '''Convert undulator params to dict with Genesis keys'''
     res = dict()
     res['AW0']=params['undulator_parameter']
-    res['XLAMD']=params['period_length']
+    res['XLAMD']=params['period_len']
     res['IWITYP']=params['undulator_type']
     res['XKX']=params['horizontal_focus']
     res['XKY']=params['vertical_focus']
@@ -61,7 +61,7 @@ def to_undulator(params):
     return res
     
 def to_radiation(params):
-'''Convert radiation params to dict with Genesis keys'''    
+    '''Convert radiation params to dict with Genesis keys'''    
     res = dict()
     res['XLAMDS']=params['resonant_wavelength']
     res['PRAD0']=params['input_power']
@@ -75,7 +75,7 @@ def to_radiation(params):
     return res
 
 def to_particle_loading(params):
-'''Convert particle loading params to dict with Genesis keys'''
+    '''Convert particle loading params to dict with Genesis keys'''
     res = dict()
     res['ILDPSI']=params['ham_particle_phase']
     res['ILDGAM']=params['ham_energy_distribution']
@@ -92,7 +92,7 @@ def to_particle_loading(params):
     return res
     
 def to_mesh(params):
-'''Convert mesh params to dict with Genesis keys'''
+    '''Convert mesh params to dict with Genesis keys'''
     res = dict()
     res['NCAR']=params['num_grid']
     res['LBC']=params['boundary']
@@ -106,7 +106,7 @@ def to_mesh(params):
     return res
     
 def to_focusing(params):
-'''Convert focusing params to dict with Genesis keys'''
+    '''Convert focusing params to dict with Genesis keys'''
     res = dict()
     res['QUADF']=params['focus_strength']
     res['QUADD']=params['defocus_strength']
@@ -122,7 +122,7 @@ def to_focusing(params):
     return res
     
 def to_time(params):
-'''Convert time dependence params to dict with Genesis keys'''
+    '''Convert time dependence params to dict with Genesis keys'''
     res=dict()
     res['ITDP']=params['set_time_dependent']
     res['CURLEN']=params['bunch_length']
@@ -135,7 +135,7 @@ def to_time(params):
     return res
     
 def to_sim_control(params):
-'''Convert simulation control params to dict with Genesis keys'''
+    '''Convert simulation control params to dict with Genesis keys'''
     res = dict()
     res['DELZ']=params['step_size']
     res['ZSTOP']=params['integration_length']
@@ -147,7 +147,7 @@ def to_sim_control(params):
     return res
     
 def to_scan(params):
-'''Convert scan params to dict with Genesis keys'''
+    '''Convert scan params to dict with Genesis keys'''
     res = dict()
     res['ISCAN']=params['scan_variable']
     res['NSCAN']=params['num_scan']
@@ -156,7 +156,7 @@ def to_scan(params):
     return res
     
 def to_io_control(params):
-'''Convert io params to dict with Genesis keys'''
+    '''Convert io params to dict with Genesis keys'''
     res = dict()
     lout = []
     res['IPHSTY']= params['output_num_step']

@@ -31,6 +31,11 @@ class View(QtGui.QWidget):
         self._add_result_texts(main)
         self.setLayout(main)
         
+    def set_result_text(self, which, text):
+        w = self._result_text[which]
+        w.setText(text)
+        w.repaint()
+        
     def _add_action_buttons(self, main):
         """Buttons on the left size"""
         frame = QtGui.QWidget(self)
