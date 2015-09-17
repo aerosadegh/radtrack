@@ -68,7 +68,7 @@ def to_radiation(params):
     res['ZRAYL']=params['rayleigh_length']
     res['ZWAIST']=params['rayleigh_waist']
     res['NHARM']=params['num_harmonic']
-    res['IALLHARM']=params['all_harmnic']
+    res['IALLHARM']=params['all_harmonic']
     res['IHARMSC']=params['harmonic_coupling']
     res['PRADH0']=params['harmonic_power']
     
