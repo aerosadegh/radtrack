@@ -127,7 +127,7 @@ def to_time(params):
     res['ITDP']=params['set_time_dependent']
     res['CURLEN']=params['bunch_length']
     res['ZSEP']=params['slice_separation']
-    res['NSLICE']=param['num_slice']
+    res['NSLICE']=params['num_slice']
     res['NTAIL']=params['start_slice']
     res['SHOTNOISE']=params['shotnoise']
     res['ISNTYP']=params['shotnoise_algorithm']

@@ -436,7 +436,7 @@
       py_type: float
       units: m
       label: Bunch Length 
-      required: [gensis]
+      required: [genesis]
     -
       name: slice_separation
       py_type: float
