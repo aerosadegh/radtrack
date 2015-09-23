@@ -1,0 +1,63 @@
+TwoDipoles:
+  Particle:
+    Electron rest mass: 1
+    Electron charge: -1
+    X intial offset: 0.0
+    XP intial offset: 0.0
+    Y intial offset: 0.0
+    YP intial offset: 0.0
+    Z intial offset: 0.0
+    Average Current: 0.5
+    Energy: 0.064
+    Relative Energy: 'Particle'.'Energy'/0.51099890221e-03
+  Beam:
+    Average Current: 0.1
+    sigEperE: 0.1 
+    sigX: (1.5e-06/'Particle'.'Relative Energy')**(1/2) 
+    sigXp: (1.5e-06/'Particle'.'Relative Energy') **(1/2) 
+    sigY: 'Beam'.'sigX' 
+    sigYp: 'Beam'.'sigXp' 
+  Element Specification:
+    Bending Magnet 1:
+      _G: -0.85
+      _m: 1
+      _n_or_s: 'n'
+      _Leff: 0.05
+      _Ledge: 0.01
+    Bending Magnet 2:
+      _G: 0.85
+      _m: 1
+      _n_or_s: 'n'
+      _Leff: 0.05
+      _Ledge: 0.01
+    Drift:
+      _G: 0.0
+      _m: 1
+      _n_or_s: 'n'
+      _Leff: 0.02
+  Container:
+    L_total: 0.2
+    Limits: -'Bending Magnet 1'.'Leff'/2-'Drift'.'Leff'/2, 0, 'Bending Magnet 2'.'Leff'/2+'Drift'.'Leff'/2
+  Trajectory:
+    Number of TRajectory Points: 10001
+    ctStart: -'Container'.'L_total'/2
+    ctEnd: 'Container'.'L_total'/2
+  Wavefront:
+    ne: 1             
+    nx: 401
+    ny: 401
+    zStart: 0.3
+    eStart: 2.1 
+    eFin: 2.1 
+    xStart: -0.01 
+    xFin: 0.01 
+    yStart: -0.01 
+    yFin: 0.01 
+  Precision:
+    method:  2
+    relPrec: 0.01
+    zStartInteg: 'Trajectory'.'ctStart'
+    zEndInteg: 'Trajectory'.'ctEnd'
+    npTraj: 2000 
+    useTermin: 0 
+    sampFactNxNyForProp: 0 
