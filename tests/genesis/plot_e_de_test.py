@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""pytest for `radtrack.genesis.rbGenLatFile`
+"""pytest for `radtrack/use_cases/genesis/lcls`
 
 :copyright: Copyright (c) 2015 RadiaBeam Technologies, LLC.  All Rights Reserved.
 :license: Apache, see LICENSE for more details.
@@ -7,53 +7,31 @@
 
 import os
 import os.path
-import re
+import subprocess
 
 import pytest
 
 import numpy as np
-from radtrack.genesis import lattice_file
+import radtrack
+# import use_cases.genesis.lcls.plot_e_de
 
-DEFAULT_PARAMS = {
-    'filename': 'lattice_file_test.out',
-    'unit_length': 3.1415,
-    'elems': {
-        'QF': [
-            np.array([1.1, 1.2, 1.3]),
-            np.array([2.1, 2.2, 2.3]),
-        ],
-        'AW': [
-            np.array([3.1, 3.2, 3.3]),
-            np.array([4.1, 4.2, 4.3]),
-            np.array([5.1, 5.2, 5.3]),
-        ],
-    },
-}
+from pykern import pkunit
 
-def test_conformance1():
-    """Read the file and make sure it is formated correctly"""
-    fn = DEFAULT_PARAMS['filename']
-    if os.path.exists(fn):
-        os.remove(fn)
-    lattice_file.write(**DEFAULT_PARAMS)
-    with open(fn) as f:
-        res = f.read()
-    def a(p, flags=re.MULTILINE):
-        assert re.search(p, res, flags=flags), p + ': no match' 
-    a(r'--\nQF    1\.1    1\.2    1\.3    \n')
-    a(r'  \nAW    5\.1    5\.2    5\.3    \n$', flags=0)
-    a(r'QF +1.1 .*\nQF +2.1 .*\n(?:#.*\n)+AW +3.1 .*\nAW +4.1 .*\nAW +5.1 ')
+def test_run_lcls():
+    """Run Genesis on an LCLS input file"""
 
-def test_conformance2():
-    """Make sure the file is removed first"""
-    fn = DEFAULT_PARAMS['filename']
-    if os.path.exists(fn):
-        os.remove(fn)
-    tag = 'some magic string to find'
-    with open(fn, 'w') as f:
-        f.write(tag)
-    lattice_file.write(**DEFAULT_PARAMS)
-    with open(fn) as f:
-        res = f.read()
-    assert not re.search(tag, res), 'file was not removed'
-    assert re.search('VERSION', res)
+    with pkunit.save_chdir_work():
+        print ' about to call GENESIS'
+        subprocess.call(["cp", "../../../use_cases/genesis/lcls/lcls.in", "."])
+        subprocess.call(["genesis", "-i", "lcls.in"])
+        print ' GENESIS subprocess has returned'
+
+        out_file_exists = os.path.exists("./lcls.out.h5")
+        assert out_file_exists == True
+
+def test_read():
+    """Read the file"""
+    file_name = "../../../use_cases/genesis/lcls/lcls.out.h5"
+    if os.path.exists(file_name):
+        print ' file exists!'
+#        os.remove(file_name)
