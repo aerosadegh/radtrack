@@ -1,0 +1,153 @@
+---
+#Genesis Defaults
+
+undulator:
+  undulator_parameter: 0.735
+  period_len: 0.0205
+  undulator_type: PLANAR
+  horizontal_focus: 0
+  vertical_focus: 1
+  coupling_factor: 0
+  num_periods: 98
+  num_section: 1
+  virtual_undulator_parameter: 0.735
+  taper_start: 0
+  taper_field: 0
+  taper_type: NONE
+  error_type: NONE
+  error: 0
+  rng_seed: -1
+  horizontal_misalignment: 0
+  vertical_misalignment: 0
+beam:
+  num_particle: 8192
+  gamma: 35.2
+  rms_energy_spread: 0.005
+  rms_horizontal_width: 0.0001121
+  rms_vertical_width: 0.0001121
+  rms_horizontal_emittance: 0.000002
+  rms_vertical_emittance: 0.000002
+  horizontal_alpha: 0
+  vertical_alpha: 0
+  horizontal_coord: 0
+  vertical_coord: 0
+  horizontal_angle: 0
+  vertical_angle: 0
+  peak_current: 250
+  cut_col: -1
+  bunch_factor: 0
+  bunch_phase: 0
+  energy_modulation: 0
+  energy_modulation_phase: 0
+  conditx: 0
+  condity: 0
+radiation:
+  resonant_wavelength: 0.000012852
+  input_power: 10
+  rayleigh_length: 0.5
+  rayleigh_waist: 0
+  num_harmonic: 1
+  all_harmonic: 0
+  harmonic_coupling: 0
+  harmonic_power: 0
+particle_loading:
+  ham_particle_phase: 7
+  ham_energy_distribution: 5
+  ham_horizontal_distribution: 1
+  ham_vertical_distribution: 2
+  ham_horizontal_angle: 3
+  ham_vertical_angle: 4
+  energy_profile: GAUSSIAN
+  generate_gaus: INVERTEDERROR
+  ham_all: 0
+  rng_sn_seed: -1
+  num_bins: 4
+mesh:
+  num_grid: 151
+  boundary: DIRECHLET
+  auto_grid_size: 9
+  direct_grid_size: 0
+  azimuthal_modes: 1
+  rad_grid: 40
+  rad_grid_size: 0
+  sc_calc: ONCE
+focusing:
+  focus_strength: 1.23
+  defocus_strength: 0
+  focus_length: 98
+  defocus_length: 0
+  drift_length: 0
+  cell_start: FULL
+  max_horizontal_misalignment: 0
+  max_vertical_misalignment: 0
+  solenoid_strength: 0
+  solenoid_length: 0
+time_dependence:
+  set_time_dependent: 0
+  bunch_length: 0.001
+  slice_separation: 1
+  num_slice: 408
+  start_slice: -253
+  shotnoise: 1
+  shotnoise_algorithm: FAWLEY
+simulation_control:
+  step_size: 1
+  integration_length: 0
+  orbit_correct: 0
+  energy_loss: 0
+  energy_spread: 0
+  eloss: 0
+scan:
+  scan_variable: NONE
+  num_scan: 3
+  scan_range: 0.01
+io_control:
+  output_num_step: 1
+  output_num_slice: 1
+  particle_dist_num_step: 0
+  particle_dist_num_slice: 0
+  field_dist_num_step: 0
+  field_dist_num_slice: 0
+  time_window: 0
+  output_filename: ''
+  mag_input_filename: ''
+  mag_output_filename: ''
+  dump_all: 0
+  dump_field: 0
+  dump_particle: 0
+  beam_file: ''
+  rad_file: ''
+  phase_file: ''
+  ndcut: 0
+  field_file: ''
+  align_rad: 0
+  offset_rad: 0
+  part_dist_file: ''
+  convharm: 1
+  chicane_field: 0
+  chicane_mag_length: 0
+  chicane_drift: 0
+  log: 0
+  ff_spectrum: NEAR_FIELD
+  trama: 0
+    #itram: 10
+  output_parameters:
+    rad_power: 1
+    power_growth: 1
+    power_density: 1
+    rad_phase: 1
+    rad_size: 1
+    rms_diffract_angle: 0
+    beam_energy: 1
+    bunch_factor: 1
+    beam_size_x: 1
+    beam_size_y: 1
+    error_energy_conserve: 1
+    beam_pos_x: 0
+    beam_pos_y: 0
+    energy_spread: 0
+    field_intensity: 0
+    second_harmonic: 0
+    third_harmonic: 0
+    fourth_harmonic: 0
+    fifth_harmonic: 0

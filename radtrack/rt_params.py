@@ -6,13 +6,13 @@
 """
 from __future__ import absolute_import, division, print_function
 
+import UserDict
 import __builtin__
 import copy
+import enum
 import importlib
 import re
-import UserDict
-
-import enum
+import sys
 import yaml
 
 from pykern.pkdebug import pkdc, pkdp
@@ -20,6 +20,14 @@ from pykern import pkcompat
 from pykern import pkio
 from pykern import pkcollections
 from pykern import pkyaml
+
+
+#: Valid attributes for a declaration
+DECLARATION_ATTRS = ('name', 'required', 'children', 'label', 'units', 'py_type')
+
+
+class DeclarationException(ValueError):
+    pass
 
 
 class Declaration(UserDict.DictMixin):
@@ -34,16 +42,31 @@ class Declaration(UserDict.DictMixin):
         units (str): expected units (default: None)
     """
     def __init__(self, decl, qualifier=None):
-        #TODO(robnagler) more type checking: especially required and children
-        self.name = decl['name']
-        self.qualified_name = qualifier + '.' + self.name if qualifier else self.name
-        self.label = self._label(decl)
-        self.py_type = self._py_type(decl)
-        self.units = self._units(decl)
-        self.required = self._required(decl)
-        self.children = self._children(decl)
-        assert self.children or self.py_type, \
-            '{}: declaration must be one type or the other'
+        try:
+            #TODO(robnagler) more type checking: especially required and children
+            self.name = decl['name']
+            self.qualified_name = qualifier + '.' + self.name if qualifier else self.name
+            unknown = [x for x in decl if x not in DECLARATION_ATTRS]
+            if unknown:
+                raise ValueError('{}: unknown attribute(s)'.format(unknown))
+            self.label = self._label(decl)
+            self.py_type = self._py_type(decl)
+            self.units = self._units(decl)
+            self.required = self._required(decl)
+            self.children = self._children(decl)
+            assert self.children or self.py_type, \
+                '{}: declaration must be one type or the other'
+        except DeclarationException:
+            raise
+        except Exception as e:
+            n = None
+            for a in ('qualified_name', 'name'):
+                if hasattr(self, a):
+                    n = getattr(self, a)
+                    break
+            if n is None:
+                n = decl
+            raise DeclarationException('{}: declaration error for {}'.format(e, n)), None, sys.exc_info()[2]
 
     def __repr__(self):
         return 'Declaration("{}")'.format(self.name)
