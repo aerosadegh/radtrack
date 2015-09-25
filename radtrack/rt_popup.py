@@ -125,14 +125,15 @@ class Form(object):
         self._layout.setFieldGrowthPolicy(QtGui.QFormLayout.AllNonFixedFieldsGrow)
         self._layout.setMargin(0)
         sizes = self._init_fields(params)
-        self._init_buttons(window)
+        
         self._set_geometry(sizes)
         
         sa = QtGui.QScrollArea()
         self._frame.setLayout(self._layout)
         sa.setWidget(self._frame)
-        self.mainlayout = QtGui.QVBoxLayout(window)
-        self.mainlayout.addWidget(sa)
+        self.mainlayout = QtGui.QFormLayout(window)
+        self.mainlayout.addRow(sa)
+        self._init_buttons(window)
         #self.mainlayout.setSizeConstraint(QtGui.QLayout.SetFixedSize)
         
 
@@ -158,7 +159,7 @@ class Form(object):
             QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
         for b in self._buttons.buttons():
             b.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self._layout.addRow(self._buttons)
+        self.mainlayout.addRow(self._buttons)
         QtCore.QObject.connect(
             self._buttons, QtCore.SIGNAL('accepted()'), window.accept)
         QtCore.QObject.connect(
