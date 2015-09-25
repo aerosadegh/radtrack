@@ -118,13 +118,23 @@ class Form(object):
     def __init__(self, defaults, params, window):
         super(Form, self).__init__()
         self._defaults = defaults
-        self._frame = QtGui.QWidget(window)
-        self._layout = QtGui.QFormLayout(self._frame)
+        #self._frame = QtGui.QWidget(window)
+        self._frame = QtGui.QWidget()
+        #self._layout = QtGui.QFormLayout(self._frame)
+        self._layout = QtGui.QFormLayout()
         self._layout.setFieldGrowthPolicy(QtGui.QFormLayout.AllNonFixedFieldsGrow)
         self._layout.setMargin(0)
         sizes = self._init_fields(params)
         self._init_buttons(window)
         self._set_geometry(sizes)
+        
+        sa = QtGui.QScrollArea()
+        self._frame.setLayout(self._layout)
+        sa.setWidget(self._frame)
+        self.mainlayout = QtGui.QVBoxLayout(window)
+        self.mainlayout.addWidget(sa)
+        #self.mainlayout.setSizeConstraint(QtGui.QLayout.SetFixedSize)
+        
 
     def _get_params(self):
 
