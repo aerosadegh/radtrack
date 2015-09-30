@@ -15,6 +15,7 @@ from radtrack import rt_controller
 from radtrack import rt_jinja
 from radtrack import rt_params
 from radtrack import rt_popup
+from radtrack import rt_enum
 
 class Base(rt_controller.Controller):
     """Implements contol flow for Genesis tab"""
@@ -81,7 +82,10 @@ class Base(rt_controller.Controller):
         with open('test.in','w') as f:
             f.write('$newrun \n')
             for i in self.w:
-                f.write(i+'='+str(self.w[i])+'\n')
+                if isinstance(self.w[i], rt_enum.Enum):
+                    f.write('{}={}\n'.format(i, self.w[i].value))
+                else:
+                    f.write(i+'='+str(self.w[i])+'\n')
             f.write('$end')
         msg('Finished')
         
