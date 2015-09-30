@@ -297,10 +297,15 @@
       py_type: genesis_enums.EnergyProfile
       label: Energy Profile
       required: [genesis]
+    #-
+    #  name: trans_profile
+    #  py_type: genesis_enums.TransProfile
+    #  label: Transverse Profile
+    #  required: [genesis]
     -
       name: generate_gaus
       py_type: genesis_enums.GenerateGaus
-      label: Method to Generating Gaussian
+      label: Method to Generate Gaussian
       required: [genesis]
     -
       name: ham_all
