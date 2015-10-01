@@ -15,13 +15,11 @@ class UndulatorType(rt_enum.Enum):
     PLANAR = 0
     HELICAL = 1
 
-
 @enum.unique
 class TaperType(rt_enum.Enum):
     NONE = 0
     LINEAR = 1
     QUADRATIC = 2
-
 
 @enum.unique
 class ErrorType(rt_enum.Enum):
@@ -31,13 +29,17 @@ class ErrorType(rt_enum.Enum):
     UNIFORM = 1
     GAUSSIAN = 2
 
-
 @enum.unique
 class EnergyProfile(rt_enum.Enum):
     UNIFORM = 1
     GAUSSIAN = 0
 
-
+#@enum.unique
+#class TransProfile(rt_enum.Enum):
+#    GAUSSIAN = 1
+#    UNIFORM = 2
+#    PARABOLIC = 3
+    
 @enum.unique
 class GenerateGaus(rt_enum.Enum):
     JOINTPROBABILITY = 0
