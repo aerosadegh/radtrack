@@ -19,6 +19,11 @@ EnergyProfile:
   UNIFORM: Uniform
   GAUSSIAN: Gaussian
   
+TransProfile:
+  GAUSSIAN: Gaussian
+  UNIFORM: Uniform
+  PARABOLIC: Parabolic
+  
 GenerateGaus:
   JOINTPROBABILITY: Joint Probability Function
   INVERTEDERROR: Inverted Error Function

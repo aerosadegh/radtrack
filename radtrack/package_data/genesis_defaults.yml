@@ -58,7 +58,7 @@ particle_loading:
   ham_horizontal_angle: 3
   ham_vertical_angle: 4
   energy_profile: GAUSSIAN
-  #trans_profile: GAUSSIAN
+  trans_profile: GAUSSIAN
   generate_gaus: INVERTEDERROR
   ham_all: 0
   rng_sn_seed: -1

@@ -34,11 +34,11 @@ class EnergyProfile(rt_enum.Enum):
     UNIFORM = 1
     GAUSSIAN = 0
 
-#@enum.unique
-#class TransProfile(rt_enum.Enum):
-#    GAUSSIAN = 1
-#    UNIFORM = 2
-#    PARABOLIC = 3
+@enum.unique
+class TransProfile(rt_enum.Enum):
+    GAUSSIAN = 1
+    UNIFORM = 2
+    PARABOLIC = 3
     
 @enum.unique
 class GenerateGaus(rt_enum.Enum):
