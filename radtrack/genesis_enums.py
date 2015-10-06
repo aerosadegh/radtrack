@@ -39,7 +39,7 @@ class TransProfile(rt_enum.Enum):
     GAUSSIAN = 1
     UNIFORM = 2
     PARABOLIC = 3
-    
+
 @enum.unique
 class GenerateGaus(rt_enum.Enum):
     JOINTPROBABILITY = 0

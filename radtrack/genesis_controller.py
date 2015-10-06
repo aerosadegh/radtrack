@@ -87,11 +87,6 @@ class Base(rt_controller.Controller):
                 else:
                     f.write(i+'='+str(self.w[i])+'\n')
             f.write('$end')
-        '''
-        for i in self.w:
-            if isinstance(self.w[i], rt_enum.Enum):
-                print(self.w[i])
-                print('{}={}\n'.format(i, self.w[i].value))'''
         msg('Finished')
         
         

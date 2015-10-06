@@ -31,7 +31,7 @@
     -
       name: coupling_factor
       py_type: float
-      label: coupling factor of the electron beam to the radiation field (FBESS0)
+      label: coupling factor between beam and radiation (FBESS0)
       required: [genesis]
     -
       name: num_periods
@@ -57,12 +57,12 @@
     -
       name: taper_field
       py_type: float
-      label: relative change of the undulator field over the entire taper length 
+      label: relative change of the undulator field over taper length 
       required: [genesis]
     -
       name: taper_type
       py_type: genesis_enums.TaperType
-      label: taper model (WCOEFZ(3))
+      label: taper model
       required: [genesis]
     -
       name: error_type
@@ -89,7 +89,7 @@
       name: vertical_misalignment
       py_type: float
       units: m
-      label: vertical misalignment of undulator (AWY)
+      label: vertical misalignment of undulator
       required: [genesis]     
 -
   name: beam
