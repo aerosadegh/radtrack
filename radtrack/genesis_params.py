@@ -198,7 +198,7 @@ def to_io_control(params):
                 
     #LOOP THROUGH CHILDREN OF OUTPUT_PARAMS TO TURN INTO LIST 
     for key in params['output_parameters']:
-        lout.append(params['output_parameters'][key])
+        lout.append(int(params['output_parameters'][key]))
         
     res['LOUT']=lout
     

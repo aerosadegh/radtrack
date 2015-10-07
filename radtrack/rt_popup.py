@@ -30,13 +30,26 @@ def get_widget_value(decl, widget):
         if d.units:
             v = RbUtility.convertUnitsStringToNumber(v, d.units)
         return d.py_type(v)
+        
+    def isinstance_str(value):
+        """Portable test for str
+
+        Args:
+            value (object): to test
+
+        Returns:
+            bool: True if value is a str or unicode
+        """
+        return isinstance(value, str) or isinstance(value, unicode)
 
     if issubclass(decl.py_type, bool):
         return widget.isChecked()
-    if isinstance(decl.py_type, enum.EnumMeta):
+    elif isinstance(decl.py_type, enum.EnumMeta):
         return decl.py_type(widget.itemData(widget.currentIndex()).toInt()[0])
     elif issubclass(decl.py_type, float) or issubclass(decl.py_type, int):
         return _num(decl, widget)
+    elif issubclass(decl.py_type,str):
+        return widget.text()
     else:
         raise AssertionError('bad type: ' + str(decl.py_type))
 
