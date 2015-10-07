@@ -84,7 +84,7 @@ def to_particle_loading(params):
     res['ILDPX']=params['ham_horizontal_angle']
     res['ILDPY']=params['ham_vertical_angle']
     res['ITGAMGAUS']=params['energy_profile']
-    #res['ITGAUS']=params['trans_profile']
+    res['ITGAUS']=params['trans_profile']
     res['INVERFC']=params['generate_gaus']
     res['IALL']=params['ham_all']
     res['IPSEED']=params['rng_sn_seed']
