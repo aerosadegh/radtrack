@@ -16,6 +16,7 @@ from pykern import pkresource
 from pykern import pkio
 from pykern import pkcollections
 from pykern.pkdebug import pkdc, pkdp
+from pykern import pkcompat
 
 from radtrack import RbUtility
 from radtrack import rt_params
@@ -30,17 +31,8 @@ def get_widget_value(decl, widget):
         if d.units:
             v = RbUtility.convertUnitsStringToNumber(v, d.units)
         return d.py_type(v)
-        
-    def isinstance_str(value):
-        """Portable test for str
 
-        Args:
-            value (object): to test
-
-        Returns:
-            bool: True if value is a str or unicode
-        """
-        return isinstance(value, str) or isinstance(value, unicode)
+    #print(pkcompat.isinstance_str(decl.py_type))
 
     if issubclass(decl.py_type, bool):
         return widget.isChecked()
