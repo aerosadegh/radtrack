@@ -29,8 +29,8 @@ class Enum(enum.Enum):
 
     def __init__(self, *args):
         super(Enum, self).__init__(*args)
-        assert isinstance(self.value, int), \
-            '{}: must in instance of int'.format(self.value)
+        assert isinstance(self.value, (int,float)), \
+            '{}: must in instance of int or float'.format(self.value)
         self.display_name = _display_name(self)
 
     @classmethod
@@ -44,7 +44,7 @@ class Enum(enum.Enum):
         """
         if isinstance(value, cls):
             return value
-        if isinstance(value, int):
+        if isinstance(value, (int,float)):
             return cls(value)
         if pkcompat.isinstance_str(value):
             return cls[value.upper()]

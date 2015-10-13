@@ -37,7 +37,10 @@ def get_widget_value(decl, widget):
     if issubclass(decl.py_type, bool):
         return widget.isChecked()
     elif isinstance(decl.py_type, enum.EnumMeta):
-        return decl.py_type(widget.itemData(widget.currentIndex()).toInt()[0])
+        for member in decl.py_type:
+            if member.name == widget.currentText().upper():
+                return member
+        #return decl.py_type(widget.itemData(widget.currentIndex()).toInt()[0])
     elif issubclass(decl.py_type, float) or issubclass(decl.py_type, int):
         return _num(decl, widget)
     elif issubclass(decl.py_type,str):

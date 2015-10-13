@@ -7,7 +7,7 @@ undulator:
   undulator_type: PLANAR
   horizontal_focus: 0
   vertical_focus: 1
-  coupling_factor: 0
+  coupling_factor: 0.0
   num_periods: 98
   num_section: 1
   virtual_undulator_parameter: 0.735
