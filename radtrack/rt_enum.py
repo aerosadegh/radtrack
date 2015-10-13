@@ -65,6 +65,13 @@ class Enum(enum.Enum):
         try:
             return self.value.__cmp__(
                 self.__class__.from_anything(anything).value)
+        except TypeError:
+            if float(self.value)<self.__class__.from_anything(anything).value:
+                return -1
+            elif float(self.value)>self.__class__.from_anything(anything).value:
+                return 1
+            else: 
+                return 0
         except AssertionError as e:
             return NotImplemented
 
