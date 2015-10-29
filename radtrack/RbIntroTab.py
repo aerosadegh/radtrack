@@ -47,3 +47,6 @@ class RbIntroTab(QtGui.QWidget):
     def exportToFile(self, fileName):
         with open(fileName, 'w'):
             pass
+
+    def importFile(self, fileName):
+        pass
