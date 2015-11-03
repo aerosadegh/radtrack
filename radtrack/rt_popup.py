@@ -32,15 +32,10 @@ def get_widget_value(decl, widget):
             v = RbUtility.convertUnitsStringToNumber(v, d.units)
         return d.py_type(v)
 
-    #print(pkcompat.isinstance_str(decl.py_type))
-
     if issubclass(decl.py_type, bool):
         return widget.isChecked()
     elif isinstance(decl.py_type, enum.EnumMeta):
-        for member in decl.py_type:
-            if member.name == widget.currentText().upper():
-                return member
-        #return decl.py_type(widget.itemData(widget.currentIndex()).toInt()[0])
+        return list(decl.py_type)[widget.currentIndex()]
     elif issubclass(decl.py_type, float) or issubclass(decl.py_type, int):
         return _num(decl, widget)
     elif issubclass(decl.py_type,str):
@@ -133,9 +128,9 @@ class Form(object):
         self._layout.setFieldGrowthPolicy(QtGui.QFormLayout.AllNonFixedFieldsGrow)
         self._layout.setMargin(0)
         sizes = self._init_fields(params)
-        
+
         self._set_geometry(sizes)
-        
+
         sa = QtGui.QScrollArea()
         self._frame.setLayout(self._layout)
         sa.setWidget(self._frame)
@@ -143,7 +138,7 @@ class Form(object):
         self.mainlayout.addRow(sa)
         self._init_buttons(window)
         #self.mainlayout.setSizeConstraint(QtGui.QLayout.SetFixedSize)
-        
+
 
     def _get_params(self):
 
