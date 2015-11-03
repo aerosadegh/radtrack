@@ -1,12 +1,14 @@
 #!/bin/bash
-if [[ ! $VIRTUAL_ENV ]]; then
-    echo 'please activate a virtualenv' 1>&2
-    exit 0
-fi
 set -e
+if [[ $(pyenv version) =~ ^system ]]; then
+    echo 'please activate a pyenv' 1>&2
+    exit 1
+fi
 qt=
 qmake=
-for qt in "$VIRTUAL_ENV" /usr/local/qt-4.* /opt/local /usr/lib64/qt4; do
+
+bin_dir=$(dirname "$(pyenv which python)")
+for qt in "$bin_dir" /usr/local/qt-4.* /opt/local /usr/lib64/qt4; do
     qmake=$qt/bin/qmake
     if [[ -x $qmake ]]; then
         break
@@ -50,7 +52,7 @@ need_install() {
 }
 
 if need_install sip 1; then
-    build_qt_pkg sip --incdir="$VIRTUAL_ENV/include"
+    build_qt_pkg sip --incdir="$(dirname "$bin_dir")/include"
 fi
 
 if need_install PyQt4; then

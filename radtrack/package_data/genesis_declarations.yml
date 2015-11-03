@@ -30,8 +30,8 @@
       required: [genesis]
     -
       name: coupling_factor
-      py_type: float
-      label: coupling factor between beam and radiation (FBESS0)
+      py_type: genesis_enums.Coupling
+      label: coupling factor between beam and radiation
       required: [genesis]
     -
       name: num_periods

@@ -16,6 +16,7 @@ from pykern import pkresource
 from pykern import pkio
 from pykern import pkcollections
 from pykern.pkdebug import pkdc, pkdp
+from pykern import pkcompat
 
 from radtrack import RbUtility
 from radtrack import rt_params
@@ -33,10 +34,12 @@ def get_widget_value(decl, widget):
 
     if issubclass(decl.py_type, bool):
         return widget.isChecked()
-    if isinstance(decl.py_type, enum.EnumMeta):
-        return decl.py_type(widget.itemData(widget.currentIndex()).toInt()[0])
+    elif isinstance(decl.py_type, enum.EnumMeta):
+        return list(decl.py_type)[widget.currentIndex()]
     elif issubclass(decl.py_type, float) or issubclass(decl.py_type, int):
         return _num(decl, widget)
+    elif issubclass(decl.py_type,str):
+        return widget.text()
     else:
         raise AssertionError('bad type: ' + str(decl.py_type))
 
@@ -125,9 +128,9 @@ class Form(object):
         self._layout.setFieldGrowthPolicy(QtGui.QFormLayout.AllNonFixedFieldsGrow)
         self._layout.setMargin(0)
         sizes = self._init_fields(params)
-        
+
         self._set_geometry(sizes)
-        
+
         sa = QtGui.QScrollArea()
         self._frame.setLayout(self._layout)
         sa.setWidget(self._frame)
@@ -135,7 +138,7 @@ class Form(object):
         self.mainlayout.addRow(sa)
         self._init_buttons(window)
         #self.mainlayout.setSizeConstraint(QtGui.QLayout.SetFixedSize)
-        
+
 
     def _get_params(self):
 

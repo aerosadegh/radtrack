@@ -29,8 +29,9 @@ class Enum(enum.Enum):
 
     def __init__(self, *args):
         super(Enum, self).__init__(*args)
-        assert isinstance(self.value, int), \
-            '{}: must in instance of int'.format(self.value)
+        #TODO(robnagler) Assert all values of an enum are exactly the same type
+        assert isinstance(self.value, (int,float)), \
+            '{}: must in instance of int or float'.format(self.value)
         self.display_name = _display_name(self)
 
     @classmethod
@@ -44,7 +45,7 @@ class Enum(enum.Enum):
         """
         if isinstance(value, cls):
             return value
-        if isinstance(value, int):
+        if isinstance(value, (int,float)):
             return cls(value)
         if pkcompat.isinstance_str(value):
             return cls[value.upper()]
@@ -62,11 +63,13 @@ class Enum(enum.Enum):
         """
         if anything is None:
             return 1
-        try:
-            return self.value.__cmp__(
-                self.__class__.from_anything(anything).value)
-        except AssertionError as e:
-            return NotImplemented
+        a = self.__class__.from_anything(anything).value
+        if isinstance(anything, int):
+            return self.value.__cmp__(a)
+        # Since our values are constants, we can use simple compares
+        if self.value < a:
+            return -1
+        return 0 if self.value == a else 1
 
     def __le__(self, other):
         return self.__cmp__(other) <= 0

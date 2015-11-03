@@ -14,7 +14,11 @@ ErrorType:
   NONE: NONE
   UNIFORM: Uniform
   GAUSSIAN: Gaussian
-
+  
+Coupling:
+  AUTO: Auto
+  HELICAL: Helical
+  
 EnergyProfile:
   UNIFORM: Uniform
   GAUSSIAN: Gaussian

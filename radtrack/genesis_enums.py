@@ -30,6 +30,11 @@ class ErrorType(rt_enum.Enum):
     GAUSSIAN = 2
 
 @enum.unique
+class Coupling(rt_enum.Enum):
+    AUTO = 0
+    HELICAL = 1
+
+@enum.unique
 class EnergyProfile(rt_enum.Enum):
     UNIFORM = 1
     GAUSSIAN = 0
@@ -57,14 +62,14 @@ class SCCalc(rt_enum.Enum):
 
 @enum.unique
 class CellStart(rt_enum.Enum):
-    FULL = 0
-    HALF = 2
-    
+    FULL = 0.0
+    HALF = 0.5
+
 @enum.unique
 class ShotnoiseAlgorithm(rt_enum.Enum):
     FAWLEY = 0
     PENNMAN = 1
-    
+
 @enum.unique
 class ScanVar(rt_enum.Enum):
     NONE = 0
@@ -93,9 +98,9 @@ class ScanVar(rt_enum.Enum):
     BEAMFILE = 23
     BEAMOPT = 24
     BEAMGAM = 25
-    
+
 @enum.unique
 class FFspectrum(rt_enum.Enum):
-    NEAR_FIELD = 0
     FAR_FIELD = -1
+    NEAR_FIELD = 0
     TOTAL = 1
