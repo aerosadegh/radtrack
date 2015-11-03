@@ -101,6 +101,6 @@ class ScanVar(rt_enum.Enum):
 
 @enum.unique
 class FFspectrum(rt_enum.Enum):
-    NEAR_FIELD = 0
     FAR_FIELD = -1
+    NEAR_FIELD = 0
     TOTAL = 1
