@@ -1,6 +1,8 @@
 ### RadTrack
 RadTrack is an open source framework for working with codes that model particle dynamics and electromagnetic radiation.
 
+[Learn how to install easily on your Mac, PC, or Linux box.](https://github.com/radiasoft/download/blob/master/README.md)
+
 #### Setting Up Development
 
 This script should set up a development environment. It's written in Unix
