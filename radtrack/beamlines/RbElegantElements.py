@@ -1151,7 +1151,13 @@ def nameMangler(name):
     # DrIfTeR
     # Are all interpretted as DRIF
     name = name.upper()
-    while name not in classDictionary and len(name) > 0:
+    while name:
+        if name in classDictionary:
+            return name
+        possibleKeys = [key for key in classDictionary.keys() if key.startswith(name)]
+        if len(possibleKeys) == 1:
+            return possibleKeys[0]
+
         name = name[:-1]
     return name
 
@@ -1159,12 +1165,6 @@ classDictionary = dict()
 for key in list(globals()):
     if hasattr(globals()[key], 'elementDescription'):
         classDictionary[key] = globals()[key]
-
-for key in classDictionary.keys():
-    for subKey in [key[:length] for length in range(len(key))]:
-        possibleKeys = [key for key in classDictionary.keys() if key.startswith(subKey)]
-        if len(possibleKeys) == 1:
-            classDictionary[subKey] = classDictionary[possibleKeys[0]]
 
 advancedNames = sorted(['ALPH', 'BMAPXY', 'BUMPER', 'CENTER', 'CEPL',
     'CHARGE', 'CLEAN', 'CORGPIPE', 'CWIGGLER', 'DSCATTER', 'EDRIFT', 'ELSE',
