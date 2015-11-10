@@ -66,3 +66,12 @@ class Intensity(rt_enum.Enum):
     SINGLE_ELECTRON_FLUX = 1
     REAL_PART_OF_ELECTRON_E_FIELD = 2
     IMAGINARY_PART_OF_ELECTRON_E_FIELD = 3
+    
+class Source(rt_enum.Enum):
+    UNDULATOR = 0
+    TWO_DIPOLE = 1
+    DIPOLE = 2
+    
+class ns(rt_enum.Enum):
+    NORMAL = 0
+    SKEW = 1

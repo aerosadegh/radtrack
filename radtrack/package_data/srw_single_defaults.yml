@@ -2,18 +2,7 @@
 # SRW Single Particle Defaults
 polarization: LINEAR_HORIZONTAL
 intensity: SINGLE_ELECTRON_INTENSITY
-undulator:
-  num_periods: 40.5
-  period_len: .049
-  horizontal_magnetic_field: 0
-  vertical_magnetic_field: .57
-  horizontal_phase: 0
-  vertical_phase: 0
-  horizontal_symmetry: -1
-  vertical_symmetry: 1
-  horizontal_coord: 0
-  vertical_coord: 0
-  longitudinal_coord: 0
+
 beam:
   avg_current: .5
   horizontal_coord: 0
@@ -30,6 +19,36 @@ precision:
   num_points_trajectory_calculation: 20000
   use_terminating_terms: True
   sampling_factor: 0
+source:
+  Undulator:
+    undulator:
+      num_periods: 170
+      period_len: .027
+      magnetic_field: .865
+      harmonic_num: 1
+      orientation: VERTICAL
+    two_dipole:
+      magnet1:
+        length: 0.05
+        _G: -0.85
+        _m: 1
+        nors: NORMAL
+        _Ledge: 0.01
+      drift:
+        length: 0.02
+      magnet2:
+        length: 0.05
+        _G: 0.85
+        _m: 1
+        nors: NORMAL  
+        _Ledge: 0.01
+    dipole: 
+      magnet1:
+        length: 0.05
+        _G: -0.85
+        _m: 1
+        nors: NORMAL
+        _Ledge: 0.01
 simulation_kind:
   e:
     wavefront:
