@@ -1160,6 +1160,12 @@ for key in list(globals()):
     if hasattr(globals()[key], 'elementDescription'):
         classDictionary[key] = globals()[key]
 
+for key in classDictionary.keys():
+    for subKey in [key[:length] for length in range(len(key))]:
+        possibleKeys = [key for key in classDictionary.keys() if key.startswith(subKey)]
+        if len(possibleKeys) == 1:
+            classDictionary[subKey] = classDictionary[possibleKeys[0]]
+
 advancedNames = sorted(['ALPH', 'BMAPXY', 'BUMPER', 'CENTER', 'CEPL',
     'CHARGE', 'CLEAN', 'CORGPIPE', 'CWIGGLER', 'DSCATTER', 'EDRIFT', 'ELSE',
     'EMATRIX', 'EMITTANCE', 'ENERGY', 'FLOOR', 'FMULT', 'FRFMODE', 'FTABLE',

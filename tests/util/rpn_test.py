@@ -54,5 +54,5 @@ def test_rpn_files():
                     if thing != '' and \
                             thing.lower() not in ['', '+x', '+y', '-y', '-x', 't', 'w'] and \
                             all([x not in thing.lower() for x in \
-                                ['coord', '%', 'centroid', 'ideal', 'param', 'sdds']]):
+                                ['coord', '%', 'centroid', 'ideal', 'param', 'sdds', 'runge', '.out']]):
                         assert (fileName, ':', element.name, type(element), element.displayLine(), thing) == None
