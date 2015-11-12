@@ -2,7 +2,7 @@
 Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 version 2
 """
-import os, re, cgi
+import os, re, cgi, shutil
 from PyQt4 import QtCore, QtGui
 
 from pykern.pkdebug import *
@@ -483,12 +483,22 @@ class RbEle(QtGui.QWidget):
         elegant_file_name = self.session_file(suffix='ele')
         with open(elegant_file_name, 'w') as output_file:
             output_file.write(self.ELEGANT_TEMPLATE.format(
-                latticeFileName=self.beam_line_source_manager \
-                    .get_lattice_file_name(),
+                latticeFileName=os.path.basename(self.beam_line_source_manager.get_lattice_file_name()),
                 beamlineName=self.ui.beamLineComboBox.currentText(),
                 momentum=str(momentum),
-                bunchFileName=self.bunch_source_manager.get_bunch_file_name()
+                bunchFileName=os.path.basename(self.bunch_source_manager.get_bunch_file_name())
             ))
+        
+        try:
+            shutil.copy2(self.beam_line_source_manager.get_lattice_file_name(), self.parent.sessionDirectory)
+        except shutil.Error: # file is already in correct location
+            pass
+
+        try:
+            shutil.copy2(self.bunch_source_manager.get_bunch_file_name(), self.parent.sessionDirectory)
+        except shutil.Error: # file is already in correct location
+            pass
+
         return elegant_file_name
 
 
@@ -616,7 +626,7 @@ class BunchSourceManager(ComboManager):
 
     def _bunch_source_changed(self):
         """Load bunch file if selected"""
-        if self.is_select_file_choice('SDDS files (*.sdds);;CSV files (*.csv)'):
+        if self.is_select_file_choice('All files (*.*);;SDDS files (*.sdds);;CSV files (*.csv);;OUT files (*.out)'):
             return
         if self.is_new_tab_choice():
             return

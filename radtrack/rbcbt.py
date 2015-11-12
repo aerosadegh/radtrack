@@ -641,12 +641,15 @@ class RbCbt(rt_qt.QtGui.QWidget):
                     if element.data[index]:
                         path = os.path.join(os.path.dirname(fileName), element.data[index])
                         try:
-                            shutil.copy2(path, self.parent.sessionDirectory)
+                            importedPath = os.path.join(self.parent.sessionDirectory, element.data[index])
+                            if not os.path.exists(os.path.dirname(importedPath)):
+                                os.makedirs(os.path.dirname(importedPath))
+                            shutil.copy2(path, importedPath)
                         except IOError:
                             if not ignoreMissingImportFiles:
                                 box = rt_qt.QtGui.QMessageBox(rt_qt.QtGui.QMessageBox.Warning,
                                                         'Missing File Reference',
-                                                        'The file "' + path.replace('\\', '/') + '" specified by element "' + \
+                                                        'The file "' + importedPath.replace('\\', '/') + '" specified by element "' + \
                                                         element.name + '" cannot be found.\n\n' +\
                                                         'Do you wish to ignore future warnings of this type?',
                                                         rt_qt.QtGui.QMessageBox.Yes | rt_qt.QtGui.QMessageBox.No, self)
@@ -804,7 +807,7 @@ class commandLoadElements(rt_qt.QtGui.QUndoCommand):
                 None, # Don't show a cancel button
                 0,
                 len(self.createdElements)-1)
-        treeAddProgress.setMinimumDuration(500)
+        treeAddProgress.setMinimumDuration(0)
         treeAddProgress.setValue(0)
         for i, element in enumerate(self.createdElements):
             element.name = self.widget.uniqueName(element.name)
