@@ -1,5 +1,5 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
-import os, shutil
+import os, shutil, math
 from collections import OrderedDict
 import radtrack.rt_qt as rt_qt
 
@@ -83,6 +83,7 @@ class RbCbt(rt_qt.QtGui.QWidget):
         self.preListLabelSave = self.ui.label.text()
         self.zoomScale = 1
         self.drawPreviewEnabled = True
+        self.imageRotation = dict()
 
         # Graphical length legend for preview
         self.lengthLegend = []
@@ -220,7 +221,11 @@ class RbCbt(rt_qt.QtGui.QWidget):
             mouseMenu.addSeparator()
             mouseMenu.addAction(self.ui.translateUTF8('Save preview image...'), \
                     self.savePreviewImage)
+            mouseMenu.addSeparator()
             mouseMenu.addAction(self.ui.translateUTF8('Reset zoom'), self.drawElement)
+            mouseMenu.addAction(self.ui.translateUTF8('Rotate image ...'), self.rotateImage)
+            mouseMenu.addAction(self.ui.translateUTF8('Reset rotation'), self.resetRotation)
+            mouseMenu.addSeparator()
             mouseMenu.addAction(self.ui.translateUTF8('Turn ' + ('off' if self.drawPreviewEnabled else 'on') + \
                     ' graphical preview'), self.toggleDrawPreview)
 
@@ -403,6 +408,22 @@ class RbCbt(rt_qt.QtGui.QWidget):
             bl.addElement(self.elementDictionary[name])
         self.drawElement(bl)
 
+    def rotateImage(self):
+        rotation, ok = rt_qt.QtGui.QInputDialog.getDouble(self, self.ui.translateUTF8('Image Rotation'),
+                self.ui.translateUTF8('Positive angles (in degrees) rotate clockwise:'), 0, -360, 360, 3)
+        if ok:
+            try:
+                self.imageRotation[self.lastDrawnElement] += rotation
+            except KeyError:
+                self.imageRotation[self.lastDrawnElement] = rotation
+
+            self.drawElement()
+
+    def resetRotation(self):
+        self.imageRotation[self.lastDrawnElement] = 0
+        self.drawElement()
+
+
     def drawElement(self, element = None):
         scene = self.ui.graphicsView.scene()
         scene.clear()
@@ -418,7 +439,11 @@ class RbCbt(rt_qt.QtGui.QWidget):
         else:
             element = self.lastDrawnElement
 
-        element.picture(scene)
+        try:
+            element.picture(scene, rt_qt.QtCore.QPoint(0,0), self.imageRotation[element]*math.pi/180.)
+        except KeyError:
+            element.picture(scene)
+
         sceneRect = scene.itemsBoundingRect()
         scene.setSceneRect(sceneRect)
 
