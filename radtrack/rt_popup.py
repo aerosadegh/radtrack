@@ -108,6 +108,17 @@ class Window(QtGui.QDialog):
     def get_params(self,):
         """Convert values in the window to "param" values"""
         return self._form._get_params()
+        
+class WidgetView(QtGui.QWidget):
+    def __init__(self, defaults, params, file_prefix, parent=None):
+        super(WidgetView, self).__init__(parent)
+        #self.setWindowTitle(rt_qt.i18n_text(defaults.decl.label))
+        self.setStyleSheet(pkio.read_text(pkresource.filename(file_prefix + '_popup.css')))
+        self._form = Form(defaults, params, self, with_button=False)
+
+    def get_params(self,):
+        """Convert values in the window to "param" values"""
+        return self._form._get_params()
 
 
 class Form(object):
@@ -118,7 +129,7 @@ class Form(object):
     MARGIN_HEIGHT = 20
     MARGIN_WIDTH = 30
 
-    def __init__(self, defaults, params, window):
+    def __init__(self, defaults, params, window, with_button = True):
         super(Form, self).__init__()
         self._defaults = defaults
         #self._frame = QtGui.QWidget(window)
@@ -136,7 +147,8 @@ class Form(object):
         sa.setWidget(self._frame)
         self.mainlayout = QtGui.QFormLayout(window)
         self.mainlayout.addRow(sa)
-        self._init_buttons(window)
+        if with_button:
+            self._init_buttons(window)
         #self.mainlayout.setSizeConstraint(QtGui.QLayout.SetFixedSize)
 
 
