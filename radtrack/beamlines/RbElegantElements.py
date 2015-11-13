@@ -1151,7 +1151,13 @@ def nameMangler(name):
     # DrIfTeR
     # Are all interpretted as DRIF
     name = name.upper()
-    while name not in classDictionary and len(name) > 0:
+    while name:
+        if name in classDictionary:
+            return name
+        possibleKeys = [key for key in classDictionary.keys() if key.startswith(name)]
+        if len(possibleKeys) == 1:
+            return possibleKeys[0]
+
         name = name[:-1]
     return name
 

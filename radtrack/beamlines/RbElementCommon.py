@@ -160,8 +160,7 @@ class alphaPic:
                    pycore.QPointF(-.5*length, -height),
                    pycore.QPointF( .5*length, -height),
                    pycore.QPointF( .5*length, 0)]
-        transform = pygui.QTransform().rotateRadians((pi/2)-alphaAngle)*\
-                placement(pos,angle)
+        transform = pygui.QTransform().rotateRadians((pi/2)-alphaAngle)*placement(pos,angle)
 
 
         item = pygui.QGraphicsPolygonItem(pygui.QPolygonF(alphBox))
@@ -687,7 +686,10 @@ class rfPic(zeroLengthPic):
 
         cavityWidth = cavityHeight/2
         numberCavities = int((length/cavityWidth)+.5)
-        cavityWidth = length/numberCavities
+        try:
+            cavityWidth = length/numberCavities
+        except ZeroDivisionError:
+            return zeroLengthPic.picture(self, scene, pos, angle)
 
         color = pygui.QBrush(pygui.QColor(255, 196, 29)); # ~ copper color
         for i in range(numberCavities):

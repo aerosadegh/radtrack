@@ -63,6 +63,7 @@ class RbGlobal(QtGui.QMainWindow):
             os.makedirs(self.sessionDirectory)
         except OSError:
             pass
+        os.chdir(self.sessionDirectory)
 
         self.setTitleBar("RadTrack - " + self.sessionDirectory)
 
@@ -346,6 +347,7 @@ class RbGlobal(QtGui.QMainWindow):
         self.sessionDirectory = directory
         self.saveProject()
         self.setTitleBar('RadTrack - ' + self.sessionDirectory)
+        os.chdir(self.sessionDirectory)
 
 
     def openProject(self, directory = None):
