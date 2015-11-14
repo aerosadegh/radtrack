@@ -199,10 +199,20 @@ class Ui_tree(QtCore.QObject):
 
         # Put it all together
         tree.verticalLayout = QtGui.QVBoxLayout(tree)
-        tree.verticalLayout.addWidget(self.horizontalLayoutWidget)
-        tree.verticalLayout.addWidget(self.treeWidget)
-        tree.verticalLayout.addWidget(self.horizontalLayoutWidget_3)
-        tree.verticalLayout.addWidget(self.horizontalLayoutWidget_2)
+        tree.verticalLayout.addWidget(self.horizontalLayoutWidget) # Element buttons
+
+        tree.splitter = QtGui.QSplitter(tree)
+        tree.splitter.setOrientation(QtCore.Qt.Vertical)
+        tree.splitter.setChildrenCollapsible(False)
+        tree.verticalLayout.addWidget(tree.splitter)
+
+        tree.splitter.addWidget(self.treeWidget) # Created element list
+        tree.splitter.addWidget(self.horizontalLayoutWidget_3) # Beam line creation space
+        tree.splitter.addWidget(self.horizontalLayoutWidget_2) # Beam line graphical preview
+
+        # Make beam line creation space unresizeable
+        self.horizontalLayoutWidget_3.setMinimumHeight(self.horizontalLayoutWidget_3.height())
+        self.horizontalLayoutWidget_3.setMaximumHeight(self.horizontalLayoutWidget_3.height())
 
         self.retranslateUi(tree)
         QtCore.QMetaObject.connectSlotsByName(tree)
