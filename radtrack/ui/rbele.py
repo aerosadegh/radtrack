@@ -111,8 +111,6 @@ class Ui_ELE(object):
         self.horizontalLayout_4.addWidget(self.abortButton)
         self.formLayout.setLayout(5, QtGui.QFormLayout.FieldRole, self.horizontalLayout_4)
         self.progressBar = QtGui.QProgressBar(ELE)
-        self.progressBar.setMaximum(100)
-        self.progressBar.setProperty("value", 0)
         self.progressBar.setTextVisible(False)
         self.progressBar.setInvertedAppearance(False)
         self.progressBar.setObjectName(_fromUtf8("progressBar"))
