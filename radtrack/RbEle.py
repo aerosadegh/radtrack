@@ -489,15 +489,8 @@ class RbEle(QtGui.QWidget):
                 bunchFileName=os.path.basename(self.bunch_source_manager.get_bunch_file_name())
             ))
         
-        try:
-            shutil.copy2(self.beam_line_source_manager.get_lattice_file_name(), self.parent.sessionDirectory)
-        except shutil.Error: # file is already in correct location
-            pass
-
-        try:
-            shutil.copy2(self.bunch_source_manager.get_bunch_file_name(), self.parent.sessionDirectory)
-        except shutil.Error: # file is already in correct location
-            pass
+        shutil.copy2(self.beam_line_source_manager.get_lattice_file_name(), self.parent.sessionDirectory)
+        shutil.copy2(self.bunch_source_manager.get_bunch_file_name(), self.parent.sessionDirectory)
 
         return elegant_file_name
 
