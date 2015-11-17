@@ -130,15 +130,17 @@ class View(QtGui.QWidget):
             param_widget.setSizePolicy(
                 QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
             v.horizontalHeader().setSizePolicy(
-                QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Preferred)'''
+                QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Preferred)
                 
+            '''    
             v = rt_popup.WidgetView(self._controller.defaults['simulation_kind']['e']['wavefront'],self.params[],)
             wrap = QtGui.QDataWidgetWrapper()
             layout = QtGui.QFormLayout()
             wrap.setModel(_models())
             self._controller.defaults['simulation_kind']['wavefront']
             for i in wrap.model().rowCount():
-                rt_popup.value_widget'''
+                rt_popup.value_widget
+            '''
             
             param_vbox.addWidget(v)
             first = _models()
@@ -149,7 +151,7 @@ class View(QtGui.QWidget):
 
         _global_param('polarization')
         _global_param('intensity')
-        #_global_param('source')
+        _global_param('source')
         _global_param('simulation_kind')
         _view()
         self._add_vertical_stretch_spacer(param_vbox)

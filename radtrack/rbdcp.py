@@ -209,8 +209,7 @@ class RbDcp(QtGui.QWidget):
         str(np.shape(x.columnData)[1])
         self.legend.setText(QtGui.QApplication.translate("dcpwidget", 'FILE INFO \n'+'File Name: '+\
             phile.fileName()+'\nFile Size: '+str(phile.size())+' bytes \n'+stringOut, None, QtGui.QApplication.UnicodeUTF8))
-        
-        #    
+            
         self.preview(Ncol)
         self.srwprev(Ncol)
         
@@ -289,27 +288,38 @@ class RbDcp(QtGui.QWidget):
         self.quickplot.addItem('s v. sigma y')
         
     def graphset(self):
+    
+        def find_param(pname):
+            output = None
+            for i,a in enumerate(self.x.columnName):
+                if pname == a:
+                    output = i
+                    break
+            if output == None:
+                raise TypeError('Parameter Not Found, NaN')
+            return output
+            
         if self.currentFiletype == 'twi':
-            self.xaxis.setCurrentIndex(0)
+            self.xaxis.setCurrentIndex(find_param('s')) #0
             if self.quickplot.currentIndex() == 0:
-                self.yaxis.setCurrentIndex(1)
+                self.yaxis.setCurrentIndex(find_param('betax')) #1
             elif self.quickplot.currentIndex() == 1:
-                self.yaxis.setCurrentIndex(7)
+                self.yaxis.setCurrentIndex(find_param('betay')) #7
                 
         elif self.currentFiletype == 'out':
             if self.quickplot.currentIndex() == 0:
-                self.xaxis.setCurrentIndex(4)
-                self.yaxis.setCurrentIndex(5)
+                self.xaxis.setCurrentIndex(find_param('t'))#4
+                self.yaxis.setCurrentIndex(find_param('p'))#5
             elif self.quickplot.currentIndex() == 1:
-                self.xaxis.setCurrentIndex(0)
-                self.yaxis.setCurrentIndex(2)
+                self.xaxis.setCurrentIndex(find_param('x'))#0
+                self.yaxis.setCurrentIndex(find_param('y'))#2
                 
         elif self.currentFiletype == 'sig':
-            self.xaxis.setCurrentIndex(0)
+            self.xaxis.setCurrentIndex(find_param('s'))#0
             if self.quickplot.currentIndex() == 0:
-                self.yaxis.setCurrentIndex(53)
+                self.yaxis.setCurrentIndex(find_param('Sx'))#53
             elif self.quickplot.currentIndex() == 1:
-                self.yaxis.setCurrentIndex(55)
+                self.yaxis.setCurrentIndex(find_param('Sy'))#55
 
         self.customgraph()
     

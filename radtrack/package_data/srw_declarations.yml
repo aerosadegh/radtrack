@@ -8,11 +8,15 @@
       name: multi_particle
       label: Multi-Particle
       required: [srw_multi]
-      children: [source, precision, beam, simulation_kind]
+      children: [undulator, precision, beam, simulation_kind]
     -
       name: single_particle
       required: [srw_single]
-      children: [source, precision, beam, simulation_kind, polarization, intensity]
+      children: [undulator, precision, beam, simulation_kind, polarization, intensity]
+-
+  name: source
+  py_type: int
+  required: [srw_multi, srw_single]
 -
   name: polarization
   py_type: srw_enums.Polarization
@@ -25,7 +29,7 @@
   name: simulation_kind
   py_type: srw_enums.SimulationKind
   required: [srw_multi, srw_single]
-  children: 
+  children:
     -
       name: e
       label: e (energy)
@@ -57,27 +61,6 @@
       required: [srw_single]
       children: [wavefront]
 
--
-  name: source
-  py_type:: srw_enums.Source
-  required: [srw_multi, srw_single]
-  children: 
-    -
-      name: Undulator
-      label: undulator
-      required: [srw_multi, srw_single]
-      children: [undulator]
-    -
-      name: two_dipole
-      label: two dipoles
-      required: [srw_multi, srw_single]
-      children: [magnet1, drift, magnet2]
-    -
-      name: dipole
-      label: dipole
-      required: [srw_multi, srw_single]
-      children: [magnet1]
-  
 -
   name: undulator
   required: [srw_multi, srw_single]
@@ -157,82 +140,6 @@
       py_type: float
       units: m
       required: [srw_single]
--
-  name: magnet1
-  required: [srw_multi, srw_single]
-  children:
-    -
-      name: length
-      label: element length 
-      py_type: float
-      units: m
-      required: [srw_multi, srw_single]
-    -
-      name: _G
-      label: field parameter
-      py_type: float
-      units: T
-      required: [srw_multi, srw_single]
-    -
-      name: _m
-      label: multipole order
-      py_type: int
-      required: [srw_multi, srw_single]
-    -
-      name: nors
-      label: normal or skew
-      py_type: srw_enums.ns
-      required: [srw_multi, srw_single]
-    -
-      name: _Ledge
-      label: edge length
-      py_type: float
-      units: m
-      required: [srw_multi, srw_single]
-      
--
-  name: magnet2
-  required: [srw_multi, srw_single]
-  children:
-    -
-      name: length
-      label: element length 
-      py_type: float
-      units: m
-      required: [srw_multi, srw_single]
-    -
-      name: _G
-      label: field parameter
-      py_type: float
-      units: T
-      required: [srw_multi, srw_single]
-    -
-      name: _m
-      label: multipole order
-      py_type: int
-      required: [srw_multi, srw_single]
-    -
-      name: nors
-      label: normal or skew
-      py_type: srw_enums.ns
-      required: [srw_multi, srw_single]
-    -
-      name: _Ledge
-      label: edge length
-      py_type: float
-      required: [srw_multi, srw_single]
-      
--
-  name: drift
-  required: [srw_multi, srw_single]
-  children:
-    -
-      name: length
-      label: element length 
-      py_type: float
-      units: m
-      required: [srw_multi, srw_single]
-      
 -
   name: precision
   required: [srw_multi, srw_single]
