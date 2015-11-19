@@ -17,7 +17,7 @@ from pykern import pkyaml
 from radtrack.srw import AnalyticCalc
 
 def str2num(s):
-    return ("." in s and [float(s)] or [int(s)])[0]
+    return float(s) if "." in s else int(s)
 
 def maxelements(seq):
     ''' Return list of position(s) of largest element '''
@@ -117,7 +117,7 @@ def test_1():
 	#    ylabel(Ylab)
 	
 	grid()
-	plt.show()
+	plt.show(block=False)
 	plot(z_dist,x_trajectory,'.b',linestyle="-")
 	(maxVt, maxIt)=FindingArrayMaxima(map(float,x_trajectory),20)
 	pkdc(maxIt, maxVt)
@@ -126,6 +126,5 @@ def test_1():
 		plt.scatter(z_dist[i], maxVt[j], color='red')
 		j=j+1
 	grid()
-	plt.show()
+	plt.show(block=False)
 
-test_1()

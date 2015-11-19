@@ -585,7 +585,7 @@ class BunchTab(QtGui.QWidget):
     Generalized algorithm for plotting contour and/or scatter plots.
       self.plotFlag is queried to determine what's done.
 
-    Adapted from open source mehtod: scatter_contour.py
+    Adapted from open source method: scatter_contour.py
     https://github.com/astroML/astroML/blob/master/astroML/plotting/scatter_contour.py
 
     Parameters

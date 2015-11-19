@@ -74,6 +74,15 @@ class BeamlineCommon(object):
     def getNumberOfElements(self):
         return sum([element.getNumberOfElements() for element in self.data])
 
+    def fullElementNameList(self):
+        nameList = []
+        for element in self.data:
+            if element.isBeamline():
+                nameList.extend(element.fullElementNameList())
+            else:
+                nameList.append(element.name)
+        return nameList
+
     def __eq__(self, other):
         if self is other:
             return True
@@ -124,6 +133,11 @@ class ReverseBeamline(object):
         for element in reversed(self.originalBeamline.data):
             beamPosition, angle = element.reverse().newPosition(beamPosition, angle)
         return beamPosition, angle
+
+    def fullElementNameList(self):
+        nameList = self.originalBeamline.fullElementNameList()
+        nameList.reverse()
+        return nameList
 
     def __eq__(self, other):
         try:

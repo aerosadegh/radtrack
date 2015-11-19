@@ -120,9 +120,10 @@ def test_import_export():
                         f.write(elegantSimTemplate % (exportFileName, longest.name, sddsFileName))
                     assert subprocess.call(['elegant', elegantTestFile]) == 0
             finally:
-                for fileName in glob.glob(os.path.splitext(elegantTestFile)[0] + '.*'):
+                for fileName in glob.glob(os.path.splitext(elegantTestFile)[0] + '.*') \
+                        + glob.glob('*.out') \
+                        + [exportFileName]:
                     os.remove(fileName)
-                os.remove(exportFileName)
 
 def compareNormalizedElementData(e1, e2):
     print e1.data
