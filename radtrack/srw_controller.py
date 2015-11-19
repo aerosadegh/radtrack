@@ -27,11 +27,8 @@ import uti_plot
 class Base(rt_controller.Controller):
     """Implements contol flow for SRW multiparticle tab"""
 
-<<<<<<< Updated upstream
-    ACTION_NAMES = ('undulator','Beam','Precision','Analyze', 'Simulate')
-=======
     ACTION_NAMES = ('Precision', 'Beam', 'Analyze', 'Simulate')
->>>>>>> Stashed changes
+
 
     FILE_PREFIX = 'srw'
 
