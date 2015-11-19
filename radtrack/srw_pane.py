@@ -152,10 +152,6 @@ class View(QtGui.QWidget):
         _global_param('radiation_source')
         _global_param('polarization')
         _global_param('intensity')
-<<<<<<< Updated upstream
-        _global_param('source')
-=======
->>>>>>> Stashed changes
         _global_param('simulation_kind')
         _view()
         self._add_vertical_stretch_spacer(param_vbox)

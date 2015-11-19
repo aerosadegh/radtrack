@@ -1,8 +1,5 @@
 ---
 # SRW Single Particle Defaults
-<<<<<<< Updated upstream
-source: 0
-=======
 radiation_source: 
   wiggler: 
     undulator:
@@ -38,8 +35,7 @@ radiation_source:
       morder: 1
       nors: 1
       l_edge: 0.01
-      
->>>>>>> Stashed changes
+
 polarization: LINEAR_HORIZONTAL
 intensity: SINGLE_ELECTRON_INTENSITY
 
