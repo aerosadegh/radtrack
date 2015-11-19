@@ -1,20 +1,48 @@
 ---
 # SRW Single Particle Defaults
+<<<<<<< Updated upstream
 source: 0
+=======
+radiation_source: 
+  wiggler: 
+    undulator:
+      num_periods: 40.5
+      period_len: .049
+      horizontal_magnetic_field: 0
+      vertical_magnetic_field: .57
+      horizontal_phase: 0
+      vertical_phase: 0
+      horizontal_symmetry: -1
+      vertical_symmetry: 1
+      horizontal_coord: 0
+      vertical_coord: 0
+      longitudinal_coord: 0
+  dual_dipole:
+    two_dipole:
+      magnet_one:
+        l: 0.05
+        field: 0.85
+        nors: 1
+        l_edge: 0.01
+      drift:
+        l: 0.02
+      magnet_two:
+        l: 0.05
+        field: -0.85
+        nors: 1
+        l_edge: 0.01
+  multipole:
+    magnet:
+      l: 0.05
+      field: 0.85
+      morder: 1
+      nors: 1
+      l_edge: 0.01
+      
+>>>>>>> Stashed changes
 polarization: LINEAR_HORIZONTAL
 intensity: SINGLE_ELECTRON_INTENSITY
-undulator:
-  num_periods: 40.5
-  period_len: .049
-  horizontal_magnetic_field: 0
-  vertical_magnetic_field: .57
-  horizontal_phase: 0
-  vertical_phase: 0
-  horizontal_symmetry: -1
-  vertical_symmetry: 1
-  horizontal_coord: 0
-  vertical_coord: 0
-  longitudinal_coord: 0
+
 beam:
   avg_current: .5
   horizontal_coord: 0

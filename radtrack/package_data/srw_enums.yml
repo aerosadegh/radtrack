@@ -43,3 +43,8 @@ Intensity:
   SINGLE_ELECTRON_FLUX: Single Electron Flux
   REAL_PART_OF_ELECTRON_E_FIELD: Real Part of Electron E-Field
   IMAGINARY_PART_OF_ELECTRON_E_FIELD: Imaginary Part of Electron E-Field
+  
+RadiationSource:
+  WIGGLER: Undulator
+  DUAL_DIPOLE: Dual Dipoles
+  MULTIPOLE: Multipole

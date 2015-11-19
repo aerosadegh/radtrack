@@ -8,11 +8,29 @@
       name: multi_particle
       label: Multi-Particle
       required: [srw_multi]
-      children: [undulator, precision, beam, simulation_kind]
+      children: [precision, beam, simulation_kind, radiation_source]
     -
       name: single_particle
       required: [srw_single]
-      children: [undulator, precision, beam, simulation_kind, polarization, intensity]
+      children: [precision, beam, simulation_kind, polarization, intensity, radiation_source]
+-
+  name: radiation_source
+  py_type: srw_enums.RadiationSource
+  required: [srw_single, srw_multi]
+  children:
+    -
+      name: wiggler
+      children: [undulator]
+      required: [srw_single, srw_multi]
+    -
+      name: dual_dipole
+      children: [two_dipole]
+      required: [srw_single, srw_multi]
+    -
+      name: multipole
+      children: [magnet]
+      required: [srw_single, srw_multi]
+      
 -
   name: source
   py_type: int
@@ -140,6 +158,115 @@
       py_type: float
       units: m
       required: [srw_single]
+-
+  name: two_dipole
+  required: [srw_single, srw_multi]
+  children:
+    -
+      name: magnet_one
+      label: Magent One
+      py_type: dict
+      required: [srw_single, srw_multi]
+      children:
+        -
+          name: l
+          label: Length
+          py_type: float
+          units: m
+          required: [srw_single, srw_multi]
+        -
+          name: field
+          label: Magnetic Field
+          py_type: float
+          units: T
+          required: [srw_single, srw_multi]
+        -
+          name: nors
+          label: Normal
+          py_type: bool
+          required: [srw_single, srw_multi]
+        -
+          name: l_edge
+          label: Edge Length
+          py_type: float
+          units: m
+          required: [srw_single, srw_multi]
+    -
+      name: drift
+      label: Drift
+      py_type: dict
+      units: m
+      required: [srw_single, srw_multi]
+      children:
+        -
+          name: l
+          label: Length
+          py_type: float
+          units: m
+          required: [srw_single, srw_multi]
+    -
+      name: magnet_two
+      label: Magnet Two
+      py_type: dict
+      required: [srw_single, srw_multi]
+      children:
+        -
+          name: l
+          label: Length
+          py_type: float
+          units: m
+          required: [srw_single, srw_multi]
+        -
+          name: field
+          label: Magnetic Field
+          py_type: float
+          units: T
+          required: [srw_single, srw_multi]
+        -
+          name: nors
+          label: Normal
+          py_type: bool
+          required: [srw_single, srw_multi]
+        -
+          name: l_edge
+          label: Edge Length
+          py_type: float
+          units: m
+          required: [srw_single, srw_multi]
+-
+  name: magnet
+  required: [srw_single, srw_multi]
+  children:
+    -
+      name: l
+      label: Length
+      py_type: float
+      units: m
+      required: [srw_single, srw_multi]
+    -
+      name: field
+      label: Field Parameter
+      py_type: float
+      required: [srw_single, srw_multi]
+    -
+      name: morder
+      label: Multipole Order
+      py_type: int
+      required: [srw_single, srw_multi]
+    -
+      name: nors
+      label: Normal
+      py_type: bool
+      required: [srw_single, srw_multi]
+    -
+      name: l_edge
+      label: Edge Length
+      py_type: float
+      units: m
+      required: [srw_single, srw_multi]
+  
+  
+      
 -
   name: precision
   required: [srw_multi, srw_single]
