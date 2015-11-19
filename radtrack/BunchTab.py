@@ -1044,7 +1044,7 @@ class BunchTab(QtGui.QWidget):
         # begin deciphering the column data
         dataRead = [False, False, False, False, False, False]
         dataIndex = [-1, -1, -1, -1, -1, -1]
-        for iLoop in range(6):
+        for iLoop in range(numColumns):
             if columnNames[iLoop]=='x' or columnNames[iLoop]=='X':
                 if dataRead[0] == True:
                     message  = 'Error -- \n\n'
@@ -1106,12 +1106,12 @@ class BunchTab(QtGui.QWidget):
         # if the units are specified, but incorrect, the problem is detected below
         defaultUnits = ['m', 'rad', 'm', 'rad', 'm', 'rad']
         for iLoop in range(6):
-#            print(' before: unitStrings[', iLoop, '] = ', unitStrings[iLoop])
+            print(' before: unitStrings[', iLoop, '] = ', unitStrings[iLoop])
             if not unitStrings[iLoop]:
                 unitStrings[iLoop] = defaultUnits[dataIndex[iLoop]]
-#            print(' after: unitStrings[', iLoop, '] = ', unitStrings[iLoop])
+            print(' after: unitStrings[', iLoop, '] = ', unitStrings[iLoop])
 
-        if False:
+        if True:
             print(' ')
             print(' Here is columnData[:]:')
             print(columnData)
@@ -1120,7 +1120,7 @@ class BunchTab(QtGui.QWidget):
         numElements = [0, 0, 0, 0, 0, 0]
         for iLoop in range(6):
             numElements[iLoop] = len(columnData[iLoop])
-#            print(' size of column # ', iLoop, ' = ', numElements[iLoop])
+            print(' size of column # ', iLoop, ' = ', numElements[iLoop])
 
         for iLoop in range(5):
             if numElements[iLoop+1] != numElements[0]:
@@ -1137,25 +1137,29 @@ class BunchTab(QtGui.QWidget):
 
         # now we know the number of macro-particles
         numParticles = numElements[0]
-#        print(' ')
-#        print(' numParticles = ', numParticles)
+        print(' ')
+        print(' numParticles = ', numParticles)
 
         # all seems to be well, so load particle data into local array,
         #   accounting for any non-standard physical units
+        print(' Allocating tmp6 variable')
         tmp6 = np.zeros((6,numParticles))
+        print(' Loading up the tmp6 variable')
         for iLoop in range(6):
             tmp6[dataIndex[iLoop],:] = columnData[iLoop]
 
         # another sanity check
-#        myShape = np.shape(tmp6)
-#        print(' ')
-#        print(' myShape = ', myShape)
+        myShape = np.shape(tmp6)
+        print(' ')
+        print(' myShape = ', myShape)
 
         # close the SDDS particle file
+        print(' Closing the SDDS data file')
         if sdds.sddsdata.Terminate(sddsIndex) != 1:
             sdds.sddsdata.PrintErrors(1)
 
         # instantiate the particle bunch
+        print('Instantiating the bunch...')
         self.myBunch = beam.RbParticleBeam6D(numParticles)
         self.myBunch.setDesignMomentumEV(self.designMomentumEV)
         self.myBunch.setMassEV(self.eMassEV)     # assume electrons
@@ -1173,6 +1177,8 @@ class BunchTab(QtGui.QWidget):
         self.calculateTwiss()
 
         # plot the results
+        print(' ')
+        print(' About to refresh the plots...')
         self.refreshPlots()
 
     def readFromCSV(self, fileName = None):
