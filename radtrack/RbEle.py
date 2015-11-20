@@ -500,8 +500,10 @@ class RbEle(QtGui.QWidget):
                 bunchFileName=os.path.basename(self.bunch_source_manager.get_bunch_file_name())
             ))
         
-        shutil.copy2(self.beam_line_source_manager.get_lattice_file_name(), self.parent.sessionDirectory)
-        shutil.copy2(self.bunch_source_manager.get_bunch_file_name(), self.parent.sessionDirectory)
+        for fileName in [self.beam_line_source_manager.get_lattice_file_name(),
+                         self.bunch_source_manager.get_bunch_file_name()]:
+            if os.path.dirname(fileName) != self.parent.sessionDirectory:
+                shutil.copy2(fileName, self.parent.sessionDirectory)
 
         return elegant_file_name
 
