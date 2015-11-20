@@ -94,6 +94,8 @@ def displayWithUnitsNumber(value, currentUnit):
         return str(value)
     if value == 0:
         return str(value) + ' ' + currentUnit
+    if value < 0:
+        return '-' + displayWithUnitsNumber(-value, currentUnit)
 
     # Separate compound units
     # 'ft/sec' -> 'ft' '/sec'
