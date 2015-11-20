@@ -132,22 +132,49 @@ class View(QtGui.QWidget):
             v.horizontalHeader().setSizePolicy(
                 QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Preferred)
                 
-            '''    
-            v = rt_popup.WidgetView(self._controller.defaults['simulation_kind']['e']['wavefront'],self.params[],)
-            wrap = QtGui.QDataWidgetWrapper()
-            layout = QtGui.QFormLayout()
-            wrap.setModel(_models())
-            self._controller.defaults['simulation_kind']['wavefront']
-            for i in wrap.model().rowCount():
-                rt_popup.value_widget
+            stacker = QtGui.QStackedWidget()
             '''
-            
+            u = rt_popup.WidgetView(
+                self._controller.defaults['radiation_source']['wiggler']['undulator'],
+                self._controller.params['radiation_source']['wiggler']['undulator'],
+                file_prefix='srw',
+                parent=self,
+            )
+            dd = rt_popup.WidgetView(
+                self._controller.defaults['radiation_source']['dual_dipole']['two_dipole'],
+                self._controller.params['radiation_source']['dual_dipole']['two_dipole'],
+                file_prefix='srw',
+                parent=self,
+            )
+            d = rt_popup.WidgetView(
+                self._controller.defaults['radiation_source']['multipole']['magnet'],
+                self._controller.params['radiation_source']['multipole']['magnet'],
+                file_prefix='srw',
+                parent=self,
+            )
+            '''
+            rs_defaults = self._controller.defaults['radiation_source']
+            paramss = self._controller.params['radiation_source']
+            for i in rs_defaults:
+                for j in rs_defaults[i]:
+                    d = rs_defaults[i][j]
+                    p = paramss[i][j]
+                    x = rt_popup.WidgetView(d,p,file_prefix='srw',parent=self)
+                    stacker.addWidget(x)
+            '''
+            stacker.addWidget(u)
+            stacker.addWidget(dd)
+            stacker.addWidget(d)
+            '''
+            param_vbox.addWidget(stacker) 
             param_vbox.addWidget(v)
             first = _models()
             v.setModel(first)
             self._wavefront_view = v
             self.global_params['simulation_kind'].currentIndexChanged.connect(
                 self._simulation_kind_changed)
+            
+            self.global_params['radiation_source'].currentIndexChanged.connect(stacker.setCurrentIndex)    
 
         _global_param('radiation_source')
         _global_param('polarization')

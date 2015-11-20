@@ -32,10 +32,6 @@
       required: [srw_single, srw_multi]
       
 -
-  name: source
-  py_type: int
-  required: [srw_multi, srw_single]
--
   name: polarization
   py_type: srw_enums.Polarization
   required: [srw_single]
