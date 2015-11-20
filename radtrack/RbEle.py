@@ -350,6 +350,7 @@ class RbEle(QtGui.QWidget):
         beamlineName=self.ui.beamLineComboBox.currentText()
         self.beamlineNames = self.beam_line_source_manager.get_lattice_element_loader().elementDictionary[beamlineName].fullElementNameList()
         self.ui.progressBar.setMaximum(len(self.beamlineNames))
+        self.ui.progressBar.reset()
         self.progressIndex = 0
 
     def _process_stderr(self):
@@ -365,8 +366,14 @@ class RbEle(QtGui.QWidget):
         for line in out.split("\n"):
             if self._is_error_text(line):
                 self.append_status(line)
+
+            # print_statistics lists each element traversed by the beam.
+            # Use this to track progress of simulation.
             if line.startswith('tracking through'):
                 outputElementName = line.split()[-1]
+                if re.match('M\d+', outputElementName): # skips generated names of combined magnets
+                    continue
+
                 elementDictionary = self.beam_line_source_manager.get_lattice_element_loader().elementDictionary
                 if outputElementName in elementDictionary:
                     while outputElementName != self.beamlineNames[self.progressIndex]:
