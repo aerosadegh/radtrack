@@ -637,8 +637,8 @@ class watchPic:
 
         flag = [pycore.QPointF(0, 0),
                 pycore.QPointF(0, -4*flagSizePix),
-                pycore.QPointF(2*flagSizePix, -3*flagSizePix),
-                pycore.QPointF(0, -2*flagSizePix),
+                pycore.QPointF(flagSizePix, -3.5*flagSizePix),
+                pycore.QPointF(0, -3*flagSizePix),
                 pycore.QPointF(0, 0)]
 
         flagItem = pygui.QGraphicsPolygonItem(pygui.QPolygonF(flag))
