@@ -121,7 +121,8 @@ class View(QtGui.QWidget):
                 self._wavefront_models[sk_name] = m
             return self._wavefront_models[first_sk.name.lower()]
 
-        def _view():
+        def _view(name):
+            '''
             v = WavefrontParams(param_widget)
             v.horizontalHeader().setVisible(0)
             v.horizontalHeader().setResizeMode(
@@ -132,55 +133,51 @@ class View(QtGui.QWidget):
             v.horizontalHeader().setSizePolicy(
                 QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Preferred)
                 
-            stacker = QtGui.QStackedWidget()
-            '''
-            u = rt_popup.WidgetView(
-                self._controller.defaults['radiation_source']['wiggler']['undulator'],
-                self._controller.params['radiation_source']['wiggler']['undulator'],
-                file_prefix='srw',
-                parent=self,
-            )
-            dd = rt_popup.WidgetView(
-                self._controller.defaults['radiation_source']['dual_dipole']['two_dipole'],
-                self._controller.params['radiation_source']['dual_dipole']['two_dipole'],
-                file_prefix='srw',
-                parent=self,
-            )
-            d = rt_popup.WidgetView(
-                self._controller.defaults['radiation_source']['multipole']['magnet'],
-                self._controller.params['radiation_source']['multipole']['magnet'],
-                file_prefix='srw',
-                parent=self,
-            )
-            '''
-            rs_defaults = self._controller.defaults['radiation_source']
-            paramss = self._controller.params['radiation_source']
-            for i in rs_defaults:
-                for j in rs_defaults[i]:
-                    d = rs_defaults[i][j]
-                    p = paramss[i][j]
-                    x = rt_popup.WidgetView(d,p,file_prefix='srw',parent=self)
-                    stacker.addWidget(x)
-            '''
-            stacker.addWidget(u)
-            stacker.addWidget(dd)
-            stacker.addWidget(d)
-            '''
-            param_vbox.addWidget(stacker) 
             param_vbox.addWidget(v)
             first = _models()
             v.setModel(first)
             self._wavefront_view = v
             self.global_params['simulation_kind'].currentIndexChanged.connect(
                 self._simulation_kind_changed)
+            '''
+                
+            stacker = QtGui.QStackedWidget()
+            #wfstacker = QtGui.QStackedWidget()
+
+            defaults = self._controller.defaults[name]
+            params = self._controller.params[name]
+            for i in defaults:
+                for j in defaults[i]:
+                    d = defaults[i][j]
+                    p = params[i][j]
+                    x = rt_popup.WidgetView(d,p,file_prefix='srw',parent=self)
+                    stacker.addWidget(x)
+            self.global_params[name].currentIndexChanged.connect(stacker.setCurrentIndex)    
             
-            self.global_params['radiation_source'].currentIndexChanged.connect(stacker.setCurrentIndex)    
+            '''        
+            wf_defaults = self._controller.defaults['simulation_kind']
+            wf_params = self._controller.params['simulation_kind']
+            for i in wf_defaults:
+                for j in wf_defaults[i]:
+                    d = wf_defaults[i][j]
+                    p = wf_params[i][j]
+                    x = rt_popup.WidgetView(d,p,file_prefix='srw',parent=self)
+                    wfstacker.addWidget(x)
+            '''
+
+            param_vbox.addWidget(stacker) 
+            #param_vbox.addWidget(wfstacker)
+            
+            #self.global_params['simulation_kind'].currentIndexChanged.connect(wfstacker.setCurrentIndex)
+            #self.global_params['radiation_source'].currentIndexChanged.connect(stacker.setCurrentIndex)    
 
         _global_param('radiation_source')
+        _view('radiation_source')
         _global_param('polarization')
         _global_param('intensity')
         _global_param('simulation_kind')
-        _view()
+        _view('simulation_kind')
+        
         self._add_vertical_stretch_spacer(param_vbox)
         main.addLayout(param_vbox)
 

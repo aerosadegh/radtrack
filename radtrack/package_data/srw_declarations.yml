@@ -116,24 +116,24 @@
       required: [srw_single]
     -
       name: horizontal_phase
-      label: Initial Phase of the Horizontal field component
+      label: Horizontal Field Component Initial Phase
       py_type: float
       required: [srw_single]
     -
       name: vertical_phase
-      label: Initial Phase of the Vertical field component
+      label: Vertical Field Component Initial Phase
       py_type: float
       required: [srw_single]
     -
       #TODO(robnagler) bool?
       name: horizontal_symmetry
-      label: Symmetry of the Horizontal field component vs Longitudinal position
+      label: Horizontal Field Component Symmetry
       py_type: int
       required: [srw_single]
     -
       #TODO(robnagler) bool?
       name: vertical_symmetry
-      label: Symmetry of the Vertical field component vs Longitudinal position
+      label: Vertical Field Component Symmetry 
       py_type: int
       required: [srw_single]
     -
