@@ -906,22 +906,23 @@ class BunchTab(QtGui.QWidget):
 
     def importFile(self, fileName = None):
         """Allow importing from CSV or SDDS"""
-        if fileName and re.search('\.csv$', fileName, re.IGNORECASE):
-            self.readFromCSV(fileName)
-        else:
-            self.readFromSDDS(fileName)
-
-    def readFromSDDS(self, fileName = None):
         # use Qt file dialog
         if not fileName:
-            fileName = QtGui.QFileDialog.getOpenFileName(self, "Import Elegant/SDDS particle file -- ",
-                                                  self.parent.lastUsedDirectory, util.fileTypeList(['sdds']))
+            fileName = QtGui.QFileDialog.getOpenFileName(self, "Import particle file",
+                    self.parent.lastUsedDirectory, util.fileTypeList(self.acceptsFileTypes))
+
         # if user cancels out, do nothing
         if not fileName:
             return
 
         self.parent.lastUsedDirectory = os.path.dirname(fileName)
 
+        if re.search('\.csv$', fileName, re.IGNORECASE):
+            self.readFromCSV(fileName)
+        else:
+            self.readFromSDDS(fileName)
+
+    def readFromSDDS(self, fileName):
         # index is always zero...?
         sddsIndex = 0
 
@@ -1179,15 +1180,9 @@ class BunchTab(QtGui.QWidget):
         print(' ')
         print(' About to refresh the plots...')
         self.refreshPlots()
+        print('SDDS load done')
 
-    def readFromCSV(self, fileName = None):
-        if not fileName:
-            fileName = QtGui.QFileDialog.getOpenFileName(self, "Import RadTrack particle file -- ",
-                                                   self.parent.lastUsedDirectory, util.fileTypeList(["csv"]))
-            if not fileName:
-                return
-            self.parent.lastUsedDirectory = os.path.dirname(fileName)
-
+    def readFromCSV(self, fileName):
         # check whether this is a RadTrack generated CSV file
         with open(fileName) as fileObject:
             csvReader = csv.reader(fileObject, delimiter=',')
@@ -1324,15 +1319,15 @@ class BunchTab(QtGui.QWidget):
         tmp6 = self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D()
 
         mySDDS = sdds.SDDS(0)
-#        mySDDS.description[0] = "RadTrack"
+        mySDDS.description[0] = "RadTrack"
         mySDDS.description[1] = "Copyright 2013-2014 by RadiaBeam Technologies. All rights reserved."
-#        mySDDS.parameterName = ["designMomentumEV", "totalCharge", "eMassEV"]
-#        mySDDS.parameterData = [[self.designMomentumEV],
-#                                [self.totalCharge],
-#                                [self.eMassEV]]
-#        mySDDS.parameterDefinition = [["","","","",mySDDS.SDDS_DOUBLE,""],
-#                                      ["","","","",mySDDS.SDDS_DOUBLE,""],
-#                                      ["","","","",mySDDS.SDDS_DOUBLE,""]]
+        mySDDS.parameterName = ["designMomentumEV", "totalCharge", "eMassEV"]
+        mySDDS.parameterData = [[self.designMomentumEV],
+                                [self.totalCharge],
+                                [self.eMassEV]]
+        mySDDS.parameterDefinition = [["","","","",mySDDS.SDDS_DOUBLE,""],
+                                      ["","","","",mySDDS.SDDS_DOUBLE,""],
+                                      ["","","","",mySDDS.SDDS_DOUBLE,""]]
         mySDDS.columnName = ["x", "xp", "y", "yp", "t", "p"]
 
         mySDDS.columnData = [[list(tmp6[0,:])], [list(tmp6[1,:])],
