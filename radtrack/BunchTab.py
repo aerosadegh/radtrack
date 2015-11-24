@@ -1144,9 +1144,8 @@ class BunchTab(QtGui.QWidget):
         #   accounting for any non-standard physical units
         print(' Allocating tmp6 variable')
         tmp6 = np.zeros((6,numParticles))
-        print(' Loading up the tmp6 variable')
         for iLoop in range(6):
-            tmp6[dataIndex[iLoop],:] = columnData[iLoop]
+            tmp6[iLoop,:] = columnData[dataIndex[iLoop]]
 
         # another sanity check
         myShape = np.shape(tmp6)
