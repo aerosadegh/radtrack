@@ -685,11 +685,8 @@ class rfPic(zeroLengthPic):
         exitPoint = placement(pos,angle).map(pycore.QPointF(length, 0))
 
         cavityWidth = cavityHeight/2
-        numberCavities = int((length/cavityWidth)+.5)
-        try:
-            cavityWidth = length/numberCavities
-        except ZeroDivisionError:
-            return zeroLengthPic.picture(self, scene, pos, angle)
+        numberCavities = max([int((length/cavityWidth)+.5), 1])
+        cavityWidth = length/numberCavities
 
         color = pygui.QBrush(pygui.QColor(255, 196, 29)); # ~ copper color
         for i in range(numberCavities):
