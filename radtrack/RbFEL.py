@@ -181,10 +181,6 @@ class RbFEL(QtGui.QWidget):
         for thing in [self.ui.xmin, self.ui.xmax, self.ui.ymin, self.ui.ymax]:
             self.textBox[thing.objectName()] = thing
 
-       # Get rid of second axis in the ui.plotWidget
-        self.ui.plotWidget.canvas.ax2.clear()
-        self.ui.plotWidget.canvas.ax2.set_visible(False)
-
         # Connections
         self.ui.plotButton.clicked.connect(self.plot)
         self.ui.solve.clicked.connect(self.goalSeek)

@@ -299,12 +299,13 @@ class RbGlobal(QtGui.QMainWindow):
         try:
             if choice == newTabLabel: # Make a new tab
                 self.newTab(destinationType)
-                getRealWidget(self.tabWidget.currentWidget()).importFile(openFile)
             else: # Pre-existing tab
                 tabIndex = openWidgetIndexes[destinationIndex]
-                destination = getRealWidget(self.tabWidget.widget(tabIndex))
                 self.tabWidget.setCurrentIndex(tabIndex)
-                destination.importFile(openFile)
+
+            QtGui.QApplication.processEvents()
+
+            getRealWidget(self.tabWidget.currentWidget()).importFile(openFile)
             self.addToRecentMenu(openFile, True)
             shutil.copy2(openFile, self.sessionDirectory)
         except IndexError: # Cancel was pressed

@@ -10,7 +10,7 @@ Here, the window is instantiated and hooks to the production Python code are est
 :license: http://www.apache.org/licenses/LICENSE-2.0.html
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
-import sys, re, os.path, subprocess
+import sys, re, os.path
 
 # Python imports
 import math, csv
@@ -48,7 +48,7 @@ class BunchTab(QtGui.QWidget):
         self.plotTitles = True
         self.longTwissFlag = 'alpha-bct-dp'
         self.perpTwissFlag = 'rms-geometric'
-        self.beamInitialized = False
+        self.myBunch = None
         self.distributionFlag = 'gaussian'
         self.xyAspectRatioSquare = True
 
@@ -263,7 +263,6 @@ class BunchTab(QtGui.QWidget):
         #     message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
         #     message += '  This value is not yet supported, but is coming soon!\n\n'
         #     message += 'Please go to the "Specification Type" button and choose "alpha-bct-dp".\n\n'
-        #     message += 'Thanks!'
         #     msgBox.setText(message)
         #     msgBox.exec_()
         # elif self.longTwissFlag == "alpha-beta-emit":
@@ -272,7 +271,6 @@ class BunchTab(QtGui.QWidget):
         #     message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
         #     message += '  This value is not yet supported, but is coming soon!\n\n'
         #     message += 'Please go to the "Specification Type" button and choose "alpha-bct-dp".\n\n'
-        #     message += 'Thanks!'
         #     msgBox.setText(message)
         #     msgBox.exec_()
         # else:
@@ -281,7 +279,6 @@ class BunchTab(QtGui.QWidget):
         #     message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
         #     message += '  This choice is invalid!\n\n'
         #     message += 'Please use the "Specification Type" button to choose a valid option.\n\n'
-        #     message += 'Thanks!'
         #     msgBox.setText(message)
         #     msgBox.exec_()
 
@@ -298,7 +295,6 @@ class BunchTab(QtGui.QWidget):
         self.myBunch.setDesignMomentumEV(self.designMomentumEV)
         self.myBunch.setTotalCharge(self.totalCharge)
         self.myBunch.setMassEV(self.eMassEV)     # assume electrons
-        self.beamInitialized = True
 
         # specify the distribution flag and extent
         self.myDist = self.myBunch.getDistribution6D()
@@ -346,17 +342,11 @@ class BunchTab(QtGui.QWidget):
         self.refreshPlots()
 
     def toggleAspectRatio(self):
-        if self.xyAspectRatioSquare == True:
-            self.xyAspectRatioSquare = False
-        else:
-            self.xyAspectRatioSquare = True
+        self.xyAspectRatioSquare = not self.xyAspectRatioSquare
         self.refreshPlots()
 
     def togglePlotTitles(self):
-        if self.plotTitles == True:
-            self.plotTitles = False
-        else:
-            self.plotTitles = True
+        self.plotTitles = not self.plotTitles
         self.refreshPlots()
 
     def scatterPlots(self):
@@ -373,7 +363,8 @@ class BunchTab(QtGui.QWidget):
 
     def refreshPlots(self):
         # nothing to plot, if beam hasn't been initialized
-        if self.beamInitialized == False:
+        if not self.myBunch:
+            self.erasePlots()
             return
 
         # get the specified units for plotting
@@ -386,17 +377,15 @@ class BunchTab(QtGui.QWidget):
         # create local pointer to particle array
         tmp6 = self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D()
 
-        # calculation of axis limits is same for all plot types
         self.calculateLimits(tmp6)
 
-        # set up basic parameters for histograms
         numParticles = tmp6.shape[1]
         nLevels = 5 + int(math.pow(numParticles, 0.33333333))
         nDivs = 10 + int(math.pow(numParticles, 0.2))
 
         # generate the four plots
         self.plotXY( tmp6[0,:]*util.convertUnitsNumber(1, 'm', self.unitsPos),
-                     tmp6[2,:]*util.convertUnitsNumber(1, 'rad', self.unitsAngle),
+                     tmp6[2,:]*util.convertUnitsNumber(1, 'm', self.unitsPos),
                      self.ui.xyPlot.canvas, nDivs, nLevels)
 
         self.plotXPX(tmp6[0,:]*util.convertUnitsNumber(1, 'm', self.unitsPos),
@@ -411,9 +400,10 @@ class BunchTab(QtGui.QWidget):
                      tmp6[5,:]*util.convertUnitsNumber(1, 'rad', self.unitsAngle),
                      self.ui.tpzPlot.canvas, nDivs, nLevels)
 
+
     def calculateLimits(self, _arr):
         # nothing to do, if beam hasn't been initialized
-        if self.beamInitialized == False:
+        if not self.myBunch:
             return
 
         # get average, RMS, min, max values and diffs
@@ -426,7 +416,7 @@ class BunchTab(QtGui.QWidget):
         diffZero = np.zeros(6)
         for iLoop in range(6):
             diffZero[iLoop] = max( (avgArray[iLoop]-minArray[iLoop]),
-                                   (maxArray[iLoop]-avgArray[iLoop]) )
+                    (maxArray[iLoop]-avgArray[iLoop]) )
 
         # now switch based on the specified axis flag
         # specify plot limits, symmetric around the zero axis
@@ -481,75 +471,55 @@ class BunchTab(QtGui.QWidget):
             self.sMin  = (avgArray[4]-diffZero[4])*util.convertUnitsNumber(1, 'm', self.unitsPos)
             self.sMax  = (avgArray[4]+diffZero[4])*util.convertUnitsNumber(1, 'm', self.unitsPos)
 
-    def plotXY(self, hData, vData, _canvas, nDivs, nLevels):
+
+    def plotGenericBefore(self, hData, vData, _canvas, nDivs, nLevels):
         _canvas.ax.clear()
         self.scatConPlot(hData, vData, _canvas.ax, nDivs, nLevels)
-
-        if self.xyAspectRatioSquare == True:
-            tempXDiff = self.xMax - self.xMin
-            tempYDiff = self.yMax - self.yMin
-            if self.plotTitles == False:
-                stretchFac = 1.3636
-            else:
-                stretchFac = 1.5
-            if tempXDiff/stretchFac >= tempYDiff:
-                yFac = (tempXDiff/stretchFac)/tempYDiff
-                _canvas.ax.axis([self.xMin, self.xMax, self.yMin*yFac, self.yMax*yFac])
-            else:
-                xFac = tempYDiff/(tempXDiff/stretchFac)
-                _canvas.ax.axis([self.xMin*xFac, self.xMax*xFac, self.yMin, self.yMax])
-
         _canvas.ax.xaxis.set_major_locator(plt.MaxNLocator(self.numTicks))
         _canvas.ax.yaxis.set_major_locator(plt.MaxNLocator(self.numTicks))
+
+    def plotGenericAfter(self, hData, vData, _canvas, nDivs, nLevels, title):
+        if self.plotTitles:
+            _canvas.ax.set_title(title)
+        _canvas.fig.set_facecolor('w')
+        _canvas.fig.tight_layout()
+        _canvas.draw()
+
+
+    def plotXY(self, hData, vData, _canvas, nDivs, nLevels):
+        self.plotGenericBefore(hData, vData, _canvas, nDivs, nLevels)
+
+        _canvas.ax.axis([self.xMin, self.xMax, self.yMin, self.yMax])
+        if self.xyAspectRatioSquare:
+            _canvas.ax.set_aspect(1./_canvas.ax.get_data_ratio())
+        else:
+            _canvas.ax.set_aspect('auto')
+
         _canvas.ax.set_xlabel('x ['+self.unitsPos+']')
         _canvas.ax.set_ylabel('y ['+self.unitsPos+']')
-        if self.plotTitles == True:
-            _canvas.ax.set_title('cross-section')
-        _canvas.fig.tight_layout()
-        _canvas.fig.set_facecolor('w')
-        _canvas.draw()
+
+        self.plotGenericAfter(hData, vData, _canvas, nDivs, nLevels, 'cross-section')
 
     def plotXPX(self, hData, vData, _canvas, nDivs, nLevels):
-        _canvas.ax.clear()
-        self.scatConPlot(hData, vData, _canvas.ax, nDivs, nLevels)
+        self.plotGenericBefore(hData, vData, _canvas, nDivs, nLevels)
         _canvas.ax.axis([self.xMin, self.xMax, self.xpMin, self.xpMax])
-        _canvas.ax.xaxis.set_major_locator(plt.MaxNLocator(self.numTicks))
-        _canvas.ax.yaxis.set_major_locator(plt.MaxNLocator(self.numTicks))
         _canvas.ax.set_xlabel('x ['+self.unitsPos+']')
         _canvas.ax.set_ylabel("x' ["+self.unitsAngle+']')
-        if self.plotTitles == True:
-            _canvas.ax.set_title('horizontal')
-        _canvas.fig.tight_layout()
-        _canvas.fig.set_facecolor('w')
-        _canvas.draw()
+        self.plotGenericAfter(hData, vData, _canvas, nDivs, nLevels, 'horizontal')
 
     def plotYPY(self, hData, vData, _canvas, nDivs, nLevels):
-        _canvas.ax.clear()
-        self.scatConPlot(hData, vData, _canvas.ax, nDivs, nLevels)
+        self.plotGenericBefore(hData, vData, _canvas, nDivs, nLevels)
         _canvas.ax.axis([self.yMin, self.yMax, self.ypMin, self.ypMax])
-        _canvas.ax.xaxis.set_major_locator(plt.MaxNLocator(self.numTicks))
-        _canvas.ax.yaxis.set_major_locator(plt.MaxNLocator(self.numTicks))
         _canvas.ax.set_xlabel('y ['+self.unitsPos+']')
         _canvas.ax.set_ylabel("y' ["+self.unitsAngle+']')
-        if self.plotTitles == True:
-            _canvas.ax.set_title('vertical')
-        _canvas.fig.tight_layout()
-        _canvas.fig.set_facecolor('w')
-        _canvas.draw()
+        self.plotGenericAfter(hData, vData, _canvas, nDivs, nLevels, 'vertical')
 
     def plotSDP(self, hData, vData, _canvas, nDivs, nLevels):
-        _canvas.ax.clear()
-        self.scatConPlot(hData, vData, _canvas.ax, nDivs, nLevels)
+        self.plotGenericBefore(hData, vData, _canvas, nDivs, nLevels)
         _canvas.ax.axis([self.sMin, self.sMax, self.ptMin, self.ptMax])
-        _canvas.ax.xaxis.set_major_locator(plt.MaxNLocator(self.numTicks))
-        _canvas.ax.yaxis.set_major_locator(plt.MaxNLocator(self.numTicks))
         _canvas.ax.set_xlabel('s ['+self.unitsPos+']')
         _canvas.ax.set_ylabel(r'$(p-p_0)/p_0$ ['+self.unitsAngle+']')
-        if self.plotTitles == True:
-            _canvas.ax.set_title('longitudinal')
-        _canvas.fig.tight_layout()
-        _canvas.fig.set_facecolor('w')
-        _canvas.draw()
+        self.plotGenericAfter(hData, vData, _canvas, nDivs, nLevels, 'longitudinal')
 
     """
     Generalized algorithm for plotting contour and/or scatter plots.
@@ -656,69 +626,35 @@ class BunchTab(QtGui.QWidget):
         return points, contours
 
     def erasePlots(self):
-        self.ui.xyPlot.canvas.ax.clear()
-        self.ui.xyPlot.canvas.ax.axis([-1., 1., -1., 1.])
+        plots = [self.ui.xyPlot, self.ui.xpxPlot, self.ui.ypyPlot, self.ui.tpzPlot]
+
+        for plot in plots:
+            plot.canvas.ax.clear()
+
+        if self.plotTitles:
+            self.ui.xyPlot.canvas.ax.set_title('cross-section')
+            self.ui.xpxPlot.canvas.ax.set_title('horizontal')
+            self.ui.ypyPlot.canvas.ax.set_title('vertical')
+            self.ui.tpzPlot.canvas.ax.set_title('longitudinal')
+
         self.ui.xyPlot.canvas.ax.set_xlabel('x ['+self.unitsPos+']')
         self.ui.xyPlot.canvas.ax.set_ylabel('y ['+self.unitsPos+']')
-        if self.plotTitles == True:
-            self.ui.xyPlot.canvas.ax.set_title('cross-section')
-        if self.beamInitialized == False:
-            if self.plotTitles == True:
-                self.ui.xyPlot.canvas.fig.tight_layout(pad=2.)
-            else:
-                self.ui.xyPlot.canvas.fig.tight_layout(pad=1.)
-        else:
-            self.ui.xyPlot.canvas.fig.tight_layout()
-        self.ui.xyPlot.canvas.fig.set_facecolor('w')
-        self.ui.xyPlot.canvas.draw()
 
-        self.ui.xpxPlot.canvas.ax.clear()
-        self.ui.xpxPlot.canvas.ax.axis([-1., 1., -1., 1.])
         self.ui.xpxPlot.canvas.ax.set_xlabel('x ['+self.unitsPos+']')
         self.ui.xpxPlot.canvas.ax.set_ylabel("x' ["+self.unitsAngle+']')
-        if self.plotTitles == True:
-            self.ui.xpxPlot.canvas.ax.set_title('horizontal')
-        if self.beamInitialized == False:
-            if self.plotTitles == True:
-                self.ui.xpxPlot.canvas.fig.tight_layout(pad=2.)
-            else:
-                self.ui.xpxPlot.canvas.fig.tight_layout(pad=1.)
-        else:
-            self.ui.xpxPlot.canvas.fig.tight_layout()
-        self.ui.xpxPlot.canvas.fig.set_facecolor('w')
-        self.ui.xpxPlot.canvas.draw()
 
-        self.ui.ypyPlot.canvas.ax.clear()
-        self.ui.ypyPlot.canvas.ax.axis([-1., 1., -1., 1.])
         self.ui.ypyPlot.canvas.ax.set_xlabel('y ['+self.unitsPos+']')
         self.ui.ypyPlot.canvas.ax.set_ylabel("y' ["+self.unitsAngle+']')
-        if self.plotTitles == True:
-            self.ui.ypyPlot.canvas.ax.set_title('vertical')
-        if self.beamInitialized == False:
-            if self.plotTitles == True:
-                self.ui.ypyPlot.canvas.fig.tight_layout(pad=2.)
-            else:
-                self.ui.ypyPlot.canvas.fig.tight_layout(pad=1.)
-        else:
-            self.ui.ypyPlot.canvas.fig.tight_layout()
-        self.ui.ypyPlot.canvas.fig.set_facecolor('w')
-        self.ui.ypyPlot.canvas.draw()
 
-        self.ui.tpzPlot.canvas.ax.clear()
-        self.ui.tpzPlot.canvas.ax.axis([-1., 1., -1., 1.])
         self.ui.tpzPlot.canvas.ax.set_xlabel('s ['+self.unitsPos+']')
         self.ui.tpzPlot.canvas.ax.set_ylabel(r'$(p-p_0)/p_0$ ['+self.unitsAngle+']')
-        if self.plotTitles == True:
-            self.ui.tpzPlot.canvas.ax.set_title('longitudinal')
-        if self.beamInitialized == False:
-            if self.plotTitles == True:
-                self.ui.tpzPlot.canvas.fig.tight_layout(pad=2.)
-            else:
-                self.ui.tpzPlot.canvas.fig.tight_layout(pad=1.)
-        else:
-            self.ui.tpzPlot.canvas.fig.tight_layout()
-        self.ui.tpzPlot.canvas.fig.set_facecolor('w')
-        self.ui.tpzPlot.canvas.draw()
+
+
+        for plot in plots:
+            plot.canvas.ax.axis([-1., 1., -1., 1.])
+            plot.canvas.fig.set_facecolor('w')
+            plot.canvas.fig.tight_layout()
+            plot.canvas.draw()
 
     def rmsNormalized(self):
         # specify the perpendicular Twiss conventions
@@ -775,7 +711,7 @@ class BunchTab(QtGui.QWidget):
     # calculate the Twiss parameters
     def calculateTwiss(self):
         # nothing to do, if beam hasn't been initialized
-        if self.beamInitialized == False:
+        if not self.myBunch:
             return
 
         # let the bunch object to the heavy lifting
@@ -825,7 +761,6 @@ class BunchTab(QtGui.QWidget):
         #     message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
         #     message += '  This value is not yet supported, but is coming soon!\n\n'
         #     message += 'Please go to the "Specification Type" button and choose "alpha-bct-dp".\n\n'
-        #     message += 'Thanks!'
         #     msgBox.setText(message)
         #     msgBox.exec_()
         # elif self.longTwissFlag == "alpha-beta-emit":
@@ -834,7 +769,6 @@ class BunchTab(QtGui.QWidget):
         #     message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
         #     message += '  This value is not yet supported, but is coming soon!\n\n'
         #     message += 'Please go to the "Specification Type" button and choose "alpha-bct-dp".\n\n'
-        #     message += 'Thanks!'
         #     msgBox.setText(message)
         #     msgBox.exec_()
         # else:
@@ -843,7 +777,6 @@ class BunchTab(QtGui.QWidget):
         #     message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
         #     message += '  This choice is invalid!\n\n'
         #     message += 'Please use the "Specification Type" button to choose a valid option.\n\n'
-        #     message += 'Thanks!'
         #     msgBox.setText(message)
         #     msgBox.exec_()
 
@@ -900,59 +833,31 @@ class BunchTab(QtGui.QWidget):
         if sdds.sddsdata.InitializeInput(sddsIndex, fileName) != 1:
             sdds.sddsdata.PrintErrors(1)
 
-        # get data storage mode...?
-        sddsStorageMode = sdds.sddsdata.GetMode(sddsIndex)
-        if False:
-            print(' Storage mode for index ', sddsIndex, ': ', sddsStorageMode)
-
-        # get description text...?
-        sddsDescription = sdds.sddsdata.GetDescription(sddsIndex)
-        if False:
-            print(' Description for index ', sddsIndex, ': ', sddsDescription)
-
         # get parameter names
         paramNames = sdds.sddsdata.GetParameterNames(sddsIndex)
-        numParams = len(paramNames)
-        if False:
-            print(' numParams = ', numParams)
-            print(' Parameter names for index ', sddsIndex, ': \n', paramNames)
 
         # get parameter definitions
-        paramDefs = range(numParams)
-        for iLoop in range(numParams):
-            paramDefs[iLoop] = sdds.sddsdata.GetParameterDefinition(sddsIndex,paramNames[iLoop])
-            if False:
-                print(' paramDefs[',iLoop,'] = ', paramDefs[iLoop])
+        paramDefs = [sdds.sddsdata.GetParameterDefinition(sddsIndex, param) for param in paramNames]
 
         # give the user a look at the parameters (if any)
-        msgBox = QtGui.QMessageBox()
-        if numParams == 0:
+        if not paramNames:
             message  = 'WARNING --\n\n'
             message += 'No parameters were found in your selected SDDS file!!\n\n'
             message += 'The design momentum, total beam charge, etc., will have to be manually entered.'
         else:
-            message  = 'The parameter names in your selected SDDS file are: \n'
-            for iLoop in range(numParams):
-                message += '    ' + paramNames[iLoop] + '\n'
-            message += 'The parameter definitions in the file are: \n'
-            for iLoop in range(numParams):
-                message += '    ' + str(paramDefs[iLoop]) + '\n\n'
-#            message += 'WARNING --\n'
-#            message += '  Logic for extracting the design momentum, total beam\n'
-#            message += '  charge, etc. has not yet been implemented!'
-        msgBox.setText(message)
-        msgBox.exec_()
+            message  = 'The parameter names in your selected SDDS file are:'
+            message += ''.join(['\n    ' + p for p in paramNames])
+            message += '\n\nThe parameter definitions in the file are:'
+            message += ''.join(['\n    ' + str(p) for p in paramDefs])
+        finalMsgBox = QtGui.QMessageBox(self)
+        finalMsgBox.setText(message)
 
         # get column names
         columnNames = sdds.sddsdata.GetColumnNames(sddsIndex)
-        numColumns = len(columnNames)
-        if False:
-            print(' numColumns = ', numColumns)
-            print(' Column names for index ', sddsIndex, ': \n', columnNames)
 
         # column data has to be handled differently;
         #   it will be a 6D python array of N-D NumPy arrays
-        columnData = range(numColumns)
+        columnData = range(len(columnNames))
 
         # read parameter data from the SDDS file
         # mus read particle data at the same time
@@ -960,7 +865,7 @@ class BunchTab(QtGui.QWidget):
         if errorCode != 1:
             sdds.sddsdata.PrintErrors(1)
         while errorCode > 0:
-            for jLoop in range(numColumns):
+            for jLoop in range(len(columnNames)):
                 columnData[jLoop] = np.array(sdds.sddsdata.GetColumn(sddsIndex,jLoop))
 
             errorCode = sdds.sddsdata.ReadPage(sddsIndex)
@@ -969,137 +874,110 @@ class BunchTab(QtGui.QWidget):
 
         # get column definitions
         # units are in the 2nd column
-        columnDefs = range(numColumns)
-        unitStrings = range(numColumns)
-        for iLoop in range(numColumns):
-            columnDefs[iLoop] = sdds.sddsdata.GetColumnDefinition(sddsIndex,columnNames[iLoop])
-            unitStrings[iLoop] = columnDefs[iLoop][1]
-            if False:
-                print(' columnDefs[',iLoop,'] = ', columnDefs[iLoop])
-                print(' unitStrings[',iLoop,'] = ', unitStrings[iLoop])
+        columnDefs = [sdds.sddsdata.GetColumnDefinition(sddsIndex,name) for name in columnNames]
+        unitStrings = [cD[1] for cD in columnDefs]
 
         # begin deciphering the column data
-        dataRead = [False, False, False, False, False, False]
-        dataIndex = [-1, -1, -1, -1, -1, -1]
-        for iLoop in range(numColumns):
+        dataIndex = [-1 for i in range(6)]
+        message = ''
+        for iLoop in range(len(columnNames)):
             if columnNames[iLoop]=='x' or columnNames[iLoop]=='X':
-                if dataRead[0] == True:
+                if dataIndex[0] >= 0:
                     message  = 'Error -- \n\n'
                     message += '  X column appears twice, for iLoop = '
                     message += str(dataIndex[0]) + ' and ' + str(iLoop)
-                dataRead[0] = True
                 dataIndex[0] = iLoop
             if columnNames[iLoop]=='xp' or columnNames[iLoop]=='px' or columnNames[iLoop]=="x'":
-                if dataRead[1] == True:
+                if dataIndex[1] >= 0:
                     message  = 'Error -- \n\n'
                     message += '  XP column appears twice, for iLoop = '
                     message += str(dataIndex[1]) + ' and ' + str(iLoop)
-                dataRead[1] = True
                 dataIndex[1] = iLoop
             if columnNames[iLoop]=='y' or columnNames[iLoop]=='Y':
-                if dataRead[2] == True:
+                if dataIndex[2] >= 0:
                     message  = 'Error -- \n\n'
                     message += '  Y column appears twice, for iLoop = '
                     message += str(dataIndex[2]) + ' and ' + str(iLoop)
-                dataRead[2] = True
                 dataIndex[2] = iLoop
             if columnNames[iLoop]=='yp' or columnNames[iLoop]=='py' or columnNames[iLoop]=="y'":
-                if dataRead[3] == True:
+                if dataIndex[3] >= 0:
                     message  = 'Error -- \n\n'
                     message += '  YP column appears twice, for iLoop = '
                     message += str(dataIndex[3]) + ' and ' + str(iLoop)
-                dataRead[3] = True
                 dataIndex[3] = iLoop
             if columnNames[iLoop]=='s' or columnNames[iLoop]=='ct' or columnNames[iLoop]=='t':
-                if dataRead[4] == True:
+                if dataIndex[4] >= 0:
                     message  = 'Error -- \n\n'
                     message += '  S column appears twice, for iLoop = '
                     message += str(dataIndex[4]) + ' and ' + str(iLoop)
-                dataRead[4] = True
                 dataIndex[4] = iLoop
             if columnNames[iLoop]=='p' or columnNames[iLoop]=='pt' or columnNames[iLoop]=='dp':
-                if dataRead[5] == True:
+                if dataIndex[5] >= 0:
                     message  = 'Error -- \n\n'
                     message += '  DP column appears twice, for iLoop = '
                     message += str(dataIndex[5]) + ' and ' + str(iLoop)
-                dataRead[5] = True
                 dataIndex[5] = iLoop
 
-        # initial validation of the column data
-        for iLoop in range(6):
-            if dataRead[iLoop] == False:
+            if message:
                 msgBox = QtGui.QMessageBox()
-                message  = 'ERROR --\n\n'
-                message += '  Not all of the data columns could be correctly interpreted!\n'
-                message += '  These are the column headings that were parsed from the file:\n'
-                message += '    ' + str(columnNames) + '\n\n'
-                message += 'The parsing logic failed on: ' + columnNames[iLoop] + '\n'
-                message += 'The code is looking for [x, xp, y, yp, s, dp] or something similar.'
                 msgBox.setText(message)
                 msgBox.exec_()
                 return
+
+        # initial validation of the column data
+        if any([d < 0 for d in dataIndex]):
+            msgBox = QtGui.QMessageBox()
+            message  = 'ERROR --\n\n'
+            message += '  Not all of the data columns could be correctly interpreted!\n'
+            message += '  These are the column headings that were parsed from the file:\n'
+            message += '    ' + str(columnNames) + '\n\n'
+            message += 'The parsing logic failed on: ' + columnNames[iLoop] + '\n'
+            message += 'The code is looking for [x, xp, y, yp, s, dp] or something similar.'
+            msgBox.setText(message)
+            msgBox.exec_()
+            return
 
         # check for unspecified units, and set them to default value
         # if the units are specified, but incorrect, the problem is detected below
         defaultUnits = ['m', 'rad', 'm', 'rad', 'm', 'rad']
         for iLoop in range(6):
-            print(' before: unitStrings[', iLoop, '] = ', unitStrings[iLoop])
             if not unitStrings[iLoop]:
                 unitStrings[iLoop] = defaultUnits[dataIndex[iLoop]]
-            print(' after: unitStrings[', iLoop, '] = ', unitStrings[iLoop])
-
-        if True:
-            print(' ')
-            print(' Here is columnData[:]:')
-            print(columnData)
 
         # check that all data columns are the same length
-        numElements = [0, 0, 0, 0, 0, 0]
-        for iLoop in range(6):
-            numElements[iLoop] = len(columnData[iLoop])
-            print(' size of column # ', iLoop, ' = ', numElements[iLoop])
+        numElements = [len(col) for col in columnData]
 
-        for iLoop in range(5):
-            if numElements[iLoop+1] != numElements[0]:
-                msgBox = QtGui.QMessageBox()
-                message  = 'ERROR --\n\n'
-                message += '  Not all of the data columns have the same length!\n'
-                message += '  Here is the number of elements found in each column:\n'
-                message += '    ' + str(numElements) + '\n\n'
-                message += 'Please try again with a valid particle file...'
-                message += 'Thanks!'
-                msgBox.setText(message)
-                msgBox.exec_()
-                return
+        if any([n != numElements[0] for n in numElements]):
+            msgBox = QtGui.QMessageBox()
+            message  = 'ERROR --\n\n'
+            message += '  Not all of the data columns have the same length!\n'
+            message += '  Here is the number of elements found in each column:\n'
+            message += '    ' + str(numElements) + '\n\n'
+            message += 'Please try again with a valid particle file.'
+            msgBox.setText(message)
+            msgBox.exec_()
+            return
 
         # now we know the number of macro-particles
         numParticles = numElements[0]
-        print(' ')
-        print(' numParticles = ', numParticles)
 
         # all seems to be well, so load particle data into local array,
         #   accounting for any non-standard physical units
-        print(' Allocating tmp6 variable')
         tmp6 = np.zeros((6,numParticles))
         for iLoop in range(6):
             tmp6[iLoop,:] = columnData[dataIndex[iLoop]]
 
         # another sanity check
         myShape = np.shape(tmp6)
-        print(' ')
-        print(' myShape = ', myShape)
 
         # close the SDDS particle file
-        print(' Closing the SDDS data file')
         if sdds.sddsdata.Terminate(sddsIndex) != 1:
             sdds.sddsdata.PrintErrors(1)
 
         # instantiate the particle bunch
-        print('Instantiating the bunch...')
         self.myBunch = beam.RbParticleBeam6D(numParticles)
         self.myBunch.setDesignMomentumEV(self.designMomentumEV)
         self.myBunch.setMassEV(self.eMassEV)     # assume electrons
-        self.beamInitialized = True
 
         # load particle array into the phase space object
         self.myBunch.getDistribution6D().getPhaseSpace6D().setArray6D(tmp6)
@@ -1113,22 +991,14 @@ class BunchTab(QtGui.QWidget):
         self.calculateTwiss()
 
         # plot the results
-        print(' ')
-        print(' About to refresh the plots...')
+        finalMsgBox.show()
         self.refreshPlots()
-        print('SDDS load done')
 
     def readFromCSV(self, fileName):
         # check whether this is a RadTrack generated CSV file
         with open(fileName) as fileObject:
             csvReader = csv.reader(fileObject, delimiter=',')
             for lineNumber, rawData in enumerate(csvReader, 1):
-                # for testing purposes
-                if False:
-                    print(' ')
-                    print(' lineNumber = ', lineNumber)
-                    print(' rawData = ', rawData)
-
                 # make sure this file follows the RadTrack format
                 if lineNumber == 1:
                     if rawData[0] != 'RadTrack':
@@ -1146,11 +1016,6 @@ class BunchTab(QtGui.QWidget):
                 elif lineNumber == 3:
                     self.designMomentumEV = float(rawData[0])
                     self.totalCharge = float(rawData[1])
-                    # for testing only
-                    if False:
-                        print(' ')
-                        print(' p0 = ', self.designMomentumEV)
-                        print(' Q  = ', self.totalCharge)
                 # don't read beyond the first three lines
                 elif lineNumber > 3:
                     break
@@ -1177,17 +1042,9 @@ class BunchTab(QtGui.QWidget):
         self.myBunch = beam.RbParticleBeam6D(numParticles)
         self.myBunch.setDesignMomentumEV(self.designMomentumEV)
         self.myBunch.setMassEV(self.eMassEV)     # assume electrons
-        self.beamInitialized = True
 
         # load particle array into the phase space object
         self.myBunch.getDistribution6D().getPhaseSpace6D().setArray6D(tmp6)
-
-        # for testing purposes only
-        if False:
-            print(' ')
-            print(' numParticles = ', numParticles)
-            q6 = self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D()
-            print(' 1st particle: ', q6[:,0])
 
         # post top-level parameters to GUI
         self.ui.numPtcls.setText("{:d}".format(numParticles))
@@ -1267,11 +1124,6 @@ class BunchTab(QtGui.QWidget):
         mySDDS.columnData = [[list(tmp6[0,:])], [list(tmp6[1,:])],
                              [list(tmp6[2,:])], [list(tmp6[3,:])],
                              [list(tmp6[4,:])], [list(tmp6[5,:])]]
-
-        if False:
-            print(' ')
-            print(' Here is mySDDS.columnData[:]:')
-            print(mySDDS.columnData)
 
         mySDDS.columnDefinition = [["","m",  "","",mySDDS.SDDS_DOUBLE,0],
                                    ["","","","",mySDDS.SDDS_DOUBLE,0],
