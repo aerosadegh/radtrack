@@ -322,6 +322,7 @@ class RbDcp(QtGui.QWidget):
         self.customgraph()
     
     def customgraph(self):
+        self.parent.ui.statusbar.showMessage('Drawing plot ...')
         ColumnXAxis=0
         ColumnPicked = []
         xname = self.xaxis.currentText()
@@ -354,6 +355,7 @@ class RbDcp(QtGui.QWidget):
             yu = ''
             xu = ''
         PlotColnS1(Xrvec,Yrvec,linetype,marktype,self.x.description[0],xname+xu,[yname+yu], self.widget.canvas)
+        self.parent.ui.statusbar.clearMessage()
                 
 def main():
     app = QtGui.QApplication(sys.argv)

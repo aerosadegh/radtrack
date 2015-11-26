@@ -305,11 +305,13 @@ class RbGlobal(QtGui.QMainWindow):
 
             QtGui.QApplication.processEvents()
 
+            self.ui.statusbar.showMessage('Importing ' + openFile + ' ...')
             getRealWidget(self.tabWidget.currentWidget()).importFile(openFile)
             self.addToRecentMenu(openFile, True)
             shutil.copy2(openFile, self.sessionDirectory)
         except IndexError: # Cancel was pressed
             pass
+        self.ui.statusbar.clearMessage()
 
 
     def setProjectLocation(self):
@@ -391,6 +393,8 @@ class RbGlobal(QtGui.QMainWindow):
             if saveProgress.wasCanceled():
                 return
 
+            self.ui.statusbar.showMessage('Saving ' + self.tabWidget.tabText(i) + ' ...')
+
             widget = getRealWidget(self.tabWidget.widget(i))
             saveProgress.setValue(i)
             subExtension = widget.acceptsFileTypes[0] if widget.acceptsFileTypes else 'save'
@@ -400,9 +404,12 @@ class RbGlobal(QtGui.QMainWindow):
                           widget.defaultTitle,
                           self.tabWidget.tabText(i) + '.' + subExtension]))
             widget.exportToFile(subFileName)
+        self.ui.statusbar.clearMessage()
 
     def exportCurrentTab(self):
+        self.ui.statusbar.showMessage('Saving ' + self.tabWidget.tabText(self.tabWidget.currentIndex()) + ' ...')
         getRealWidget(self.tabWidget.currentWidget()).exportToFile()
+        self.ui.statusbar.clearMessage()
 
     def allWidgets(self):
         return [getRealWidget(self.tabWidget.widget(i)) for i in range(self.tabWidget.count())]

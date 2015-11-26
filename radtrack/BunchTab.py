@@ -233,6 +233,7 @@ class BunchTab(QtGui.QWidget):
 #        msgBox.exec_()
 
     def generateBunch(self):
+        self.parent.ui.statusbar.showMessage('Generating bunch ...')
         # get input from text boxes
         numParticles = int(self.ui.numPtcls.text())
         self.designMomentumEV = util.convertUnitsStringToNumber(self.ui.designMomentum.text(), 'eV')
@@ -328,6 +329,7 @@ class BunchTab(QtGui.QWidget):
 
         # generate the plots
         self.refreshPlots()
+        self.parent.ui.statusbar.clearMessage()
 
     def compactAxis(self):
         self.axisFlag = 'compact'
@@ -362,6 +364,7 @@ class BunchTab(QtGui.QWidget):
         self.refreshPlots()
 
     def refreshPlots(self):
+        self.parent.ui.statusbar.showMessage('Redrawing plots ...')
         # nothing to plot, if beam hasn't been initialized
         if not self.myBunch:
             self.erasePlots()
@@ -399,6 +402,8 @@ class BunchTab(QtGui.QWidget):
         self.plotSDP(tmp6[4,:]*util.convertUnitsNumber(1, 'm', self.unitsPos),
                      tmp6[5,:]*util.convertUnitsNumber(1, 'rad', self.unitsAngle),
                      self.ui.tpzPlot.canvas, nDivs, nLevels)
+
+        self.parent.ui.statusbar.clearMessage()
 
 
     def calculateLimits(self, _arr):
