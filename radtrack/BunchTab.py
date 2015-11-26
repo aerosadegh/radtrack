@@ -871,8 +871,6 @@ class BunchTab(QtGui.QWidget):
 
             errorCode = sdds.sddsdata.ReadPage(sddsIndex)
 
-        # logic for deciphering and making use of parameter data goes here!
-
         # get column definitions
         # units are in the 2nd column
         columnDefs = [sdds.sddsdata.GetColumnDefinition(sddsIndex,name) for name in columnNames]
@@ -964,12 +962,7 @@ class BunchTab(QtGui.QWidget):
 
         # all seems to be well, so load particle data into local array,
         #   accounting for any non-standard physical units
-        tmp6 = np.zeros((6,numParticles))
-        for iLoop in range(6):
-            tmp6[iLoop,:] = columnData[dataIndex[iLoop]]
-
-        # another sanity check
-        myShape = np.shape(tmp6)
+        tmp6 = np.array([columnData[dataIndex[i]] for i in range(6)])
 
         # close the SDDS particle file
         if sdds.sddsdata.Terminate(sddsIndex) != 1:
