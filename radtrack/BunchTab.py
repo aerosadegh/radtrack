@@ -845,17 +845,13 @@ class BunchTab(QtGui.QWidget):
         paramDefs = [sdds.sddsdata.GetParameterDefinition(sddsIndex, param) for param in paramNames]
 
         # give the user a look at the parameters (if any)
+        finalMsgBox = None
         if not paramNames:
             message  = 'WARNING --\n\n'
             message += 'No parameters were found in your selected SDDS file!!\n\n'
             message += 'The design momentum, total beam charge, etc., will have to be manually entered.'
-        else:
-            message  = 'The parameter names in your selected SDDS file are:'
-            message += ''.join(['\n    ' + p for p in paramNames])
-            message += '\n\nThe parameter definitions in the file are:'
-            message += ''.join(['\n    ' + str(p) for p in paramDefs])
-        finalMsgBox = QtGui.QMessageBox(self)
-        finalMsgBox.setText(message)
+            finalMsgBox = QtGui.QMessageBox(self)
+            finalMsgBox.setText(message)
 
         # get column names
         columnNames = sdds.sddsdata.GetColumnNames(sddsIndex)
@@ -996,7 +992,9 @@ class BunchTab(QtGui.QWidget):
         self.calculateTwiss()
 
         # plot the results
-        finalMsgBox.show()
+        if finalMsgBox is not None:
+            finalMsgBox.show()
+
         self.refreshPlots()
 
     def readFromCSV(self, fileName):
