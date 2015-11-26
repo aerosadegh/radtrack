@@ -496,9 +496,9 @@ class BunchTab(QtGui.QWidget):
 
         _canvas.ax.axis([self.xMin, self.xMax, self.yMin, self.yMax])
         if self.xyAspectRatioSquare:
-            _canvas.ax.set_aspect(1./_canvas.ax.get_data_ratio())
+            _canvas.ax.set_aspect('equal', 'datalim')
         else:
-            _canvas.ax.set_aspect('auto')
+            _canvas.ax.set_aspect('auto', 'datalim')
 
         _canvas.ax.set_xlabel('x ['+self.unitsPos+']')
         _canvas.ax.set_ylabel('y ['+self.unitsPos+']')
