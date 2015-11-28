@@ -205,7 +205,6 @@ class BunchTab(QtGui.QWidget):
         if self.parent is None:
             self.parent = self
             self.parent.lastUsedDirectory = os.path.expanduser('~')
-        self.exportToFile = self.saveToSDDS
 
         # try to make the blank plotting regions look nice
         self.erasePlots()
@@ -1030,7 +1029,7 @@ class BunchTab(QtGui.QWidget):
     def readFromCSV(self, fileName):
         # check whether this is a RadTrack generated CSV file
         with open(fileName) as fileObject:
-            csvReader = csv.reader(fileObject, delimiter=',')
+            csvReader = csv.reader(fileObject, delimiter=str(','))
             for lineNumber, rawData in enumerate(csvReader, 1):
                 # make sure this file follows the RadTrack format
                 if lineNumber == 1:
@@ -1049,9 +1048,7 @@ class BunchTab(QtGui.QWidget):
                 elif lineNumber == 3:
                     self.designMomentumEV = float(rawData[0])
                     self.totalCharge = float(rawData[1])
-                # don't read beyond the first three lines
-                elif lineNumber > 3:
-                    break
+                    break # don't read beyond the first three lines
 
         # load file into temporary data array
         tmp6 = np.loadtxt(fileName,dtype=float,skiprows=5,delimiter=',',unpack=True)
@@ -1090,6 +1087,19 @@ class BunchTab(QtGui.QWidget):
         # plot the results
         self.refreshPlots()
 
+
+    def exportToFile(self, fileName = None):
+        if not fileName:
+            fileName = util.getSaveFileName(self, ['sdds', 'csv'])
+            if not fileName:
+                return
+
+        if fileName.lower().endswith('csv'):
+            self.saveToCSV(fileName)
+        else:
+            self.saveToSDDS(fileName)
+
+
     def saveToCSV(self, fileName = None):
         if not fileName:
             fileName = util.getSaveFileName(self, 'csv')
@@ -1117,16 +1127,7 @@ class BunchTab(QtGui.QWidget):
         # assemble the full header
         myHeader = h1 + h2 + h3 + h4 + h5
         # write particle data into the file
-        #   The following ugliness is used to accommodate savetxt()
-        #   There is probably a better way...
-        f6 = np.zeros((numParticles,6))
-        f6[:,0] = tmp6[0,:]
-        f6[:,1] = tmp6[1,:]
-        f6[:,2] = tmp6[2,:]
-        f6[:,3] = tmp6[3,:]
-        f6[:,4] = tmp6[4,:]
-        f6[:,5] = tmp6[5,:]
-        np.savetxt(fileName, f6, fmt='%.12e', delimiter=',', comments='', header=myHeader)
+        np.savetxt(fileName, tmp6.transpose(), fmt=str('%1.12e'), delimiter=',', comments='', header=myHeader)
 
     def saveToSDDS(self, sddsFileName = None):
         if not sddsFileName:
