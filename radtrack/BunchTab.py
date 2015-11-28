@@ -10,7 +10,7 @@ Here, the window is instantiated and hooks to the production Python code are est
 :license: http://www.apache.org/licenses/LICENSE-2.0.html
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
-import sys, re, os, time, math, csv
+import sys, re, os, math, csv
 
 # SciPy imports
 import numpy as np
