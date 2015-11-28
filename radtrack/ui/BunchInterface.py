@@ -195,10 +195,10 @@ class Ui_bunchInterface(object):
         bunchInterface.setWindowTitle(_translate("bunchInterface", "Form", None))
         self.numPtclsLabel.setText(_translate("bunchInterface", "# macroparticles   ", None))
         self.numPtcls.setToolTip(_translate("bunchInterface", "The number of macro-particles in the distribution.", None))
-        self.designMomentumLabel.setText(_translate("bunchInterface", "<html><head/><body><p>momentum [eV]</p></body></html>", None))
-        self.designMomentum.setToolTip(_translate("bunchInterface", "<html><head/><body><p>Design momentum is the average momentum for zero offset.</p><p>Defaul units can be overridden.</p></body></html>", None))
+        self.designMomentumLabel.setText(_translate("bunchInterface", "momentum [eV]", None))
+        self.designMomentum.setToolTip(_translate("bunchInterface", "Design momentum is the average momentum for zero offset.\nDefaul units can be overridden.", None))
         self.charge.setText(_translate("bunchInterface", "total Q [C]", None))
-        self.totalCharge.setToolTip(_translate("bunchInterface", "<html><head/><body><p>Total charge of the beam.</p><p>Default units [C] can be overridden.</p></body></html>", None))
+        self.totalCharge.setToolTip(_translate("bunchInterface", "Total charge of the beam.\nDefault units [C] can be overridden.", None))
         self.twissTable.setToolTip(_translate("bunchInterface", "Specify the horizontal (x-x\') and vertical (y-y\') Twiss parameters for the bunch.\n"
 "Default units for beta [m/rad] can be overridden as follows:\n"
 "    mm (implies mm/rad), um (implies um/rad), etc.\n"
@@ -281,7 +281,7 @@ class Ui_bunchInterface(object):
         self.unitsPosLabel.setText(_translate("bunchInterface", "position     ", None))
         self.unitsPos.setToolTip(_translate("bunchInterface", "Units to be used for axis labels of position-like variables.\n"
 "For example: m, mm, um (or microns), nm ...", None))
-        self.unitsAngleLabel.setText(_translate("bunchInterface", "<html><head/><body><p>angle</p></body></html>", None))
+        self.unitsAngleLabel.setText(_translate("bunchInterface", "angle", None))
         self.unitsAngle.setToolTip(_translate("bunchInterface", "Units to be used for axis labels of angle-like variables.\n"
 "For example: rad, mrad, urad (or microrad) ...", None))
         self.ticksLabel.setText(_translate("bunchInterface", "# ticks", None))

@@ -10,10 +10,7 @@ Here, the window is instantiated and hooks to the production Python code are est
 :license: http://www.apache.org/licenses/LICENSE-2.0.html
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
-import sys, re, os.path
-
-# Python imports
-import math, csv
+import sys, re, os, time, math, csv
 
 # SciPy imports
 import numpy as np
@@ -387,21 +384,21 @@ class BunchTab(QtGui.QWidget):
         nDivs = 10 + int(math.pow(numParticles, 0.2))
 
         # generate the four plots
-        self.plotXY( tmp6[0,:]*util.convertUnitsNumber(1, 'm', self.unitsPos),
-                     tmp6[2,:]*util.convertUnitsNumber(1, 'm', self.unitsPos),
-                     self.ui.xyPlot.canvas, nDivs, nLevels)
+        self.plotXY( util.convertUnitsNumber(tmp6[0,:], 'm', self.unitsPos),
+                     util.convertUnitsNumber(tmp6[2,:], 'm', self.unitsPos),
+                     nDivs, nLevels)
 
-        self.plotXPX(tmp6[0,:]*util.convertUnitsNumber(1, 'm', self.unitsPos),
-                     tmp6[1,:]*util.convertUnitsNumber(1, 'rad', self.unitsAngle),
-                     self.ui.xpxPlot.canvas, nDivs, nLevels)
+        self.plotXPX(util.convertUnitsNumber(tmp6[0,:], 'm', self.unitsPos),
+                     util.convertUnitsNumber(tmp6[1,:], 'rad', self.unitsAngle),
+                     nDivs, nLevels)
 
-        self.plotYPY(tmp6[2,:]*util.convertUnitsNumber(1, 'm', self.unitsPos),
-                     tmp6[3,:]*util.convertUnitsNumber(1, 'rad', self.unitsAngle),
-                     self.ui.ypyPlot.canvas, nDivs, nLevels)
+        self.plotYPY(util.convertUnitsNumber(tmp6[2,:], 'm', self.unitsPos),
+                     util.convertUnitsNumber(tmp6[3,:], 'rad', self.unitsAngle),
+                     nDivs, nLevels)
 
-        self.plotSDP(tmp6[4,:]*util.convertUnitsNumber(1, 'm', self.unitsPos),
-                     tmp6[5,:]*util.convertUnitsNumber(1, 'rad', self.unitsAngle),
-                     self.ui.tpzPlot.canvas, nDivs, nLevels)
+        self.plotSDP(util.convertUnitsNumber(tmp6[4,:], 'm', self.unitsPos),
+                     util.convertUnitsNumber(tmp6[5,:], 'rad', self.unitsAngle),
+                     nDivs, nLevels)
 
         self.parent.ui.statusbar.clearMessage()
 
@@ -483,7 +480,7 @@ class BunchTab(QtGui.QWidget):
         _canvas.ax.xaxis.set_major_locator(plt.MaxNLocator(self.numTicks))
         _canvas.ax.yaxis.set_major_locator(plt.MaxNLocator(self.numTicks))
 
-    def plotGenericAfter(self, hData, vData, _canvas, nDivs, nLevels, title):
+    def plotGenericAfter(self, _canvas, title):
         if self.plotTitles:
             _canvas.ax.set_title(title)
         _canvas.fig.set_facecolor('w')
@@ -491,40 +488,39 @@ class BunchTab(QtGui.QWidget):
         _canvas.draw()
 
 
-    def plotXY(self, hData, vData, _canvas, nDivs, nLevels):
-        self.plotGenericBefore(hData, vData, _canvas, nDivs, nLevels)
-
-        _canvas.ax.axis([self.xMin, self.xMax, self.yMin, self.yMax])
+    def plotXY(self, hData, vData, nDivs, nLevels):
+        self.plotGenericBefore(hData, vData, self.ui.xyPlot.canvas, nDivs, nLevels)
+        self.ui.xyPlot.canvas.ax.axis([self.xMin, self.xMax, self.yMin, self.yMax])
         if self.xyAspectRatioSquare:
-            _canvas.ax.set_aspect('equal', 'datalim')
+            self.ui.xyPlot.canvas.ax.set_aspect('equal', 'datalim')
         else:
-            _canvas.ax.set_aspect('auto', 'datalim')
+            self.ui.xyPlot.canvas.ax.set_aspect('auto', 'datalim')
+        self.ui.xyPlot.canvas.ax.set_xlabel('x ['+self.unitsPos+']')
+        self.ui.xyPlot.canvas.ax.set_ylabel('y ['+self.unitsPos+']')
 
-        _canvas.ax.set_xlabel('x ['+self.unitsPos+']')
-        _canvas.ax.set_ylabel('y ['+self.unitsPos+']')
+        self.plotGenericAfter(self.ui.xyPlot.canvas, 'cross-section')
 
-        self.plotGenericAfter(hData, vData, _canvas, nDivs, nLevels, 'cross-section')
+    def plotXPX(self, hData, vData, nDivs, nLevels):
+        self.plotGenericBefore(hData, vData, self.ui.xpxPlot.canvas, nDivs, nLevels)
+        self.ui.xpxPlot.canvas.ax.axis([self.xMin, self.xMax, self.xpMin, self.xpMax])
+        self.ui.xpxPlot.canvas.ax.set_xlabel('x ['+self.unitsPos+']')
+        self.ui.xpxPlot.canvas.ax.set_ylabel("x' ["+self.unitsAngle+']')
+        self.plotGenericAfter(self.ui.xpxPlot.canvas, 'horizontal')
 
-    def plotXPX(self, hData, vData, _canvas, nDivs, nLevels):
-        self.plotGenericBefore(hData, vData, _canvas, nDivs, nLevels)
-        _canvas.ax.axis([self.xMin, self.xMax, self.xpMin, self.xpMax])
-        _canvas.ax.set_xlabel('x ['+self.unitsPos+']')
-        _canvas.ax.set_ylabel("x' ["+self.unitsAngle+']')
-        self.plotGenericAfter(hData, vData, _canvas, nDivs, nLevels, 'horizontal')
+    def plotYPY(self, hData, vData, nDivs, nLevels):
+        self.plotGenericBefore(hData, vData, self.ui.ypyPlot.canvas, nDivs, nLevels)
+        self.plotGenericBefore(hData, vData, self.ui.ypyPlot.canvas, nDivs, nLevels)
+        self.ui.ypyPlot.canvas.ax.axis([self.yMin, self.yMax, self.ypMin, self.ypMax])
+        self.ui.ypyPlot.canvas.ax.set_xlabel('y ['+self.unitsPos+']')
+        self.ui.ypyPlot.canvas.ax.set_ylabel("y' ["+self.unitsAngle+']')
+        self.plotGenericAfter(self.ui.ypyPlot.canvas, 'vertical')
 
-    def plotYPY(self, hData, vData, _canvas, nDivs, nLevels):
-        self.plotGenericBefore(hData, vData, _canvas, nDivs, nLevels)
-        _canvas.ax.axis([self.yMin, self.yMax, self.ypMin, self.ypMax])
-        _canvas.ax.set_xlabel('y ['+self.unitsPos+']')
-        _canvas.ax.set_ylabel("y' ["+self.unitsAngle+']')
-        self.plotGenericAfter(hData, vData, _canvas, nDivs, nLevels, 'vertical')
-
-    def plotSDP(self, hData, vData, _canvas, nDivs, nLevels):
-        self.plotGenericBefore(hData, vData, _canvas, nDivs, nLevels)
-        _canvas.ax.axis([self.sMin, self.sMax, self.ptMin, self.ptMax])
-        _canvas.ax.set_xlabel('s ['+self.unitsPos+']')
-        _canvas.ax.set_ylabel(r'$(p-p_0)/p_0$ ['+self.unitsAngle+']')
-        self.plotGenericAfter(hData, vData, _canvas, nDivs, nLevels, 'longitudinal')
+    def plotSDP(self, hData, vData, nDivs, nLevels):
+        self.plotGenericBefore(hData, vData, self.ui.tpzPlot.canvas, nDivs, nLevels)
+        self.ui.tpzPlot.canvas.ax.axis([self.sMin, self.sMax, self.ptMin, self.ptMax])
+        self.ui.tpzPlot.canvas.ax.set_xlabel('s ['+self.unitsPos+']')
+        self.ui.tpzPlot.canvas.ax.set_ylabel(r'$(p-p_0)/p_0$ ['+self.unitsAngle+']')
+        self.plotGenericAfter(self.ui.tpzPlot.canvas, 'longitudinal')
 
     """
     Generalized algorithm for plotting contour and/or scatter plots.
@@ -1107,7 +1103,7 @@ class BunchTab(QtGui.QWidget):
 
         mySDDS = sdds.SDDS(0)
         mySDDS.description[0] = "RadTrack"
-        mySDDS.description[1] = "Copyright 2013-2014 by RadiaBeam Technologies. All rights reserved."
+        mySDDS.description[1] = "Copyright 2013-2015 by RadiaBeam Technologies. All rights reserved."
         mySDDS.parameterName = ["designMomentumEV", "totalCharge", "eMassEV"]
         mySDDS.parameterData = [[self.designMomentumEV],
                                 [self.totalCharge],
