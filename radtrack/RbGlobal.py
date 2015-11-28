@@ -101,6 +101,7 @@ class RbGlobal(QtGui.QMainWindow):
                 self.newTab(tabType)
 
             self.originalNameToTabType[tabType.defaultTitle] = tabType
+            self.allExtensions.extend(tabType.acceptsFileTypes)
 
             # populate New Tab Menu
             actionNew_Tab = QtGui.QAction(self)
@@ -120,9 +121,6 @@ class RbGlobal(QtGui.QMainWindow):
             actionNew_Tab.triggered.connect(lambda ignore, t = tabType : self.newTab(t))
 
             self.ui.menuNew_Tab.addAction(actionNew_Tab)
-
-            for ext in tabType.acceptsFileTypes:
-                self.allExtensions.append(ext)
 
         self.tabWidget.setCurrentIndex(0)
 

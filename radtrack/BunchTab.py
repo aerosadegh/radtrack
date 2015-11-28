@@ -996,10 +996,6 @@ class BunchTab(QtGui.QWidget):
         # now we know the number of macro-particles
         numParticles = numElements[0]
 
-        # all seems to be well, so load particle data into local array,
-        #   accounting for any non-standard physical units
-        tmp6 = np.array([columnData[dataIndex[i]] for i in range(6)])
-
         # close the SDDS particle file
         if sdds.sddsdata.Terminate(sddsIndex) != 1:
             sdds.sddsdata.PrintErrors(1)
@@ -1008,6 +1004,10 @@ class BunchTab(QtGui.QWidget):
         self.myBunch = beam.RbParticleBeam6D(numParticles)
         self.myBunch.setDesignMomentumEV(self.designMomentumEV)
         self.myBunch.setMassEV(self.eMassEV)     # assume electrons
+
+        # all seems to be well, so load particle data into local array,
+        #   accounting for any non-standard physical units
+        tmp6 = np.array([columnData[dataIndex[i]] for i in range(6)])
 
         # load particle array into the phase space object
         self.myBunch.getDistribution6D().getPhaseSpace6D().setArray6D(tmp6)
@@ -1137,7 +1137,6 @@ class BunchTab(QtGui.QWidget):
 
         # create local pointer to particle array
         self.generateBunch(False) # False --> don't display error boxes
-        tmp6 = self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D()
 
         mySDDS = sdds.SDDS(0)
         mySDDS.description[0] = "RadTrack"
@@ -1151,9 +1150,8 @@ class BunchTab(QtGui.QWidget):
                                       ["","","","",mySDDS.SDDS_DOUBLE,""]]
         mySDDS.columnName = ["x", "xp", "y", "yp", "t", "p"]
 
-        mySDDS.columnData = [[list(tmp6[0,:])], [list(tmp6[1,:])],
-                             [list(tmp6[2,:])], [list(tmp6[3,:])],
-                             [list(tmp6[4,:])], [list(tmp6[5,:])]]
+        tmp6 = self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D()
+        mySDDS.columnData = [ [list(tmp6[i,:])] for i in range(6)]
 
         mySDDS.columnDefinition = [["","m",  "","",mySDDS.SDDS_DOUBLE,0],
                                    ["","","","",mySDDS.SDDS_DOUBLE,0],
