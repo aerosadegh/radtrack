@@ -55,7 +55,7 @@ class BunchTab(QtGui.QWidget):
         self.ui.noTitles.clicked.connect(self.togglePlotTitles)
 
         # define the generateBunch button
-        self.ui.generateBunch.clicked.connect(self.generateBunch)
+        self.ui.generateBunch.clicked.connect(lambda : self.generateBunch())
 
         # create a menu for defining the distribution type (need to rename)
         bunchMenu = QtGui.QMenu(self)
@@ -229,12 +229,53 @@ class BunchTab(QtGui.QWidget):
 #        msgBox.setText("This feature has not yet been implemented. Coming soon!")
 #        msgBox.exec_()
 
-    def generateBunch(self):
+    def generateBunch(self, displayErrors = True):
+        errorMessage = []
         self.parent.ui.statusbar.showMessage('Generating bunch ...')
-        # get input from text boxes
-        numParticles = int(self.ui.numPtcls.text())
-        self.designMomentumEV = util.convertUnitsStringToNumber(self.ui.designMomentum.text(), 'eV')
-        self.totalCharge = util.convertUnitsStringToNumber(self.ui.totalCharge.text(), 'C')
+
+        # Get input from text boxes. If errors are not being displayed
+        # to the user (displayErrors == False), then silently
+        # replace invalide values with defaults.
+        try:
+            numParticles = int(self.ui.numPtcls.text())
+        except ValueError:
+            numParticles = 0
+        if numParticles <= 0:
+            if displayErrors:
+                errorMessage.append(self.ui.numPtclsLabel.text().strip() + ' must be a postive number.')
+            else:
+                numParticles = 800
+
+        try:
+            self.designMomentumEV = util.convertUnitsStringToNumber(self.ui.designMomentum.text(), 'eV')
+        except ValueError:
+            self.designMomentumEV = 0
+        if self.designMomentumEV <= 0:
+            if displayErrors:
+                errorMessage.append(self.ui.designMomentumLabel.text().strip() + ' must be a positive value.')
+            else:
+                self.designMomentumEV = 2.e+8
+
+        try:
+            self.totalCharge = util.convertUnitsStringToNumber(self.ui.totalCharge.text().strip(), 'C')
+        except ValueError:
+            self.totalCharge = 0
+        if self.totalCharge <= 0:
+            if displayErrors:
+                errorMessage.append(self.ui.charge.text() + ' must be a positive value.')
+            else:
+                self.totalCharge = 1.e-9
+
+        if errorMessage:
+            QtGui.QMessageBox(QtGui.QMessageBox.Warning,
+                    'Input Error' + ('s' if len(errorMessage) > 1 else ''),
+                    '\n'.join(errorMessage),
+                    QtGui.QMessageBox.Ok,
+                    self).exec_()
+            self.parent.ui.statusbar.clearMessage()
+            self.myBunch = None
+            return
+
         beta0gamma0 = self.designMomentumEV / self.eMassEV
         gamma0 = math.sqrt(beta0gamma0**2 + 1.)
         beta0 = beta0gamma0 / gamma0
@@ -1093,12 +1134,8 @@ class BunchTab(QtGui.QWidget):
             if not sddsFileName:
                 return
 
-        # make sure the top-level parameters are up-to-date
-        self.designMomentumEV = util.convertUnitsStringToNumber(self.ui.designMomentum.text(), 'eV')
-        self.totalCharge = util.convertUnitsStringToNumber(self.ui.totalCharge.text(), 'C')
-
         # create local pointer to particle array
-        self.generateBunch()
+        self.generateBunch(False) # False --> don't display error boxes
         tmp6 = self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D()
 
         mySDDS = sdds.SDDS(0)
