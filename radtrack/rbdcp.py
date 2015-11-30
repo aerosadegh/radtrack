@@ -105,23 +105,8 @@ class RbDcp(QtGui.QWidget):
         vb.addWidget(self.widget)
         main.addLayout(vb)
         
-    def exportToFile(self, fileName):
-        with open(fileName, 'w'):
-            pass
-        
     def importFromFileList(self, listItem):
         self.importFile(listItem.text())
-        
-    def importFileFromGlob(self, fileName):
-        filetype = IFileTypeCheck(fileName)
-        if filetype == 'sdds':
-            pass
-        elif filetype == 'srw':
-            pass
-        elif filtype == 'ff':
-            pass
-        else:
-            raise ValueError(filename+' unrecognized file type')
         
     def importFile(self, openFile = None):
         if not openFile:
@@ -204,10 +189,6 @@ class RbDcp(QtGui.QWidget):
         self.x=SRWFileRead1(x,openFile,MaxNumParam)
         #get columns
         (_,_,_,Ncol,_,_)=SRWreshape(self.x,ColumnXAxis,ColumnPicked)
-        ColumnPicked = []
-        for i in range(Ncol):
-            ColumnPicked.append(i)
-            
         stringOut="Columns: "+str(np.shape(x.columnData)[0])+" Pages: 1"+" ColumnElements: "+\
         str(np.shape(x.columnData)[1])
         self.legend.setText(QtGui.QApplication.translate("dcpwidget", 'FILE INFO \n'+'File Name: '+\
@@ -217,13 +198,11 @@ class RbDcp(QtGui.QWidget):
         self.srwprev(Ncol)
         
     def srwprev(self,Ncol):
-        ColumnPicked = []
-        for i in range(Ncol):
-            ColumnPicked.append(i)
+        ColumnPicked = range(Ncol)
         (Xrvec,Yrvec,Npar,Ncol,NcolPicked,NElemCol)=SRWreshape(self.x,ColumnXAxis,ColumnPicked)
         for i, a in enumerate(Yrvec):
             if len(a)<1000:
-                self.data.setRowCount(shape(Yrvec)[1])
+                self.data.setRowCount(np.shape(Yrvec)[1])
                 for j, b in enumerate(a):
                     self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b)))
             else:
@@ -231,15 +210,13 @@ class RbDcp(QtGui.QWidget):
                     self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(a[j])))
         
     def sddsprev(self,Ncol):
-        ColumnPicked = []
-        for i in range(Ncol):
-            ColumnPicked.append(i)
+        ColumnPicked = range(Ncol)
         (Xrvec,Yrvec,YLab,Npar,Ncol,NcolPicked,NElemCol,Npage)=SDDSreshape(self.x,ColumnXAxis,ColumnPicked,NumPage) #reshapes file into vectors and a matrix
 
         for i, a in enumerate(Yrvec):
             #if i>0:# skip first column i+1=>i to adjust, because of extra 0 column!!!?
             if len(a)<1000:
-                self.data.setRowCount(shape(Yrvec)[1]+4)
+                self.data.setRowCount(np.shape(Yrvec)[1]+4)
                 for j, b in enumerate(a):
                     self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b)))
             else:
