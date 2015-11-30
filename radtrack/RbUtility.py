@@ -1,6 +1,7 @@
 from __future__ import print_function, division
 import math
 import string
+import numpy as np
 
 # How to use:
 #
@@ -475,3 +476,108 @@ def getSaveFileName(widget, exts = None):
         else:
             widget.parent.lastUsedDirectory = os.path.dirname(fileName)
             return fileName
+
+
+
+"""
+Generalized algorithm for plotting contour and/or scatter plots.
+  self.plotFlag is queried to determine what's done.
+
+Adapted from open source method: scatter_contour.py
+https://github.com/astroML/astroML/blob/master/astroML/plotting/scatter_contour.py
+
+Parameters
+----------
+x, y   : x and y data for the contour plot
+ax     : the axes on which to plot
+divs   : desired number of divisions along each axis
+levels : integer or array (optional, default=10)
+         number of contour levels, or array of contour levels
+
+Returns
+-------
+points, contours :
+   points   - return value of ax.scatter()
+   contours - return value of ax.contourf()
+   Note: value is 'None' if plot wasn't generated
+
+"""
+def scatConPlot(plotFlag, x, y, ax, divs=10, levels=10):
+    # logic for finding and plotting density contours
+    if plotFlag=='contour' or plotFlag=='combo':
+
+        if plotFlag == 'combo':
+            threshold = 8
+
+        if plotFlag == 'contour':
+            threshold = 1
+
+        # generate the 2D histogram, allowing the algorithm to use
+        #   all data points, automatically calculating the 2D extent
+        myHist, edges = np.histogramdd([x,y], divs)
+        xbins, ybins = edges[0], edges[1]
+
+        # specify contour levels, allowing user to input simple integer
+        levels = np.asarray(levels)
+        # if user specified an integer, then populate levels reasonably
+        if levels.size == 1:
+            levels = np.linspace(threshold, myHist.max(), levels)
+
+        # define the 'extent' of the contoured area, using the
+        #   the horizontal and vertical arrays generaed by histogram2d()
+        extent = [xbins[0], xbins[-1], ybins[0], ybins[-1]]
+        i_min = np.argmin(levels)
+
+        # draw a zero-width line, which defines the outer polygon,
+        #   in order to reduce the number of points drawn
+        outline = ax.contour(myHist.T, levels[i_min:i_min+1],linewidths=0,extent=extent)
+
+        # generate the contoured image, filled or not
+        #   use myHist.T, rather than full myHist, to limit extent of the contoured region
+        #   i.e. only the high-density regions are contoured
+        #   the return value is potentially useful to the calling method
+        contours = ax.contourf(myHist.T, levels, extent=extent)
+
+    # no need for contours; particles only
+    else:
+        contours = None
+
+    # logic for finding particles in low-density regions
+    if plotFlag == 'combo':
+
+        # create new 2D array that will hold a subset of the particles
+        #   i.e. only those in the low-density regions
+        lowDensityArray = np.hstack([x[:, None], y[:, None]])
+
+        # extract only those particles outside the high-density region
+        if len(outline.allsegs[0]) > 0:
+            outer_poly = outline.allsegs[0][0]
+            try:
+                # this works in newer matplotlib versions
+                from matplotlib.path import Path
+                points_inside = Path(outer_poly).contains_points(lowDensityArray)
+            except ImportError:
+                # this works in older matplotlib versions
+                import matplotlib.nxutils as nx
+                points_inside = nx.points_inside_poly(x, outer_poly)
+            Xplot = lowDensityArray[~points_inside]
+
+        # there is no high-density region, so plot all the particles
+        else:
+            Xplot = lowDensityArray
+
+    # load up all of the particles for plotting
+    if plotFlag == 'scatter':
+        Xplot = np.hstack([x[:, None], y[:, None]])
+
+    # overlay scatter plot on top of contour plot generated above
+    #   the return value is potentially useful to the calling method
+    if plotFlag=='combo' or plotFlag=='scatter':
+        points = ax.scatter(Xplot[:,0], Xplot[:,1], marker=',', s=1, c='k')
+    else:
+        # no particle plotting needed
+        points = None
+
+    # Return plot objects; useful for creating colorbars, etc.
+    #   Value is 'None' if corresponding plot was not generated.
+    return points, contours

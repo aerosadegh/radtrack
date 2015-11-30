@@ -3,8 +3,7 @@ Copyright (c) 2015 RadiaBeam Technologies. All rights reserved
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 from os.path import expanduser, dirname
-import sdds
-import sys
+import sdds, sys, math
 
 import sip
 sip.setapi('QString', 2)
@@ -12,14 +11,12 @@ from PyQt4 import QtGui, QtCore
 
 from radtrack.dcp.Servicelib import *
 from radtrack.dcp.SRWlib import SRWFileRead1, SRW
-from radtrack.dcp.Plotlib2axis import *
 from radtrack.gui.matplotlibwidget import matplotlibWidget
+from radtrack.RbUtility import scatConPlot
 
-ColumnPicked = [0]
 NumPage = 0
 ColumnXAxis =-1
 MaxNumParam=999
-MaxNumColum=999
 
 class RbDcp(QtGui.QWidget):
     acceptsFileTypes = ['save', 'twi','out','sig','cen','dat','txt','sdds','bun','fin','dat']
@@ -69,8 +66,13 @@ class RbDcp(QtGui.QWidget):
         form = QtGui.QFormLayout()
         self.xaxis = QtGui.QComboBox()
         self.yaxis = QtGui.QComboBox()
+        self.plotType = QtGui.QComboBox()
+        self.plotType.addItem('Scatter')
+        self.plotType.addItem('Contour')
+        self.plotType.addItem('Combo')
         form.addRow('x-axis',self.xaxis)
         form.addRow('y-axis',self.yaxis)
+        form.addRow('Plot type', self.plotType)
         layout.addLayout(form)
         button = QtGui.QPushButton(frame)
         button.setText('open')
@@ -85,6 +87,7 @@ class RbDcp(QtGui.QWidget):
         self.quickplot.activated.connect(self.graphset)
         self.xaxis.activated.connect(self.customgraph)
         self.yaxis.activated.connect(self.customgraph)
+        self.plotType.activated.connect(self.customgraph)
         
     def right_panel(self,main):
         frame = QtGui.QWidget(self)
@@ -324,37 +327,35 @@ class RbDcp(QtGui.QWidget):
     def customgraph(self):
         self.parent.ui.statusbar.showMessage('Drawing plot ...')
         ColumnXAxis=0
-        ColumnPicked = []
         xname = self.xaxis.currentText()
+        ColumnXAxis = self.xaxis.currentIndex()
         yname = self.yaxis.currentText()
-        linetype = ''
-        marktype = 'o'
-        if (self.currentFiletype == 'twi') or (self.currentFiletype =='sig'):
-            linetype = '-'
-            marktype = ''
+        ColumnPicked = [self.yaxis.currentIndex()]
 
-        #resets display
-        self.widget.canvas.ax.clear()
-        self.widget.canvas.draw()
-        for i,a in enumerate(self.x.columnName):
-            if xname == a:
-                ColumnXAxis=i
-            
-            if yname == a:
-                ColumnPicked.append(i)
-        
         if self.currentFiletype == 'dat':
             (Xrvec,Yrvec,Npar,Ncol,NcolPicked,NElemCol)=SRWreshape(self.x,ColumnXAxis,ColumnPicked)
         else:
             (Xrvec,Yrvec,Ylab,Npar,Ncol,NcolPicked,NElemCol,Npage)=SDDSreshape(self.x,ColumnXAxis,ColumnPicked,NumPage)
-        #Xlab=[self.x.columnDefinition[ColumnXAxis][2]+", "+self.x.columnDefinition[ColumnXAxis][1]]
+
         try:
             yu = ' ['+self.x.columnDefinition[ColumnPicked[0]][1]+']'
             xu = ' ['+self.x.columnDefinition[ColumnXAxis][1]+']'
         except IndexError:
             yu = ''
             xu = ''
-        PlotColnS1(Xrvec,Yrvec,linetype,marktype,self.x.description[0],xname+xu,[yname+yu], self.widget.canvas)
+
+        # Plot
+        numParticles = np.shape(Xrvec)[0]
+        nLevels = 5 + int(math.pow(numParticles, 0.333333333))
+        nDivs = 10 + int(math.pow(numParticles, 0.2))
+        self.widget.canvas.ax.clear()
+        scatConPlot(self.plotType.currentText().lower(), Xrvec, Yrvec[0,:], self.widget.canvas.ax, nDivs, nLevels)
+        self.widget.canvas.ax.set_aspect('auto')
+        self.widget.canvas.ax.set_xlabel(xname + xu)
+        self.widget.canvas.ax.set_ylabel(yname + yu)
+        self.widget.canvas.fig.set_facecolor('w')
+        self.widget.canvas.fig.tight_layout()
+        self.widget.canvas.draw()
         self.parent.ui.statusbar.clearMessage()
                 
 def main():
