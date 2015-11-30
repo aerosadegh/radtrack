@@ -76,9 +76,6 @@ myintegrator = integrator(mylaserfield, myundulatorfield)
 zInit  = -0.5*length
 zFinal = 0.5*length
 
-# Distribution
-mydistribution = distribution()
-
 x0 = 1.*waistX
 y0 = -2.1*waistY
 initPtcl = np.array([x0, 0., y0, 0.,
@@ -94,18 +91,21 @@ plt.scatter(theta, gamma) #*510.998
 plt.xlabel(r'$\theta$')
 plt.ylabel(r'$\Delta\gamma$')
 plt.tight_layout()
+plt.show(block=False)
 plt.savefig('thetaVgamma.png')
 plt.clf()
 plt.plot(zrange, theta)
 plt.xlabel(r'$z$')
 plt.ylabel(r'$\theta$')
 plt.tight_layout()
+plt.show(block=False)
 plt.savefig('thetaVz.png')
 plt.clf()
 plt.plot(zrange, gamma) #*510.998
 plt.xlabel(r'$z$')
 plt.ylabel(r'$\Delta\gamma$')
 plt.tight_layout()
+plt.show(block=False)
 plt.savefig('gammaVz.png')
 plt.clf()
 
