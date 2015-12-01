@@ -637,8 +637,8 @@ class watchPic:
 
         flag = [pycore.QPointF(0, 0),
                 pycore.QPointF(0, -4*flagSizePix),
-                pycore.QPointF(2*flagSizePix, -3*flagSizePix),
-                pycore.QPointF(0, -2*flagSizePix),
+                pycore.QPointF(flagSizePix, -3.5*flagSizePix),
+                pycore.QPointF(0, -3*flagSizePix),
                 pycore.QPointF(0, 0)]
 
         flagItem = pygui.QGraphicsPolygonItem(pygui.QPolygonF(flag))
@@ -685,11 +685,8 @@ class rfPic(zeroLengthPic):
         exitPoint = placement(pos,angle).map(pycore.QPointF(length, 0))
 
         cavityWidth = cavityHeight/2
-        numberCavities = int((length/cavityWidth)+.5)
-        try:
-            cavityWidth = length/numberCavities
-        except ZeroDivisionError:
-            return zeroLengthPic.picture(self, scene, pos, angle)
+        numberCavities = max([int((length/cavityWidth)+.5), 1])
+        cavityWidth = length/numberCavities
 
         color = pygui.QBrush(pygui.QColor(255, 196, 29)); # ~ copper color
         for i in range(numberCavities):

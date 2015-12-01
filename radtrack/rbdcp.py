@@ -219,7 +219,7 @@ class RbDcp(QtGui.QWidget):
             ColumnPicked.append(i)
         (Xrvec,Yrvec,Npar,Ncol,NcolPicked,NElemCol)=SRWreshape(self.x,ColumnXAxis,ColumnPicked)
         for i, a in enumerate(Yrvec):
-            if size(a)<1000:
+            if len(a)<1000:
                 self.data.setRowCount(shape(Yrvec)[1])
                 for j, b in enumerate(a):
                     self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b)))
@@ -235,7 +235,7 @@ class RbDcp(QtGui.QWidget):
 
         for i, a in enumerate(Yrvec):
             #if i>0:# skip first column i+1=>i to adjust, because of extra 0 column!!!?
-            if size(a)<1000:
+            if len(a)<1000:
                 self.data.setRowCount(shape(Yrvec)[1]+4)
                 for j, b in enumerate(a):
                     self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b)))
@@ -259,8 +259,6 @@ class RbDcp(QtGui.QWidget):
 
     def reset(self):
         self.widget.canvas.ax.clear()
-        self.widget.canvas.ax2.clear()
-        self.widget.canvas.ax2.set_visible(False)
         self.data.clearContents()
         self.widget.canvas.draw()
         
@@ -324,6 +322,7 @@ class RbDcp(QtGui.QWidget):
         self.customgraph()
     
     def customgraph(self):
+        self.parent.ui.statusbar.showMessage('Drawing plot ...')
         ColumnXAxis=0
         ColumnPicked = []
         xname = self.xaxis.currentText()
@@ -336,7 +335,6 @@ class RbDcp(QtGui.QWidget):
 
         #resets display
         self.widget.canvas.ax.clear()
-        self.widget.canvas.ax2.clear()
         self.widget.canvas.draw()
         for i,a in enumerate(self.x.columnName):
             if xname == a:
@@ -357,6 +355,7 @@ class RbDcp(QtGui.QWidget):
             yu = ''
             xu = ''
         PlotColnS1(Xrvec,Yrvec,linetype,marktype,self.x.description[0],xname+xu,[yname+yu], self.widget.canvas)
+        self.parent.ui.statusbar.clearMessage()
                 
 def main():
     app = QtGui.QApplication(sys.argv)

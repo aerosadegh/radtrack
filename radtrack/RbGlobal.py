@@ -101,6 +101,7 @@ class RbGlobal(QtGui.QMainWindow):
                 self.newTab(tabType)
 
             self.originalNameToTabType[tabType.defaultTitle] = tabType
+            self.allExtensions.extend(tabType.acceptsFileTypes)
 
             # populate New Tab Menu
             actionNew_Tab = QtGui.QAction(self)
@@ -120,9 +121,6 @@ class RbGlobal(QtGui.QMainWindow):
             actionNew_Tab.triggered.connect(lambda ignore, t = tabType : self.newTab(t))
 
             self.ui.menuNew_Tab.addAction(actionNew_Tab)
-
-            for ext in tabType.acceptsFileTypes:
-                self.allExtensions.append(ext)
 
         self.tabWidget.setCurrentIndex(0)
 
@@ -299,16 +297,19 @@ class RbGlobal(QtGui.QMainWindow):
         try:
             if choice == newTabLabel: # Make a new tab
                 self.newTab(destinationType)
-                getRealWidget(self.tabWidget.currentWidget()).importFile(openFile)
             else: # Pre-existing tab
                 tabIndex = openWidgetIndexes[destinationIndex]
-                destination = getRealWidget(self.tabWidget.widget(tabIndex))
                 self.tabWidget.setCurrentIndex(tabIndex)
-                destination.importFile(openFile)
+
+            QtGui.QApplication.processEvents()
+
+            self.ui.statusbar.showMessage('Importing ' + openFile + ' ...')
+            getRealWidget(self.tabWidget.currentWidget()).importFile(openFile)
             self.addToRecentMenu(openFile, True)
             shutil.copy2(openFile, self.sessionDirectory)
         except IndexError: # Cancel was pressed
             pass
+        self.ui.statusbar.clearMessage()
 
 
     def setProjectLocation(self):
@@ -390,6 +391,8 @@ class RbGlobal(QtGui.QMainWindow):
             if saveProgress.wasCanceled():
                 return
 
+            self.ui.statusbar.showMessage('Saving ' + self.tabWidget.tabText(i) + ' ...')
+
             widget = getRealWidget(self.tabWidget.widget(i))
             saveProgress.setValue(i)
             subExtension = widget.acceptsFileTypes[0] if widget.acceptsFileTypes else 'save'
@@ -399,9 +402,12 @@ class RbGlobal(QtGui.QMainWindow):
                           widget.defaultTitle,
                           self.tabWidget.tabText(i) + '.' + subExtension]))
             widget.exportToFile(subFileName)
+        self.ui.statusbar.clearMessage()
 
     def exportCurrentTab(self):
+        self.ui.statusbar.showMessage('Saving ' + self.tabWidget.tabText(self.tabWidget.currentIndex()) + ' ...')
         getRealWidget(self.tabWidget.currentWidget()).exportToFile()
+        self.ui.statusbar.clearMessage()
 
     def allWidgets(self):
         return [getRealWidget(self.tabWidget.widget(i)) for i in range(self.tabWidget.count())]

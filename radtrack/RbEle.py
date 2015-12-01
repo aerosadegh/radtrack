@@ -38,6 +38,7 @@ class RbEle(QtGui.QWidget):
     concat_order = 2,
     tracking_updates = 1,
     echo_lattice = 0,
+    print_statistics = 1,
 &end
 
 &run_control
@@ -83,6 +84,8 @@ class RbEle(QtGui.QWidget):
         # states: 'summary' or 'full'
         self.status_mode = 'summary'
         self.summary_html = ''
+        self.progressIndex = 0
+        self.beamlineNames = []
 
         self.container = self
 
@@ -318,8 +321,7 @@ class RbEle(QtGui.QWidget):
         """Callback when simulation process has finished"""
         self._enable_parameters(True)
         self.ui.abortButton.setEnabled(False)
-        self.ui.progressBar.setVisible(False)
-        self.ui.progressBar.setMaximum(100)
+        self.ui.progressBar.setValue(self.ui.progressBar.maximum())
         self.output_file.close()
         self.error_file.close()
         self.append_status('')
@@ -345,8 +347,11 @@ class RbEle(QtGui.QWidget):
     def _process_started(self):
         """Callback when simulation process has started"""
         self.ui.abortButton.setEnabled(True)
-        self.ui.progressBar.setVisible(True)
-        self.ui.progressBar.setMaximum(0)
+        beamlineName=self.ui.beamLineComboBox.currentText()
+        self.beamlineNames = self.beam_line_source_manager.get_lattice_element_loader().elementDictionary[beamlineName].fullElementNameList()
+        self.ui.progressBar.setMaximum(len(self.beamlineNames))
+        self.ui.progressBar.reset()
+        self.progressIndex = 0
 
     def _process_stderr(self):
         """Callback with simulation stderr text"""
@@ -361,6 +366,20 @@ class RbEle(QtGui.QWidget):
         for line in out.split("\n"):
             if self._is_error_text(line):
                 self.append_status(line)
+
+            # print_statistics lists each element traversed by the beam.
+            # Use this to track progress of simulation.
+            if line.startswith('tracking through'):
+                outputElementName = line.split()[-1]
+                if re.match('M\d+', outputElementName): # skips generated names of combined magnets
+                    continue
+
+                elementDictionary = self.beam_line_source_manager.get_lattice_element_loader().elementDictionary
+                if outputElementName in elementDictionary:
+                    while outputElementName != self.beamlineNames[self.progressIndex]:
+                        self.progressIndex += 1
+                    self.ui.progressBar.setValue(self.progressIndex + 1)
+                    self.progressIndex += 1
         self.output_file.write(out)
 
     def _read_sdds_header(self, file_name):
@@ -433,7 +452,6 @@ class RbEle(QtGui.QWidget):
         self.ui.abortButton.clicked.connect(self._abort_simulation)
         self.ui.momentumLineEdit.textChanged.connect(self.update_widget_state)
         self.ui.abortButton.setEnabled(False)
-        self.ui.progressBar.setVisible(False)
         self.ui.simulationStatusTextEdit.customContextMenuRequested.connect(
             self._status_context_menu)
         self.ui.simulationResultsListWidget.customContextMenuRequested.connect(
@@ -489,15 +507,10 @@ class RbEle(QtGui.QWidget):
                 bunchFileName=os.path.basename(self.bunch_source_manager.get_bunch_file_name())
             ))
         
-        try:
-            shutil.copy2(self.beam_line_source_manager.get_lattice_file_name(), self.parent.sessionDirectory)
-        except shutil.Error: # file is already in correct location
-            pass
-
-        try:
-            shutil.copy2(self.bunch_source_manager.get_bunch_file_name(), self.parent.sessionDirectory)
-        except shutil.Error: # file is already in correct location
-            pass
+        for fileName in [self.beam_line_source_manager.get_lattice_file_name(),
+                         self.bunch_source_manager.get_bunch_file_name()]:
+            if os.path.dirname(fileName) != self.parent.sessionDirectory:
+                shutil.copy2(fileName, self.parent.sessionDirectory)
 
         return elegant_file_name
 
