@@ -365,7 +365,9 @@ class BunchTab(QtGui.QWidget):
             self.myDist.offsetDistribComp(self.offsetPT, 5)
 
         # generate the plots
-        self.refreshPlots()
+        if displayErrors:
+            self.refreshPlots()
+
         self.parent.ui.statusbar.clearMessage()
 
     def compactAxis(self):
