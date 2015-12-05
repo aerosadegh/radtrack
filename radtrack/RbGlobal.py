@@ -374,7 +374,7 @@ class RbGlobal(QtGui.QMainWindow):
             tabName = tabName.rsplit(".", 1)[0]
             self.newTab(self.originalNameToTabType[originalTitle])
             getRealWidget(self.tabWidget.widget(i)).importFile(subFileName)
-            self.tabWidget.setTabText(i, tabName)
+            self.tabWidget.setTabText(i, tabName.split('+')[0])
 
         self.setTitleBar('RadTrack - ' + self.sessionDirectory)
 
