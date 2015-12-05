@@ -1091,11 +1091,10 @@ class BunchTab(QtGui.QWidget):
     def enableUpdates(self):
         for thing in [self.ui.twissTable, self.ui.twissTableZ, self.ui.offsetTable]:
             thing.cellChanged.connect(lambda : self.generateBunch(self.maxParticles))
-            thing.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
 
 
 def randomSampleOfBunch(bunch, maxParticles):
-    if maxParticles < bunch.shape[1]:
+    if bunch.shape[1] > maxParticles:
         return bunch[:, np.random.choice(bunch.shape[1], maxParticles, replace = False)]
     else:
         return bunch
