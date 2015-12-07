@@ -52,13 +52,20 @@ class View(QtGui.QWidget):
     def get_wavefront_params(self):
         skn = self.get_global_param('simulation_kind').name.lower()
         # return self._controller.params['simulation_kind'][skn]['wavefront']
-        m = self._wavefront_models[skn]
+        # m = self._wavefront_models[skn]
+        m = self._global_enums[skn]
         defaults = self._controller.defaults['simulation_kind'][skn]['wavefront']
         res = pkcollections.OrderedMapping()
+        '''
         for (row, n) in enumerate(defaults):
             df = defaults[n]
             res[df.decl.name] = rt_popup.get_widget_value(df.decl, m.item(row, 1))
         return res
+        '''
+        return m.get_params()
+        
+    #def get_source_params(self):
+    #    skn = self.get_global_param('radiation_source').name.lower()
 
     def set_result_text(self, which, text):
         w = self._result_text[which]
@@ -142,7 +149,7 @@ class View(QtGui.QWidget):
             '''
                 
             stacker = QtGui.QStackedWidget()
-            #wfstacker = QtGui.QStackedWidget()
+            self._global_enums = {}
 
             defaults = self._controller.defaults[name]
             params = self._controller.params[name]
@@ -152,7 +159,11 @@ class View(QtGui.QWidget):
                     p = params[i][j]
                     x = rt_popup.WidgetView(d,p,file_prefix='srw',parent=self)
                     stacker.addWidget(x)
-            self.global_params[name].currentIndexChanged.connect(stacker.setCurrentIndex)    
+                self._global_enums[i] = x
+            self.global_params[name].currentIndexChanged.connect(stacker.setCurrentIndex) 
+            #def testo():
+            #    print(stacker.currentWidget().get_params()
+            #self.global_params[name].currentIndexChanged.connect(testo) 
             
             '''        
             wf_defaults = self._controller.defaults['simulation_kind']
@@ -166,8 +177,7 @@ class View(QtGui.QWidget):
             '''
 
             param_vbox.addWidget(stacker) 
-            #param_vbox.addWidget(wfstacker)
-            
+            #param_vbox.addWidget(wfstacker)           
             #self.global_params['simulation_kind'].currentIndexChanged.connect(wfstacker.setCurrentIndex)
             #self.global_params['radiation_source'].currentIndexChanged.connect(stacker.setCurrentIndex)    
 
