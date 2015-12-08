@@ -567,13 +567,15 @@ def scatConPlot(plotFlag, x, y, ax, divs=10, levels=10):
             Xplot = lowDensityArray
 
     # load up all of the particles for plotting
-    if plotFlag == 'scatter':
+    if plotFlag.startswith('scatter'):
         Xplot = np.hstack([x[:, None], y[:, None]])
 
     # overlay scatter plot on top of contour plot generated above
     #   the return value is potentially useful to the calling method
-    if plotFlag=='combo' or plotFlag=='scatter':
+    if plotFlag in ['combo', 'scatter', 'scatter-line']:
         points = ax.scatter(Xplot[:,0], Xplot[:,1], marker=',', s=1, c='k')
+        if plotFlag == 'scatter-line':
+            points = ax.plot(Xplot[:,0], Xplot[:,1], c='k')
     else:
         # no particle plotting needed
         points = None

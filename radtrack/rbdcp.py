@@ -68,6 +68,7 @@ class RbDcp(QtGui.QWidget):
         self.yaxis = QtGui.QComboBox()
         self.plotType = QtGui.QComboBox()
         self.plotType.addItem('Scatter')
+        self.plotType.addItem('Scatter-Line')
         self.plotType.addItem('Contour')
         self.plotType.addItem('Combo')
         form.addRow('x-axis',self.xaxis)
