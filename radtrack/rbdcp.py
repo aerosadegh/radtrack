@@ -323,17 +323,21 @@ class RbDcp(QtGui.QWidget):
             xu = ''
 
         # Plot
-        numParticles = np.shape(Xrvec)[0]
-        nLevels = 5 + int(math.pow(numParticles, 0.333333333))
-        nDivs = 10 + int(math.pow(numParticles, 0.2))
-        self.widget.canvas.ax.clear()
-        scatConPlot(self.plotType.currentText().lower(), Xrvec, Yrvec[0,:], self.widget.canvas.ax, nDivs, nLevels)
-        self.widget.canvas.ax.set_aspect('auto')
-        self.widget.canvas.ax.set_xlabel(xname + xu)
-        self.widget.canvas.ax.set_ylabel(yname + yu)
-        self.widget.canvas.fig.set_facecolor('w')
-        self.widget.canvas.fig.tight_layout()
-        self.widget.canvas.draw()
+        try:
+            numParticles = np.shape(Xrvec)[0]
+            nLevels = 5 + int(math.pow(numParticles, 0.333333333))
+            nDivs = 10 + int(math.pow(numParticles, 0.2))
+            self.widget.canvas.ax.clear()
+            scatConPlot(self.plotType.currentText().lower(), Xrvec, Yrvec[0,:], self.widget.canvas.ax, nDivs, nLevels)
+            self.widget.canvas.ax.set_aspect('auto')
+            self.widget.canvas.ax.set_xlabel(xname + xu)
+            self.widget.canvas.ax.set_ylabel(yname + yu)
+            self.widget.canvas.fig.set_facecolor('w')
+            self.widget.canvas.fig.tight_layout()
+            self.widget.canvas.draw()
+        except ValueError: # Attempted to plot non-numeric values
+            pass
+
         self.parent.ui.statusbar.clearMessage()
                 
 def main():

@@ -575,7 +575,7 @@ def scatConPlot(plotFlag, x, y, ax, divs=10, levels=10):
     if plotFlag in ['combo', 'scatter', 'scatter-line']:
         points = ax.scatter(Xplot[:,0], Xplot[:,1], marker=',', s=1, c='k')
         if plotFlag == 'scatter-line':
-            points = ax.plot(Xplot[:,0], Xplot[:,1], c='k')
+            ax.plot(Xplot[:,0], Xplot[:,1], c='k')
     else:
         # no particle plotting needed
         points = None
