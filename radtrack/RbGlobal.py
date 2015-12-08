@@ -306,7 +306,8 @@ class RbGlobal(QtGui.QMainWindow):
             self.ui.statusbar.showMessage('Importing ' + openFile + ' ...')
             getRealWidget(self.tabWidget.currentWidget()).importFile(openFile)
             self.addToRecentMenu(openFile, True)
-            shutil.copy2(openFile, self.sessionDirectory)
+            if os.path.dirname(openFile) != self.sessionDirectory:
+                shutil.copy2(openFile, self.sessionDirectory)
         except IndexError: # Cancel was pressed
             pass
         self.ui.statusbar.clearMessage()
