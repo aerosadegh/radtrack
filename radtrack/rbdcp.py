@@ -247,9 +247,10 @@ class RbDcp(QtGui.QWidget):
     def dataopt(self):
         self.xaxis.clear()
         self.yaxis.clear()
-        for i in self.x.columnName:
-            self.xaxis.addItem(i)
-            self.yaxis.addItem(i)
+        for i, name in enumerate(self.x.columnName):
+            if is_number(self.data.item(3, i).text()):
+                self.xaxis.addItem(name)
+                self.yaxis.addItem(name)
 
     def twiselect(self):
         self.quickplot.clear()
@@ -270,8 +271,8 @@ class RbDcp(QtGui.QWidget):
     
         def find_param(pname):
             output = None
-            for i,a in enumerate(self.x.columnName):
-                if pname == a:
+            for i in range(self.xaxis.count()):
+                if self.xaxis.itemText(i) == pname:
                     output = i
                     break
             if output == None:
@@ -306,9 +307,9 @@ class RbDcp(QtGui.QWidget):
         self.parent.ui.statusbar.showMessage('Drawing plot ...')
         ColumnXAxis=0
         xname = self.xaxis.currentText()
-        ColumnXAxis = self.xaxis.currentIndex()
+        ColumnXAxis = self.x.columnName.index(xname)
         yname = self.yaxis.currentText()
-        ColumnPicked = [self.yaxis.currentIndex()]
+        ColumnPicked = [self.x.columnName.index(yname)]
 
         if self.currentFiletype == 'dat':
             (Xrvec,Yrvec,Npar,Ncol,NcolPicked,NElemCol)=SRWreshape(self.x,ColumnXAxis,ColumnPicked)
