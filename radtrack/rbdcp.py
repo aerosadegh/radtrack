@@ -202,13 +202,12 @@ class RbDcp(QtGui.QWidget):
         ColumnPicked = range(Ncol)
         (Xrvec,Yrvec,Npar,Ncol,NcolPicked,NElemCol)=SRWreshape(self.x,ColumnXAxis,ColumnPicked)
         for i, a in enumerate(Yrvec):
-            if len(a)<1000:
-                self.data.setRowCount(np.shape(Yrvec)[1])
-                for j, b in enumerate(a):
-                    self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b)))
+            for j, b in enumerate(a):
+                if j >= 1000:
+                    break
+                self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b)))
             else:
-                for j in range(1000):
-                    self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(a[j])))
+                self.data.setRowCount(np.shape(Yrvec)[1])
         
     def sddsprev(self,Ncol):
         ColumnPicked = range(Ncol)
@@ -216,20 +215,19 @@ class RbDcp(QtGui.QWidget):
 
         for i, a in enumerate(Yrvec):
             #if i>0:# skip first column i+1=>i to adjust, because of extra 0 column!!!?
-            if len(a)<1000:
-                self.data.setRowCount(np.shape(Yrvec)[1]+4)
-                for j, b in enumerate(a):
-                    self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b)))
+            for j, b in enumerate(a):
+                if j >= 1000:
+                    break
+                self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b)))
             else:
-                for j in range(1000):
-                    self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(a[j])))
+                self.data.setRowCount(np.shape(Yrvec)[1]+3)
                     
     def preview(self,Ncol):
         self.reset()
 
         #set table sizes
         self.data.setRowCount(1000)
-        self.data.setColumnCount(Ncol+1)
+        self.data.setColumnCount(Ncol)
 
         for i,a in enumerate(self.x.columnDefinition):
             self.data.setItem(0,i, QtGui.QTableWidgetItem(a[2]))
