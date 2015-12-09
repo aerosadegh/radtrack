@@ -329,12 +329,23 @@ class RbDcp(QtGui.QWidget):
             nDivs = 10 + int(math.pow(numParticles, 0.2))
             self.widget.canvas.ax.clear()
             scatConPlot(self.plotType.currentText().lower(), Xrvec, Yrvec[0,:], self.widget.canvas.ax, nDivs, nLevels)
-            self.widget.canvas.ax.set_aspect('auto')
             self.widget.canvas.ax.set_xlabel(xname + xu)
             self.widget.canvas.ax.set_ylabel(yname + yu)
             self.widget.canvas.fig.set_facecolor('w')
             self.widget.canvas.fig.tight_layout()
+
+            margin = 0.05 # percentage of width and height
+            xMin = min(Xrvec)
+            xMax = max(Xrvec)
+            xRange = xMax - xMin
+            yMin = min(Yrvec[0])
+            yMax = max(Yrvec[0])
+            yRange = yMax - yMin
+
+            self.widget.canvas.ax.set_xlim([xMin - margin*xRange, xMax + margin*xRange])
+            self.widget.canvas.ax.set_ylim([yMin - margin*yRange, yMax + margin*yRange])
             self.widget.canvas.draw()
+
         except ValueError: # Attempted to plot non-numeric values
             pass
 
