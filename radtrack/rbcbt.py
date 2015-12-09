@@ -119,7 +119,7 @@ class RbCbt(rt_qt.QtGui.QWidget):
 
     def droppedOnGraphicsWindow(self):
         if self.ui.treeWidget.currentItem():
-            self.addToEndOfWorkingBeamLine(self.ui.treeWidget.currentItem().text(0))
+            self.addToEndOfWorkingBeamLine(self.ui.treeWidget.currentItem().text(0), 1)
 
     def callAfterWorkingBeamlineChanges(self):
         self.fixWorkingBeamline()
