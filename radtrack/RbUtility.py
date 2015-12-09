@@ -504,13 +504,9 @@ points, contours :
 """
 def scatConPlot(plotFlag, x, y, ax, divs=10, levels=10):
     # logic for finding and plotting density contours
-    if plotFlag=='contour' or plotFlag=='combo':
+    if plotFlag in ['contour', 'combo']:
 
-        if plotFlag == 'combo':
-            threshold = 8
-
-        if plotFlag == 'contour':
-            threshold = 1
+        threshold = 8 if plotFlag == 'combo' else 1
 
         # generate the 2D histogram, allowing the algorithm to use
         #   all data points, automatically calculating the 2D extent
@@ -567,18 +563,20 @@ def scatConPlot(plotFlag, x, y, ax, divs=10, levels=10):
             Xplot = lowDensityArray
 
     # load up all of the particles for plotting
-    if plotFlag.startswith('scatter'):
+    if plotFlag.startswith('scatter') or plotFlag.endswith('line'):
         Xplot = np.hstack([x[:, None], y[:, None]])
 
     # overlay scatter plot on top of contour plot generated above
     #   the return value is potentially useful to the calling method
     if plotFlag in ['combo', 'scatter', 'scatter-line']:
         points = ax.scatter(Xplot[:,0], Xplot[:,1], marker=',', s=1, c='k')
-        if plotFlag == 'scatter-line':
-            ax.plot(Xplot[:,0], Xplot[:,1], c='k')
     else:
         # no particle plotting needed
         points = None
+
+    # Draw line connecting scatter plot points
+    if plotFlag.endswith('line'):
+        ax.plot(Xplot[:,0], Xplot[:,1], c='k')
 
     # Return plot objects; useful for creating colorbars, etc.
     #   Value is 'None' if corresponding plot was not generated.
