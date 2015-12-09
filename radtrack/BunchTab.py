@@ -828,7 +828,7 @@ class BunchTab(QtGui.QWidget):
         unitStrings = [cD[1] for cD in columnDefs]
 
         # begin deciphering the column data
-        dataIndex = [-1 for i in range(6)]
+        dataIndex = [-1]*6
         message = ''
         for iLoop in range(len(columnNames)):
             if columnNames[iLoop]=='x' or columnNames[iLoop]=='X':

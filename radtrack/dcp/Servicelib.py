@@ -105,17 +105,3 @@ def is_number(s):
         return True
     except ValueError:
         return False
-        
-def IFileTypeCheck(ifilename):
-    with open(ifilename, 'r',0) as f:
-        line = f.readline()
-        if string.find(line,'SDDS1') == 0:
-            return 'sdds'
-        elif string.find(line,'#') == 0:
-            return 'srw'
-        elif is_number(line.split()[0]):
-            return 'ff'
-        else: 
-            return 'unknown'
-            
-
