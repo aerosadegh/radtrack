@@ -98,6 +98,7 @@ class RbDcp(QtGui.QWidget):
         vb.addWidget(a,alignment = QtCore.Qt.AlignCenter)
         self.data = QtGui.QTableWidget()
         self.data.setSizePolicy(QtGui.QSizePolicy.Preferred,QtGui.QSizePolicy.MinimumExpanding)
+        self.data.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         vb.addWidget(self.data)
         b = QtGui.QLabel()
         b.setText('PLOT')
