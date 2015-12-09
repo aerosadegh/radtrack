@@ -187,7 +187,6 @@ class RbEle(QtGui.QWidget):
                     return None
         else:
             bunchTab = self.bunch_source_manager.get_tab_widget()
-            bunchTab.generateBunch() # make sure any new settings get read
 
             try:
                 momentum = convertUnitsNumber(
@@ -378,6 +377,8 @@ class RbEle(QtGui.QWidget):
                 if outputElementName in elementDictionary:
                     while outputElementName != self.beamlineNames[self.progressIndex]:
                         self.progressIndex += 1
+                        if self.progressIndex >= len(self.beamlineNames):
+                            self.progressIndex = 0
                     self.ui.progressBar.setValue(self.progressIndex + 1)
                     self.progressIndex += 1
         self.output_file.write(out)
