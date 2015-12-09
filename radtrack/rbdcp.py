@@ -10,7 +10,7 @@ sip.setapi('QString', 2)
 from PyQt4 import QtGui, QtCore
 
 from radtrack.dcp.Servicelib import *
-from radtrack.dcp.SRWlib import SRWFileRead1, SRW
+from radtrack.dcp.SRWlib import SRW
 from radtrack.gui.matplotlibwidget import matplotlibWidget
 from radtrack.RbUtility import scatConPlot
 
@@ -186,12 +186,11 @@ class RbDcp(QtGui.QWidget):
         phile = QtCore.QFileInfo(openFile)
         
         #SRW specific
-        x = SRW()
-        self.x=SRWFileRead1(x,openFile,MaxNumParam)
+        self.x = SRW(openFile,MaxNumParam)
         #get columns
         (_,_,_,Ncol,_,_)=SRWreshape(self.x,ColumnXAxis,ColumnPicked)
-        stringOut="Columns: "+str(np.shape(x.columnData)[0])+" Pages: 1"+" ColumnElements: "+\
-        str(np.shape(x.columnData)[1])
+        stringOut="Columns: "+str(np.shape(self.x.columnData)[0])+" Pages: 1"+" ColumnElements: "+\
+        str(np.shape(self.x.columnData)[1])
         self.legend.setText(QtGui.QApplication.translate("dcpwidget", 'FILE INFO \n'+'File Name: '+\
             phile.fileName()+'\nFile Size: '+str(phile.size())+' bytes \n'+stringOut, None, QtGui.QApplication.UnicodeUTF8))
             
