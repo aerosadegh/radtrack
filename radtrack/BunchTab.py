@@ -355,7 +355,8 @@ class BunchTab(QtGui.QWidget):
                 self.myDist.offsetDistribComp(self.offsetPT, 5)
 
         # generate the plots
-        self.refreshPlots()
+        if particleLimit:
+            self.refreshPlots()
 
         self.parent.ui.statusbar.clearMessage()
 
@@ -397,6 +398,7 @@ class BunchTab(QtGui.QWidget):
 
         # nothing to plot, if beam hasn't been initialized
         if not self.myBunch:
+            self.parent.ui.statusbar.clearMessage()
             return
 
         # get the specified units for plotting
