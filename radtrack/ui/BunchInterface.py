@@ -96,6 +96,9 @@ class Ui_bunchInterface(object):
         self.distribType = QtGui.QToolButton(bunchInterface)
         self.distribType.setGeometry(QtCore.QRect(10, 10, 111, 23))
         self.distribType.setObjectName(_fromUtf8("distribType"))
+        self.generateBunch = QtGui.QPushButton(bunchInterface)
+        self.generateBunch.setGeometry(QtCore.QRect(140, 10, 111, 23))
+        self.generateBunch.setObjectName(_fromUtf8("generateBunch"))
         self.ypyPlot = matplotlibWidget(bunchInterface)
         self.ypyPlot.setGeometry(QtCore.QRect(830, 10, 411, 361))
         self.ypyPlot.setObjectName(_fromUtf8("ypyPlot"))
@@ -234,6 +237,8 @@ class Ui_bunchInterface(object):
         item.setText(_translate("bunchInterface", "angle [rad]", None))
         self.distribType.setToolTip(_translate("bunchInterface", "Select the desired particle distribution type.", None))
         self.distribType.setText(_translate("bunchInterface", "Distribution", None))
+        self.generateBunch.setToolTip(_translate("bunchInterface", "Generate the bunch.", None))
+        self.generateBunch.setText(_translate("bunchInterface", "Generate Bunch", None))
         self.ypyPlot.setToolTip(_translate("bunchInterface", "The 2D vertical projection (y-y\') of the full 6D phase space.\n"
 "Use \'Plot Type\' button to select scatter, contour, combo or to erase.\n"
 "Use \'Axis Type\' button to center plot on bunch or on beamline axis.\n"

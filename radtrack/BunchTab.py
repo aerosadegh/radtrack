@@ -53,6 +53,7 @@ class BunchTab(QtGui.QWidget):
         # link the simple push buttons to appropriate methods
         self.ui.aspectRatio.clicked.connect(self.toggleAspectRatio)
         self.ui.noTitles.clicked.connect(self.togglePlotTitles)
+        self.ui.generateBunch.clicked.connect(lambda : self.generateBunch(self.maxParticles))
 
         # create a menu for defining the distribution type (need to rename)
         bunchMenu = QtGui.QMenu(self)
@@ -196,11 +197,6 @@ class BunchTab(QtGui.QWidget):
 
         for thing in [self.ui.twissTable, self.ui.twissTableZ, self.ui.offsetTable]:
             thing.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
-
-        self.enableUpdates()
-
-        for box in [self.ui.numPtcls, self.ui.unitsPos, self.ui.unitsAngle, self.ui.numTicks]:
-            box.editingFinished.connect(lambda : self.generateBunch(self.maxParticles))
 
         # file directories
         self.parent = parent
@@ -650,11 +646,6 @@ class BunchTab(QtGui.QWidget):
         if not self.myBunch:
             return
         
-        reEnableInput = self.userInputEnabled()
-
-        if self.userInputEnabled():
-            self.disableUpdates()
-
         # let the bunch object to the heavy lifting
         self.myBunch.calcTwissParams6D()
 
@@ -747,9 +738,6 @@ class BunchTab(QtGui.QWidget):
         self.twissEmitNZ = self.twissZ.getEmitRMS() * beta0gamma0
         self.ui.twissTable.setItem(0,2,QtGui.QTableWidgetItem("{:.5e}".format(self.twissEmitNX)))
         self.ui.twissTable.setItem(1,2,QtGui.QTableWidgetItem("{:.5e}".format(self.twissEmitNY)))
-
-        if reEnableInput:
-            self.enableUpdates()
 
 
     def importFile(self, fileName = None):
@@ -1078,19 +1066,10 @@ class BunchTab(QtGui.QWidget):
 
     def disableInput(self):
         for thing in [self.ui.twissTable, self.ui.twissTableZ, self.ui.offsetTable]:
-            thing.cellChanged.disconnect()
             thing.setEnabled(False)
 
     def userInputEnabled(self):
         return self.ui.twissTable.isEnabled()
-
-    def disableUpdates(self):
-        for thing in [self.ui.twissTable, self.ui.twissTableZ, self.ui.offsetTable]:
-            thing.cellChanged.disconnect()
-
-    def enableUpdates(self):
-        for thing in [self.ui.twissTable, self.ui.twissTableZ, self.ui.offsetTable]:
-            thing.cellChanged.connect(lambda : self.generateBunch(self.maxParticles))
 
 
 def randomSampleOfBunch(bunch, maxParticles):
