@@ -29,11 +29,16 @@ def simulate(params, msg_callback):
         OrderedMapping: results and params (see code for format)
     """
     p = pkcollections.OrderedMapping()
-    for k in 'polarization', 'intensity', 'simulation_kind', 'wavefront':
+    for k in 'polarization', 'intensity', 'simulation_kind', 'wavefront','radiation_source':
         v = params[k]
         p[k] = v.value if hasattr(v, 'value') else v
-    pkcollections.mapping_merge(
-        p, srw_params.to_undulator_single_particle(params.undulator))
+    if params.radiation_source.name.lower() == 'wiggler':
+        pkcollections.mapping_merge(
+        p, srw_params.to_undulator_single_particle(params.source))
+    elif params.radiation_source.name.lower() == 'dual_dipole':
+        pkcollections.mapping_merge(
+        p,srw_params.to_dipole(params.source))
+        
     p.arPrecPar = srw_params.to_precision_single_particle(params.precision)
     p.wfrE = srw_params.to_wavefront_single_particle(p.wavefront)
     p.wfrE.partBeam = srw_params.to_beam(params.beam)
@@ -90,7 +95,7 @@ def simulate(params, msg_callback):
             p.arI1,
             [1*p.wfrXY.mesh.xStart, 1*p.wfrXY.mesh.xFin, p.wfrXY.mesh.nx],
             [1*p.wfrXY.mesh.yStart, 1*p.wfrXY.mesh.yFin, p.wfrXY.mesh.ny],
-            ['Horizontal Position [m]', 'Vertical Position [m]', 'Intensity at ' + str(wfrXY.mesh.eStart) + ' eV'],
+            ['Horizontal Position [m]', 'Vertical Position [m]', 'Intensity at ' + str(p.wfrXY.mesh.eStart) + ' eV'],
         ]),
     elif params.simulation_kind == 'E_AND_X':
         msg_callback('Performing Electric Field (intensity vs energy- and x-coordinate) calculation')
