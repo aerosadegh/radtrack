@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'rbele.ui'
 #
-# Created: Mon Apr 13 08:39:50 2015
+# Created: Thu Dec 10 23:00:28 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -111,6 +111,7 @@ class Ui_ELE(object):
         self.horizontalLayout_4.addWidget(self.abortButton)
         self.formLayout.setLayout(5, QtGui.QFormLayout.FieldRole, self.horizontalLayout_4)
         self.progressBar = QtGui.QProgressBar(ELE)
+        self.progressBar.setProperty("value", 0)
         self.progressBar.setTextVisible(True)
         self.progressBar.setInvertedAppearance(False)
         self.progressBar.setObjectName(_fromUtf8("progressBar"))
