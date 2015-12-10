@@ -3,23 +3,20 @@ Copyright (c) 2015 RadiaBeam Technologies. All rights reserved
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 from os.path import expanduser, dirname
-import sdds
-import sys
+import sdds, sys, math
 
 import sip
 sip.setapi('QString', 2)
 from PyQt4 import QtGui, QtCore
 
 from radtrack.dcp.Servicelib import *
-from radtrack.dcp.SRWlib import SRWFileRead1, SRW
-from radtrack.dcp.Plotlib2axis import *
+from radtrack.dcp.SRWlib import SRW
 from radtrack.gui.matplotlibwidget import matplotlibWidget
+from radtrack.RbUtility import scatConPlot
 
-ColumnPicked = [0]
 NumPage = 0
 ColumnXAxis =-1
 MaxNumParam=999
-MaxNumColum=999
 
 class RbDcp(QtGui.QWidget):
     acceptsFileTypes = ['save', 'twi','out','sig','cen','dat','txt','sdds','bun','fin','dat']
@@ -62,15 +59,21 @@ class RbDcp(QtGui.QWidget):
         b.setText('Quick Plot')
         layout.addWidget(b, alignment = QtCore.Qt.AlignCenter)
         self.quickplot = QtGui.QComboBox(frame)
-        #self.quickplot.setSizePolicy(QtGui.QSizePolicy.Maximum,QtGui.QSizePolicy.Preferred)
         layout.addWidget(self.quickplot)
         c.setText('Custom Plot')
         layout.addWidget(c, alignment = QtCore.Qt.AlignCenter)
         form = QtGui.QFormLayout()
         self.xaxis = QtGui.QComboBox()
         self.yaxis = QtGui.QComboBox()
+        self.plotType = QtGui.QComboBox()
+        self.plotType.addItem('Scatter')
+        self.plotType.addItem('Scatter-Line')
+        self.plotType.addItem('Line')
+        self.plotType.addItem('Contour')
+        self.plotType.addItem('Combo')
         form.addRow('x-axis',self.xaxis)
         form.addRow('y-axis',self.yaxis)
+        form.addRow('Plot type', self.plotType)
         layout.addLayout(form)
         button = QtGui.QPushButton(frame)
         button.setText('open')
@@ -85,6 +88,7 @@ class RbDcp(QtGui.QWidget):
         self.quickplot.activated.connect(self.graphset)
         self.xaxis.activated.connect(self.customgraph)
         self.yaxis.activated.connect(self.customgraph)
+        self.plotType.activated.connect(self.customgraph)
         
     def right_panel(self,main):
         frame = QtGui.QWidget(self)
@@ -94,6 +98,7 @@ class RbDcp(QtGui.QWidget):
         vb.addWidget(a,alignment = QtCore.Qt.AlignCenter)
         self.data = QtGui.QTableWidget()
         self.data.setSizePolicy(QtGui.QSizePolicy.Preferred,QtGui.QSizePolicy.MinimumExpanding)
+        self.data.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         vb.addWidget(self.data)
         b = QtGui.QLabel()
         b.setText('PLOT')
@@ -102,23 +107,8 @@ class RbDcp(QtGui.QWidget):
         vb.addWidget(self.widget)
         main.addLayout(vb)
         
-    def exportToFile(self, fileName):
-        with open(fileName, 'w'):
-            pass
-        
     def importFromFileList(self, listItem):
         self.importFile(listItem.text())
-        
-    def importFileFromGlob(self, fileName):
-        filetype = IFileTypeCheck(fileName)
-        if filetype == 'sdds':
-            pass
-        elif filetype == 'srw':
-            pass
-        elif filtype == 'ff':
-            pass
-        else:
-            raise ValueError(filename+' unrecognized file type')
         
     def importFile(self, openFile = None):
         if not openFile:
@@ -197,16 +187,11 @@ class RbDcp(QtGui.QWidget):
         phile = QtCore.QFileInfo(openFile)
         
         #SRW specific
-        x = SRW()
-        self.x=SRWFileRead1(x,openFile,MaxNumParam)
+        self.x = SRW(openFile,MaxNumParam)
         #get columns
         (_,_,_,Ncol,_,_)=SRWreshape(self.x,ColumnXAxis,ColumnPicked)
-        ColumnPicked = []
-        for i in range(Ncol):
-            ColumnPicked.append(i)
-            
-        stringOut="Columns: "+str(np.shape(x.columnData)[0])+" Pages: 1"+" ColumnElements: "+\
-        str(np.shape(x.columnData)[1])
+        stringOut="Columns: "+str(np.shape(self.x.columnData)[0])+" Pages: 1"+" ColumnElements: "+\
+        str(np.shape(self.x.columnData)[1])
         self.legend.setText(QtGui.QApplication.translate("dcpwidget", 'FILE INFO \n'+'File Name: '+\
             phile.fileName()+'\nFile Size: '+str(phile.size())+' bytes \n'+stringOut, None, QtGui.QApplication.UnicodeUTF8))
             
@@ -214,41 +199,35 @@ class RbDcp(QtGui.QWidget):
         self.srwprev(Ncol)
         
     def srwprev(self,Ncol):
-        ColumnPicked = []
-        for i in range(Ncol):
-            ColumnPicked.append(i)
+        ColumnPicked = range(Ncol)
         (Xrvec,Yrvec,Npar,Ncol,NcolPicked,NElemCol)=SRWreshape(self.x,ColumnXAxis,ColumnPicked)
         for i, a in enumerate(Yrvec):
-            if len(a)<1000:
-                self.data.setRowCount(shape(Yrvec)[1])
-                for j, b in enumerate(a):
-                    self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b)))
+            for j, b in enumerate(a):
+                if j >= 1000:
+                    break
+                self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b)))
             else:
-                for j in range(1000):
-                    self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(a[j])))
+                self.data.setRowCount(np.shape(Yrvec)[1])
         
     def sddsprev(self,Ncol):
-        ColumnPicked = []
-        for i in range(Ncol):
-            ColumnPicked.append(i)
+        ColumnPicked = range(Ncol)
         (Xrvec,Yrvec,YLab,Npar,Ncol,NcolPicked,NElemCol,Npage)=SDDSreshape(self.x,ColumnXAxis,ColumnPicked,NumPage) #reshapes file into vectors and a matrix
 
         for i, a in enumerate(Yrvec):
             #if i>0:# skip first column i+1=>i to adjust, because of extra 0 column!!!?
-            if len(a)<1000:
-                self.data.setRowCount(shape(Yrvec)[1]+4)
-                for j, b in enumerate(a):
-                    self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b)))
+            for j, b in enumerate(a):
+                if j >= 1000:
+                    break
+                self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b)))
             else:
-                for j in range(1000):
-                    self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(a[j])))
+                self.data.setRowCount(np.shape(Yrvec)[1]+3)
                     
     def preview(self,Ncol):
         self.reset()
 
         #set table sizes
         self.data.setRowCount(1000)
-        self.data.setColumnCount(Ncol+1)
+        self.data.setColumnCount(Ncol)
 
         for i,a in enumerate(self.x.columnDefinition):
             self.data.setItem(0,i, QtGui.QTableWidgetItem(a[2]))
@@ -266,9 +245,10 @@ class RbDcp(QtGui.QWidget):
     def dataopt(self):
         self.xaxis.clear()
         self.yaxis.clear()
-        for i in self.x.columnName:
-            self.xaxis.addItem(i)
-            self.yaxis.addItem(i)
+        for i, name in enumerate(self.x.columnName):
+            if is_number(self.data.item(3, i).text()):
+                self.xaxis.addItem(name)
+                self.yaxis.addItem(name)
 
     def twiselect(self):
         self.quickplot.clear()
@@ -289,8 +269,8 @@ class RbDcp(QtGui.QWidget):
     
         def find_param(pname):
             output = None
-            for i,a in enumerate(self.x.columnName):
-                if pname == a:
+            for i in range(self.xaxis.count()):
+                if self.xaxis.itemText(i) == pname:
                     output = i
                     break
             if output == None:
@@ -324,37 +304,50 @@ class RbDcp(QtGui.QWidget):
     def customgraph(self):
         self.parent.ui.statusbar.showMessage('Drawing plot ...')
         ColumnXAxis=0
-        ColumnPicked = []
         xname = self.xaxis.currentText()
+        ColumnXAxis = self.x.columnName.index(xname)
         yname = self.yaxis.currentText()
-        linetype = ''
-        marktype = 'o'
-        if (self.currentFiletype == 'twi') or (self.currentFiletype =='sig'):
-            linetype = '-'
-            marktype = ''
+        ColumnPicked = [self.x.columnName.index(yname)]
 
-        #resets display
-        self.widget.canvas.ax.clear()
-        self.widget.canvas.draw()
-        for i,a in enumerate(self.x.columnName):
-            if xname == a:
-                ColumnXAxis=i
-            
-            if yname == a:
-                ColumnPicked.append(i)
-        
         if self.currentFiletype == 'dat':
             (Xrvec,Yrvec,Npar,Ncol,NcolPicked,NElemCol)=SRWreshape(self.x,ColumnXAxis,ColumnPicked)
         else:
             (Xrvec,Yrvec,Ylab,Npar,Ncol,NcolPicked,NElemCol,Npage)=SDDSreshape(self.x,ColumnXAxis,ColumnPicked,NumPage)
-        #Xlab=[self.x.columnDefinition[ColumnXAxis][2]+", "+self.x.columnDefinition[ColumnXAxis][1]]
+
         try:
             yu = ' ['+self.x.columnDefinition[ColumnPicked[0]][1]+']'
             xu = ' ['+self.x.columnDefinition[ColumnXAxis][1]+']'
         except IndexError:
             yu = ''
             xu = ''
-        PlotColnS1(Xrvec,Yrvec,linetype,marktype,self.x.description[0],xname+xu,[yname+yu], self.widget.canvas)
+
+        # Plot
+        try:
+            numParticles = np.shape(Xrvec)[0]
+            nLevels = 5 + int(math.pow(numParticles, 0.333333333))
+            nDivs = 10 + int(math.pow(numParticles, 0.2))
+            self.widget.canvas.ax.clear()
+            scatConPlot(self.plotType.currentText().lower(), Xrvec, Yrvec[0,:], self.widget.canvas.ax, nDivs, nLevels)
+            self.widget.canvas.ax.set_xlabel(xname + xu)
+            self.widget.canvas.ax.set_ylabel(yname + yu)
+            self.widget.canvas.fig.set_facecolor('w')
+            self.widget.canvas.fig.tight_layout()
+
+            margin = 0.05 # percentage of width and height
+            xMin = min(Xrvec)
+            xMax = max(Xrvec)
+            xRange = xMax - xMin
+            yMin = min(Yrvec[0])
+            yMax = max(Yrvec[0])
+            yRange = yMax - yMin
+
+            self.widget.canvas.ax.set_xlim([xMin - margin*xRange, xMax + margin*xRange])
+            self.widget.canvas.ax.set_ylim([yMin - margin*yRange, yMax + margin*yRange])
+            self.widget.canvas.draw()
+
+        except ValueError: # Attempted to plot non-numeric values
+            pass
+
         self.parent.ui.statusbar.clearMessage()
                 
 def main():

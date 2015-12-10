@@ -96,7 +96,7 @@ class Ui_bunchInterface(object):
         self.distribType = QtGui.QToolButton(bunchInterface)
         self.distribType.setGeometry(QtCore.QRect(10, 10, 111, 23))
         self.distribType.setObjectName(_fromUtf8("distribType"))
-        self.generateBunch = QtGui.QToolButton(bunchInterface)
+        self.generateBunch = QtGui.QPushButton(bunchInterface)
         self.generateBunch.setGeometry(QtCore.QRect(140, 10, 111, 23))
         self.generateBunch.setObjectName(_fromUtf8("generateBunch"))
         self.ypyPlot = matplotlibWidget(bunchInterface)
@@ -139,9 +139,6 @@ class Ui_bunchInterface(object):
         self.numTicks = QtGui.QLineEdit(self.formLayoutWidget_2)
         self.numTicks.setObjectName(_fromUtf8("numTicks"))
         self.gridLayout.addWidget(self.numTicks, 2, 1, 1, 1)
-        self.calculateTwiss = QtGui.QPushButton(bunchInterface)
-        self.calculateTwiss.setGeometry(QtCore.QRect(10, 40, 111, 23))
-        self.calculateTwiss.setObjectName(_fromUtf8("calculateTwiss"))
         self.longTwissLabel = QtGui.QLabel(bunchInterface)
         self.longTwissLabel.setGeometry(QtCore.QRect(10, 370, 191, 20))
         self.longTwissLabel.setObjectName(_fromUtf8("longTwissLabel"))
@@ -183,9 +180,7 @@ class Ui_bunchInterface(object):
         QtCore.QMetaObject.connectSlotsByName(bunchInterface)
         bunchInterface.setTabOrder(self.numPtcls, self.designMomentum)
         bunchInterface.setTabOrder(self.designMomentum, self.distribType)
-        bunchInterface.setTabOrder(self.distribType, self.calculateTwiss)
-        bunchInterface.setTabOrder(self.calculateTwiss, self.generateBunch)
-        bunchInterface.setTabOrder(self.generateBunch, self.unitsPos)
+        bunchInterface.setTabOrder(self.distribType, self.unitsPos)
         bunchInterface.setTabOrder(self.unitsPos, self.unitsAngle)
         bunchInterface.setTabOrder(self.unitsAngle, self.twissTable)
         bunchInterface.setTabOrder(self.twissTable, self.twissTableZ)
@@ -287,8 +282,6 @@ class Ui_bunchInterface(object):
         self.ticksLabel.setText(_translate("bunchInterface", "# ticks", None))
         self.numTicks.setToolTip(_translate("bunchInterface", "Suggest a maximum # of tick marks for the axes.\n"
 "Logic for actual # is due to matplotlib library.", None))
-        self.calculateTwiss.setToolTip(_translate("bunchInterface", "Calculate Twiss parameters directly from particle distribution and overwrite all fields.", None))
-        self.calculateTwiss.setText(_translate("bunchInterface", "Calculate Twiss", None))
         self.longTwissLabel.setText(_translate("bunchInterface", "Longitudinal phase space (rms)", None))
         self.twissTableZ.setToolTip(_translate("bunchInterface", "Specification of the longitucinal phase space varies widely.\n"
 "Use the \'Spec\' button to the upper right to choose a convention.\n"

@@ -306,7 +306,8 @@ class RbGlobal(QtGui.QMainWindow):
             self.ui.statusbar.showMessage('Importing ' + openFile + ' ...')
             getRealWidget(self.tabWidget.currentWidget()).importFile(openFile)
             self.addToRecentMenu(openFile, True)
-            shutil.copy2(openFile, self.sessionDirectory)
+            if os.path.dirname(openFile) != self.sessionDirectory:
+                shutil.copy2(openFile, self.sessionDirectory)
         except IndexError: # Cancel was pressed
             pass
         self.ui.statusbar.clearMessage()
@@ -374,7 +375,7 @@ class RbGlobal(QtGui.QMainWindow):
             tabName = tabName.rsplit(".", 1)[0]
             self.newTab(self.originalNameToTabType[originalTitle])
             getRealWidget(self.tabWidget.widget(i)).importFile(subFileName)
-            self.tabWidget.setTabText(i, tabName)
+            self.tabWidget.setTabText(i, tabName.split('+')[0])
 
         self.setTitleBar('RadTrack - ' + self.sessionDirectory)
 

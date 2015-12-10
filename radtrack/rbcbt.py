@@ -119,7 +119,7 @@ class RbCbt(rt_qt.QtGui.QWidget):
 
     def droppedOnGraphicsWindow(self):
         if self.ui.treeWidget.currentItem():
-            self.addToEndOfWorkingBeamLine(self.ui.treeWidget.currentItem().text(0))
+            self.addToEndOfWorkingBeamLine(self.ui.treeWidget.currentItem().text(0), 1)
 
     def callAfterWorkingBeamlineChanges(self):
         self.fixWorkingBeamline()
@@ -669,6 +669,8 @@ class RbCbt(rt_qt.QtGui.QWidget):
                             importedPath = os.path.join(self.parent.sessionDirectory, element.data[index])
                             if not os.path.exists(os.path.dirname(importedPath)):
                                 os.makedirs(os.path.dirname(importedPath))
+                            if os.path.exists(importedPath):
+                                os.remove(importedPath)
                             shutil.copy2(path, importedPath)
                         except IOError:
                             if not ignoreMissingImportFiles:

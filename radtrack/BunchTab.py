@@ -48,14 +48,12 @@ class BunchTab(QtGui.QWidget):
         self.myBunch = None
         self.distributionFlag = 'gaussian'
         self.xyAspectRatioSquare = True
+        self.maxParticles = 10000
 
         # link the simple push buttons to appropriate methods
-        self.ui.calculateTwiss.clicked.connect(self.calculateTwiss)
         self.ui.aspectRatio.clicked.connect(self.toggleAspectRatio)
         self.ui.noTitles.clicked.connect(self.togglePlotTitles)
-
-        # define the generateBunch button
-        self.ui.generateBunch.clicked.connect(lambda : self.generateBunch())
+        self.ui.generateBunch.clicked.connect(lambda : self.generateBunch(self.maxParticles))
 
         # create a menu for defining the distribution type (need to rename)
         bunchMenu = QtGui.QMenu(self)
@@ -84,14 +82,11 @@ class BunchTab(QtGui.QWidget):
         plotsMenu.addAction(contourPlots)
         comboPlots = QtGui.QAction("combo",self)
         plotsMenu.addAction(comboPlots)
-        erasePlots = QtGui.QAction("erase",self)
-        plotsMenu.addAction(erasePlots)
 
         # associate these actions with class methods
         scatterPlots.triggered.connect(self.scatterPlots)
         contourPlots.triggered.connect(self.contourPlots)
         comboPlots.triggered.connect(self.comboPlots)
-        erasePlots.triggered.connect(self.erasePlots)
 
         # grab an existing button & insert the menu
         plotsButton = self.ui.plotType
@@ -200,6 +195,9 @@ class BunchTab(QtGui.QWidget):
         self.ui.offsetTable.setItem(1,1,QtGui.QTableWidgetItem('0 mrad'))
         self.ui.offsetTable.setItem(2,1,QtGui.QTableWidgetItem('0 mrad'))
 
+        for thing in [self.ui.twissTable, self.ui.twissTableZ, self.ui.offsetTable]:
+            thing.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
+
         # file directories
         self.parent = parent
         if self.parent is None:
@@ -228,144 +226,138 @@ class BunchTab(QtGui.QWidget):
 #        msgBox.setText("This feature has not yet been implemented. Coming soon!")
 #        msgBox.exec_()
 
-    def generateBunch(self, displayErrors = True):
-        errorMessage = []
-        self.parent.ui.statusbar.showMessage('Generating bunch ...')
+    def generateBunch(self, particleLimit = None):
+        if self.userInputEnabled():
+            errorMessage = []
+            self.parent.ui.statusbar.showMessage('Generating bunch ...')
 
-        # Get input from text boxes. If errors are not being displayed
-        # to the user (displayErrors == False), then silently
-        # replace invalide values with defaults.
-        try:
-            numParticles = int(self.ui.numPtcls.text())
-        except ValueError:
-            numParticles = 0
-        if numParticles <= 0:
-            if displayErrors:
+            # Get input from text boxes.
+            try:
+                numParticles = int(self.ui.numPtcls.text())
+            except ValueError:
+                numParticles = 0
+            if numParticles <= 0:
                 errorMessage.append(self.ui.numPtclsLabel.text().strip() + ' must be a postive number.')
-            else:
-                numParticles = 800
+            if particleLimit:
+                numParticles = min(numParticles, particleLimit)
 
-        try:
-            self.designMomentumEV = util.convertUnitsStringToNumber(self.ui.designMomentum.text(), 'eV')
-        except ValueError:
-            self.designMomentumEV = 0
-        if self.designMomentumEV <= 0:
-            if displayErrors:
+            try:
+                self.designMomentumEV = util.convertUnitsStringToNumber(self.ui.designMomentum.text(), 'eV')
+            except ValueError:
+                self.designMomentumEV = 0
+            if self.designMomentumEV <= 0:
                 errorMessage.append(self.ui.designMomentumLabel.text().strip() + ' must be a positive value.')
-            else:
-                self.designMomentumEV = 2.e+8
 
-        try:
-            self.totalCharge = util.convertUnitsStringToNumber(self.ui.totalCharge.text().strip(), 'C')
-        except ValueError:
-            self.totalCharge = 0
-        if self.totalCharge <= 0:
-            if displayErrors:
+            try:
+                self.totalCharge = util.convertUnitsStringToNumber(self.ui.totalCharge.text().strip(), 'C')
+            except ValueError:
+                self.totalCharge = 0
+            if self.totalCharge <= 0:
                 errorMessage.append(self.ui.charge.text() + ' must be a positive value.')
-            else:
-                self.totalCharge = 1.e-9
 
-        if errorMessage:
-            QtGui.QMessageBox(QtGui.QMessageBox.Warning,
-                    'Input Error' + ('s' if len(errorMessage) > 1 else ''),
-                    '\n'.join(errorMessage),
-                    QtGui.QMessageBox.Ok,
-                    self).exec_()
-            self.parent.ui.statusbar.clearMessage()
-            self.myBunch = None
-            return
+            if errorMessage:
+                QtGui.QMessageBox(QtGui.QMessageBox.Warning,
+                        'Input Error' + ('s' if len(errorMessage) > 1 else ''),
+                        '\n'.join(errorMessage),
+                        QtGui.QMessageBox.Ok,
+                        self).exec_()
+                self.parent.ui.statusbar.clearMessage()
+                self.myBunch = None
+                return
 
-        beta0gamma0 = self.designMomentumEV / self.eMassEV
-        gamma0 = math.sqrt(beta0gamma0**2 + 1.)
-        beta0 = beta0gamma0 / gamma0
+            beta0gamma0 = self.designMomentumEV / self.eMassEV
+            gamma0 = math.sqrt(beta0gamma0**2 + 1.)
+            beta0 = beta0gamma0 / gamma0
 
-        # get input from the table of Twiss parameters
-        self.twissAlphaX = util.convertUnitsStringToNumber(self.ui.twissTable.item(0,0).text(), '')
-        self.twissAlphaY = util.convertUnitsStringToNumber(self.ui.twissTable.item(1,0).text(), '')
-        self.twissBetaX  = util.convertUnitsStringToNumber(self.ui.twissTable.item(0,1).text(), 'm/rad')
-        self.twissBetaY  = util.convertUnitsStringToNumber(self.ui.twissTable.item(1,1).text(), 'm/rad')
-        self.twissEmitNX = util.convertUnitsStringToNumber(self.ui.twissTable.item(0,2).text(), 'm*rad')
-        self.twissEmitNY = util.convertUnitsStringToNumber(self.ui.twissTable.item(1,2).text(), 'm*rad')
+            # get input from the table of Twiss parameters
+            self.twissAlphaX = util.convertUnitsStringToNumber(self.ui.twissTable.item(0,0).text(), '')
+            self.twissAlphaY = util.convertUnitsStringToNumber(self.ui.twissTable.item(1,0).text(), '')
+            self.twissBetaX  = util.convertUnitsStringToNumber(self.ui.twissTable.item(0,1).text(), 'm/rad')
+            self.twissBetaY  = util.convertUnitsStringToNumber(self.ui.twissTable.item(1,1).text(), 'm/rad')
+            self.twissEmitNX = util.convertUnitsStringToNumber(self.ui.twissTable.item(0,2).text(), 'm*rad')
+            self.twissEmitNY = util.convertUnitsStringToNumber(self.ui.twissTable.item(1,2).text(), 'm*rad')
 
-        if self.longTwissFlag == "alpha-bct-dp":
-            self.twissAlphaZ = util.convertUnitsStringToNumber(self.ui.twissTableZ.item(0,0).text(), '')
-            self.bctRms = util.convertUnitsStringToNumber(self.ui.twissTableZ.item(0,1).text(), 'm')
-            self.dPopRms  = float(self.ui.twissTableZ.item(0,2).text())
+            if self.longTwissFlag == "alpha-bct-dp":
+                self.twissAlphaZ = util.convertUnitsStringToNumber(self.ui.twissTableZ.item(0,0).text(), '')
+                self.bctRms = util.convertUnitsStringToNumber(self.ui.twissTableZ.item(0,1).text(), 'm')
+                self.dPopRms  = float(self.ui.twissTableZ.item(0,2).text())
 
-            self.twissEmitNZ = (self.bctRms/beta0) * self.dPopRms / math.sqrt(1.+self.twissAlphaZ**2)
-            self.twissBetaZ  = (self.bctRms/beta0) / self.dPopRms * math.sqrt(1.+self.twissAlphaZ**2)
+                self.twissEmitNZ = (self.bctRms/beta0) * self.dPopRms / math.sqrt(1.+self.twissAlphaZ**2)
+                self.twissBetaZ  = (self.bctRms/beta0) / self.dPopRms * math.sqrt(1.+self.twissAlphaZ**2)
 
-        # elif self.longTwissFlag == "coupling-bct-dp":
-        #     msgBox = QtGui.QMessageBox()
-        #     message  = 'Error --\n\n'
-        #     message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
-        #     message += '  This value is not yet supported, but is coming soon!\n\n'
-        #     message += 'Please go to the "Specification Type" button and choose "alpha-bct-dp".\n\n'
-        #     msgBox.setText(message)
-        #     msgBox.exec_()
-        # elif self.longTwissFlag == "alpha-beta-emit":
-        #     msgBox = QtGui.QMessageBox()
-        #     message  = 'Error --\n\n'
-        #     message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
-        #     message += '  This value is not yet supported, but is coming soon!\n\n'
-        #     message += 'Please go to the "Specification Type" button and choose "alpha-bct-dp".\n\n'
-        #     msgBox.setText(message)
-        #     msgBox.exec_()
-        # else:
-        #     msgBox = QtGui.QMessageBox()
-        #     message  = 'Error --\n\n'
-        #     message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
-        #     message += '  This choice is invalid!\n\n'
-        #     message += 'Please use the "Specification Type" button to choose a valid option.\n\n'
-        #     msgBox.setText(message)
-        #     msgBox.exec_()
+            # elif self.longTwissFlag == "coupling-bct-dp":
+            #     msgBox = QtGui.QMessageBox()
+            #     message  = 'Error --\n\n'
+            #     message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
+            #     message += '  This value is not yet supported, but is coming soon!\n\n'
+            #     message += 'Please go to the "Specification Type" button and choose "alpha-bct-dp".\n\n'
+            #     msgBox.setText(message)
+            #     msgBox.exec_()
+            # elif self.longTwissFlag == "alpha-beta-emit":
+            #     msgBox = QtGui.QMessageBox()
+            #     message  = 'Error --\n\n'
+            #     message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
+            #     message += '  This value is not yet supported, but is coming soon!\n\n'
+            #     message += 'Please go to the "Specification Type" button and choose "alpha-bct-dp".\n\n'
+            #     msgBox.setText(message)
+            #     msgBox.exec_()
+            # else:
+            #     msgBox = QtGui.QMessageBox()
+            #     message  = 'Error --\n\n'
+            #     message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
+            #     message += '  This choice is invalid!\n\n'
+            #     message += 'Please use the "Specification Type" button to choose a valid option.\n\n'
+            #     msgBox.setText(message)
+            #     msgBox.exec_()
 
-        # Get input from the table of phase space offsets
-        self.offsetX  = util.convertUnitsStringToNumber(self.ui.offsetTable.item(0,0).text(), 'm')
-        self.offsetY  = util.convertUnitsStringToNumber(self.ui.offsetTable.item(1,0).text(), 'm')
-        self.offsetT  = util.convertUnitsStringToNumber(self.ui.offsetTable.item(2,0).text(), 'm')
-        self.offsetXP = util.convertUnitsStringToNumber(self.ui.offsetTable.item(0,1).text(), 'rad')
-        self.offsetYP = util.convertUnitsStringToNumber(self.ui.offsetTable.item(1,1).text(), 'rad')
-        self.offsetPT = util.convertUnitsStringToNumber(self.ui.offsetTable.item(2,1).text(), 'rad')
+            # Get input from the table of phase space offsets
+            self.offsetX  = util.convertUnitsStringToNumber(self.ui.offsetTable.item(0,0).text(), 'm')
+            self.offsetY  = util.convertUnitsStringToNumber(self.ui.offsetTable.item(1,0).text(), 'm')
+            self.offsetT  = util.convertUnitsStringToNumber(self.ui.offsetTable.item(2,0).text(), 'm')
+            self.offsetXP = util.convertUnitsStringToNumber(self.ui.offsetTable.item(0,1).text(), 'rad')
+            self.offsetYP = util.convertUnitsStringToNumber(self.ui.offsetTable.item(1,1).text(), 'rad')
+            self.offsetPT = util.convertUnitsStringToNumber(self.ui.offsetTable.item(2,1).text(), 'rad')
 
-        # instantiate the particle bunch
-        self.myBunch = beam.RbParticleBeam6D(numParticles)
-        self.myBunch.setDesignMomentumEV(self.designMomentumEV)
-        self.myBunch.setTotalCharge(self.totalCharge)
-        self.myBunch.setMassEV(self.eMassEV)     # assume electrons
+            # instantiate the particle bunch
+            self.myBunch = beam.RbParticleBeam6D(numParticles)
+            self.myBunch.setDesignMomentumEV(self.designMomentumEV)
+            self.myBunch.setTotalCharge(self.totalCharge)
+            self.myBunch.setMassEV(self.eMassEV)     # assume electrons
 
-        # specify the distribution flag and extent
-        self.myDist = self.myBunch.getDistribution6D()
-        self.myDist.setDistributionType(self.distributionFlag)
-        self.myDist.setMaxRmsFactor(3.)
+            # specify the distribution flag and extent
+            self.myDist = self.myBunch.getDistribution6D()
+            self.myDist.setDistributionType(self.distributionFlag)
+            self.myDist.setMaxRmsFactor(3.)
 
-        # specify the Twiss parameters
-        self.myBunch.setTwissParamsByName2D(self.twissAlphaX,self.twissBetaX,
-                                            self.twissEmitNX/beta0gamma0,'twissX')
-        self.myBunch.setTwissParamsByName2D(self.twissAlphaY,self.twissBetaY,
-                                            self.twissEmitNY/beta0gamma0,'twissY')
-        self.myBunch.setTwissParamsByName2D(self.twissAlphaZ,self.twissBetaZ,
-                                            self.twissEmitNZ,'twissZ')
+            # specify the Twiss parameters
+            self.myBunch.setTwissParamsByName2D(self.twissAlphaX,self.twissBetaX,
+                                                self.twissEmitNX/beta0gamma0,'twissX')
+            self.myBunch.setTwissParamsByName2D(self.twissAlphaY,self.twissBetaY,
+                                                self.twissEmitNY/beta0gamma0,'twissY')
+            self.myBunch.setTwissParamsByName2D(self.twissAlphaZ,self.twissBetaZ,
+                                                self.twissEmitNZ,'twissZ')
 
-        # create the distribution
-        self.myBunch.makeParticlePhaseSpace6D()
+            # create the distribution
+            self.myBunch.makeParticlePhaseSpace6D()
 
-        # offset the distribution
-        if (self.offsetX  != 0.):
-            self.myDist.offsetDistribComp(self.offsetX,  0)
-        if (self.offsetXP != 0.):
-            self.myDist.offsetDistribComp(self.offsetXP, 1)
-        if (self.offsetY  != 0.):
-            self.myDist.offsetDistribComp(self.offsetY,  2)
-        if (self.offsetYP != 0.):
-            self.myDist.offsetDistribComp(self.offsetYP, 3)
-        if (self.offsetT  != 0.):
-            self.myDist.offsetDistribComp(self.offsetT,  4)
-        if (self.offsetPT != 0.):
-            self.myDist.offsetDistribComp(self.offsetPT, 5)
+            # offset the distribution
+            if (self.offsetX  != 0.):
+                self.myDist.offsetDistribComp(self.offsetX,  0)
+            if (self.offsetXP != 0.):
+                self.myDist.offsetDistribComp(self.offsetXP, 1)
+            if (self.offsetY  != 0.):
+                self.myDist.offsetDistribComp(self.offsetY,  2)
+            if (self.offsetYP != 0.):
+                self.myDist.offsetDistribComp(self.offsetYP, 3)
+            if (self.offsetT  != 0.):
+                self.myDist.offsetDistribComp(self.offsetT,  4)
+            if (self.offsetPT != 0.):
+                self.myDist.offsetDistribComp(self.offsetPT, 5)
 
         # generate the plots
-        self.refreshPlots()
+        if particleLimit:
+            self.refreshPlots()
+
         self.parent.ui.statusbar.clearMessage()
 
     def compactAxis(self):
@@ -402,9 +394,11 @@ class BunchTab(QtGui.QWidget):
 
     def refreshPlots(self):
         self.parent.ui.statusbar.showMessage('Redrawing plots ...')
+        self.erasePlots()
+
         # nothing to plot, if beam hasn't been initialized
         if not self.myBunch:
-            self.erasePlots()
+            self.parent.ui.statusbar.clearMessage()
             return
 
         # get the specified units for plotting
@@ -415,11 +409,14 @@ class BunchTab(QtGui.QWidget):
         self.numTicks = int(self.ui.numTicks.text())
 
         # create local pointer to particle array
-        tmp6 = self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D()
+        tmp6 = randomSampleOfBunch(
+                self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D(),
+                min(self.maxParticles, int(self.ui.numPtcls.text())))
+
+        numParticles = tmp6.shape[1]
 
         self.calculateLimits(tmp6)
 
-        numParticles = tmp6.shape[1]
         nLevels = 5 + int(math.pow(numParticles, 0.33333333))
         nDivs = 10 + int(math.pow(numParticles, 0.2))
 
@@ -516,7 +513,7 @@ class BunchTab(QtGui.QWidget):
 
     def plotGenericBefore(self, hData, vData, _canvas, nDivs, nLevels):
         _canvas.ax.clear()
-        self.scatConPlot(hData, vData, _canvas.ax, nDivs, nLevels)
+        util.scatConPlot(self.plotFlag, hData, vData, _canvas.ax, nDivs, nLevels)
         _canvas.ax.xaxis.set_major_locator(plt.MaxNLocator(self.numTicks))
         _canvas.ax.yaxis.set_major_locator(plt.MaxNLocator(self.numTicks))
 
@@ -561,110 +558,6 @@ class BunchTab(QtGui.QWidget):
         self.ui.tpzPlot.canvas.ax.set_xlabel('s ['+self.unitsPos+']')
         self.ui.tpzPlot.canvas.ax.set_ylabel(r'$(p-p_0)/p_0$ ['+self.unitsAngle+']')
         self.plotGenericAfter(self.ui.tpzPlot.canvas, 'longitudinal')
-
-    """
-    Generalized algorithm for plotting contour and/or scatter plots.
-      self.plotFlag is queried to determine what's done.
-
-    Adapted from open source method: scatter_contour.py
-    https://github.com/astroML/astroML/blob/master/astroML/plotting/scatter_contour.py
-
-    Parameters
-    ----------
-    x, y   : x and y data for the contour plot
-    ax     : the axes on which to plot
-    divs   : desired number of divisions along each axis
-    levels : integer or array (optional, default=10)
-             number of contour levels, or array of contour levels
-
-    Returns
-    -------
-    points, contours :
-       points   - return value of ax.scatter()
-       contours - return value of ax.contourf()
-       Note: value is 'None' if plot wasn't generated
-
-    """
-    def scatConPlot(self, x, y, ax, divs=10, levels=10):
-
-        # logic for finding and plotting density contours
-        if self.plotFlag=='contour' or self.plotFlag=='combo':
-
-            if self.plotFlag == 'combo':
-                threshold = 8
-
-            if self.plotFlag == 'contour':
-                threshold = 1
-
-            # generate the 2D histogram, allowing the algorithm to use
-            #   all data points, automatically calculating the 2D extent
-            myHist, edges = np.histogramdd([x,y], divs)
-            xbins, ybins = edges[0], edges[1]
-
-            # specify contour levels, allowing user to input simple integer
-            levels = np.asarray(levels)
-            # if user specified an integer, then populate levels reasonably
-            if levels.size == 1:
-                levels = np.linspace(threshold, myHist.max(), levels)
-
-            # define the 'extent' of the contoured area, using the
-            #   the horizontal and vertical arrays generaed by histogram2d()
-            extent = [xbins[0], xbins[-1], ybins[0], ybins[-1]]
-            i_min = np.argmin(levels)
-
-            # draw a zero-width line, which defines the outer polygon,
-            #   in order to reduce the number of points drawn
-            outline = ax.contour(myHist.T, levels[i_min:i_min+1],linewidths=0,extent=extent)
-
-            # generate the contoured image, filled or not
-            #   use myHist.T, rather than full myHist, to limit extent of the contoured region
-            #   i.e. only the high-density regions are contoured
-            #   the return value is potentially useful to the calling method
-            contours = ax.contourf(myHist.T, levels, extent=extent)
-
-        # no need for contours; particles only
-        else:
-            contours = None
-
-        # logic for finding particles in low-density regions
-        if self.plotFlag == 'combo':
-
-            # create new 2D array that will hold a subset of the particles
-            #   i.e. only those in the low-density regions
-            lowDensityArray = np.hstack([x[:, None], y[:, None]])
-
-            # extract only those particles outside the high-density region
-            if len(outline.allsegs[0]) > 0:
-                outer_poly = outline.allsegs[0][0]
-                try:
-                    # this works in newer matplotlib versions
-                    from matplotlib.path import Path
-                    points_inside = Path(outer_poly).contains_points(lowDensityArray)
-                except ImportError:
-                    # this works in older matplotlib versions
-                    import matplotlib.nxutils as nx
-                    points_inside = nx.points_inside_poly(x, outer_poly)
-                Xplot = lowDensityArray[~points_inside]
-
-            # there is no high-density region, so plot all the particles
-            else:
-                Xplot = lowDensityArray
-
-        # load up all of the particles for plotting
-        if self.plotFlag == 'scatter':
-            Xplot = np.hstack([x[:, None], y[:, None]])
-
-        # overlay scatter plot on top of contour plot generated above
-        #   the return value is potentially useful to the calling method
-        if self.plotFlag=='combo' or self.plotFlag=='scatter':
-            points = ax.scatter(Xplot[:,0], Xplot[:,1], marker=',', s=1, c='k')
-        else:
-            # no particle plotting needed
-            points = None
-
-        # Return plot objects; useful for creating colorbars, etc.
-        #   Value is 'None' if corresponding plot was not generated.
-        return points, contours
 
     def erasePlots(self):
         plots = [self.ui.xyPlot, self.ui.xpxPlot, self.ui.ypyPlot, self.ui.tpzPlot]
@@ -754,7 +647,7 @@ class BunchTab(QtGui.QWidget):
         # nothing to do, if beam hasn't been initialized
         if not self.myBunch:
             return
-
+        
         # let the bunch object to the heavy lifting
         self.myBunch.calcTwissParams6D()
 
@@ -848,6 +741,7 @@ class BunchTab(QtGui.QWidget):
         self.ui.twissTable.setItem(0,2,QtGui.QTableWidgetItem("{:.5e}".format(self.twissEmitNX)))
         self.ui.twissTable.setItem(1,2,QtGui.QTableWidgetItem("{:.5e}".format(self.twissEmitNY)))
 
+
     def importFile(self, fileName = None):
         """Allow importing from CSV or SDDS"""
         # use Qt file dialog
@@ -855,16 +749,27 @@ class BunchTab(QtGui.QWidget):
             fileName = QtGui.QFileDialog.getOpenFileName(self, "Import particle file",
                     self.parent.lastUsedDirectory, util.fileTypeList(self.acceptsFileTypes))
 
-        # if user cancels out, do nothing
-        if not fileName:
-            return
+            # if user cancels out, do nothing
+            if not fileName:
+                return
 
         self.parent.lastUsedDirectory = os.path.dirname(fileName)
+
+        if os.path.basename(fileName).startswith(self.parent.tabPrefix):
+            if fileName.split('+')[-1].split('.')[0] == 'False':
+                self.disableInput()
+        else:
+            self.disableInput()
+
 
         if re.search('\.csv$', fileName, re.IGNORECASE):
             self.readFromCSV(fileName)
         else:
             self.readFromSDDS(fileName)
+
+        self.calculateTwiss()
+        self.refreshPlots()
+
 
     def readFromSDDS(self, fileName):
         # index is always zero...?
@@ -913,7 +818,7 @@ class BunchTab(QtGui.QWidget):
         unitStrings = [cD[1] for cD in columnDefs]
 
         # begin deciphering the column data
-        dataIndex = [-1 for i in range(6)]
+        dataIndex = [-1]*6
         message = ''
         for iLoop in range(len(columnNames)):
             if columnNames[iLoop]=='x' or columnNames[iLoop]=='X':
@@ -1017,14 +922,10 @@ class BunchTab(QtGui.QWidget):
         self.ui.designMomentum.setText("{:.0f}".format(self.designMomentumEV*1.e-6) + ' MeV')
         self.ui.totalCharge.setText("{:.0f}".format(self.totalCharge*1.e9) + ' nC')
 
-        # calculate bunch statistics and populate text boxes
-        self.calculateTwiss()
-
         # plot the results
         if finalMsgBox is not None:
             finalMsgBox.show()
 
-        self.refreshPlots()
 
     def readFromCSV(self, fileName):
         # check whether this is a RadTrack generated CSV file
@@ -1081,18 +982,21 @@ class BunchTab(QtGui.QWidget):
         self.ui.designMomentum.setText("{:.0f}".format(self.designMomentumEV*1.e-6) + ' MeV')
         self.ui.totalCharge.setText("{:.0f}".format(self.totalCharge*1.e9) + ' nC')
 
-        # calculate bunch statistics and populate text boxes
-        self.calculateTwiss()
-
-        # plot the results
-        self.refreshPlots()
-
 
     def exportToFile(self, fileName = None):
         if not fileName:
             fileName = util.getSaveFileName(self, ['sdds', 'csv'])
             if not fileName:
                 return
+
+        if os.path.basename(fileName).startswith(self.parent.tabPrefix):
+            name, ext = os.path.splitext(fileName)
+            fileName = name + '+' + str(self.userInputEnabled()) + ext
+            with open(fileName, 'w'):
+                pass # create file in case no data to be saved
+
+        if self.userInputEnabled():
+            self.generateBunch() # save all particles
 
         if fileName.lower().endswith('csv'):
             self.saveToCSV(fileName)
@@ -1110,10 +1014,6 @@ class BunchTab(QtGui.QWidget):
         self.designMomentumEV = util.convertUnitsStringToNumber(self.ui.designMomentum.text(), 'eV')
         self.totalCharge = util.convertUnitsStringToNumber(self.ui.totalCharge.text(), 'C')
 
-        # create local pointer to particle array
-        tmp6 = self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D()
-        numParticles = tmp6.shape[1]
-
         # create a header to identify this as a RadTrack file
         h1 = 'RadTrack,Copyright 2012-2014 by RadiaBeam Technologies LLC - All rights reserved (C)\n '
         # names of the top-level parameters
@@ -1126,7 +1026,12 @@ class BunchTab(QtGui.QWidget):
         h5 = '[m],[rad],[m],[rad],[m],[rad]'
         # assemble the full header
         myHeader = h1 + h2 + h3 + h4 + h5
+
         # write particle data into the file
+        
+        # create local pointer to particle array
+        userNumberOfParticles = int(self.ui.numPtcls.text())
+        tmp6 = randomSampleOfBunch(self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D(), userNumberOfParticles)
         np.savetxt(fileName, tmp6.transpose(), fmt=str('%1.12e'), delimiter=',', comments='', header=myHeader)
 
     def saveToSDDS(self, sddsFileName = None):
@@ -1134,9 +1039,6 @@ class BunchTab(QtGui.QWidget):
             sddsFileName = util.getSaveFileName(self, 'sdds')
             if not sddsFileName:
                 return
-
-        # create local pointer to particle array
-        self.generateBunch(False) # False --> don't display error boxes
 
         mySDDS = sdds.SDDS(0)
         mySDDS.description[0] = "RadTrack"
@@ -1151,6 +1053,9 @@ class BunchTab(QtGui.QWidget):
         mySDDS.columnName = ["x", "xp", "y", "yp", "t", "p"]
 
         tmp6 = self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D()
+        if not self.userInputEnabled():
+            tmp6 = randomSampleOfBunch(tmp6, int(self.ui.numPtcls.text()))
+
         mySDDS.columnData = [ [list(tmp6[i,:])] for i in range(6)]
 
         mySDDS.columnDefinition = [["","m",  "","",mySDDS.SDDS_DOUBLE,0],
@@ -1161,6 +1066,21 @@ class BunchTab(QtGui.QWidget):
                                    ["","m_ec","","",mySDDS.SDDS_DOUBLE,0]]
         mySDDS.save(sddsFileName)
 
+    def disableInput(self):
+        for thing in [self.ui.twissTable, self.ui.twissTableZ, self.ui.offsetTable]:
+            thing.setEnabled(False)
+
+    def userInputEnabled(self):
+        return self.ui.twissTable.isEnabled()
+
+
+def randomSampleOfBunch(bunch, maxParticles):
+    if bunch.shape[1] > maxParticles:
+        return bunch[:, np.random.choice(bunch.shape[1], maxParticles, replace = False)]
+    else:
+        return bunch
+
+
 def main():
     app = QtGui.QApplication(sys.argv)
     myapp = BunchTab()
@@ -1168,4 +1088,4 @@ def main():
     sys.exit(app.exec_())
 
 if __name__ == '__main__':
-   main()
+    main()
