@@ -28,6 +28,7 @@ class View(QtGui.QWidget):
         super(View, self).__init__(parent)
         self._controller = controller
         self.global_params = {}
+        self._enum_info = {}
         self.setStyleSheet(pkio.read_text(pkresource.filename('srw_pane.css')))
         main = QtGui.QHBoxLayout()
         self._add_action_buttons(main)
@@ -39,6 +40,7 @@ class View(QtGui.QWidget):
         #TODO (robnagler) hide the abstraction for now
         if name == 'wavefront':
             return self.get_wavefront_params()
+
         try:
             v = self.global_params[name]
         except KeyError:
@@ -52,13 +54,26 @@ class View(QtGui.QWidget):
     def get_wavefront_params(self):
         skn = self.get_global_param('simulation_kind').name.lower()
         # return self._controller.params['simulation_kind'][skn]['wavefront']
-        m = self._wavefront_models[skn]
-        defaults = self._controller.defaults['simulation_kind'][skn]['wavefront']
-        res = pkcollections.OrderedMapping()
+        # m = self._wavefront_models[skn]
+        m = self._enum_info[skn]
+        #defaults = self._controller.defaults['simulation_kind'][skn]['wavefront']
+        #res = pkcollections.OrderedMapping()
+        '''
         for (row, n) in enumerate(defaults):
             df = defaults[n]
             res[df.decl.name] = rt_popup.get_widget_value(df.decl, m.item(row, 1))
         return res
+        '''
+        return m.get_params()
+        
+    def get_source_params(self):
+        skn = self.get_global_param('radiation_source').name.lower()
+        m = self._enum_info[skn]
+        
+        return m.get_params()
+        
+    #def get_source_params(self):
+    #    skn = self.get_global_param('radiation_source').name.lower()
 
     def set_result_text(self, which, text):
         w = self._result_text[which]
@@ -121,7 +136,8 @@ class View(QtGui.QWidget):
                 self._wavefront_models[sk_name] = m
             return self._wavefront_models[first_sk.name.lower()]
 
-        def _view():
+        def _view(name):
+            '''
             v = WavefrontParams(param_widget)
             v.horizontalHeader().setVisible(0)
             v.horizontalHeader().setResizeMode(
@@ -131,18 +147,56 @@ class View(QtGui.QWidget):
                 QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
             v.horizontalHeader().setSizePolicy(
                 QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Preferred)
+                
             param_vbox.addWidget(v)
             first = _models()
             v.setModel(first)
             self._wavefront_view = v
             self.global_params['simulation_kind'].currentIndexChanged.connect(
                 self._simulation_kind_changed)
+            '''
+                
+            stacker = QtGui.QStackedWidget()
+            #self._global_enums = {}
 
+            defaults = self._controller.defaults[name]
+            params = self._controller.params[name]
+            for i in defaults:
+                for j in defaults[i]:
+                    d = defaults[i][j]
+                    p = params[i][j]
+                    x = rt_popup.WidgetView(d,p,file_prefix='srw',parent=self)
+                    stacker.addWidget(x)
+                self._enum_info[i] = x
+            self.global_params[name].currentIndexChanged.connect(stacker.setCurrentIndex) 
+            
+            #def testo():
+            #    print(stacker.currentWidget().get_params()
+            #self.global_params[name].currentIndexChanged.connect(testo) 
+            
+            '''        
+            wf_defaults = self._controller.defaults['simulation_kind']
+            wf_params = self._controller.params['simulation_kind']
+            for i in wf_defaults:
+                for j in wf_defaults[i]:
+                    d = wf_defaults[i][j]
+                    p = wf_params[i][j]
+                    x = rt_popup.WidgetView(d,p,file_prefix='srw',parent=self)
+                    wfstacker.addWidget(x)
+            '''
+
+            param_vbox.addWidget(stacker) 
+            #param_vbox.addWidget(wfstacker)           
+            #self.global_params['simulation_kind'].currentIndexChanged.connect(wfstacker.setCurrentIndex)
+            #self.global_params['radiation_source'].currentIndexChanged.connect(stacker.setCurrentIndex)    
+
+        _global_param('radiation_source')
+        _view('radiation_source')
         _global_param('polarization')
         _global_param('intensity')
-        # XSself._controller.defaults['simulation_kind'].value = srw_enums.SimulationKind.E
         _global_param('simulation_kind')
-        _view()
+        _view('simulation_kind')
+        
         self._add_vertical_stretch_spacer(param_vbox)
         main.addLayout(param_vbox)
 

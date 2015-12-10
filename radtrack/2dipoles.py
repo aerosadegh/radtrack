@@ -58,8 +58,8 @@ print('4. Collecting Elements into Container...')
 # Container
 arZero = array('d', [0]*3)
 arZc = array('d', [-L_bend/2-L_drift/2, 0, L_bend/2+L_drift/2])
-magFldCnt = srwlib.SRWLMagFldC() #Container
-magFldCnt.allocate(3) #Magnetic Field consists of 1 part
+#magFldCnt = srwlib.SRWLMagFldC() #Container
+#magFldCnt.allocate(3) #Magnetic Field consists of 1 part
 magFldCnt = srwlib.SRWLMagFldC([bend1, drift1, bend2], arZero, arZero, arZc)
 
 # Container for a single dipole
