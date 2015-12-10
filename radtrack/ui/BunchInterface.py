@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'BunchInterface.ui'
 #
-# Created: Sat May 02 21:02:17 2015
-#      by: PyQt4 UI code generator 4.10.4
+# Created: Thu Dec 10 23:10:00 2015
+#      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -180,7 +180,8 @@ class Ui_bunchInterface(object):
         QtCore.QMetaObject.connectSlotsByName(bunchInterface)
         bunchInterface.setTabOrder(self.numPtcls, self.designMomentum)
         bunchInterface.setTabOrder(self.designMomentum, self.distribType)
-        bunchInterface.setTabOrder(self.distribType, self.unitsPos)
+        bunchInterface.setTabOrder(self.distribType, self.generateBunch)
+        bunchInterface.setTabOrder(self.generateBunch, self.unitsPos)
         bunchInterface.setTabOrder(self.unitsPos, self.unitsAngle)
         bunchInterface.setTabOrder(self.unitsAngle, self.twissTable)
         bunchInterface.setTabOrder(self.twissTable, self.twissTableZ)
@@ -191,9 +192,11 @@ class Ui_bunchInterface(object):
         self.numPtclsLabel.setText(_translate("bunchInterface", "# macroparticles   ", None))
         self.numPtcls.setToolTip(_translate("bunchInterface", "The number of macro-particles in the distribution.", None))
         self.designMomentumLabel.setText(_translate("bunchInterface", "momentum [eV]", None))
-        self.designMomentum.setToolTip(_translate("bunchInterface", "Design momentum is the average momentum for zero offset.\nDefaul units can be overridden.", None))
+        self.designMomentum.setToolTip(_translate("bunchInterface", "Design momentum is the average momentum for zero offset.\n"
+"Default units can be overridden.", None))
         self.charge.setText(_translate("bunchInterface", "total Q [C]", None))
-        self.totalCharge.setToolTip(_translate("bunchInterface", "Total charge of the beam.\nDefault units [C] can be overridden.", None))
+        self.totalCharge.setToolTip(_translate("bunchInterface", "Total charge of the beam.\n"
+"Default units [C] can be overridden.", None))
         self.twissTable.setToolTip(_translate("bunchInterface", "Specify the horizontal (x-x\') and vertical (y-y\') Twiss parameters for the bunch.\n"
 "Default units for beta [m/rad] can be overridden as follows:\n"
 "    mm (implies mm/rad), um (implies um/rad), etc.\n"
