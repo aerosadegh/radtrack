@@ -28,6 +28,7 @@ class View(QtGui.QWidget):
         super(View, self).__init__(parent)
         self._controller = controller
         self.global_params = {}
+        self._enum_info = {}
         self.setStyleSheet(pkio.read_text(pkresource.filename('srw_pane.css')))
         main = QtGui.QHBoxLayout()
         self._add_action_buttons(main)
@@ -39,6 +40,7 @@ class View(QtGui.QWidget):
         #TODO (robnagler) hide the abstraction for now
         if name == 'wavefront':
             return self.get_wavefront_params()
+
         try:
             v = self.global_params[name]
         except KeyError:
@@ -53,15 +55,21 @@ class View(QtGui.QWidget):
         skn = self.get_global_param('simulation_kind').name.lower()
         # return self._controller.params['simulation_kind'][skn]['wavefront']
         # m = self._wavefront_models[skn]
-        m = self._global_enums[skn]
-        defaults = self._controller.defaults['simulation_kind'][skn]['wavefront']
-        res = pkcollections.OrderedMapping()
+        m = self._enum_info[skn]
+        #defaults = self._controller.defaults['simulation_kind'][skn]['wavefront']
+        #res = pkcollections.OrderedMapping()
         '''
         for (row, n) in enumerate(defaults):
             df = defaults[n]
             res[df.decl.name] = rt_popup.get_widget_value(df.decl, m.item(row, 1))
         return res
         '''
+        return m.get_params()
+        
+    def get_source_params(self):
+        skn = self.get_global_param('radiation_source').name.lower()
+        m = self._enum_info[skn]
+        
         return m.get_params()
         
     #def get_source_params(self):
@@ -149,7 +157,7 @@ class View(QtGui.QWidget):
             '''
                 
             stacker = QtGui.QStackedWidget()
-            self._global_enums = {}
+            #self._global_enums = {}
 
             defaults = self._controller.defaults[name]
             params = self._controller.params[name]
@@ -159,8 +167,9 @@ class View(QtGui.QWidget):
                     p = params[i][j]
                     x = rt_popup.WidgetView(d,p,file_prefix='srw',parent=self)
                     stacker.addWidget(x)
-                self._global_enums[i] = x
+                self._enum_info[i] = x
             self.global_params[name].currentIndexChanged.connect(stacker.setCurrentIndex) 
+            
             #def testo():
             #    print(stacker.currentWidget().get_params()
             #self.global_params[name].currentIndexChanged.connect(testo) 

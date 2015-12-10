@@ -13,6 +13,7 @@ from pykern.pkdebug import pkdc, pkdi, pkdp
 from pykern import pkcollections
 
 import srwlib
+from array import array
 import uti_plot
 # Initialize so that SRW doesn't generate files
 uti_plot.uti_plot_init(backend=uti_plot.DEFAULT_BACKEND, fname_format=None)
@@ -185,6 +186,34 @@ def to_undulator_single_particle(params):
     )
     return res
 
+def to_dipole(params):
+    """Convert single particle params to `SRWLMagFldM` and `SRWLMagFldC`
+
+    Adds to params.
+
+    Args:
+        params (dict): RT values in canonical form
+
+    Returns:
+        pkcollections.OrderedMapping: returns its argument (params)
+    """
+    res = pkcollections.OrderedMapping()
+    def sn(x):
+        if x:
+            return 'n'
+        else:
+            return 's'
+    b0 = params['magnet_one']
+    b1 = params['magnet_two']
+    bend0 = srwlib.SRWLMagFldM(_G=b0['field'], _m=1, _n_or_s=sn(b0['nors']), _Leff=b0['l'], _Ledge=b0['l_edge'])
+    bend1 = srwlib.SRWLMagFldM(_G=b1['field'],_m=1,_n_or_s=sn(b1['nors']),_Leff=b1['l'],_Ledge=b1['l_edge'])
+    drift0 = srwlib.SRWLMagFldM(_G=0,_m=1,_n_or_s='n',_Leff=params['drift']['l'])
+    arZero = array('d', [0]*3)
+    arZc = array('d', [-b0['l']/2-params['drift']['l']/2, 0, b1['l']/2+params['drift']['l']/2])
+    res.magFldCnt = srwlib.SRWLMagFldC([bend0, drift0, bend1], arZero, arZero, arZc)
+    
+    return res
+    
 
 def to_wavefront_multi_particle(params):
     """Convert params to SRWLStokes Wavefront valuesa

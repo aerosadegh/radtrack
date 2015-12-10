@@ -81,9 +81,10 @@ class Base(rt_controller.Controller):
         def msg(m):
             msg_list.append(m + '... \n \n')
             self._view.set_result_text('simulation', ''.join(msg_list))
-        self.params['wavefront'] = self._view.get_wavefront_params()
-        for k in 'wavefront', 'simulation_kind', 'polarization', 'intensity':
+        self.params['source'] = self._view.get_source_params()
+        for k in 'wavefront', 'simulation_kind', 'polarization', 'intensity','wiggler','radiation_source':
             self.params[k] = self._view.get_global_param(k)
+
         res = self.simulate(msg)
         msg('Plotting the results')
         for plot in res.plots:
