@@ -37,7 +37,10 @@ def simulate(params, msg_callback):
         p, srw_params.to_undulator_single_particle(params.source))
     elif params.radiation_source.name.lower() == 'dual_dipole':
         pkcollections.mapping_merge(
-        p,srw_params.to_dipole(params.source))
+        p,srw_params.to_dipoles(params.source))
+    elif params.radiation_source.name.lower() == 'multipole':
+        pkcollections.mapping_merge(
+        p,srw_params.to_multipole(params.source))
         
     p.arPrecPar = srw_params.to_precision_single_particle(params.precision)
     p.wfrE = srw_params.to_wavefront_single_particle(p.wavefront)
