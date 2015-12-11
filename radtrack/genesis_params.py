@@ -8,7 +8,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from io import open
 
 from pykern import pkarray
-from pykern.pkdebug import pkdc, pkdi, pkdp
+from pykern.pkdebug import pkdc, pkdp
 
 def to_beam(params):
     '''Convert beam params to dict with Genesis keys'''

@@ -11,7 +11,7 @@ import inspect
 import sys
 
 import enum
-from pykern.pkdebug import pkdc, pkdi, pkdp
+from pykern.pkdebug import pkdc, pkdp
 from pykern import pkinspect
 
 import sip

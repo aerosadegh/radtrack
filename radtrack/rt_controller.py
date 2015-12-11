@@ -7,7 +7,7 @@ u"""?Base class for controllers
 from __future__ import absolute_import, division, print_function, unicode_literals
 from io import open
 
-from pykern.pkdebug import pkdc, pkdi, pkdp
+from pykern.pkdebug import pkdc, pkdp
 from pykern import pkinspect
 
 class Controller(object):

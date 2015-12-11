@@ -6,7 +6,7 @@
 """
 from __future__ import absolute_import, division, print_function
 
-from pykern.pkdebug import pkdc, pkdi, pkdp
+from pykern.pkdebug import pkdc, pkdp
 import re
 
 import jinja2
