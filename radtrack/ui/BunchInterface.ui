@@ -221,7 +221,7 @@ The offset in 's' can be large, as it represents the full distance
     <string>Distribution</string>
    </property>
   </widget>
-  <widget class="QToolButton" name="generateBunch">
+  <widget class="QPushButton" name="generateBunch">
    <property name="geometry">
     <rect>
      <x>140</x>
@@ -390,22 +390,6 @@ Logic for actual # is due to matplotlib library.</string>
      </widget>
     </item>
    </layout>
-  </widget>
-  <widget class="QPushButton" name="calculateTwiss">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>40</y>
-     <width>111</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="toolTip">
-    <string>Calculate Twiss parameters directly from particle distribution and overwrite all fields.</string>
-   </property>
-   <property name="text">
-    <string>Calculate Twiss</string>
-   </property>
   </widget>
   <widget class="QLabel" name="longTwissLabel">
    <property name="geometry">
@@ -584,7 +568,6 @@ Do not specify units for alpha, which is dimensionless.
   <tabstop>numPtcls</tabstop>
   <tabstop>designMomentum</tabstop>
   <tabstop>distribType</tabstop>
-  <tabstop>calculateTwiss</tabstop>
   <tabstop>generateBunch</tabstop>
   <tabstop>unitsPos</tabstop>
   <tabstop>unitsAngle</tabstop>
