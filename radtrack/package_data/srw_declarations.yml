@@ -160,7 +160,7 @@
   children:
     -
       name: magnet_one
-      label: Magent One
+      label: Magnet One
       py_type: dict
       required: [srw_single, srw_multi]
       children:
@@ -467,6 +467,7 @@
       required: [srw_multi, srw_single]
     -
       name: window_top_edge
+      label: Window Bottome Edge
       py_type: float
       required: [srw_multi, srw_single]
     -
@@ -475,5 +476,6 @@
       required: [srw_multi, srw_single]
     -
       name: window_bottom_edge
+      label: Window Top Edge
       py_type: float
       required: [srw_multi, srw_single]

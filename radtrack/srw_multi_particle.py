@@ -30,8 +30,15 @@ def simulate(params, msg_callback=lambda _: _):
     for k in 'simulation_kind', 'wavefront':
         v = params[k]
         p[k] = v.value if hasattr(v, 'value') else v
-    pkcollections.mapping_merge(
-        p, srw_params.to_undulator_multi_particle(params.undulator))
+    if params.radiation_source.name.lower() == 'wiggler':
+        pkcollections.mapping_merge(
+        p, srw_params.to_undulator_multi_particle(params.source))
+    elif params.radiation_source.name.lower() == 'dual_dipole':
+        pkcollections.mapping_merge(
+        p,srw_params.to_dipoles(params.source))
+    elif params.radiation_source.name.lower() == 'multipole':
+        pkcollections.mapping_merge(
+        p,srw_params.to_multipole(params.source))
     p.beam = srw_params.to_beam(params.beam)
     p.stkF = srw_params.to_wavefront_multi_particle(p.wavefront)
     p.stkP = srw_params.to_wavefront_multi_particle(p.wavefront)
@@ -41,7 +48,7 @@ def simulate(params, msg_callback=lambda _: _):
     p.fieldInterpMeth = 4
     p.plots = []
     msg_callback('Performing trajectory calculation')
-    _trajectory(p)
+    if params.radiation_source.name.lower() == 'wiggler': _trajectory(p)
     if params.simulation_kind == 'E':
         msg_callback('Performing Electric Field (spectrum vs photon energy) calculation')
         msg_callback('Extracting Intensity from calculated Electric Field')
@@ -63,7 +70,7 @@ def simulate(params, msg_callback=lambda _: _):
         p.plotMeshX = [1000*p.stkP.mesh.xStart, 1000*p.stkP.mesh.xFin, p.stkP.mesh.nx]
         p.powDenVsX = pkarray.new_float([0]*p.stkP.mesh.nx)
         for i in xrange(p.stkP.mesh.nx):
-            powDenVsX[i] = p.stkP.arS[p.stkP.mesh.nx*int(p.stkP.mesh.ny*0.5) + i]
+            p.powDenVsX[i] = p.stkP.arS[p.stkP.mesh.nx*int(p.stkP.mesh.ny*0.5) + i]
         p.plots.append([
             uti_plot.uti_plot1d,
             p.powDenVsX,
