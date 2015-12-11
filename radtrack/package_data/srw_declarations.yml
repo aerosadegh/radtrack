@@ -160,7 +160,7 @@
   children:
     -
       name: magnet_one
-      label: Magent One
+      label: Magnet One
       py_type: dict
       required: [srw_single, srw_multi]
       children:
