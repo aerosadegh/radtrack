@@ -18,7 +18,6 @@ myArray6D = ps6d.RbPhaseSpace6D(numpoints)
 # Exercise some of the class methods
 myDist = dist6d.RbDistribution6D(myArray6D)
 myDist.setMaxRmsFactor(3.)
-myStatObj = st6d.RbStatistics6D(myDist.getPhaseSpace6D())
 
 # Let's generate an initial (noisy) particle distribution...
 print ' '
@@ -28,21 +27,21 @@ print ' numParticles = ', myArray6D.getNumParticles()
 
 # Calculate the averages before cleaning
 if 1:
-    averages = myStatObj.calcAverages6D()
+    averages = st6d.calcAverages6D(myDist.getPhaseSpace6D())
     print ' '
     for nLoop in range(6):
         print ' averages[', nLoop, '] = ', averages[nLoop]
 
 # Calculate the RMS values before cleaning
 if 1:
-    rmsArray = myStatObj.calcRmsValues6D()
+    rmsArray = st6d.calcRmsValues6D(myDist.getPhaseSpace6D())
     print ' '
     for nLoop in range(6):
         print ' rmsArray[', nLoop, '] = ', rmsArray[nLoop]
 
 # Calculate the phase space correlations before cleaning
 if 1:
-    corr6d = myStatObj.calcCorrelations6D()
+    corr6d = st6d.calcCorrelations6D(myDist.getPhaseSpace6D())
     print ' '
     for nLoop in range(6):
         print ' corr6d[', nLoop, '] = ', corr6d[nLoop]
@@ -54,29 +53,29 @@ if 1:
     if 1:
         myDist.cleanPhaseSpace6D()
     if 0:
-        myStatObj.subtractAverages6D()
-        myStatObj.normalizeRmsValues6D()
-        myStatObj.eraseCorrelations6D()
-        myStatObj.subtractAverages6D()
-        myStatObj.normalizeRmsValues6D()
+        st6d.subtractAverages6D(myDist.getPhaseSpace6D())
+        st6d.normalizeRmsValues6D(myDist.getPhaseSpace6D())
+        st6d.eraseCorrelations6D(myDist.getPhaseSpace6D())
+        st6d.subtractAverages6D(myDist.getPhaseSpace6D())
+        st6d.normalizeRmsValues6D(myDist.getPhaseSpace6D())
     
 # Calculate the averages after cleaning
 if 1:
-    averages = myStatObj.calcAverages6D()
+    averages = st6d.calcAverages6D(myDist.getPhaseSpace6D())
     print ' '
     for nLoop in range(6):
         print ' averages[', nLoop, '] = ', averages[nLoop]
 
 # Calculate the RMS values after cleaning
 if 1:
-    rmsArray = myStatObj.calcRmsValues6D()
+    rmsArray = st6d.calcRmsValues6D(myDist.getPhaseSpace6D())
     print ' '
     for nLoop in range(6):
         print ' rmsArray[', nLoop, '] = ', rmsArray[nLoop]
 
 # Calculate the phase space correlations after cleaning
 if 1:
-    corr6d = myStatObj.calcCorrelations6D()
+    corr6d = st6d.calcCorrelations6D(myDist.getPhaseSpace6D())
     print ' '
     for nLoop in range(6):
         print ' corr6d[', nLoop, '] = ', corr6d[nLoop]
