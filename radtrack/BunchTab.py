@@ -41,7 +41,7 @@ class BunchTab(QtGui.QWidget):
         # set default values for flags
         self.numTicks = 5
         self.plotFlag = 'scatter'
-        self.axisFlag = 'symmetric'
+        self.axisFlag = 'bunch-centered'
         self.plotTitles = True
         self.longTwissFlag = 'alpha-bct-dp'
         self.perpTwissFlag = 'rms-geometric'
