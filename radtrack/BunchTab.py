@@ -41,7 +41,7 @@ class BunchTab(QtGui.QWidget):
         # set default values for flags
         self.numTicks = 5
         self.plotFlag = 'scatter'
-        self.axisFlag = 'symmetric'
+        self.axisFlag = 'bunch-centered'
         self.plotTitles = True
         self.longTwissFlag = 'alpha-bct-dp'
         self.perpTwissFlag = 'rms-geometric'
@@ -206,9 +206,6 @@ class BunchTab(QtGui.QWidget):
 
         # try to make the blank plotting regions look nice
         self.erasePlots()
-
-        # instantiate an object for doing statistics
-        self.myStat = stat.RbStatistics6D()
 
         self.container = QtGui.QScrollArea(self.parent)
         self.container.setWidget(self)
@@ -446,10 +443,10 @@ class BunchTab(QtGui.QWidget):
             return
 
         # get average, RMS, min, max values and diffs
-        avgArray = self.myStat.calcAverages6D(_arr)
-        rmsArray = self.myStat.calcRmsValues6D(_arr)
-        minArray = self.myStat.calcMinValues6D(_arr)
-        maxArray = self.myStat.calcMaxValues6D(_arr)
+        avgArray = stat.calcAverages6D(_arr)
+        rmsArray = stat.calcRmsValues6D(_arr)
+        minArray = stat.calcMinValues6D(_arr)
+        maxArray = stat.calcMaxValues6D(_arr)
 
         # calculate the differences, imposing symmetry
         diffZero = np.zeros(6)
@@ -715,7 +712,7 @@ class BunchTab(QtGui.QWidget):
         #     msgBox.exec_()
 
         # get average values
-        avgArray = self.myStat.calcAverages6D(self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D())
+        avgArray = stat.calcAverages6D(self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D())
 
         # load offsets into window for user to see
         self.ui.offsetTable.setItem(0,0,QtGui.QTableWidgetItem("{:.5e}".format(avgArray[0])))

@@ -195,6 +195,10 @@ class RbEle(QtGui.QWidget):
                 self.show_warning_box(
                     'Invalid momentum value on Bunch Tab')
                 return None
+            except AttributeError: # bunchTab.myBunch is None
+                self.show_warning_box(
+                    'Bunch was not properly generated in tab: ' + self.bunch_source_manager.combo.currentText())
+                return None
         return momentum
 
     def _abort_simulation(self):
