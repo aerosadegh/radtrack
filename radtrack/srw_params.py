@@ -271,17 +271,19 @@ def _precision(params, labels):
 
 
 def _to_wavefront(params, obj):
+    obj.mesh.ne= params['num_points_energy']             
+    obj.mesh.nx=params['num_points_x']
+    obj.mesh.ny=params['num_points_y']
     obj.allocate(
         params['num_points_energy'],
         params['num_points_x'],
         params['num_points_y'],
     )
-    m = obj.mesh
-    m.zStart = params['distance_to_window']
-    m.eStart = params['initial_photon_energy']
-    m.eFin = params['final_photon_energy']
-    m.xStart = params['window_left_edge']
-    m.xFin = params['window_right_edge']
-    m.yStart = params['window_top_edge']
-    m.yFin = params['window_bottom_edge']
+    obj.mesh.zStart = params['distance_to_window']
+    obj.mesh.eStart = params['initial_photon_energy']
+    obj.mesh.eFin = params['final_photon_energy']
+    obj.mesh.xStart = params['window_left_edge']
+    obj.mesh.xFin = params['window_right_edge']
+    obj.mesh.yStart = params['window_top_edge']
+    obj.mesh.yFin = params['window_bottom_edge']
     return obj

@@ -24,7 +24,6 @@ class RbDistribution6D:
             
         self.phaseSpace6D = ps.RbPhaseSpace6D(numParticles)
         self.phaseSpace6D.checkArray()
-        self.stat6D = stats.RbStatistics6D()
 
         # set some defaults
         self.maxRmsFactor = 5.0
@@ -121,10 +120,10 @@ class RbDistribution6D:
         return
 
     def cleanPhaseSpace6D(self):
-        self.stat6D.subtractAverages6D(self.phaseSpace6D.getArray6D())
-        self.stat6D.eraseCorrelations6D(self.phaseSpace6D.getArray6D())
-        self.stat6D.subtractAverages6D(self.phaseSpace6D.getArray6D())
-        self.stat6D.normalizeRmsValues6D(self.phaseSpace6D.getArray6D())
+        stats.subtractAverages6D(self.phaseSpace6D.getArray6D())
+        stats.eraseCorrelations6D(self.phaseSpace6D.getArray6D())
+        stats.subtractAverages6D(self.phaseSpace6D.getArray6D())
+        stats.normalizeRmsValues6D(self.phaseSpace6D.getArray6D())
         return
 
     def roundPhaseSpace6D(self):
@@ -137,7 +136,7 @@ class RbDistribution6D:
         betaRMS  = np.zeros(3)
         emitRMS  = np.zeros(3)
 
-        sigma = self.stat6D.calcCorrelations6D(self.phaseSpace6D.getArray6D())
+        sigma = stats.calcCorrelations6D(self.phaseSpace6D.getArray6D())
         for iLoop in range(3):
             ii = 2 * iLoop
             emitSQ = sigma[ii,ii]*sigma[ii+1,ii+1] - sigma[ii,ii+1]*sigma[ii+1,ii]

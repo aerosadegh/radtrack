@@ -3,7 +3,7 @@ Copyright (c) 2015 RadiaBeam Technologies. All rights reserved
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 from os.path import expanduser, dirname
-import sdds, sys, math
+import sdds, sys, math, h5py
 
 import sip
 sip.setapi('QString', 2)
@@ -19,7 +19,7 @@ ColumnXAxis =-1
 MaxNumParam=999
 
 class RbDcp(QtGui.QWidget):
-    acceptsFileTypes = ['save', 'twi','out','sig','cen','dat','txt','sdds','bun','fin','dat']
+    acceptsFileTypes = ['save', 'twi','out','sig','cen','dat','txt','sdds','bun','fin','dat','h5']
     defaultTitle = 'Data Visualization'
     task = 'Analyze simulation results'
     category = 'tools'
@@ -123,6 +123,8 @@ class RbDcp(QtGui.QWidget):
             self.showDCP_ele(openFile)
         elif ext == 'dat':
             self.showDCP_srw(openFile)
+        elif ext == 'h5':
+            self.showDCP_gen(openFile)
         elif ext == 'save':
             return
         else:
@@ -149,9 +151,56 @@ class RbDcp(QtGui.QWidget):
         elif ext == 'sig':
             self.sigselect()
             
-        self.dataopt()
         
+        
+    def showDCP_gen(self, openFile):
+        def genprev(f):
+            for i,a in enumerate(f.keys()):
+                if self.data.rowCount()<len(f[a]):
+                    self.data.setRowCount(len(f[a]))
+                try:
+                    for j,b in enumerate(f[a]):
+                        if j >= 1000:
+                            break
+                        self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b[0])))             
+                except AttributeError:
+                    pass
+        def preview(Ncol):
+            self.reset()
+            self.data.setColumnCount(Ncol)
+            self.data.setRowCount(3)
+            for i,a in enumerate(self.x.keys()):
+                self.data.setItem(1,i,QtGui.QTableWidgetItem(a))
+                        
+        phile = QtCore.QFileInfo(openFile)
+        self.x=h5py.File(openFile,"r")
+        Ncol = len(self.x.keys())
+        stringOut = "Columns: "+ str(Ncol) + " Pages: 1" + " ColumnElements: ?"
+        self.legend.setText(QtGui.QApplication.translate("dcpwidget", 'FILE INFO \n'+'File Name: '+\
+            phile.fileName()+'\nFile Size: '+str(phile.size())+' bytes \n'+stringOut, None, QtGui.QApplication.UnicodeUTF8))
+        
+        preview(Ncol)
+        #preview hdf5 file data    
+        genprev(self.x)
+        #populate graph options
+        self.dataopt(self.x.keys())
+        
+        
+            
     def showDCP_ele(self, openFile):
+        def sddsprev(Ncol):
+            ColumnPicked = range(Ncol)
+            (Xrvec,Yrvec,YLab,Npar,Ncol,NcolPicked,NElemCol,Npage)=SDDSreshape(self.x,ColumnXAxis,ColumnPicked,NumPage) #reshapes file into vectors and a matrix
+
+            for i, a in enumerate(Yrvec):
+                #if i>0:# skip first column i+1=>i to adjust, because of extra 0 column!!!?
+                for j, b in enumerate(a):
+                    if j >= 1000:
+                        break
+                    self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b)))
+                else:
+                    self.data.setRowCount(np.shape(Yrvec)[1]+3)
+                    
         #reset data selection
         ColumnPicked = [0]
         ColumnXAxis = -1
@@ -177,9 +226,24 @@ class RbDcp(QtGui.QWidget):
         self.preview(Ncol)
 
         #preview of sdds data
-        self.sddsprev(Ncol)
+        sddsprev(Ncol)
+        
+        #populate graph data
+        self.dataopt(self.x.columnName)
+        
+        
         
     def showDCP_srw(self, openFile):
+        def srwprev(Ncol):
+            ColumnPicked = range(Ncol)
+            (Xrvec,Yrvec,Npar,Ncol,NcolPicked,NElemCol)=SRWreshape(self.x,ColumnXAxis,ColumnPicked)
+            for i, a in enumerate(Yrvec):
+                for j, b in enumerate(a):
+                    if j >= 1000:
+                        break
+                    self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b)))
+                else:
+                    self.data.setRowCount(np.shape(Yrvec)[1])
         #reset data selection
         ColumnPicked = [0]
         ColumnXAxis = -1
@@ -196,31 +260,11 @@ class RbDcp(QtGui.QWidget):
             phile.fileName()+'\nFile Size: '+str(phile.size())+' bytes \n'+stringOut, None, QtGui.QApplication.UnicodeUTF8))
             
         self.preview(Ncol)
-        self.srwprev(Ncol)
+        srwprev(Ncol)
+        self.dataopt(self.x.columnName)
         
-    def srwprev(self,Ncol):
-        ColumnPicked = range(Ncol)
-        (Xrvec,Yrvec,Npar,Ncol,NcolPicked,NElemCol)=SRWreshape(self.x,ColumnXAxis,ColumnPicked)
-        for i, a in enumerate(Yrvec):
-            for j, b in enumerate(a):
-                if j >= 1000:
-                    break
-                self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b)))
-            else:
-                self.data.setRowCount(np.shape(Yrvec)[1])
         
-    def sddsprev(self,Ncol):
-        ColumnPicked = range(Ncol)
-        (Xrvec,Yrvec,YLab,Npar,Ncol,NcolPicked,NElemCol,Npage)=SDDSreshape(self.x,ColumnXAxis,ColumnPicked,NumPage) #reshapes file into vectors and a matrix
-
-        for i, a in enumerate(Yrvec):
-            #if i>0:# skip first column i+1=>i to adjust, because of extra 0 column!!!?
-            for j, b in enumerate(a):
-                if j >= 1000:
-                    break
-                self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b)))
-            else:
-                self.data.setRowCount(np.shape(Yrvec)[1]+3)
+    
                     
     def preview(self,Ncol):
         self.reset()
@@ -242,10 +286,10 @@ class RbDcp(QtGui.QWidget):
         self.widget.canvas.draw()
         
     #displaying and setting data options method
-    def dataopt(self):
+    def dataopt(self,options):
         self.xaxis.clear()
         self.yaxis.clear()
-        for i, name in enumerate(self.x.columnName):
+        for i, name in enumerate(options): #self.x.columnName
             if is_number(self.data.item(3, i).text()):
                 self.xaxis.addItem(name)
                 self.yaxis.addItem(name)
