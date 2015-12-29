@@ -89,7 +89,8 @@ def simulate(params, msg_callback):
         ])
     elif params.simulation_kind == 'X_AND_Y':
         msg_callback('Performing Electric Field (intensity vs x- and y-coordinate) calculation')
-        srwlib.srwl.CalcElecFieldSR(p.wfrXY, 0, p.magFldCnt, p.arPrecPar)
+        #srwlib.srwl.CalcElecFieldSR(p.wfrXY, 0, p.magFldCnt, p.arPrecPar)
+        srwlib.srwl.CalcElecFieldSR(p.wfrXY,0,p.magFldCnt, p.arPrecPar)
         msg_callback('Extracting Intensity from calculated Electric Field')
         p.arI1 = pkarray.new_float([0]*p.wfrXY.mesh.nx*p.wfrXY.mesh.ny)
         srwlib.srwl.CalcIntFromElecField(p.arI1, p.wfrXY, p.polarization, p.intensity, skv, p.wfrXY.mesh.eStart, p.wfrXY.mesh.xStart, p.wfrXY.mesh.yStart)
