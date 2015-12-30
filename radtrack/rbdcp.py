@@ -3,7 +3,7 @@ Copyright (c) 2015 RadiaBeam Technologies. All rights reserved
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 from os.path import expanduser, dirname
-import sdds, sys, math, h5py
+import sdds, sys, math, h5py, numpy
 
 import sip
 sip.setapi('QString', 2)
@@ -149,10 +149,8 @@ class RbDcp(QtGui.QWidget):
         elif ext == 'out':
             self.outselect()
         elif ext == 'sig':
-            self.sigselect()
-            
-        
-        
+            self.sigselect()         
+             
     def showDCP_gen(self, openFile):
         def genprev(f):
             for i,a in enumerate(f.keys()):
@@ -183,9 +181,7 @@ class RbDcp(QtGui.QWidget):
         #preview hdf5 file data    
         genprev(self.x)
         #populate graph options
-        self.dataopt(self.x.keys())
-        
-        
+        self.dataopt(self.x.keys())       
             
     def showDCP_ele(self, openFile):
         def sddsprev(Ncol):
@@ -230,9 +226,7 @@ class RbDcp(QtGui.QWidget):
         
         #populate graph data
         self.dataopt(self.x.columnName)
-        
-        
-        
+         
     def showDCP_srw(self, openFile):
         def srwprev(Ncol):
             ColumnPicked = range(Ncol)
@@ -262,9 +256,7 @@ class RbDcp(QtGui.QWidget):
         self.preview(Ncol)
         srwprev(Ncol)
         self.dataopt(self.x.columnName)
-        
-        
-    
+
                     
     def preview(self,Ncol):
         self.reset()
@@ -346,22 +338,30 @@ class RbDcp(QtGui.QWidget):
         self.customgraph()
     
     def customgraph(self):
-        self.parent.ui.statusbar.showMessage('Drawing plot ...')
-        ColumnXAxis=0
+        #self.parent.ui.statusbar.showMessage('Drawing plot ...')
+        #ColumnXAxis=0
         xname = self.xaxis.currentText()
-        ColumnXAxis = self.x.columnName.index(xname)
         yname = self.yaxis.currentText()
-        ColumnPicked = [self.x.columnName.index(yname)]
+        if self.currentFiletype in ['sdds', 'out', 'twi', 'sig', 'cen', 'bun', 'fin','dat']:
+            ColumnXAxis = self.x.columnName.index(xname)
+            ColumnPicked = [self.x.columnName.index(yname)]
 
         if self.currentFiletype == 'dat':
             (Xrvec,Yrvec,Npar,Ncol,NcolPicked,NElemCol)=SRWreshape(self.x,ColumnXAxis,ColumnPicked)
-        else:
+        elif self.currentFiletype in ['sdds', 'out', 'twi', 'sig', 'cen', 'bun', 'fin']:
             (Xrvec,Yrvec,Ylab,Npar,Ncol,NcolPicked,NElemCol,Npage)=SDDSreshape(self.x,ColumnXAxis,ColumnPicked,NumPage)
+        else:
+            shape = numpy.shape(self.x[xname])[0]
+            Xrvec = numpy.reshape(numpy.array(self.x[xname]),-1)
+            Yrvec = numpy.reshape(numpy.array(self.x[yname]),[1,shape])
 
         try:
             yu = ' ['+self.x.columnDefinition[ColumnPicked[0]][1]+']'
             xu = ' ['+self.x.columnDefinition[ColumnXAxis][1]+']'
         except IndexError:
+            yu = ''
+            xu = ''
+        except AttributeError:
             yu = ''
             xu = ''
 
@@ -390,9 +390,11 @@ class RbDcp(QtGui.QWidget):
             self.widget.canvas.draw()
 
         except ValueError: # Attempted to plot non-numeric values
-            pass
+            print(numpy.shape(Xrvec))
+            print(numpy.shape(Yrvec))
+            
 
-        self.parent.ui.statusbar.clearMessage()
+        #self.parent.ui.statusbar.clearMessage()
                 
 def main():
     app = QtGui.QApplication(sys.argv)
