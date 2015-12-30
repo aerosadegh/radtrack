@@ -351,8 +351,9 @@ class RbDcp(QtGui.QWidget):
         elif self.currentFiletype in ['sdds', 'out', 'twi', 'sig', 'cen', 'bun', 'fin']:
             (Xrvec,Yrvec,Ylab,Npar,Ncol,NcolPicked,NElemCol,Npage)=SDDSreshape(self.x,ColumnXAxis,ColumnPicked,NumPage)
         else:
-            Xrvec = numpy.asarray(self.x[xname])
-            Yrvec = numpy.asarray(self.x[yname])
+            shape = numpy.shape(self.x[xname])[0]
+            Xrvec = numpy.reshape(numpy.array(self.x[xname]),-1)
+            Yrvec = numpy.reshape(numpy.array(self.x[yname]),[1,shape])
 
         try:
             yu = ' ['+self.x.columnDefinition[ColumnPicked[0]][1]+']'
@@ -389,7 +390,9 @@ class RbDcp(QtGui.QWidget):
             self.widget.canvas.draw()
 
         except ValueError: # Attempted to plot non-numeric values
-            pass
+            print(numpy.shape(Xrvec))
+            print(numpy.shape(Yrvec))
+            
 
         #self.parent.ui.statusbar.clearMessage()
                 
