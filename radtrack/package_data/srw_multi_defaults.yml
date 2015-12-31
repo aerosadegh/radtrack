@@ -12,14 +12,14 @@ radiation_source:
     two_dipole:
       magnet_one:
         l: 0.05
-        field: 0.85
+        field: -0.85
         nors: 1
         l_edge: 0.01
       drift:
         l: 0.02
       magnet_two:
         l: 0.05
-        field: -0.85
+        field: 0.85
         nors: 1
         l_edge: 0.01
   multipole:

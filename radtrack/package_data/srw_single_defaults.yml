@@ -18,14 +18,14 @@ radiation_source:
     two_dipole:
       magnet_one:
         l: 0.05
-        field: 0.85
+        field: -0.85
         nors: 1
         l_edge: 0.01
       drift:
         l: 0.02
       magnet_two:
         l: 0.05
-        field: -0.85
+        field: 0.85
         nors: 1
         l_edge: 0.01
   multipole:
@@ -40,19 +40,19 @@ polarization: LINEAR_HORIZONTAL
 intensity: SINGLE_ELECTRON_INTENSITY
 
 beam:
-  avg_current: .5
+  avg_current: 0.1 #0.5
   horizontal_coord: 0
   vertical_coord: 0
   longitudinal_coord: 0
   horizontal_angle: 0
   vertical_angle: 0
-  gamma: 5870.925
+  gamma: 130 #5870.925
 precision:
-  sr_calculation_method: AUTO_UNDULATOR
+  sr_calculation_method: AUTO_WIGGLER #AUTO_UNDULATOR
   relative: .01
   start_integration: 0
   end_integration: 0
-  num_points_trajectory_calculation: 20000
+  num_points_trajectory_calculation: 10000 #20000
   use_terminating_terms: True
   sampling_factor: 0
 simulation_kind:
@@ -95,15 +95,15 @@ simulation_kind:
   x_and_y:
     wavefront:
       num_points_energy: 1
-      num_points_x: 100
-      num_points_y: 100
-      distance_to_window: 20
-      initial_photon_energy: 395
-      final_photon_energy: 395
-      window_left_edge: -.0025
-      window_top_edge: -.0025
-      window_right_edge: .0025
-      window_bottom_edge: .0025
+      num_points_x: 401 #100
+      num_points_y: 401 #100
+      distance_to_window: 0.3 #20
+      initial_photon_energy: 2.1 #395
+      final_photon_energy: 2.1 #395
+      window_left_edge: -0.01 #-.0025
+      window_top_edge: -0.01 #-.0025
+      window_right_edge: 0.01 #.0025
+      window_bottom_edge: 0.01 #.0025
   e_and_x:
     wavefront:
       num_points_energy: 1000
