@@ -84,6 +84,16 @@ class Base(rt_controller.Controller):
             for i in self.w:
                 if isinstance(self.w[i], rt_enum.Enum):
                     f.write('{}={}\n'.format(i, self.w[i].value))
+                elif isinstance(self.w[i], bool):
+                    f.write(i+'='+str(int(self.w[i]))+'\n')
+                elif isinstance(self.w[i], unicode) and not self.w[i]:
+                    pass
+                elif isinstance(self.w[i], list):
+                    l = str()
+                    for j in self.w[i]:
+                        l += str(j)
+                        l += ' '
+                    f.write(i+'='+l+'\n')
                 else:
                     f.write(i+'='+str(self.w[i])+'\n')
             f.write('$end')
