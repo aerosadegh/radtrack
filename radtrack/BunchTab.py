@@ -779,9 +779,6 @@ class BunchTab(QtGui.QWidget):
         # get parameter names
         paramNames = sdds.sddsdata.GetParameterNames(sddsIndex)
 
-        # get parameter definitions
-        paramDefs = [sdds.sddsdata.GetParameterDefinition(sddsIndex, param) for param in paramNames]
-
         # give the user a look at the parameters (if any)
         finalMsgBox = None
         if not paramNames:
@@ -808,6 +805,10 @@ class BunchTab(QtGui.QWidget):
                 columnData[jLoop] = np.array(sdds.sddsdata.GetColumn(sddsIndex,jLoop))
 
             errorCode = sdds.sddsdata.ReadPage(sddsIndex)
+
+        self.designMomentumEV = sdds.sddsdata.GetParameter(sddsIndex, paramNames.index('designMomentumEV'))
+        self.totalCharge = sdds.sddsdata.GetParameter(sddsIndex, paramNames.index('totalCharge'))
+        self.eMassEV = sdds.sddsdata.GetParameter(sddsIndex, paramNames.index('eMassEV'))
 
         # get column definitions
         # units are in the 2nd column
