@@ -5,7 +5,7 @@ version 2
 import os, re, cgi, shutil
 from PyQt4 import QtCore, QtGui
 
-from pykern.pkdebug import *
+from pykern.pkdebug import pkdc
 
 from radtrack.BunchTab import BunchTab
 from radtrack.RbBunchTransport import RbBunchTransport

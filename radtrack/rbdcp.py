@@ -46,19 +46,18 @@ class RbDcp(QtGui.QWidget):
         self.importFile(listItem.text())
         
     def left_panel(self,main):
-        frame = QtGui.QWidget(self)
         layout = QtGui.QVBoxLayout()
         a = QtGui.QLabel()
         b = QtGui.QLabel()
         c = QtGui.QLabel()
         a.setText('Available Data')
         layout.addWidget(a, alignment = QtCore.Qt.AlignCenter)
-        self.files = QtGui.QListWidget(frame)
+        self.files = QtGui.QListWidget()
         self.files.setSizePolicy(QtGui.QSizePolicy.Maximum,QtGui.QSizePolicy.Preferred)
         layout.addWidget(self.files)
         b.setText('Quick Plot')
         layout.addWidget(b, alignment = QtCore.Qt.AlignCenter)
-        self.quickplot = QtGui.QComboBox(frame)
+        self.quickplot = QtGui.QComboBox()
         layout.addWidget(self.quickplot)
         c.setText('Custom Plot')
         layout.addWidget(c, alignment = QtCore.Qt.AlignCenter)
@@ -75,7 +74,7 @@ class RbDcp(QtGui.QWidget):
         form.addRow('y-axis',self.yaxis)
         form.addRow('Plot type', self.plotType)
         layout.addLayout(form)
-        button = QtGui.QPushButton(frame)
+        button = QtGui.QPushButton()
         button.setText('open')
         button.clicked.connect(lambda : self.importFile())
         layout.addWidget(button)
@@ -91,7 +90,6 @@ class RbDcp(QtGui.QWidget):
         self.plotType.activated.connect(self.customgraph)
         
     def right_panel(self,main):
-        frame = QtGui.QWidget(self)
         vb = QtGui.QVBoxLayout()
         a = QtGui.QLabel()
         a.setText('DATA')

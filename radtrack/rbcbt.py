@@ -645,8 +645,8 @@ class RbCbt(rt_qt.QtGui.QWidget):
         ignoreMissingImportFiles = False
         try:
             importedData = self.importer(fileName)
-        except IOError as e:
-            rt_qt.QtGui.QMessageBox(rt_qt.QtGui.QMessageBox.Warning, 'RadTrack', e.message).exec_()
+        except IOError as err:
+            rt_qt.QtGui.QMessageBox(rt_qt.QtGui.QMessageBox.Warning, 'RadTrack', err.message).exec_()
             return
 
         if importedData:
