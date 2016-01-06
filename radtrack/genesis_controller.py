@@ -4,6 +4,7 @@
 :license: http://www.apache.org/licenses/LICENSE-2.0.html
 """
 from __future__ import absolute_import, division, print_function
+import subprocess
 
 from pykern import pkarray
 from pykern import pkcompat
@@ -80,12 +81,12 @@ class Base(rt_controller.Controller):
             
         msg('Writing Genesis IN file')
         with open('test.in','w') as f:
-            f.write('$newrun \n')
+            f.write(' $NEWRUN \n')
             for i in self.w:
                 if isinstance(self.w[i], rt_enum.Enum):
-                    f.write('{}={}\n'.format(i, self.w[i].value))
+                    f.write(' {}={}\n'.format(i, self.w[i].value))
                 elif isinstance(self.w[i], bool):
-                    f.write(i+'='+str(int(self.w[i]))+'\n')
+                    f.write(' '+i+'='+str(int(self.w[i]))+'\n')
                 elif isinstance(self.w[i], unicode) and not self.w[i]:
                     pass
                 elif isinstance(self.w[i], list):
@@ -93,12 +94,13 @@ class Base(rt_controller.Controller):
                     for j in self.w[i]:
                         l += str(j)
                         l += ' '
-                    f.write(i+'='+l+'\n')
+                    f.write(' '+i+'='+l+'\n')
                 else:
-                    f.write(i+'='+str(self.w[i])+'\n')
-            f.write('$end')
+                    f.write(' '+i+'='+str(self.w[i])+'\n')
+            f.write(' $end')
         msg('Finished')
         
+        #subprocess.call(['genesis','lcls.in'])
         
         
     def name_to_action(self, name):

@@ -93,7 +93,7 @@ time_dependence:
   shotnoise_algorithm: FAWLEY
 simulation_control:
   step_size: 8 #1
-  integration_length: 0
+  integration_length: 132
   orbit_correct: 0
   energy_loss: 0
   energy_spread: 1 #0
@@ -111,7 +111,7 @@ io_control:
   field_dist_num_slice: 0
   time_window: 1 #0
   output_filename: 'lcls.out'
-  mag_input_filename: ''
+  mag_input_filename: 'lcls.lat'
   mag_output_filename: ''
   dump_all: 0
   dump_field: 1 #0

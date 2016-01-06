@@ -207,7 +207,6 @@ def to_dipoles(params):
     arZero = array('d', [0]*3)
     arZc = array('d', [-b0['l']/2-params['drift']['l']/2, 0, b1['l']/2+params['drift']['l']/2])
     res.magFldCnt = srwlib.SRWLMagFldC([bend0, drift0, bend1], arZero, arZero, arZc)
-    
     return res
     
 def to_multipole(params):

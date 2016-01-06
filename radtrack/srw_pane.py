@@ -50,7 +50,7 @@ class View(QtGui.QWidget):
             self._controller.defaults[name].decl,
             v,
         )
-
+        
     def get_wavefront_params(self):
         skn = self.get_global_param('simulation_kind').name.lower()
         # return self._controller.params['simulation_kind'][skn]['wavefront']

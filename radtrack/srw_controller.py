@@ -38,6 +38,7 @@ class Base(rt_controller.Controller):
             self.FILE_PREFIX + '_' + self.SRW_MODE,
             decl['simulation_complexity'][self.SRW_MODE + '_particle'])
         self.params = rt_params.init_params(self.defaults)
+        
         self._view = srw_pane.View(self, parent_widget)
         return self._view
 
@@ -82,7 +83,7 @@ class Base(rt_controller.Controller):
             msg_list.append(m + '... \n \n')
             self._view.set_result_text('simulation', ''.join(msg_list))
         self.params['source'] = self._view.get_source_params()
-        for k in 'wavefront', 'simulation_kind', 'polarization', 'intensity','wiggler','radiation_source':
+        for k in 'wavefront', 'simulation_kind', 'polarization', 'intensity','radiation_source':
             self.params[k] = self._view.get_global_param(k)
 
         res = self.simulate(msg)

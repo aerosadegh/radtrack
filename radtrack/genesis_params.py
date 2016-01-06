@@ -187,7 +187,7 @@ def to_io_control(params):
     res['IDRIL']=params['chicane_drift']
     res['ILOG']=params['log']
     res['FFSPEC']=params['ff_spectrum']
-    res['TRAMA']=params['trama']
+    #res['TRAMA']=params['trama']
     
     #ITRAM TRANSLATOR LOOP THROUGH 36 ELEMENTS OF 6X6 MATRIX TO GENESIS FORM ITRAM##=VALUE
     #if bool(res['TRAMA']) is True:
