@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'datavizwidget.ui'
 #
-# Created: Thu Jun  4 22:40:45 2015
+# Created: Wed Jan  6 02:49:14 2016
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -127,4 +127,4 @@ class Ui_Form(object):
         self.label_8.setText(_translate("Form", "Y-axis", None))
         self.pushButton.setText(_translate("Form", "PushButton", None))
 
-from radtrack.gui.matplotlibwidget import matplotlibWidget
+from radtrack.ui.matplotlibwidget import matplotlibWidget

@@ -11,7 +11,7 @@ from PyQt4 import QtGui, QtCore
 
 from radtrack.dcp.Servicelib import *
 from radtrack.dcp.SRWlib import SRW
-from radtrack.gui.matplotlibwidget import matplotlibWidget
+from radtrack.ui.matplotlibwidget import matplotlibWidget
 from radtrack.RbUtility import scatConPlot
 
 NumPage = 0

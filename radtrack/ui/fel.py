@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'fel.ui'
 #
-# Created: Fri May 15 22:06:36 2015
-#      by: PyQt4 UI code generator 4.10.4
+# Created: Wed Jan  6 02:50:15 2016
+#      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -606,4 +606,4 @@ class Ui_Form(object):
         self.uwave.setToolTip(_translate("Form", "1/m", None))
         self.label_12.setText(_translate("Form", "E-Beam Parameters", None))
 
-from radtrack.gui.matplotlibwidget import matplotlibWidget
+from radtrack.ui.matplotlibwidget import matplotlibWidget
