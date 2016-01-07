@@ -2,8 +2,7 @@
 
 # Form implementation generated from reading ui file 'rbele.ui'
 #
-# Created: Thu Dec 10 23:00:28 2015
-#      by: PyQt4 UI code generator 4.11.3
+# Created by: PyQt4 UI code generator 4.11.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -116,6 +115,36 @@ class Ui_ELE(object):
         self.progressBar.setInvertedAppearance(False)
         self.progressBar.setObjectName(_fromUtf8("progressBar"))
         self.formLayout.setWidget(6, QtGui.QFormLayout.FieldRole, self.progressBar)
+        spacerItem1 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.formLayout.setItem(7, QtGui.QFormLayout.FieldRole, spacerItem1)
+        self.run_in_parallel = QtGui.QCheckBox(ELE)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.run_in_parallel.sizePolicy().hasHeightForWidth())
+        self.run_in_parallel.setSizePolicy(sizePolicy)
+        self.run_in_parallel.setMinimumSize(QtCore.QSize(20, 20))
+        self.run_in_parallel.setObjectName(_fromUtf8("run_in_parallel"))
+        self.formLayout.setWidget(8, QtGui.QFormLayout.FieldRole, self.run_in_parallel)
+        spacerItem2 = QtGui.QSpacerItem(20, 10, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.formLayout.setItem(9, QtGui.QFormLayout.FieldRole, spacerItem2)
+        self.numProcSlider = QtGui.QScrollBar(ELE)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.numProcSlider.sizePolicy().hasHeightForWidth())
+        self.numProcSlider.setSizePolicy(sizePolicy)
+        self.numProcSlider.setMinimumSize(QtCore.QSize(40, 20))
+        self.numProcSlider.setMinimum(2)
+        self.numProcSlider.setMaximum(4)
+        self.numProcSlider.setPageStep(2)
+        self.numProcSlider.setProperty("value", 2)
+        self.numProcSlider.setOrientation(QtCore.Qt.Horizontal)
+        self.numProcSlider.setObjectName(_fromUtf8("numProcSlider"))
+        self.formLayout.setWidget(10, QtGui.QFormLayout.FieldRole, self.numProcSlider)
+        self.numProcLabel = QtGui.QLabel(ELE)
+        self.numProcLabel.setObjectName(_fromUtf8("numProcLabel"))
+        self.formLayout.setWidget(10, QtGui.QFormLayout.LabelRole, self.numProcLabel)
         self.verticalLayout.addLayout(self.formLayout)
         self.horizontalLayout.addLayout(self.verticalLayout)
         self.splitter = QtGui.QSplitter(ELE)
@@ -129,7 +158,6 @@ class Ui_ELE(object):
         self.layoutWidget = QtGui.QWidget(self.splitter)
         self.layoutWidget.setObjectName(_fromUtf8("layoutWidget"))
         self.verticalLayout_3 = QtGui.QVBoxLayout(self.layoutWidget)
-        self.verticalLayout_3.setMargin(0)
         self.verticalLayout_3.setObjectName(_fromUtf8("verticalLayout_3"))
         self.simulationStatusLabel = QtGui.QLabel(self.layoutWidget)
         self.simulationStatusLabel.setEnabled(False)
@@ -150,7 +178,6 @@ class Ui_ELE(object):
         self.layoutWidget1 = QtGui.QWidget(self.splitter)
         self.layoutWidget1.setObjectName(_fromUtf8("layoutWidget1"))
         self.verticalLayout_2 = QtGui.QVBoxLayout(self.layoutWidget1)
-        self.verticalLayout_2.setMargin(0)
         self.verticalLayout_2.setObjectName(_fromUtf8("verticalLayout_2"))
         self.simulationResultsLabel = QtGui.QLabel(self.layoutWidget1)
         self.simulationResultsLabel.setEnabled(False)
@@ -185,6 +212,8 @@ class Ui_ELE(object):
         self.momentumLabel.setText(_translate("ELE", "Momentum:", None))
         self.simulateButton.setText(_translate("ELE", "Simulate", None))
         self.abortButton.setText(_translate("ELE", "Abort", None))
+        self.run_in_parallel.setText(_translate("ELE", "Run in parallel", None))
+        self.numProcLabel.setText(_translate("ELE", " # of proc\'s", None))
         self.simulationStatusLabel.setText(_translate("ELE", "Simulation Status", None))
         self.simulationResultsLabel.setText(_translate("ELE", "Simulation Results", None))
         self.simulationResultsListWidget.setToolTip(_translate("ELE", "Right-click to open the selected files.", None))
