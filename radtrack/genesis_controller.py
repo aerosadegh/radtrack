@@ -81,14 +81,17 @@ class Base(rt_controller.Controller):
             
         msg('Writing Genesis IN file')
         with open('test.in','w') as f:
-            f.write(' $NEWRUN \n')
+            f.write(' $newrun \n')
             for i in self.w:
                 if isinstance(self.w[i], rt_enum.Enum):
                     f.write(' {}={}\n'.format(i, self.w[i].value))
                 elif isinstance(self.w[i], bool):
                     f.write(' '+i+'='+str(int(self.w[i]))+'\n')
-                elif isinstance(self.w[i], unicode) and not self.w[i]:
-                    pass
+                elif isinstance(self.w[i], unicode): 
+                    if not self.w[i]:
+                        pass
+                    else:
+                        f.write(" "+i+"='"+str(self.w[i])+"' \n")
                 elif isinstance(self.w[i], list):
                     l = str()
                     for j in self.w[i]:
@@ -97,10 +100,10 @@ class Base(rt_controller.Controller):
                     f.write(' '+i+'='+l+'\n')
                 else:
                     f.write(' '+i+'='+str(self.w[i])+'\n')
-            f.write(' $end')
+            f.write(' $end \n')
         msg('Finished')
         
-        #subprocess.call(['genesis','lcls.in'])
+        #subprocess.call(['genesis','test.in'])
         
         
     def name_to_action(self, name):

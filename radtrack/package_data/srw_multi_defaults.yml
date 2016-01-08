@@ -16,7 +16,7 @@ radiation_source:
         nors: 1
         l_edge: 0.01
       drift:
-        leg: 0.02
+        l: 0.02
       magnet_two:
         l: 0.05
         field: 0.85

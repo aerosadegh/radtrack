@@ -118,7 +118,7 @@ io_control:
   dump_particle: 0
   beam_file: ''
   rad_file: ''
-  phase_file: ''
+  phase_file: 'lcls.dist'
   ndcut: 0
   field_file: ''
   align_rad: 0

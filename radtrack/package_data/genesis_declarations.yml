@@ -21,12 +21,12 @@
     -
       name: horizontal_focus
       py_type: float
-      label: normalized natural horizontal focusing
+      label: normalized  horizontal focusing
       required: [genesis]
     -
       name: vertical_focus
       py_type: float
-      label: normalized natural verticl focusing of the undulator
+      label: normalized  vertical focusing
       required: [genesis]
     -
       name: coupling_factor
@@ -449,7 +449,7 @@
       required: [genesis]
     -
       name: num_slice
-      py_type: float
+      py_type: int
       label: Number of Slices
       required: [genesis]
     -

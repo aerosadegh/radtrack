@@ -103,8 +103,6 @@ def simulate(params, msg_callback=lambda _: _):
             ],
         ])
     elif params.simulation_kind == 'X_AND_Y':
-        _trajectorys(p)
-        '''
         msg_callback('Performing Electric Field (intensity vs x- and y-coordinate) calculation')
         srwlib.srwl.CalcPowDenSR(p.stkP, p.beam, 0, p.magFldCnt, p.ar_prec_p)
         msg_callback('Extracting Intensity from calculated Electric Field')
@@ -120,7 +118,7 @@ def simulate(params, msg_callback=lambda _: _):
                 'Vertical Position [mm]',
                 'Power Density',
             ],
-        ])'''
+        ])
     else:
         raise AssertionError('{}: invalid simulation_kind'.format(params.simulation_kind))
     return p
