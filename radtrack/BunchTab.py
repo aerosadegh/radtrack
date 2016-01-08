@@ -164,9 +164,7 @@ class BunchTab(QtGui.QWidget):
         numParticles = 800
         self.designMomentumEV = 2.e+8
         self.totalCharge = 1.e-9
-        self.ui.numPtcls.setText("{:d}".format(numParticles))
-        self.ui.designMomentum.setText("{:.0f}".format(self.designMomentumEV*1.e-6) + ' MeV')
-        self.ui.totalCharge.setText("{:.0f}".format(self.totalCharge*1.e9) + ' nC')
+        self.putParametersInGUI(numParticles)
 
         self.unitsPos = 'mm'
         self.unitsAngle = 'mrad'
@@ -727,9 +725,7 @@ class BunchTab(QtGui.QWidget):
         numParticles = self.myBunch.getDistribution6D().getPhaseSpace6D().getNumParticles()
 
         # load values into window for user to see
-        self.ui.numPtcls.setText("{:d}".format(numParticles))
-        self.ui.designMomentum.setText("{:.0f}".format(self.designMomentumEV*1.e-6) + ' MeV')
-        self.ui.totalCharge.setText("{:.0f}".format(self.totalCharge*1.e9) + ' nC')
+        self.putParametersInGUI(numParticles)
 
         # normalize the emittance here
         self.twissEmitNX = self.twissX.getEmitRMS() * beta0gamma0
@@ -915,15 +911,18 @@ class BunchTab(QtGui.QWidget):
         # load particle array into the phase space object
         self.myBunch.getDistribution6D().getPhaseSpace6D().setArray6D(tmp6)
 
-        # post top-level parameters to GUI
-        self.ui.numPtcls.setText("{:d}".format(numParticles))
-        self.ui.designMomentum.setText("{:.0f}".format(self.designMomentumEV*1.e-6) + ' MeV')
-        self.ui.totalCharge.setText("{:.0f}".format(self.totalCharge*1.e9) + ' nC')
+        self.putParametersInGUI(numParticles)
 
         # plot the results
         if finalMsgBox is not None:
             finalMsgBox.show()
 
+
+    def putParametersInGUI(self, numParticles):
+        # post top-level parameters to GUI
+        self.ui.numPtcls.setText(str(numParticles))
+        self.ui.designMomentum.setText(util.convertUnitsNumberToString(self.designMomentumEV, 'eV', 'MeV'))
+        self.ui.totalCharge.setText(util.convertUnitsNumberToString(self.totalCharge, 'C', 'nC'))
 
     def readFromCSV(self, fileName):
         # check whether this is a RadTrack generated CSV file
@@ -975,10 +974,7 @@ class BunchTab(QtGui.QWidget):
         # load particle array into the phase space object
         self.myBunch.getDistribution6D().getPhaseSpace6D().setArray6D(tmp6)
 
-        # post top-level parameters to GUI
-        self.ui.numPtcls.setText("{:d}".format(numParticles))
-        self.ui.designMomentum.setText("{:.0f}".format(self.designMomentumEV*1.e-6) + ' MeV')
-        self.ui.totalCharge.setText("{:.0f}".format(self.totalCharge*1.e9) + ' nC')
+        self.putParametersInGUI(numParticles)
 
 
     def exportToFile(self, fileName = None):
