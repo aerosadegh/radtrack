@@ -83,6 +83,7 @@ class RbEle(QtGui.QWidget):
         self.process.readyReadStandardError.connect(self._process_stderr)
         self.process.started.connect(self._process_started)
         self.process.finished.connect(self._process_finished)
+
         # states: 'summary' or 'full'
         self.status_mode = 'summary'
         self.summary_html = ''
@@ -471,6 +472,13 @@ class RbEle(QtGui.QWidget):
             self, self.ui.bunchSourceComboBox)
         self.beam_line_source_manager = BeamLineSourceManager(
             self, self.ui.beamLineSourceComboBox)
+        self.ui.numProcSlider.valueChanged.connect(self.update_proc_count)
+
+    def update_proc_count(self):
+        baseText = self.ui.numProcLabel.text()
+        colonIndex = baseText.find(':')
+        baseText = baseText[:colonIndex + 2]
+        self.ui.numProcLabel.setText(baseText + str(self.ui.numProcSlider.value()) + '  ')
 
     def _show_full_status(self):
         """Show the full process stdout and stderr text"""

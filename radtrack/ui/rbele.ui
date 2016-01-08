@@ -228,7 +228,7 @@
         </spacer>
        </item>
        <item row="10" column="1">
-        <widget class="QScrollBar" name="numProcSlider">
+        <widget class="QSlider" name="numProcSlider">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -256,12 +256,18 @@
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
+         <property name="tickInterval">
+          <number>1</number>
+         </property>
+         <property name="TickPosition">
+          <enum>QSlider::TicksBelow</enum>
+         </property>
         </widget>
        </item>
        <item row="10" column="0">
         <widget class="QLabel" name="numProcLabel">
          <property name="text">
-          <string> # of proc's</string>
+          <string>Number of Processes: 2  </string>
          </property>
         </widget>
        </item>

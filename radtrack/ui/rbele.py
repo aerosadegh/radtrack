@@ -2,7 +2,8 @@
 
 # Form implementation generated from reading ui file 'rbele.ui'
 #
-# Created by: PyQt4 UI code generator 4.11.4
+# Created: Fri Jan  8 22:42:19 2016
+#      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -128,7 +129,7 @@ class Ui_ELE(object):
         self.formLayout.setWidget(8, QtGui.QFormLayout.FieldRole, self.run_in_parallel)
         spacerItem2 = QtGui.QSpacerItem(20, 10, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.formLayout.setItem(9, QtGui.QFormLayout.FieldRole, spacerItem2)
-        self.numProcSlider = QtGui.QScrollBar(ELE)
+        self.numProcSlider = QtGui.QSlider(ELE)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -140,6 +141,8 @@ class Ui_ELE(object):
         self.numProcSlider.setPageStep(2)
         self.numProcSlider.setProperty("value", 2)
         self.numProcSlider.setOrientation(QtCore.Qt.Horizontal)
+        self.numProcSlider.setTickInterval(1)
+        self.numProcSlider.setTickPosition(QtGui.QSlider.TicksBelow)
         self.numProcSlider.setObjectName(_fromUtf8("numProcSlider"))
         self.formLayout.setWidget(10, QtGui.QFormLayout.FieldRole, self.numProcSlider)
         self.numProcLabel = QtGui.QLabel(ELE)
@@ -158,6 +161,7 @@ class Ui_ELE(object):
         self.layoutWidget = QtGui.QWidget(self.splitter)
         self.layoutWidget.setObjectName(_fromUtf8("layoutWidget"))
         self.verticalLayout_3 = QtGui.QVBoxLayout(self.layoutWidget)
+        self.verticalLayout_3.setMargin(0)
         self.verticalLayout_3.setObjectName(_fromUtf8("verticalLayout_3"))
         self.simulationStatusLabel = QtGui.QLabel(self.layoutWidget)
         self.simulationStatusLabel.setEnabled(False)
@@ -178,6 +182,7 @@ class Ui_ELE(object):
         self.layoutWidget1 = QtGui.QWidget(self.splitter)
         self.layoutWidget1.setObjectName(_fromUtf8("layoutWidget1"))
         self.verticalLayout_2 = QtGui.QVBoxLayout(self.layoutWidget1)
+        self.verticalLayout_2.setMargin(0)
         self.verticalLayout_2.setObjectName(_fromUtf8("verticalLayout_2"))
         self.simulationResultsLabel = QtGui.QLabel(self.layoutWidget1)
         self.simulationResultsLabel.setEnabled(False)
@@ -213,7 +218,7 @@ class Ui_ELE(object):
         self.simulateButton.setText(_translate("ELE", "Simulate", None))
         self.abortButton.setText(_translate("ELE", "Abort", None))
         self.run_in_parallel.setText(_translate("ELE", "Run in parallel", None))
-        self.numProcLabel.setText(_translate("ELE", " # of proc\'s", None))
+        self.numProcLabel.setText(_translate("ELE", "Number of Processes: 2  ", None))
         self.simulationStatusLabel.setText(_translate("ELE", "Simulation Status", None))
         self.simulationResultsLabel.setText(_translate("ELE", "Simulation Results", None))
         self.simulationResultsListWidget.setToolTip(_translate("ELE", "Right-click to open the selected files.", None))
