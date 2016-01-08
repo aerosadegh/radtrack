@@ -802,9 +802,11 @@ class BunchTab(QtGui.QWidget):
 
             errorCode = sdds.sddsdata.ReadPage(sddsIndex)
 
-        self.designMomentumEV = sdds.sddsdata.GetParameter(sddsIndex, paramNames.index('designMomentumEV'))
-        self.totalCharge = sdds.sddsdata.GetParameter(sddsIndex, paramNames.index('totalCharge'))
-        self.eMassEV = sdds.sddsdata.GetParameter(sddsIndex, paramNames.index('eMassEV'))
+        for parameter in ['designMomentumEV', 'totalCharge', 'eMassEV']:
+            try:
+                setattr(self, parameter, sdds.sddsdata.GetParameter(sddsIndex, paramNames.index(parameter)))
+            except ValueError: # parameter not in list
+                pass
 
         # get column definitions
         # units are in the 2nd column
