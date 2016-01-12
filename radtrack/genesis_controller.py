@@ -9,6 +9,7 @@ import subprocess
 from pykern import pkarray
 from pykern import pkcompat
 from pykern.pkdebug import pkdc, pkdp
+from PyQt4 import QtCore
 
 from radtrack import genesis_pane
 from radtrack import genesis_params
@@ -30,6 +31,10 @@ class Base(rt_controller.Controller):
         self.defaults = rt_params.defaults(self.FILE_PREFIX, decl)
         self.params = rt_params.init_params(self.defaults)
         self._view = genesis_pane.View(self, parent_widget)
+        self.process = QtCore.QProcess()
+        self.process.readyReadStandardOutput.connect(self.newStdInfo)
+        self._in_file = None
+        self.msg_list = []
         self.w = {}
         return self._view
         
@@ -74,13 +79,12 @@ class Base(rt_controller.Controller):
         self.w.update(genesis_params.to_io_control(self.params.io_control))
         
     def action_simulate(self):
-        msg_list = []
         def msg(m):
-            msg_list.append(m + '... \n \n')
-            self._view.set_result_text('simulation', ''.join(msg_list))
+            self.msg_list.append(m + '... \n \n')
+            self._view.set_result_text('simulation', ''.join(self.msg_list))
             
         msg('Writing Genesis IN file')
-        with open('test.in','w') as f:
+        with open('verydumb.in','w') as f:
             f.write(' $newrun \n')
             for i in self.w:
                 if isinstance(self.w[i], rt_enum.Enum):
@@ -101,9 +105,17 @@ class Base(rt_controller.Controller):
                 else:
                     f.write(' '+i+'='+str(self.w[i])+'\n')
             f.write(' $end \n')
-        msg('Finished')
+        msg('Finished \nRunning Genesis\n')
         
-        #subprocess.call(['genesis','test.in'])
+        self.process.start('genesis',['verydumb.in'])
+        
+    def newStdInfo(self):
+        """Callback with simulation stdout text"""
+        newString = str(self.process.readAllStandardOutput())
+        self.msg_list.append(newString)
+        self._view.set_result_text('simulation', ''.join(self.msg_list))
+        
+        
         
         
     def name_to_action(self, name):

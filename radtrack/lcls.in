@@ -32,7 +32,7 @@
  NHARM=1
  NBINS=4
  NWIG=144,
- DELZ=8,
+ DELZ=8.,
  ZSEP=32.,
  NSEC=30,
  ZSTOP=132.0,
@@ -58,10 +58,10 @@
  IOTAIL=1,
  SHOTNOISE=1.
  NTAIL=25
- NSLICE=13302 
+ NSLICE=13302, 
  OUTPUTFILE='lcls.out'
  MAGINFILE='lcls.lat'
  IDMPFLD=1
  LOUT=1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 0 0 0 0 1 0 0,
- $end
- DISTFILE='lcls_resonant.dist'
+ $end 
+ 
