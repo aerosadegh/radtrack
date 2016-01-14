@@ -161,7 +161,7 @@ class Form(object):
                 if df.children:
                     res[d.name] = _iter_children(df)
                     continue
-                f = self._fields[d.name]
+                f = self._fields[d.qualified_name]
                 res[d.name] = get_widget_value(d, f['widget'])
             return res
 
@@ -216,7 +216,7 @@ class Form(object):
                     self._layout.addRow(qlabel, widget)
                     if len(value) > res['max_value']:
                         res['max_value'] = len(value)
-                self._fields[d.name] = {
+                self._fields[d.qualified_name] = {
                     'qlabel': qlabel,
                     'widget': widget,
                 }

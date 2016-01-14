@@ -4,10 +4,12 @@
 :license: http://www.apache.org/licenses/LICENSE-2.0.html
 """
 from __future__ import absolute_import, division, print_function
+import subprocess
 
 from pykern import pkarray
 from pykern import pkcompat
 from pykern.pkdebug import pkdc, pkdp
+from PyQt4 import QtCore, QtGui
 
 from radtrack import genesis_pane
 from radtrack import genesis_params
@@ -29,6 +31,11 @@ class Base(rt_controller.Controller):
         self.defaults = rt_params.defaults(self.FILE_PREFIX, decl)
         self.params = rt_params.init_params(self.defaults)
         self._view = genesis_pane.View(self, parent_widget)
+        self.process = QtCore.QProcess()
+        self.process.readyReadStandardOutput.connect(self.newStdInfo)
+        self.process.readyReadStandardError.connect(self.newStdError)
+        self._in_file = None
+        self.msg_list = []
         self.w = {}
         return self._view
         
@@ -73,21 +80,49 @@ class Base(rt_controller.Controller):
         self.w.update(genesis_params.to_io_control(self.params.io_control))
         
     def action_simulate(self):
-        msg_list = []
         def msg(m):
-            msg_list.append(m + '... \n \n')
-            self._view.set_result_text('simulation', ''.join(msg_list))
+            self.msg_list.append(m + '... \n \n')
+            self._view.set_result_text('simulation', ''.join(self.msg_list))
             
         msg('Writing Genesis IN file')
-        with open('test.in','w') as f:
-            f.write('$newrun \n')
+        with open('verydumb.in','w') as f:
+            f.write(' $newrun \n')
             for i in self.w:
                 if isinstance(self.w[i], rt_enum.Enum):
-                    f.write('{}={}\n'.format(i, self.w[i].value))
+                    f.write(' {}={}\n'.format(i, self.w[i].value))
+                elif isinstance(self.w[i], bool):
+                    f.write(' '+i+'='+str(int(self.w[i]))+'\n')
+                elif isinstance(self.w[i], unicode): 
+                    if not self.w[i]:
+                        pass
+                    else:
+                        f.write(" "+i+"='"+str(self.w[i])+"' \n")
+                elif isinstance(self.w[i], list):
+                    l = str()
+                    for j in self.w[i]:
+                        l += str(j)
+                        l += ' '
+                    f.write(' '+i+'='+l+'\n')
                 else:
-                    f.write(i+'='+str(self.w[i])+'\n')
-            f.write('$end')
-        msg('Finished')
+                    f.write(' '+i+'='+str(self.w[i])+'\n')
+            f.write(' $end \n')
+        msg('Finished \nRunning Genesis\n')
+        
+        self.process.start('genesis',['verydumb.in'])
+        
+    def newStdInfo(self):
+        """Callback with simulation stdout text"""
+        newString = str(self.process.readAllStandardOutput())
+        self.msg_list.append(newString)
+        self._view.set_result_text('simulation', ''.join(self.msg_list))
+        self._view._result_text['simulation'].moveCursor(QtGui.QTextCursor.End)
+    
+    def newStdError(self):
+        """Callback with simulation stderr text"""
+        newString = str(self.process.readAllStandardError())
+        self.msg_list.append(newString)
+        self._view.set_result_text('simulation', ''.join(self.msg_list))   
+        self._view._result_text['simulation'].moveCursor(QtGui.QTextCursor.End)
         
         
         

@@ -12,14 +12,14 @@ radiation_source:
     two_dipole:
       magnet_one:
         l: 0.05
-        field: 0.85
+        field: -0.85
         nors: 1
         l_edge: 0.01
       drift:
         l: 0.02
       magnet_two:
         l: 0.05
-        field: -0.85
+        field: 0.85
         nors: 1
         l_edge: 0.01
   multipole:
@@ -37,7 +37,7 @@ beam:
   longitudinal_coord: 0
   horizontal_angle: 0
   vertical_angle: 0
-  gamma: 5870.925
+  gamma: 130 #5870.925
   rms_energy_spread: 0.00089
   rms_horizontal_width: 3.33E-05
   rms_vertical_width: 2.91E-06

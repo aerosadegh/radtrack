@@ -40,8 +40,8 @@ def simulate(params, msg_callback=lambda _: _):
         pkcollections.mapping_merge(
         p,srw_params.to_multipole(params.source))
     p.beam = srw_params.to_beam(params.beam)
-    p.stkF = srw_params.to_wavefront_multi_particle(p.wavefront)
-    p.stkP = srw_params.to_wavefront_multi_particle(p.wavefront)
+    p.stkF = srw_params.to_wavefront_multi_particle(p.wavefront) #flux
+    p.stkP = srw_params.to_wavefront_multi_particle(p.wavefront) #power
     p.ar_prec_f = srw_params.to_flux_precision(params.precision)
     p.ar_prec_p = srw_params.to_power_precision(params.precision)
     p.arPrecPar = [1] #General Precision parameters for Trajectory calculation:
@@ -52,7 +52,10 @@ def simulate(params, msg_callback=lambda _: _):
     if params.simulation_kind == 'E':
         msg_callback('Performing Electric Field (spectrum vs photon energy) calculation')
         msg_callback('Extracting Intensity from calculated Electric Field')
-        srwlib.srwl.CalcStokesUR(p.stkF, p.beam, p.und, p.ar_prec_f)
+        if params.radiation_source == 'wiggler':
+            srwlib.srwl.CalcStokesUR(p.stkF, p.beam, p.und, p.ar_prec_f)
+        else:
+            srwlib.srwl.SRWLStokes()
         p.plots.append([
             uti_plot.uti_plot1d,
             p.stkF.arS,
@@ -154,3 +157,49 @@ def _trajectory(p):
         uti_plot.uti_plot1d,
         p.partTraj.arY, p.ctMesh, ['ct [m]', 'Vertical Position [mm]'],
     ])
+    
+def _trajectorys(p):
+    # Done specifying undulator mag field
+    # Initial coordinates of particle trajectory through the ID
+    part = srwlib.SRWLParticle()
+    part.x = p.beam.partStatMom1.x
+    part.y = p.beam.partStatMom1.y
+    part.xp = p.beam.partStatMom1.xp
+    part.yp = p.beam.partStatMom1.yp
+    part.gamma = p.beam.partStatMom1.gamma #3/0.51099890221e-03 #Relative Energy beam.partStatMom1.gamma 
+    part.relE0 = 1
+    part.nq = -1
+    #zcID = 0
+    # number of trajectory points along longitudinal axis
+    npTraj = 1000
+    #Definitions and allocation for the Trajectory waveform
+    part.z = 0 #zcID #- 0.5*magFldCnt.MagFld[0].rz
+    p.partTraj = srwlib.SRWLPrtTrj()
+    p.partTraj.partInitCond = part
+    p.partTraj.allocate(npTraj, True)
+    p.partTraj.ctStart = -0.1 #-0.55 * p.und.nPer * p.und.per
+    p.partTraj.ctEnd = 0.1    #0.55 * p.und.nPer * p.und.per #magFldCnt.MagFld[0].rz
+    p.partTraj = srwlib.srwl.CalcPartTraj(p.partTraj, p.magFldCnt, p.arPrecPar)
+    p.ctMesh = [p.partTraj.ctStart, p.partTraj.ctEnd, p.partTraj.np]
+    
+    uti_plot.uti_plot1d(p.partTraj.arX, p.ctMesh, ['ct [m]', 'Horizontal Position [m]'])
+    #uti_plot.uti_plot1d(p.partTraj.arY, p.ctMesh, ['ct [m]', 'Vertical Position [m]'])
+    uti_plot.uti_plot1d(p.partTraj.arXp, p.ctMesh, ['ct [m]', 'Horizontal angle [rad]'])
+    uti_plot.uti_plot_show()
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

@@ -74,8 +74,13 @@ class View(QtGui.QWidget):
         self._result_text = {}
         _add(
             'simulation',
-            'Simulation Results',
+            'Simulation Status',
             'Click Simulate to run Genesis',
         )
+        
+        _add(
+             'output file',
+             'Output Files',
+             'None')
         
     
