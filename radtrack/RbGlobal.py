@@ -92,13 +92,8 @@ class RbGlobal(QtGui.QMainWindow):
                                        RbDcp,
                                        RbFEL,
                                        RbGenesisTransport,
-<<<<<<< HEAD
                                        RbSrwTab,
-                                       GenesisTab ]
-=======
-                                       GenesisTab,
-                                       RbSrwTab ]
->>>>>>> origin/master
+                                       GenesisTab]
 
         self.originalNameToTabType = dict()
         self.allExtensions = []
