@@ -446,6 +446,7 @@ __fileTypeDescription['ppm'] = 'PPM Image'
 __fileTypeDescription['tiff'] = 'TIFF Image'
 __fileTypeDescription['xbm'] = 'XBM Image'
 __fileTypeDescription['xpm'] = 'XPM Image'
+__fileTypeDescription['h5'] = 'Hierarchial Data Format'
 
 def fileTypeDescription(ext):
     try:

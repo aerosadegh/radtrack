@@ -33,7 +33,6 @@ class RbCbt(rt_qt.QtGui.QWidget):
 
         #connections
         self.ui.workingBeamline.lengthChange.connect(self.callAfterWorkingBeamlineChanges)
-        self.ui.workingBeamline.itemDoubleClicked.connect(self.editElement)
         self.ui.workingBeamline.itemPressed.connect(self.listClick)
         self.adv = advDialog(self)
         for button in self.ui.buttons + self.adv.buttons:
@@ -178,10 +177,11 @@ class RbCbt(rt_qt.QtGui.QWidget):
                 mouseMenu.addAction(menuTitle)
                 mouseMenu.addSeparator()
 
-            mouseMenu.addAction(self.ui.translateUTF8('Edit ...'), lambda: self.editElement(element.name))
-            mouseMenu.addAction(self.ui.translateUTF8('New copy'), lambda: self.copyElement(element.name))
-            mouseMenu.addAction(self.ui.translateUTF8('Delete element'), lambda: self.deleteElement(element.name))
-            mouseMenu.addSeparator()
+            if location in ['tree', 'picture']:
+                mouseMenu.addAction(self.ui.translateUTF8('Edit ...'), lambda: self.editElement(element.name))
+                mouseMenu.addAction(self.ui.translateUTF8('New copy'), lambda: self.copyElement(element.name))
+                mouseMenu.addAction(self.ui.translateUTF8('Delete element'), lambda: self.deleteElement(element.name))
+                mouseMenu.addSeparator()
 
             if location == 'tree':
                 mouseMenu.addAction(self.addToBeamClickText,
@@ -210,12 +210,14 @@ class RbCbt(rt_qt.QtGui.QWidget):
                         containingBeamlines.append(bl)
             if containingBeamlines:
                 mouseMenu.addSeparator()
-                blMenu = rt_qt.QtGui.QMenu('Contained in beamlines', self)
+                blMenu = rt_qt.QtGui.QMenu(self.ui.translateUTF8('Contained in beamlines'), self)
                 for bl in containingBeamlines:
-                    entry = rt_qt.QtGui.QAction(bl.name, self)
-                    entry.setEnabled(False)
-                    blMenu.addAction(entry)
+                    blMenu.addAction(bl.name, lambda name = bl.name : self.gotoElement(name))
                 mouseMenu.addMenu(blMenu)
+
+            if location in ['list', 'picture']:
+                mouseMenu.addSeparator()
+                mouseMenu.addAction(self.ui.translateUTF8('Find in element list'), lambda name = element.name : self.gotoElement(name))
 
         if location == 'picture' and not self.ui.graphicsView.scene().zeroSized():
             mouseMenu.addSeparator()
@@ -231,6 +233,12 @@ class RbCbt(rt_qt.QtGui.QWidget):
 
         if mouseMenu.actions():
             mouseMenu.exec_(globalPos)
+
+    def gotoElement(self, elementName):
+        for group in self.topLevelTreeItems():
+            for item in itemsInGroup(group):
+                if item.text(0) == elementName:
+                    self.ui.treeWidget.setCurrentItem(item)
 
     def toggleDrawPreview(self):
         self.drawPreviewEnabled = not self.drawPreviewEnabled
@@ -645,8 +653,8 @@ class RbCbt(rt_qt.QtGui.QWidget):
         ignoreMissingImportFiles = False
         try:
             importedData = self.importer(fileName)
-        except IOError as e:
-            rt_qt.QtGui.QMessageBox(rt_qt.QtGui.QMessageBox.Warning, 'RadTrack', e.message).exec_()
+        except IOError as err:
+            rt_qt.QtGui.QMessageBox(rt_qt.QtGui.QMessageBox.Warning, 'RadTrack', err.message).exec_()
             return
 
         if importedData:

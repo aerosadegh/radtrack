@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'BunchInterface.ui'
 #
-# Created: Thu Dec 10 23:10:00 2015
+# Created: Wed Jan  6 02:47:36 2016
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -322,4 +322,4 @@ class Ui_bunchInterface(object):
         self.noTitles.setStatusTip(_translate("bunchInterface", "Toggle plot titles on/off.", None))
         self.noTitles.setText(_translate("bunchInterface", "NT", None))
 
-from radtrack.gui.matplotlibwidget import matplotlibWidget
+from radtrack.ui.matplotlibwidget import matplotlibWidget
