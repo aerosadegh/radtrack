@@ -9,7 +9,7 @@ import subprocess
 from pykern import pkarray
 from pykern import pkcompat
 from pykern.pkdebug import pkdc, pkdp
-from PyQt4 import QtCore
+from PyQt4 import QtCore, QtGui
 
 from radtrack import genesis_pane
 from radtrack import genesis_params
@@ -33,6 +33,7 @@ class Base(rt_controller.Controller):
         self._view = genesis_pane.View(self, parent_widget)
         self.process = QtCore.QProcess()
         self.process.readyReadStandardOutput.connect(self.newStdInfo)
+        self.process.readyReadStandardError.connect(self.newStdError)
         self._in_file = None
         self.msg_list = []
         self.w = {}
@@ -114,7 +115,14 @@ class Base(rt_controller.Controller):
         newString = str(self.process.readAllStandardOutput())
         self.msg_list.append(newString)
         self._view.set_result_text('simulation', ''.join(self.msg_list))
-        
+        self._view._result_text['simulation'].moveCursor(QtGui.QTextCursor.End)
+    
+    def newStdError(self):
+        """Callback with simulation stderr text"""
+        newString = str(self.process.readAllStandardError())
+        self.msg_list.append(newString)
+        self._view.set_result_text('simulation', ''.join(self.msg_list))   
+        self._view._result_text['simulation'].moveCursor(QtGui.QTextCursor.End)
         
         
         
