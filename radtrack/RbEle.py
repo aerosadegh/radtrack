@@ -2,10 +2,10 @@
 Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 version 2
 """
-import os, re, cgi, shutil
+import os, re, cgi, shutil, sdds
 from PyQt4 import QtCore, QtGui
 
-from pykern.pkdebug import *
+from pykern.pkdebug import pkdc
 
 from radtrack.BunchTab import BunchTab
 from radtrack.RbBunchTransport import RbBunchTransport
@@ -13,6 +13,8 @@ from radtrack.RbUtility import convertUnitsStringToNumber, convertUnitsNumber
 from radtrack.ui.rbele import Ui_ELE
 from radtrack.RbUtility import getRealWidget
 import radtrack.util.resource as resource
+
+SDDS_MOMENTUM_PARAMETER = 'designMomentumEV'
 
 class RbEle(QtGui.QWidget):
     acceptsFileTypes = []
@@ -81,6 +83,7 @@ class RbEle(QtGui.QWidget):
         self.process.readyReadStandardError.connect(self._process_stderr)
         self.process.started.connect(self._process_started)
         self.process.finished.connect(self._process_finished)
+
         # states: 'summary' or 'full'
         self.status_mode = 'summary'
         self.summary_html = ''
@@ -176,30 +179,34 @@ class RbEle(QtGui.QWidget):
         """Ensure the momentum value is valid"""
         if self.bunch_source_manager.is_momentum_required():
             try:
-                momentum = float(self.ui.momentumLineEdit.text())
+                return float(self.ui.momentumLineEdit.text())
             except ValueError:
                 try:
-                    momentum = convertUnitsStringToNumber(
-                        self.ui.momentumLineEdit.text(), 'MeV')
+                    return convertUnitsStringToNumber(self.ui.momentumLineEdit.text(), 'MeV')
                 except ValueError:
                     self.show_warning_box('Unable to parse momentum')
                     self.ui.momentumLineEdit.setFocus()
                     return None
         else:
-            bunchTab = self.bunch_source_manager.get_tab_widget()
-
-            try:
-                momentum = convertUnitsNumber(
-                    bunchTab.myBunch.getDesignMomentumEV(), 'eV', 'MeV')
-            except ValueError:
-                self.show_warning_box(
-                    'Invalid momentum value on Bunch Tab')
-                return None
-            except AttributeError: # bunchTab.myBunch is None
-                self.show_warning_box(
-                    'Bunch was not properly generated in tab: ' + self.bunch_source_manager.combo.currentText())
-                return None
-        return momentum
+            if self.bunch_source_manager.is_tab_choice():
+                try:
+                    bunchTab = self.bunch_source_manager.get_tab_widget()
+                    return convertUnitsNumber(bunchTab.myBunch.getDesignMomentumEV(), 'eV', 'MeV')
+                except ValueError:
+                    self.show_warning_box('Invalid momentum value on Bunch Tab')
+                    return None
+                except AttributeError: # bunchTab.myBunch is None
+                    self.show_warning_box(
+                        'Bunch was not properly generated in tab: ' + self.bunch_source_manager.combo.currentText())
+                    return None
+            else:
+                sddsIndex = 0
+                momentumIndex = sdds.sddsdata.GetParameterNames(sddsIndex).index(SDDS_MOMENTUM_PARAMETER)
+                if sdds.sddsdata.ReadPage(sddsIndex) != 1:
+                    sdds.sddsdata.PrintErrors(1)
+                    self.show_warning_box('Could not read momentum from ' + self.get_file_name())
+                    return None
+                return convertUnitsNumber(sdds.sddsdata.GetParameter(sddsIndex, momentumIndex), 'eV', 'MeV')
 
     def _abort_simulation(self):
         self.process.kill()
@@ -465,6 +472,13 @@ class RbEle(QtGui.QWidget):
             self, self.ui.bunchSourceComboBox)
         self.beam_line_source_manager = BeamLineSourceManager(
             self, self.ui.beamLineSourceComboBox)
+        self.ui.numProcSlider.valueChanged.connect(self.update_proc_count)
+
+    def update_proc_count(self):
+        baseText = self.ui.numProcLabel.text()
+        colonIndex = baseText.find(':')
+        baseText = baseText[:colonIndex + 2]
+        self.ui.numProcLabel.setText(baseText + str(self.ui.numProcSlider.value()) + '  ')
 
     def _show_full_status(self):
         """Show the full process stdout and stderr text"""
@@ -640,7 +654,7 @@ class BunchSourceManager(ComboManager):
         return bunch_file_name
 
     def is_momentum_required(self):
-        return self.has_selection() and not self.is_tab_choice()
+        return self.has_selection() and not self.is_tab_choice() and not self._file_provides_momentum()
 
     def _bunch_source_changed(self):
         """Load bunch file if selected"""
@@ -652,6 +666,14 @@ class BunchSourceManager(ComboManager):
             self.combo.setCurrentIndex(0)
             return
         self.rbele.update_widget_state()
+
+    def _file_provides_momentum(self):
+        sddsIndex = 0
+        if sdds.sddsdata.InitializeInput(sddsIndex, self.get_file_name()) != 1:
+            sdds.sddsdata.PrintErrors(1)
+            return False
+        return SDDS_MOMENTUM_PARAMETER in sdds.sddsdata.GetParameterNames(sddsIndex)
+
 
 
 class BeamLineSourceManager(ComboManager):

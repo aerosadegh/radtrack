@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'globalgu.ui'
 #
-# Created: Wed Apr 15 15:42:41 2015
-#      by: PyQt4 UI code generator 4.10.4
+# Created: Sat Jan  9 03:00:22 2016
+#      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -86,8 +86,6 @@ class Ui_globalgu(object):
         self.actionRename_Current_Tab.setObjectName(_fromUtf8("actionRename_Current_Tab"))
         self.actionExit = QtGui.QAction(globalgu)
         self.actionExit.setObjectName(_fromUtf8("actionExit"))
-        self.actionOpen_Working_Directory = QtGui.QAction(globalgu)
-        self.actionOpen_Working_Directory.setObjectName(_fromUtf8("actionOpen_Working_Directory"))
         self.menuFile.addAction(self.actionOpen_Project)
         self.menuFile.addAction(self.actionSet_Current_Project_Location)
         self.menuFile.addAction(self.actionOpen_New_RadTrack_Window)
@@ -96,8 +94,6 @@ class Ui_globalgu(object):
         self.menuFile.addAction(self.actionImport_File)
         self.menuFile.addAction(self.actionExport_Current_Tab)
         self.menuFile.addAction(self.menuRecent_Files.menuAction())
-        self.menuFile.addSeparator()
-        self.menuFile.addAction(self.actionOpen_Working_Directory)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionExit)
         self.menuEdit.addAction(self.actionUndo)
@@ -141,5 +137,4 @@ class Ui_globalgu(object):
         self.actionReopen_Closed_Tab.setText(_translate("globalgu", "Reopen Closed Tab", None))
         self.actionRename_Current_Tab.setText(_translate("globalgu", "Rename Current Tab ...", None))
         self.actionExit.setText(_translate("globalgu", "Exit", None))
-        self.actionOpen_Working_Directory.setText(_translate("globalgu", "Open Working Directory", None))
 

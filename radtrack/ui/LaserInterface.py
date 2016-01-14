@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'LaserInterface.ui'
 #
-# Created: Thu Mar 26 10:44:26 2015
-#      by: PyQt4 UI code generator 4.10.4
+# Created: Wed Jan  6 02:48:22 2016
+#      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -589,4 +589,4 @@ class Ui_LaserInterface(object):
         self.generateCoeffs.setToolTip(_translate("LaserInterface", "Generate a particle beam with the specified parameters.", None))
         self.generateCoeffs.setText(_translate("LaserInterface", "Gauss-Hermite coefficients", None))
 
-from radtrack.gui.matplotlibwidget import matplotlibWidget
+from radtrack.ui.matplotlibwidget import matplotlibWidget

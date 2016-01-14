@@ -236,7 +236,7 @@
   <customwidget>
    <class>matplotlibWidget</class>
    <extends>QWidget</extends>
-   <header>matplotlibwidget.h</header>
+   <header>radtrack.ui.matplotlibwidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

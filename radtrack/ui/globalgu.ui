@@ -58,8 +58,6 @@
     <addaction name="actionExport_Current_Tab"/>
     <addaction name="menuRecent_Files"/>
     <addaction name="separator"/>
-    <addaction name="actionOpen_Working_Directory"/>
-    <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
@@ -166,11 +164,6 @@
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
-   </property>
-  </action>
-  <action name="actionOpen_Working_Directory">
-   <property name="text">
-    <string>Open Working Directory</string>
    </property>
   </action>
  </widget>

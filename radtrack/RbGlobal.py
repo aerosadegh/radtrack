@@ -92,8 +92,13 @@ class RbGlobal(QtGui.QMainWindow):
                                        RbDcp,
                                        RbFEL,
                                        RbGenesisTransport,
+<<<<<<< HEAD
                                        RbSrwTab,
                                        GenesisTab ]
+=======
+                                       GenesisTab,
+                                       RbSrwTab ]
+>>>>>>> origin/master
 
         self.originalNameToTabType = dict()
         self.allExtensions = []
@@ -134,7 +139,6 @@ class RbGlobal(QtGui.QMainWindow):
         self.ui.actionUndo.triggered.connect(self.undo)
         self.ui.actionRedo.triggered.connect(self.redo)
         self.ui.actionClose_Current_Tab.triggered.connect(lambda : self.closeTab(None))
-        self.ui.actionOpen_Working_Directory.triggered.connect(self.openSessionDirectory)
         self.tabWidget.tabCloseRequested.connect(self.closeTab)
         self.ui.actionReopen_Closed_Tab.triggered.connect(self.undoCloseTab)
         self.ui.actionRename_Current_Tab.triggered.connect(self.renameTab)
@@ -460,20 +464,6 @@ class RbGlobal(QtGui.QMainWindow):
 
         with open(self.recentFile, 'w') as f:
             f.write('\n'.join(loadedRecentFiles))
-
-    def openSessionDirectory(self):
-        openDirectory(self.sessionDirectory)
-
-    def openConfigDirectory(self):
-        openDirectory(self.configDirectory)
-
-def openDirectory(directory):
-    if sys.platform == 'win32': # Windows
-        os.startfile(directory)
-    elif sys.platform == 'darwin': # Mac
-        subprocess.Popen(['open', directory])
-    else: # Linux
-        subprocess.Popen(['xdg-open', directory])
 
 
 @argh.arg('project_file', nargs='?', default=None, help='project file to open at startup')
