@@ -320,10 +320,6 @@ class elegantElement(elementCommon):
         line = declaration + sentence
         return wordwrap(line, 80, ' &', len(declaration))
 
-class particleDrift(driftPic):
-    beamColor = Qt.gray
-    beamWidth = .1 # meters
-
 class particleWatch(watchPic):
     flagSize = 0.25 # meters
 

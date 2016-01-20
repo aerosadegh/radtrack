@@ -108,7 +108,7 @@ class elementCommon(object):
             return rpn(val)
 
     def getLength(self):
-        return self.findParameter(['L', 'XMAX'])
+        return self.findParameter(['L', 'XMAX', 'Length'])
 
     def getAngle(self):
         return self.findParameter(['ANGLE', 'KICK', 'HKICK'])
@@ -262,6 +262,11 @@ class driftPic:
         exitPoint = placement(pos,angle).map(pycore.QPointF(length, 0))
 
         return exitPoint, angle
+
+
+class particleDrift(driftPic):
+    beamColor = pycore.Qt.gray
+    beamWidth = .1 # meters
 
 
 class aperturePic(driftPic):
@@ -566,6 +571,8 @@ class undulatorPic:
     def picture(self, scene, pos = pycore.QPointF(0,0), angle = 0):
         length  = self.getLength()*self.getResolution()
         periods = int(self.getPeriods())
+        if periods == 0:
+            periods = 10
         longBoxSize = length/(2*periods)
         tranBoxSize = 0.25*self.getResolution()
 
