@@ -664,8 +664,7 @@ class RbCbt(rt_qt.QtGui.QWidget):
                 undoAction = commandLoadElements(self, newElements.values())
                 self.undoStack.push(undoAction)
 
-            if defaultBeamline:
-                self.defaultBeamline = defaultBeamline
+            self.defaultBeamline = defaultBeamline
 
             # Copy files referenced by the elements into the current working directory
             for element in [e for e in newElements.values() if not e.isBeamline()]:
@@ -694,7 +693,7 @@ class RbCbt(rt_qt.QtGui.QWidget):
 
     def exportToFile(self, outputFileName = None):
         if not outputFileName:
-            getSaveFileName(self)
+            outputFileName = getSaveFileName(self)
                 
             if not outputFileName:
                 return # User cancelled
