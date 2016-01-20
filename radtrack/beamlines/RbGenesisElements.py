@@ -115,13 +115,15 @@ def fileExporter(outputFileName, elementDictionary, defaultBeamline):
                 continue
             elementTypesWritten.append(elementType)
             outputFile.write('\n ### ' + elementType.__name__ + 's\n')
-            currentPosition = 0.
-            for index, partName in enumerate(beamline.fullElementNameList()):
+            currentPosition = 0.0 # position at end of current element
+            lastPositionOfElement = 0.0 # position at end of previous element of same type
+            for partName in beamline.fullElementNameList():
                 part = elementDictionary[partName]
-                lastPosition = currentPosition
+                lastPosition = currentPosition # position at start of current element
                 currentPosition += part.getLength()
                 if type(part) != elementType:
                     continue
                 outputFile.write(part.componentLine() + '   ' \
                                  + str(int(round(part.getLength()/unitLength))) + '   ' \
-                                 + str(int(round(lastPosition/unitLength))) + '\n')
+                                 + str(int(round((lastPosition - lastPositionOfElement)/unitLength))) + '\n')
+                lastPositionOfElement = currentPosition
