@@ -104,8 +104,8 @@ def fileExporter(outputFileName, elementDictionary, defaultBeamline):
 
 
     with open(outputFileName, 'w') as outputFile:
-        outputFile.write('# This Genesis file was created by RadTrack\n')
-        outputFile.write('# RadTrack (c) 2013, RadiaSoft, LLC\n\n')
+        outputFile.write(' # This Genesis file was created by RadTrack\n')
+        outputFile.write(' # RadTrack (c) 2013, RadiaSoft, LLC\n\n')
         outputFile.write('? VERSION = 1.0 \n')
         outputFile.write('? UNITLENGTH = ' + str(unitLength) + '\n\n')
 
@@ -114,7 +114,7 @@ def fileExporter(outputFileName, elementDictionary, defaultBeamline):
             if elementType in elementTypesWritten:
                 continue
             elementTypesWritten.append(elementType)
-            outputFile.write('\n ### ' + elementType.__name__ + 's\n')
+            outputFile.write('\n ### ' + elementType.__name__ + 's ###\n')
             currentPosition = 0.0 # position at end of current element
             lastPositionOfElement = 0.0 # position at end of previous element of same type
             for partName in beamline.fullElementNameList():
