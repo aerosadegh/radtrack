@@ -8,8 +8,9 @@ from __future__ import print_function, division, unicode_literals, absolute_impo
 from PyQt4.QtCore import Qt
 from radtrack.beamlines.RbElementCommon import *
 from radtrack.beamlines.RbBeamlines import BeamlineCommon
-from radtrack.RbUtility import convertUnitsString, convertUnitsStringToNumber
+from radtrack.RbUtility import convertUnitsString, convertUnitsStringToNumber, roundSigFig
 import math
+from os.path import basename
 
 class genesisElement(elementCommon):
     def componentLine(self):
@@ -78,27 +79,35 @@ def isInteger(x):
     return math.floor(x) == x
 
 def fileExporter(outputFileName, elementDictionary, defaultBeamline):
+    beamline = None
+    if defaultBeamline:
+        beamline = elementDictionary[defaultBeamline]
+    else:
+        for element in elementDictionary.values():
+            if element.isBeamline():
+                beamline = element
+    if not beamline:
+        if parent and basename(outputFileName).startswith(parent.tabPrefix):
+            beamline = GenesisBeamline()
+            beamline.data = elementDictionary.values() # save all elements in order created
+        else:
+            raise NameError('Cannot write file: no beam line was created.')
+
+    unitLength = 1.0
+    allLengths = []
+    for element in elementDictionary.values():
+        if not element.isBeamline():
+            allLengths.append(element.getLength())
+    while not all([isInteger(roundSigFig(x, 6)) for x in allLengths]):
+        unitLength = unitLength/10.0
+        allLengths = [10.0 * x for x in allLengths]
+
+
     with open(outputFileName, 'w') as outputFile:
         outputFile.write('# This Genesis file was created by RadTrack\n')
         outputFile.write('# RadTrack (c) 2013, RadiaSoft, LLC\n\n')
         outputFile.write('? VERSION = 1.0 \n')
-
-        unitLength = 1.0
-        allLengths = []
-        for element in elementDictionary.values():
-            if not element.isBeamline():
-                allLengths.append(element.getLength())
-        while not all([isInteger(round(x, 6)) for x in allLengths]):
-            unitLength = unitLength/10.0
-            allLengths = [10.0 * x for x in allLengths]
         outputFile.write('? UNITLENGTH = ' + str(unitLength) + '\n\n')
-
-        if defaultBeamline:
-            beamline = elementDictionary[defaultBeamline]
-        else:
-            for element in elementDictionary.values():
-                if element.isBeamline():
-                    beamline = element
 
         elementTypesWritten = [Drift] # Drifts are never written to files
         for elementType in [type(elementDictionary[elementName]) for elementName in beamline.fullElementNameList()]:
