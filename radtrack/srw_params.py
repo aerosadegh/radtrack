@@ -45,6 +45,28 @@ def to_beam(params):
         res.arStatMom2[4] = 0
         res.arStatMom2[5] = params['rms_vertical_divergence'] ** 2
         res.arStatMom2[10] = params['rms_energy_spread'] ** 2
+    '''    
+    print(res.arStatMom2[0])
+    print(res.arStatMom2[2])
+    print(res.arStatMom2[3])
+    print(res.arStatMom2[5])
+    print(res.arStatMom2[10])
+    sigEperE = 0.1
+    sigX = (1.5e-06/(64/0.511)*0.1)**(1/2) #horizontal RMS size of e-beam [m]
+    sigXp = (1.5e-06/(64/0.511)/0.1) **(1/2) #horizontal RMS angular divergence
+    sigY = sigX #vertical RMS size of e-beam [m]
+    sigYp = sigXp #vertical RMS angular divergence [rad]
+    res.arStatMom2 = {}
+    res.arStatMom2[0]=sigX**2
+    res.arStatMom2[1]=0
+    res.arStatMom2[2]=sigXp**2
+    res.arStatMom2[3]=sigY**2
+    res.arStatMom2[4]=0
+    res.arStatMom2[5]=sigYp**2
+    res.arStatMom2[10]=sigEperE**2
+    '''
+
+    
     return res
 
 
@@ -99,6 +121,19 @@ def to_precision_single_particle(params):
     Returns:
         list: elements for power density
     """
+    '''
+    print(_precision(
+        params,
+        (
+            'sr_calculation_method',
+            'relative',
+            'start_integration',
+            'end_integration',
+            'num_points_trajectory_calculation',
+            'use_terminating_terms',
+            'sampling_factor',
+        ),
+    ))'''
     return _precision(
         params,
         (
@@ -285,4 +320,5 @@ def _to_wavefront(params, obj):
     obj.mesh.xFin = params['window_right_edge']
     obj.mesh.yStart = params['window_top_edge']
     obj.mesh.yFin = params['window_bottom_edge']
+
     return obj

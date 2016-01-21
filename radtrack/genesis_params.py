@@ -114,7 +114,7 @@ def to_focusing(params):
     res['FL']=params['focus_length']
     res['DL']=params['defocus_length']
     res['DRL']=params['drift_length']
-    res['F1ST']=params['cell_start']
+    res['F1ST']=params['focus_length']*params['cell_start'].value
     res['QFDX']=params['max_horizontal_misalignment']
     res['QFDY']=params['max_vertical_misalignment']
     res['SOLEN']=params['solenoid_strength']

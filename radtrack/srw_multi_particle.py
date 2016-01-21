@@ -27,7 +27,7 @@ def simulate(params, msg_callback=lambda _: _):
         OrderedMapping: results and params (see code for format)
     """
     p = pkcollections.OrderedMapping()
-    for k in 'simulation_kind', 'wavefront':
+    for k in 'simulation_kind', 'wavefront','intensity','polarization':
         v = params[k]
         p[k] = v.value if hasattr(v, 'value') else v
     if params.radiation_source.name.lower() == 'wiggler':
@@ -39,16 +39,26 @@ def simulate(params, msg_callback=lambda _: _):
     elif params.radiation_source.name.lower() == 'multipole':
         pkcollections.mapping_merge(
         p,srw_params.to_multipole(params.source))
+    
     p.beam = srw_params.to_beam(params.beam)
     p.stkF = srw_params.to_wavefront_multi_particle(p.wavefront) #flux
     p.stkP = srw_params.to_wavefront_multi_particle(p.wavefront) #power
+    p.wfrXY = srw_params.to_wavefront_single_particle(p.wavefront)
     p.ar_prec_f = srw_params.to_flux_precision(params.precision)
     p.ar_prec_p = srw_params.to_power_precision(params.precision)
-    p.arPrecPar = [1] #General Precision parameters for Trajectory calculation:
+    p.arPrecPar = [2,0.01,-0.1,0.1,8000,1,0] #General Precision parameters for Trajectory calculation:
     p.fieldInterpMeth = 4
+    
+    p.wfrE = srw_params.to_wavefront_single_particle(p.wavefront)
+    p.wfrE.partBeam = srw_params.to_beam(params.beam)
+    p.wfrXY = srw_params.to_wavefront_single_particle(p.wavefront)
+    p.wfrXY.partBeam = srw_params.to_beam(params.beam)
+    
     p.plots = []
+    skv = p.simulation_kind
+    
     msg_callback('Performing trajectory calculation')
-    if params.radiation_source.name.lower() == 'wiggler': _trajectory(p)
+    #if params.radiation_source.name.lower() == 'wiggler': _trajectory(p)
     if params.simulation_kind == 'E':
         msg_callback('Performing Electric Field (spectrum vs photon energy) calculation')
         msg_callback('Extracting Intensity from calculated Electric Field')
@@ -103,22 +113,38 @@ def simulate(params, msg_callback=lambda _: _):
             ],
         ])
     elif params.simulation_kind == 'X_AND_Y':
-        msg_callback('Performing Electric Field (intensity vs x- and y-coordinate) calculation')
-        srwlib.srwl.CalcPowDenSR(p.stkP, p.beam, 0, p.magFldCnt, p.ar_prec_p)
-        msg_callback('Extracting Intensity from calculated Electric Field')
-        p.plotMeshX = [1000*p.stkP.mesh.xStart, 1000*p.stkP.mesh.xFin, p.stkP.mesh.nx]
-        p.plotMeshY = [1000*p.stkP.mesh.yStart, 1000*p.stkP.mesh.yFin, p.stkP.mesh.ny]
-        p.plots.append([
-            uti_plot.uti_plot2d,
-            p.stkP.arS,
-            p.plotMeshX,
-            p.plotMeshY,
-            [
-                'Horizontal Position [mm]',
-                'Vertical Position [mm]',
-                'Power Density',
-            ],
-        ])
+        if params.radiation_source.name.lower() == 'wiggler':
+            msg_callback('Performing Electric Field (intensity vs x- and y-coordinate) calculation')
+            srwlib.srwl.CalcPowDenSR(p.stkP, p.beam, 0, p.magFldCnt, p.ar_prec_p)
+            msg_callback('Extracting Intensity from calculated Electric Field')
+            p.plotMeshX = [1000*p.stkP.mesh.xStart, 1000*p.stkP.mesh.xFin, p.stkP.mesh.nx]
+            p.plotMeshY = [1000*p.stkP.mesh.yStart, 1000*p.stkP.mesh.yFin, p.stkP.mesh.ny]
+            p.plots.append([
+                uti_plot.uti_plot2d,
+                p.stkP.arS,
+                p.plotMeshX,
+                p.plotMeshY,
+                [
+                    'Horizontal Position [mm]',
+                    'Vertical Position [mm]',
+                    'Power Density',
+                ],
+            ])
+        else:
+            msg_callback('Performing Electric Field (intensity vs x- and y-coordinate) calculation')
+            srwlib.srwl.CalcElecFieldSR(p.wfrXY,p.beam,p.magFldCnt, p.arPrecPar)
+            #'''
+            msg_callback('Extracting Intensity from calculated Electric Field')
+            p.arI1 = pkarray.new_float([0]*p.wfrXY.mesh.nx*p.wfrXY.mesh.ny)
+            srwlib.srwl.CalcIntFromElecField(p.arI1, p.wfrXY, p.polarization, p.intensity, skv, p.wfrXY.mesh.eStart, p.wfrXY.mesh.xStart, p.wfrXY.mesh.yStart)
+            p.plots.append([
+                uti_plot.uti_plot2d,
+                p.arI1,
+                [1*p.wfrXY.mesh.xStart, 1*p.wfrXY.mesh.xFin, p.wfrXY.mesh.nx],
+                [1*p.wfrXY.mesh.yStart, 1*p.wfrXY.mesh.yFin, p.wfrXY.mesh.ny],
+                ['Horizontal Position [m]', 'Vertical Position [m]', 'Intensity at ' + str(p.wfrXY.mesh.eStart) + ' eV'],
+            ])#'''
+        
     else:
         raise AssertionError('{}: invalid simulation_kind'.format(params.simulation_kind))
     return p
@@ -185,21 +211,4 @@ def _trajectorys(p):
     uti_plot.uti_plot1d(p.partTraj.arX, p.ctMesh, ['ct [m]', 'Horizontal Position [m]'])
     #uti_plot.uti_plot1d(p.partTraj.arY, p.ctMesh, ['ct [m]', 'Vertical Position [m]'])
     uti_plot.uti_plot1d(p.partTraj.arXp, p.ctMesh, ['ct [m]', 'Horizontal angle [rad]'])
-    uti_plot.uti_plot_show()
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    uti_plot.uti_plot_show()    

@@ -8,7 +8,7 @@
       name: multi_particle
       label: Multi-Particle
       required: [srw_multi]
-      children: [precision, beam, simulation_kind, radiation_source]
+      children: [precision, beam, simulation_kind, radiation_source, intensity, polarization]
     -
       name: single_particle
       required: [srw_single]
@@ -34,11 +34,11 @@
 -
   name: polarization
   py_type: srw_enums.Polarization
-  required: [srw_single]
+  required: [srw_multi, srw_single]
 -
   name: intensity
   py_type: srw_enums.Intensity
-  required: [srw_single]
+  required: [srw_multi, srw_single]
 -
   name: simulation_kind
   py_type: srw_enums.SimulationKind

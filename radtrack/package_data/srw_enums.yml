@@ -39,8 +39,11 @@ Polarization:
   TOTAL: Total
 
 Intensity:
+  SINGLE_ELECTRON: Single Electron
   SINGLE_ELECTRON_INTENSITY: Single Electron Intensity
   SINGLE_ELECTRON_FLUX: Single Electron Flux
+  MULTI_ELECTRON_INTENSITY: Multi-Electron Intensity
+  MULTI_ELECTRON_FLUX: Multi-Electron Flux
   REAL_PART_OF_ELECTRON_E_FIELD: Real Part of Electron E-Field
   IMAGINARY_PART_OF_ELECTRON_E_FIELD: Imaginary Part of Electron E-Field
   
