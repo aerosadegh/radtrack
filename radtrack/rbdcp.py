@@ -19,7 +19,7 @@ ColumnXAxis =-1
 MaxNumParam=999
 
 class RbDcp(QtGui.QWidget):
-    acceptsFileTypes = ['save', 'twi','out','sig','cen','dat','txt','sdds','bun','fin','dat','h5']
+    acceptsFileTypes = ['save', 'twi','out','sig','cen','dat','txt','sdds','bun','fin','h5']
     defaultTitle = 'Data Visualization'
     task = 'Analyze simulation results'
     category = 'tools'
@@ -336,7 +336,7 @@ class RbDcp(QtGui.QWidget):
         self.customgraph()
     
     def customgraph(self):
-        #self.parent.ui.statusbar.showMessage('Drawing plot ...')
+        self.parent.ui.statusbar.showMessage('Drawing plot ...')
         #ColumnXAxis=0
         xname = self.xaxis.currentText()
         yname = self.yaxis.currentText()
@@ -392,7 +392,7 @@ class RbDcp(QtGui.QWidget):
             print(numpy.shape(Yrvec))
             
 
-        #self.parent.ui.statusbar.clearMessage()
+        self.parent.ui.statusbar.clearMessage()
                 
 def main():
     app = QtGui.QApplication(sys.argv)
