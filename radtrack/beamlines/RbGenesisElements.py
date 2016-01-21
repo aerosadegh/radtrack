@@ -156,7 +156,7 @@ def fileImporter(fileName):
     beamlineWithDrifts = []
     currentPosition = 0.0
     for position, element in beamline:
-        if position - currentPosition > 1e-6:
+        if abs(position - currentPosition) > 1e-6:
             drift = Drift()
             drift.name = 'AD' + str(serialNumber)
             serialNumber += 1
