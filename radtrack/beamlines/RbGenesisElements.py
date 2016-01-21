@@ -11,6 +11,7 @@ from radtrack.beamlines.RbBeamlines import BeamlineCommon
 from radtrack.RbUtility import convertUnitsString, convertUnitsStringToNumber, roundSigFig
 import math
 from os.path import basename
+from collections import OrderedDict
 
 class genesisElement(elementCommon):
     def componentLine(self):
@@ -65,15 +66,114 @@ class Undulator(genesisElement, undulatorPic):
     parameterDescription = ['Length', 'Dimensionless strength parameter']
 
 classDictionary = dict()
+genesisClassDictionary = dict()
 
 for key in list(globals()):
     if hasattr(globals()[key], 'elementDescription'):
         classDictionary[key] = globals()[key]
+        genesisClassDictionary[classDictionary[key].symbol] = globals()[key]
 
 advancedNames = []
 
 def fileImporter(fileName):
-    pass
+    lines = []
+
+    with open(fileName) as file:
+        while True:
+            line = file.readline()
+            if not line:
+                break
+
+            if not line.startswith('!'):
+                lines.append(line)
+            else:
+                if line.upper().find('LOOP') != -1 and line.find('=') != -1:
+                    loops = int(line.split('=')[1])
+                    repeatedLines = []
+                    line = file.readline()
+                    while line.find('ENDLOOP') == -1:
+                        repeatedLines.append(line)
+                        line = file.readline()
+                        if not line:
+                            raise NameError('!LOOP = ' + str(loops) + ' not terminated with !ENDLOOP')
+                    if not line.startswith('!'):
+                        raise NameError('ENDLOOP command needs to start with "!"')
+
+                    lines.extend(repeatedLines * loops)
+
+                else:
+                    raise NameError('Invalid format for Genesis .lat file.')
+
+    elementPosition = dict() # current spacing of elementType
+    for elementType in classDictionary.values():
+        elementPosition[elementType] = 0.0
+
+    beamline = [] # list of tuples of (position, element)
+    elementDictionary = OrderedDict()
+    serialNumber = 0
+
+    unitLength = None
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+
+        if any(line.startswith(c) for c in [' ', '\t', '#']):
+            continue
+
+        # Information
+        if line.startswith('?'):
+            if line.upper().find('VERSION') != -1:
+                continue
+            if line.upper().find('UNITLENGTH') != -1:
+                if not unitLength:
+                    unitLength = float(line.split('=')[1])
+                    continue
+                else:
+                    raise NameError('UNITLENGTH should only be specified once.')
+
+        # Command (there should be none left)
+        if line.startswith('!'):
+            raise NameError('Invalid format for Genesis .lat file.\nOffending line: ' + line)
+
+        if not unitLength:
+            raise NameError('UNITLENGTH not defined.')
+
+        # Beam line elements
+        elementType, strength, length, spacing = line.split()
+        genesisType = genesisClassDictionary[elementType]
+        element = genesisType()
+        element.data = [str(roundSigFig(float(length)*unitLength, 6)), strength]
+        element.name = elementType + str(serialNumber)
+        serialNumber += 1
+        elementDictionary[element.name] = element
+
+        distanceFromLast = float(spacing)*unitLength
+        beamline.append((elementPosition[genesisType] + distanceFromLast, element))
+        elementPosition[genesisType] += distanceFromLast + element.getLength()
+
+    beamline.sort()
+    beamlineWithDrifts = []
+    currentPosition = 0.0
+    for position, element in beamline:
+        if position - currentPosition > 1e-6:
+            drift = Drift()
+            drift.name = 'AD' + str(serialNumber)
+            serialNumber += 1
+            drift.data = [str(position - currentPosition)]
+            beamlineWithDrifts.append(drift)
+            currentPosition += beamlineWithDrifts[-1].getLength()
+            elementDictionary[drift.name] = drift
+        beamlineWithDrifts.append(element)
+        currentPosition += beamlineWithDrifts[-1].getLength()
+
+    beamlineElement = GenesisBeamline()
+    beamlineElement.name = 'BeamLine'
+    beamlineElement.data = beamlineWithDrifts
+    elementDictionary[beamlineElement.name] = beamlineElement
+
+    return elementDictionary, None
+
 
 def isInteger(x):
     return math.floor(x) == x
