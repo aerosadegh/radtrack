@@ -572,7 +572,7 @@ class undulatorPic:
         length  = self.getLength()*self.getResolution()
         periods = int(self.getPeriods())
         if periods == 0:
-            periods = 10
+            periods = int(10*self.getLength()) # default to 10 periods per meter
         longBoxSize = length/(2*periods)
         tranBoxSize = 0.25*self.getResolution()
 
