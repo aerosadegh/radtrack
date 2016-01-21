@@ -36,7 +36,7 @@ radiation_source:
       nors: 1
       l_edge: 0.01
 
-polarization: LINEAR_HORIZONTAL
+polarization: TOTAL
 intensity: SINGLE_ELECTRON_INTENSITY
 
 beam:
@@ -47,6 +47,7 @@ beam:
   horizontal_angle: 0
   vertical_angle: 0
   gamma: 130 #5870.925
+  
 precision:
   sr_calculation_method: AUTO_WIGGLER #AUTO_UNDULATOR
   relative: .01

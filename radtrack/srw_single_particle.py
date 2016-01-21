@@ -29,7 +29,7 @@ def simulate(params, msg_callback):
         OrderedMapping: results and params (see code for format)
     """
     p = pkcollections.OrderedMapping()
-    for k in 'polarization', 'intensity', 'simulation_kind', 'wavefront','radiation_source':
+    for k in 'polarization', 'intensity', 'simulation_kind', 'wavefront':
         v = params[k]
         p[k] = v.value if hasattr(v, 'value') else v
     if params.radiation_source.name.lower() == 'wiggler':
@@ -90,6 +90,8 @@ def simulate(params, msg_callback):
     elif params.simulation_kind == 'X_AND_Y':
         msg_callback('Performing Electric Field (intensity vs x- and y-coordinate) calculation')
         #srwlib.srwl.CalcElecFieldSR(p.wfrXY, 0, p.magFldCnt, p.arPrecPar)
+        print(p.magFldCnt.__dict__)
+        '''
         srwlib.srwl.CalcElecFieldSR(p.wfrXY,p.beam,p.magFldCnt, p.arPrecPar)
         msg_callback('Extracting Intensity from calculated Electric Field')
         p.arI1 = pkarray.new_float([0]*p.wfrXY.mesh.nx*p.wfrXY.mesh.ny)
@@ -100,7 +102,7 @@ def simulate(params, msg_callback):
             [1*p.wfrXY.mesh.xStart, 1*p.wfrXY.mesh.xFin, p.wfrXY.mesh.nx],
             [1*p.wfrXY.mesh.yStart, 1*p.wfrXY.mesh.yFin, p.wfrXY.mesh.ny],
             ['Horizontal Position [m]', 'Vertical Position [m]', 'Intensity at ' + str(p.wfrXY.mesh.eStart) + ' eV'],
-        ]),
+        ])'''
         
     elif params.simulation_kind == 'E_AND_X':
         msg_callback('Performing Electric Field (intensity vs energy- and x-coordinate) calculation')

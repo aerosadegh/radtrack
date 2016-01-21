@@ -41,58 +41,59 @@ class Base(rt_controller.Controller):
         
     def action_beam(self):
         self._pop_up('beam')
-        self.w.update(genesis_params.to_beam(self.params.beam))
         
     def action_undulator(self):
         self._pop_up('undulator')
-        self.w.update(genesis_params.to_undulator(self.params.undulator))
         
     def action_radiation(self):
         self._pop_up('radiation')
-        self.w.update(genesis_params.to_radiation(self.params.radiation))
         
     def action_particle_loading(self):
         self._pop_up('particle_loading')
-        self.w.update(genesis_params.to_particle_loading(self.params.particle_loading))
         
     def action_mesh(self):
         self._pop_up('mesh')
-        self.w.update(genesis_params.to_mesh(self.params.mesh))
         
     def action_focusing(self):
         self._pop_up('focusing')
-        self.w.update(genesis_params.to_focusing(self.params.focusing))
         
     def action_time_dependence(self):
         self._pop_up('time_dependence')
-        self.w.update(genesis_params.to_time(self.params.time_dependence))
         
     def action_simulation_control(self):
         self._pop_up('simulation_control')
-        self.w.update(genesis_params.to_sim_control(self.params.simulation_control))
         
     def action_scan(self):
         self._pop_up('scan')
-        self.w.update(genesis_params.to_scan(self.params.scan))
         
     def action_io_control(self):
         self._pop_up('io_control')
-        self.w.update(genesis_params.to_io_control(self.params.io_control))
         
     def action_simulate(self):
         def msg(m):
             self.msg_list.append(m + '... \n \n')
             self._view.set_result_text('simulation', ''.join(self.msg_list))
+        
+        self.w.update(genesis_params.to_beam(self.params.beam))
+        self.w.update(genesis_params.to_undulator(self.params.undulator))
+        self.w.update(genesis_params.to_radiation(self.params.radiation))
+        self.w.update(genesis_params.to_particle_loading(self.params.particle_loading))
+        self.w.update(genesis_params.to_mesh(self.params.mesh))
+        self.w.update(genesis_params.to_focusing(self.params.focusing))
+        self.w.update(genesis_params.to_time(self.params.time_dependence))
+        self.w.update(genesis_params.to_sim_control(self.params.simulation_control))
+        self.w.update(genesis_params.to_scan(self.params.scan))
+        self.w.update(genesis_params.to_io_control(self.params.io_control))
             
         msg('Writing Genesis IN file')
-        with open('verydumb.in','w') as f:
+        with open('genesis_run.in','w') as f:
             f.write(' $newrun \n')
             for i in self.w:
                 if isinstance(self.w[i], rt_enum.Enum):
                     f.write(' {}={}\n'.format(i, self.w[i].value))
                 elif isinstance(self.w[i], bool):
                     f.write(' '+i+'='+str(int(self.w[i]))+'\n')
-                elif isinstance(self.w[i], unicode): 
+                elif isinstance(self.w[i], str) or isinstance(self.w[i],unicode): 
                     if not self.w[i]:
                         pass
                     else:

@@ -62,10 +62,13 @@ class Polarization(rt_enum.Enum):
 
 @enum.unique
 class Intensity(rt_enum.Enum):
-    SINGLE_ELECTRON_INTENSITY = 0
-    SINGLE_ELECTRON_FLUX = 1
-    REAL_PART_OF_ELECTRON_E_FIELD = 2
-    IMAGINARY_PART_OF_ELECTRON_E_FIELD = 3
+    SINGLE_ELECTRON = 0
+    MULTI_ELECTRON_INTENSITY = 1
+    SINGLE_ELECTRON_INTENSITY = 2
+    MULTI_ELECTRON_FLUX = 3
+    SINGLE_ELECTRON_FLUX = 4
+    REAL_PART_OF_ELECTRON_E_FIELD = 5
+    IMAGINARY_PART_OF_ELECTRON_E_FIELD = 6
     
 @enum.unique
 class RadiationSource(rt_enum.Enum):
