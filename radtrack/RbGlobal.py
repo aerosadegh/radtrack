@@ -92,8 +92,8 @@ class RbGlobal(QtGui.QMainWindow):
                                        RbDcp,
                                        RbFEL,
                                        RbGenesisTransport,
-                                       RbSrwTab,
-                                       GenesisTab]
+                                       GenesisTab,
+                                       RbSrwTab]
 
         self.originalNameToTabType = dict()
         self.allExtensions = []
@@ -112,11 +112,12 @@ class RbGlobal(QtGui.QMainWindow):
             # The next line has some weirdness that needs explaining:
             #  1. "ignore" is a variable that receives the boolean returned
             #     from QAction.triggered(). This variable is not used, hence
-            #     the name. This goes for all "lambda ignore" below.
-            #  2. "t = widgetType" sets t to the current widgetType if the
+            #     the name. This goes for all "lambda ignore" in other
+            #     connect() calls.
+            #  2. "t = tabType" sets t to the current tabType if the
             #     QAction.triggered() doesn't supply it (which it doesn't).
-            #     This localizes widgetType to the lambda in this loop iteration.
-            #     Just using self.newTab(widgetType) would only bind the name of
+            #     This localizes tabType to the lambda in this loop iteration.
+            #     Just using self.newTab(tabType) would only bind the name of
             #     the variable to the argument, not the data contained. This would
             #     result in every menu entry creating a new copy of the last tab added.
             actionNew_Tab.triggered.connect(lambda ignore, t = tabType : self.newTab(t))

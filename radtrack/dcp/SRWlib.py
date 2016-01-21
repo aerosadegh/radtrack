@@ -25,5 +25,5 @@ class SRW:
                         self.parameterData.append(float(line[1:line.find("#",1,MaxNumParam)]))
                         self.parameterName.append(line[line.find("#",1,MaxNumParam)+1:MaxNumParam])
                 else:
-                    self.columnData.append([value for value in line.split()])
+                    self.columnData.append([float(value) for value in line.split()])
             self.columnData=zip(*self.columnData)

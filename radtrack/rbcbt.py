@@ -75,6 +75,7 @@ class RbCbt(rt_qt.QtGui.QWidget):
             self.parent.lastUsedDirectory = os.path.expanduser('~')
         else:
             self.parent = parent
+            module.parent = parent
         self.elementDictionary = OrderedDict()
         self.workingBeamlineName = ''
         self.preListSave = []
@@ -664,8 +665,7 @@ class RbCbt(rt_qt.QtGui.QWidget):
                 undoAction = commandLoadElements(self, newElements.values())
                 self.undoStack.push(undoAction)
 
-            if defaultBeamline:
-                self.defaultBeamline = defaultBeamline
+            self.defaultBeamline = defaultBeamline
 
             # Copy files referenced by the elements into the current working directory
             for element in [e for e in newElements.values() if not e.isBeamline()]:
@@ -694,12 +694,15 @@ class RbCbt(rt_qt.QtGui.QWidget):
 
     def exportToFile(self, outputFileName = None):
         if not outputFileName:
-            getSaveFileName(self)
+            outputFileName = getSaveFileName(self)
                 
             if not outputFileName:
                 return # User cancelled
 
-        self.exporter(outputFileName, self.elementDictionary, self.defaultBeamline)
+        try:
+            self.exporter(outputFileName, self.elementDictionary, self.defaultBeamline)
+        except Exception as e:
+            rt_qt.QtGui.QMessageBox.warning(self, 'Save Error', '\n'.join(e.args))
 
     def closeEvent(self, event):
         # Large pictures seem to crash python on exiting RadTrack,

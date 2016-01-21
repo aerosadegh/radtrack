@@ -8,92 +8,227 @@ from __future__ import print_function, division, unicode_literals, absolute_impo
 from PyQt4.QtCore import Qt
 from radtrack.beamlines.RbElementCommon import *
 from radtrack.beamlines.RbBeamlines import BeamlineCommon
-from radtrack.RbUtility import convertUnitsString
+from radtrack.RbUtility import convertUnitsString, convertUnitsStringToNumber, roundSigFig
+import math
+from os.path import basename
+from collections import OrderedDict
 
 class genesisElement(elementCommon):
     def componentLine(self):
-        sentence = [(param, convertUnitsString(datum, unit)) \
-                for param, datum, unit in \
-                zip(self.parameterNames, self.data, self.units) if datum]
+        writeData = []
+        for i in range(1, len(self.data)): # self.data[0] == length which is handled elsewhere
+            try:
+                writeData.append(str(convertUnitsStringToNumber(self.data[i], self.units[i])))
+            except ValueError:
+                writeData.append('0.0')
 
-        sentence = '   '.join(self.data)
-        #sentence = ', '.join(['='.join(phrase) for phrase in sentence])
-
-        return type(self).__name__ + '     ' + sentence
+        return self.symbol + '     ' + '   '.join(writeData)
 
 
 class GenesisBeamline(BeamlineCommon):
-    def componentLine(self):
-        return self.name + ':    ' + self.displayLine()
+    pass
+
 
 beamlineType = GenesisBeamline
 fileExtension = 'lat'
 
-class QF(genesisElement, magnetPic):
-    elementDescription = 'A quadrupole'
-    parameterNames = ['K', 'L', 'D']
-    units = ['T/m', 'm', 'm']
-    dataType = ['double', 'double', 'double']
-    parameterDescription = ['Field Gradient', 'Length','Spacing']
+class Drift(particleDrift, genesisElement):
+    symbol = 'DL'
+    elementDescription = 'A drift space'
+    parameterNames = ['Length']
+    units = ['m']
+    dataType = ['double']
+    parameterDescription = ['Length']
+
+class Solenoid(genesisElement, solenoidPic):
+    symbol = 'SL'
+    elementDescription = 'A solenoid manget'
+    parameterNames = ['Length', 'KS']
+    units = ['m', 'rad/m', 'T', 'm', 'm', 'm']
+    dataType = ['double', 'double']
+    parameterDescription = ['Length', 'Geometric Strength, -Bs/(B*Rho)']
+
+class Quadrupole(genesisElement, magnetPic):
+    symbol = 'QF'
+    elementDescription = 'A quadrupole magnet'
+    parameterNames = ['Length', 'Focusing Strength (k)']
+    units = ['m', 'T/m']
+    dataType = ['double', 'double']
+    parameterDescription = ['Length', 'Field Gradient']
     color = Qt.red
 
-class AW(genesisElement, undulatorPic):
-    elementDescription = 'A wiggler or undulator for damping or excitation of the beam.'
-    parameterNames = ['AW0', 'L','D']
-    units = ['', 'm','m','m']
-    dataType = ['double', 'double', 'double']
-    parameterDescription = ['Dimensionless strength parameter', 'Length','Spacing']
-
-class Unit_Length(genesisElement, driftPic):
-    elementDescription = 'The length to which all Genesis elements are relative to'
-    parameterNames = ['UNITLENGTH']
-    units = ['m']
-    dataType =['double']
-    parameterDescription = ['length']
-
-    def componentLine(self):
-        sentence = [(param, convertUnitsString(datum, unit)) \
-                for param, datum, unit in \
-                zip(self.parameterNames, self.data, self.units) if datum]
-        sentence = ''.join(['='.join(phrase) for phrase in sentence])
-        return '?'+sentence
+class Undulator(genesisElement, undulatorPic):
+    symbol = 'AW'
+    elementDescription = 'A wiggler or undulator for damping or excitation of the beam'
+    parameterNames = ['Length', 'AW0']
+    units = ['m', '']
+    dataType = ['double', 'double']
+    parameterDescription = ['Length', 'Dimensionless strength parameter']
 
 classDictionary = dict()
+genesisClassDictionary = dict()
 
 for key in list(globals()):
     if hasattr(globals()[key], 'elementDescription'):
         classDictionary[key] = globals()[key]
+        genesisClassDictionary[classDictionary[key].symbol] = globals()[key]
 
 advancedNames = []
 
 def fileImporter(fileName):
-    pass
+    lines = []
 
+    with open(fileName) as file:
+        while True:
+            line = file.readline()
+            if not line:
+                break
+
+            if not line.startswith('!'):
+                lines.append(line)
+            else:
+                if line.upper().find('LOOP') != -1 and line.find('=') != -1:
+                    try:
+                        loops = int(line.split('=')[1])
+                    except ValueError:
+                        raise IOError('Invalid LOOP count in Genesis file: ' + line)
+                    repeatedLines = []
+                    line = file.readline()
+                    while line.find('ENDLOOP') == -1:
+                        repeatedLines.append(line)
+                        line = file.readline()
+                        if not line:
+                            raise IOError('!LOOP = ' + str(loops) + ' not terminated with !ENDLOOP')
+                    if not line.startswith('!'):
+                        raise IOError('ENDLOOP command needs to start with "!"')
+
+                    lines.extend(repeatedLines * loops)
+
+                else:
+                    raise IOError('Invalid line in Genesis file: ' + line)
+
+    elementPosition = dict() # current spacing of elementType
+    for elementType in classDictionary.values():
+        elementPosition[elementType] = 0.0
+
+    beamline = [] # list of tuples of (position, element)
+    elementDictionary = OrderedDict()
+    serialNumber = 0
+
+    unitLength = None
+    for line in lines:
+        line = line.strip()
+        if not line or line.startswith('#'):
+            continue
+
+        # Information
+        if line.startswith('?'):
+            if line.upper().find('VERSION') != -1:
+                continue
+            if line.upper().find('UNITLENGTH') != -1:
+                if not unitLength:
+                    unitLength = float(line.split('=')[1])
+                    continue
+                else:
+                    raise IOError('UNITLENGTH should only be specified once.')
+
+            raise IOError('Invalid line in Genesis file: ' + line)
+
+        # Command (there should be none left)
+        if line.startswith('!'):
+            raise IOError('Invalid line in Genesis file: ' + line)
+
+        if not unitLength:
+            raise IOError('UNITLENGTH not defined.')
+
+        # Beam line elements
+        elementType, strength, length, spacing = line.split()
+        try:
+            genesisType = genesisClassDictionary[elementType]
+        except KeyError:
+            raise IOError('Invalid line in Genesis file: ' + line)
+        element = genesisType()
+        element.data = [str(roundSigFig(float(length)*unitLength, 6)), strength]
+        element.name = elementType + str(serialNumber)
+        serialNumber += 1
+        elementDictionary[element.name] = element
+
+        distanceFromLast = float(spacing)*unitLength
+        beamline.append((elementPosition[genesisType] + distanceFromLast, element))
+        elementPosition[genesisType] += distanceFromLast + element.getLength()
+
+    beamline.sort()
+    beamlineWithDrifts = []
+    currentPosition = 0.0
+    for position, element in beamline:
+        if abs(position - currentPosition) > 1e-6:
+            drift = Drift()
+            drift.name = 'AD' + str(serialNumber)
+            serialNumber += 1
+            drift.data = [str(position - currentPosition)]
+            beamlineWithDrifts.append(drift)
+            currentPosition += beamlineWithDrifts[-1].getLength()
+            elementDictionary[drift.name] = drift
+        beamlineWithDrifts.append(element)
+        currentPosition += beamlineWithDrifts[-1].getLength()
+
+    beamlineElement = GenesisBeamline()
+    beamlineElement.name = 'BeamLine'
+    beamlineElement.data = beamlineWithDrifts
+    elementDictionary[beamlineElement.name] = beamlineElement
+
+    return elementDictionary, None
+
+
+def isInteger(x):
+    return math.floor(x) == x
 
 def fileExporter(outputFileName, elementDictionary, defaultBeamline):
-    with open(outputFileName, 'w') as outputFile:
-        outputFile.write('# This Genesis file was created by RadTrack\n')
-        outputFile.write('# RadTrack (c) 2013, RadiaSoft, LLC\n\n')
-        outputFile.write('? VERSION = 1.0 \n')
+    beamline = None
+    if defaultBeamline:
+        beamline = elementDictionary[defaultBeamline]
+    else:
         for element in elementDictionary.values():
-             if element.isBeamline():
-                 for part in element.data:
-                     outputFile.write(part.componentLine()+'\n')
+            if element.isBeamline():
+                beamline = element
+    if not beamline:
+        if parent and basename(outputFileName).startswith(parent.tabPrefix):
+            beamline = GenesisBeamline()
+            beamline.data = elementDictionary.values() # save all elements in order created
+        else:
+            raise IOError('Cannot write file: no beam line was created.')
+
+    unitLength = 1.0
+    allLengths = []
+    for element in elementDictionary.values():
+        if not element.isBeamline():
+            allLengths.append(element.getLength())
+    while not all([isInteger(roundSigFig(x, 6)) for x in allLengths]):
+        unitLength = unitLength/10.0
+        allLengths = [10.0 * x for x in allLengths]
 
 
+    with open(outputFileName, 'w') as outputFile:
+        outputFile.write(' # This Genesis file was created by RadTrack\n')
+        outputFile.write(' # RadTrack (c) 2013, RadiaSoft, LLC\n\n')
+        outputFile.write('? VERSION = 1.0 \n')
+        outputFile.write('? UNITLENGTH = ' + str(unitLength) + '\n\n')
 
-'''
-class DRIF(particleDrift, genesisElement):
-    elementDescription = 'A drift space'
-    parameterNames = ['L']
-    units = ['m']
-    dataType = ['double']
-    parameterDescription = ['length']
-
-class SOLE(elegantElement, solenoidPic):
-    elementDescription = 'A solenoid.'
-    parameterNames = ['L', 'KS', 'B', 'DX', 'DY', 'DZ']
-    units = ['m', 'rad/m', 'T', 'm', 'm', 'm']
-    dataType = ['double', 'double', 'double', 'double', 'double', 'double']
-    parameterDescription = ['length', 'geometric strength, -Bs/(B*Rho)', 'field strength (used if KS is zero)', 'misalignment', 'misalignment', 'misalignment']
-    '''
+        elementTypesWritten = [Drift] # Drifts are never written to files
+        for elementType in [type(elementDictionary[elementName]) for elementName in beamline.fullElementNameList()]:
+            if elementType in elementTypesWritten:
+                continue
+            elementTypesWritten.append(elementType)
+            outputFile.write('\n ### ' + elementType.__name__ + 's ###\n')
+            currentPosition = 0.0 # position at end of current element
+            lastPositionOfElement = 0.0 # position at end of previous element of same type
+            for partName in beamline.fullElementNameList():
+                part = elementDictionary[partName]
+                lastPosition = currentPosition # position at start of current element
+                currentPosition += part.getLength()
+                if type(part) != elementType:
+                    continue
+                outputFile.write(part.componentLine() + '   ' \
+                                 + str(int(round(part.getLength()/unitLength))) + '   ' \
+                                 + str(int(round((lastPosition - lastPositionOfElement)/unitLength))) + '\n')
+                lastPositionOfElement = currentPosition
