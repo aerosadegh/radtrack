@@ -88,21 +88,24 @@ def fileImporter(fileName):
                 lines.append(line)
             else:
                 if line.upper().find('LOOP') != -1 and line.find('=') != -1:
-                    loops = int(line.split('=')[1])
+                    try:
+                        loops = int(line.split('=')[1])
+                    except ValueError:
+                        raise IOError('Invalid LOOP count in Genesis file: ' + line)
                     repeatedLines = []
                     line = file.readline()
                     while line.find('ENDLOOP') == -1:
                         repeatedLines.append(line)
                         line = file.readline()
                         if not line:
-                            raise NameError('!LOOP = ' + str(loops) + ' not terminated with !ENDLOOP')
+                            raise IOError('!LOOP = ' + str(loops) + ' not terminated with !ENDLOOP')
                     if not line.startswith('!'):
-                        raise NameError('ENDLOOP command needs to start with "!"')
+                        raise IOError('ENDLOOP command needs to start with "!"')
 
                     lines.extend(repeatedLines * loops)
 
                 else:
-                    raise NameError('Invalid format for Genesis .lat file.')
+                    raise IOError('Invalid line in Genesis file: ' + line)
 
     elementPosition = dict() # current spacing of elementType
     for elementType in classDictionary.values():
@@ -115,10 +118,7 @@ def fileImporter(fileName):
     unitLength = None
     for line in lines:
         line = line.strip()
-        if not line:
-            continue
-
-        if any(line.startswith(c) for c in [' ', '\t', '#']):
+        if not line or line.startswith('#'):
             continue
 
         # Information
@@ -130,18 +130,23 @@ def fileImporter(fileName):
                     unitLength = float(line.split('=')[1])
                     continue
                 else:
-                    raise NameError('UNITLENGTH should only be specified once.')
+                    raise IOError('UNITLENGTH should only be specified once.')
+
+            raise IOError('Invalid line in Genesis file: ' + line)
 
         # Command (there should be none left)
         if line.startswith('!'):
-            raise NameError('Invalid format for Genesis .lat file.\nOffending line: ' + line)
+            raise IOError('Invalid line in Genesis file: ' + line)
 
         if not unitLength:
-            raise NameError('UNITLENGTH not defined.')
+            raise IOError('UNITLENGTH not defined.')
 
         # Beam line elements
         elementType, strength, length, spacing = line.split()
-        genesisType = genesisClassDictionary[elementType]
+        try:
+            genesisType = genesisClassDictionary[elementType]
+        except KeyError:
+            raise IOError('Invalid line in Genesis file: ' + line)
         element = genesisType()
         element.data = [str(roundSigFig(float(length)*unitLength, 6)), strength]
         element.name = elementType + str(serialNumber)
@@ -191,7 +196,7 @@ def fileExporter(outputFileName, elementDictionary, defaultBeamline):
             beamline = GenesisBeamline()
             beamline.data = elementDictionary.values() # save all elements in order created
         else:
-            raise NameError('Cannot write file: no beam line was created.')
+            raise IOError('Cannot write file: no beam line was created.')
 
     unitLength = 1.0
     allLengths = []
