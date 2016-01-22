@@ -12,6 +12,16 @@ class RbGenesisTransport(rbcbt.RbCbt):
         rbcbt.RbCbt.__init__(self, module, parent)
         self.container = self
 
+    def writeElegantFile(self, fileName, momentum):
+        with open(fileName, "w") as outputFile:
+            outputFile.write('! This Elegant file was created by RadTrack\n')
+            outputFile.write('! RadTrack (c) 2013, RadiaSoft, LLC\n\n')
+
+            for element in self.elementDictionary.values():
+                outputFile.write(element.elegantElement(momentum).componentLine() + '\n')
+
+            outputFile.write('\nRETURN')
+
 
 def main():
     app = QtGui.QApplication(sys.argv)

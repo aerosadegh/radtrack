@@ -9,6 +9,7 @@ from pykern.pkdebug import pkdc
 
 from radtrack.BunchTab import BunchTab
 from radtrack.RbBunchTransport import RbBunchTransport
+from radtrack.RbGenesisTransport import RbGenesisTransport
 from radtrack.RbUtility import convertUnitsStringToNumber, convertUnitsNumber
 from radtrack.ui.rbele import Ui_ELE
 from radtrack.RbUtility import getRealWidget
@@ -520,13 +521,13 @@ class RbEle(QtGui.QWidget):
         elegant_file_name = self.session_file(suffix='ele')
         with open(elegant_file_name, 'w') as output_file:
             output_file.write(self.ELEGANT_TEMPLATE.format(
-                latticeFileName=os.path.basename(self.beam_line_source_manager.get_lattice_file_name()),
+                latticeFileName=os.path.basename(self.beam_line_source_manager.get_lattice_file_name(momentum)),
                 beamlineName=self.ui.beamLineComboBox.currentText(),
                 momentum=str(momentum),
                 bunchFileName=os.path.basename(self.bunch_source_manager.get_bunch_file_name())
             ))
         
-        for fileName in [self.beam_line_source_manager.get_lattice_file_name(),
+        for fileName in [self.beam_line_source_manager.get_lattice_file_name(momentum),
                          self.bunch_source_manager.get_bunch_file_name()]:
             if os.path.dirname(fileName) != self.parent.sessionDirectory:
                 shutil.copy2(fileName, self.parent.sessionDirectory)
@@ -538,10 +539,10 @@ class ComboManager():
     """Superclass for the BunchSourceManager and BeamLineSourceManager"""
     SELECT_FILE_CHOICE = 'Use another file ...'
 
-    def __init__(self, rbele, combo, name, tab_type):
+    def __init__(self, rbele, combo, name, tab_types):
         self.rbele = rbele
         self.combo = combo
-        self.tab_type = tab_type
+        self.tab_types = tab_types
         self.unselected_choice = 'Select {} source ...'.format(name)
         self.new_tab_choice = 'New {} ...'.format(name)
         self.combo.addItem(self.unselected_choice)
@@ -572,7 +573,7 @@ class ComboManager():
         """Opens a new tab for the combo tab_type. Returns True if selected"""
         if self.combo.currentText() == self.new_tab_choice:
             self.combo.setCurrentIndex(0)
-            self.rbele.parent.newTab(self.tab_type)
+            self.rbele.parent.newTab(self.tab_types[0])
             return True
         return False
 
@@ -609,7 +610,9 @@ class ComboManager():
     def update_sources_from_tabs(self):
         """Update the tab names within the combo values. May add or
         delete items from the list."""
-        tab_names = self.rbele.get_tab_names_for_type(self.tab_type)
+        tab_names = []
+        for tab_type in self.tab_types:
+            tab_names.extend(self.rbele.get_tab_names_for_type(tab_type))
         delete_tabs = []
         for text in self.get_tab_items():
             if text in tab_names:
@@ -634,7 +637,7 @@ class BunchSourceManager(ComboManager):
     """Manages the state and interaction with the Bunch Source ComboBox"""
 
     def __init__(self, rbele, combo):
-        ComboManager.__init__(self, rbele, combo, 'beam bunch', BunchTab)
+        ComboManager.__init__(self, rbele, combo, 'beam bunch', (BunchTab,))
         self.combo.currentIndexChanged.connect(self._bunch_source_changed)
 
     def get_bunch_file_name(self):
@@ -681,17 +684,17 @@ class BeamLineSourceManager(ComboManager):
 
     def __init__(self, rbele, combo):
         ComboManager.__init__(
-            self, rbele, combo, 'beam line', RbBunchTransport)
+            self, rbele, combo, 'beam line', (RbBunchTransport, RbGenesisTransport))
         self.loaderCache = {}
         self.combo.currentIndexChanged.connect(self._beam_line_source_changed)
 
-    def get_lattice_file_name(self):
+    def get_lattice_file_name(self, momentum):
         """For tab items, generate the lattice file. For file items,
         return the file name"""
         if self.is_tab_choice():
             self.rbele.append_status('Generating beam lattice file ...')
             lattice_file_name = self.rbele.session_file(suffix='lte')
-            self.get_tab_widget().exportToFile(lattice_file_name)
+            self.get_tab_widget().writeElegantFile(lattice_file_name, convertUnitsNumber(momentum, 'MeV', 'eV'))
         else:
             lattice_file_name = self.get_file_name()
         return lattice_file_name

@@ -189,14 +189,14 @@ class RbCbt(rt_qt.QtGui.QWidget):
                         lambda: self.addToEndOfWorkingBeamLine(element.name, 1))
                 mouseMenu.addAction('Add multiple copies to current beam line...',
                         lambda: self.addToEndOfWorkingBeamLine(element.name))
-                if element.isBeamline():
+                if element.isBeamline() and hasattr(module, 'ElegantBeamline'):
                     mouseMenu.addAction('Add reversed to current beam line',
                             lambda: self.addReversedToEndOfWorkingBeamLine(element.name, 1))
                     mouseMenu.addAction('Add multiple reversed to current beam line..',
                             lambda: self.addReversedToEndOfWorkingBeamLine(element.name))
 
             if location == 'list':
-                if element.isBeamline():
+                if element.isBeamline() and hasattr(module, 'ElegantBeamline'):
                     mouseMenu.addAction(self.ui.translateUTF8('Reverse'), self.convertToReversed)
 
                 mouseMenu.addAction(self.ui.translateUTF8('Add another'), self.listCopy)

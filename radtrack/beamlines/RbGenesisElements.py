@@ -22,11 +22,16 @@ class genesisElement(elementCommon):
             except ValueError:
                 writeData.append('0.0')
 
-        return self.symbol + '     ' + '   '.join(writeData)
+        return self.symbol + '\t' + '\t'.join(writeData)
 
 
 class GenesisBeamline(BeamlineCommon):
-    pass
+    def elegantElement(self, momentum):
+        from radtrack.beamlines.RbElegantElements import ElegantBeamline
+        elegantBeamline = ElegantBeamline()
+        elegantBeamline.name = self.name
+        elegantBeamline.data = [element.elegantElement(momentum) for element in self.data]
+        return elegantBeamline
 
 
 beamlineType = GenesisBeamline
@@ -40,6 +45,13 @@ class Drift(particleDrift, genesisElement):
     dataType = ['double']
     parameterDescription = ['Length']
 
+    def elegantElement(self, momentum):
+        from radtrack.beamlines.RbElegantElements import DRIF
+        elegant = DRIF()
+        elegant.name = self.name
+        elegant.data[elegant.parameterNames.index('L')] = str(self.getLength())
+        return elegant
+
 class Solenoid(genesisElement, solenoidPic):
     symbol = 'SL'
     elementDescription = 'A solenoid manget'
@@ -48,14 +60,31 @@ class Solenoid(genesisElement, solenoidPic):
     dataType = ['double', 'double']
     parameterDescription = ['Length', 'Geometric Strength, -Bs/(B*Rho)']
 
+    def elegantElement(self, momentum):
+        from radtrack.beamlines.RbElegantElements import SOLE
+        elegant = SOLE()
+        elegant.name = self.name
+        elegant.data[elegant.parameterNames.index('L')] = str(self.getLength())
+        elegant.data[elegant.parameterNames.index('KS')] = self.data[1]
+        return elegant
+
 class Quadrupole(genesisElement, magnetPic):
     symbol = 'QF'
     elementDescription = 'A quadrupole magnet'
-    parameterNames = ['Length', 'Focusing Strength (k)']
+    parameterNames = ['Length', 'Field Gradient']
     units = ['m', 'T/m']
     dataType = ['double', 'double']
     parameterDescription = ['Length', 'Field Gradient']
     color = Qt.red
+
+    def elegantElement(self, momentum):
+        from radtrack.beamlines.RbElegantElements import QUAD
+        elegant = QUAD()
+        elegant.name = self.name
+        elegant.data[elegant.parameterNames.index('L')] = str(self.getLength())
+        speedOfLight = 299792458
+        elegant.data[elegant.parameterNames.index('K1')] = str(speedOfLight*float(self.data[1])/momentum)
+        return elegant
 
 class Undulator(genesisElement, undulatorPic):
     symbol = 'AW'
@@ -64,6 +93,14 @@ class Undulator(genesisElement, undulatorPic):
     units = ['m', '']
     dataType = ['double', 'double']
     parameterDescription = ['Length', 'Dimensionless strength parameter']
+
+    def elegantElement(self, momentum):
+        from radtrack.beamlines.RbElegantElements import WIGGLER
+        elegant = WIGGLER()
+        elegant.name = self.name
+        elegant.data[elegant.parameterNames.index('L')] = str(self.getLength())
+        elegant.data[elegant.parameterNames.index('K')] = self.data[1]
+        return elegant
 
 classDictionary = dict()
 genesisClassDictionary = dict()
