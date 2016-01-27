@@ -22,11 +22,16 @@ class genesisElement(elementCommon):
             except ValueError:
                 writeData.append('0.0')
 
-        return self.symbol + '     ' + '   '.join(writeData)
+        return self.symbol + '\t' + '\t'.join(writeData)
 
 
 class GenesisBeamline(BeamlineCommon):
-    pass
+    def elegantElement(self, momentum):
+        from radtrack.beamlines.RbElegantElements import ElegantBeamline
+        elegantBeamline = ElegantBeamline()
+        elegantBeamline.name = self.name
+        elegantBeamline.data = [element.elegantElement(momentum) for element in self.data]
+        return elegantBeamline
 
 
 beamlineType = GenesisBeamline
@@ -40,6 +45,13 @@ class Drift(particleDrift, genesisElement):
     dataType = ['double']
     parameterDescription = ['Length']
 
+    def elegantElement(self, momentum):
+        from radtrack.beamlines.RbElegantElements import DRIF
+        elegant = DRIF()
+        elegant.name = self.name
+        elegant.data[elegant.parameterNames.index('L')] = str(self.getLength())
+        return elegant
+
 class Solenoid(genesisElement, solenoidPic):
     symbol = 'SL'
     elementDescription = 'A solenoid manget'
@@ -48,14 +60,31 @@ class Solenoid(genesisElement, solenoidPic):
     dataType = ['double', 'double']
     parameterDescription = ['Length', 'Geometric Strength, -Bs/(B*Rho)']
 
+    def elegantElement(self, momentum):
+        from radtrack.beamlines.RbElegantElements import SOLE
+        elegant = SOLE()
+        elegant.name = self.name
+        elegant.data[elegant.parameterNames.index('L')] = str(self.getLength())
+        elegant.data[elegant.parameterNames.index('KS')] = self.data[1]
+        return elegant
+
 class Quadrupole(genesisElement, magnetPic):
     symbol = 'QF'
     elementDescription = 'A quadrupole magnet'
-    parameterNames = ['Length', 'Focusing Strength (k)']
+    parameterNames = ['Length', 'Field Gradient']
     units = ['m', 'T/m']
     dataType = ['double', 'double']
     parameterDescription = ['Length', 'Field Gradient']
     color = Qt.red
+
+    def elegantElement(self, momentum):
+        from radtrack.beamlines.RbElegantElements import QUAD
+        elegant = QUAD()
+        elegant.name = self.name
+        elegant.data[elegant.parameterNames.index('L')] = str(self.getLength())
+        speedOfLight = 299792458
+        elegant.data[elegant.parameterNames.index('K1')] = str(speedOfLight*float(self.data[1])/momentum)
+        return elegant
 
 class Undulator(genesisElement, undulatorPic):
     symbol = 'AW'
@@ -64,6 +93,14 @@ class Undulator(genesisElement, undulatorPic):
     units = ['m', '']
     dataType = ['double', 'double']
     parameterDescription = ['Length', 'Dimensionless strength parameter']
+
+    def elegantElement(self, momentum):
+        from radtrack.beamlines.RbElegantElements import WIGGLER
+        elegant = WIGGLER()
+        elegant.name = self.name
+        elegant.data[elegant.parameterNames.index('L')] = str(self.getLength())
+        elegant.data[elegant.parameterNames.index('K')] = self.data[1]
+        return elegant
 
 classDictionary = dict()
 genesisClassDictionary = dict()
@@ -208,27 +245,60 @@ def fileExporter(outputFileName, elementDictionary, defaultBeamline):
         allLengths = [10.0 * x for x in allLengths]
 
 
-    with open(outputFileName, 'w') as outputFile:
-        outputFile.write(' # This Genesis file was created by RadTrack\n')
-        outputFile.write(' # RadTrack (c) 2013, RadiaSoft, LLC\n\n')
-        outputFile.write('? VERSION = 1.0 \n')
-        outputFile.write('? UNITLENGTH = ' + str(unitLength) + '\n\n')
+    lines = []
+    lines.append('# This Genesis file was created by RadTrack\n')
+    lines.append('# RadTrack (c) 2013, RadiaSoft, LLC\n\n')
+    lines.append('? VERSION = 1.0 \n')
+    lines.append('? UNITLENGTH = ' + str(unitLength) + '\n\n')
 
-        elementTypesWritten = [Drift] # Drifts are never written to files
-        for elementType in [type(elementDictionary[elementName]) for elementName in beamline.fullElementNameList()]:
-            if elementType in elementTypesWritten:
+    elementTypesWritten = [Drift] # Drifts are never written to files
+    for elementType in [type(elementDictionary[elementName]) for elementName in beamline.fullElementNameList()]:
+        if elementType in elementTypesWritten:
+            continue
+        elementTypesWritten.append(elementType)
+        lines.append('\n### ' + elementType.__name__ + 's ###\n')
+        currentPosition = 0.0 # position at end of current element
+        lastPositionOfElement = 0.0 # position at end of previous element of same type
+        for partName in beamline.fullElementNameList():
+            part = elementDictionary[partName]
+            lastPosition = currentPosition # position at start of current element
+            currentPosition += part.getLength()
+            if type(part) != elementType:
                 continue
-            elementTypesWritten.append(elementType)
-            outputFile.write('\n ### ' + elementType.__name__ + 's ###\n')
-            currentPosition = 0.0 # position at end of current element
-            lastPositionOfElement = 0.0 # position at end of previous element of same type
-            for partName in beamline.fullElementNameList():
-                part = elementDictionary[partName]
-                lastPosition = currentPosition # position at start of current element
-                currentPosition += part.getLength()
-                if type(part) != elementType:
-                    continue
-                outputFile.write(part.componentLine() + '   ' \
-                                 + str(int(round(part.getLength()/unitLength))) + '   ' \
-                                 + str(int(round((lastPosition - lastPositionOfElement)/unitLength))) + '\n')
-                lastPositionOfElement = currentPosition
+            lines.append(part.componentLine() + '\t' \
+                             + str(int(round(part.getLength()/unitLength))) + '\t' \
+                             + str(int(round((lastPosition - lastPositionOfElement)/unitLength))) + '\n')
+            lastPositionOfElement = currentPosition
+
+    # Find loops in beamline and abbreviate them
+    loopStart = "! LOOP = "
+    loopEnd = "! ENDLOOP\n"
+
+    startIndex = 0
+    while startIndex < len(lines):
+        loopSize = 1 # number of elements inside loop
+
+        while startIndex + 2*loopSize < len(lines):
+            loops = 0
+            subList = lines[startIndex : startIndex + loopSize]
+            while True:
+                nextLoopIndex = startIndex + loops*loopSize
+                if subList == lines[nextLoopIndex : nextLoopIndex + loopSize]:
+                    loops += 1
+                else:
+                    break
+
+            if loops == 1:
+                loopSize += 1
+            else:
+                del lines[startIndex : startIndex + loops*loopSize]
+                lines.insert(startIndex, loopEnd)
+                lines[startIndex : startIndex] = subList
+                lines.insert(startIndex, loopStart + str(loops) + '\n')
+                while startIndex < len(lines) and lines[startIndex] != loopEnd:
+                    startIndex += 1
+                break
+        startIndex += 1
+
+    with open(outputFileName, "w") as outputFile:
+        outputFile.writelines(lines)
