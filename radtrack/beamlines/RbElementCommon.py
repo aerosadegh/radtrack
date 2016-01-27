@@ -572,7 +572,7 @@ class undulatorPic:
         length  = self.getLength()*self.getResolution()
         periods = int(self.getPeriods())
         if periods == 0:
-            periods = int(10*self.getLength()) # default to 10 periods per meter
+            periods = int(5*self.getLength())
         longBoxSize = length/(2*periods)
         tranBoxSize = 0.25*self.getResolution()
 
@@ -611,7 +611,7 @@ class undulatorPic:
             scene.addItem(itemLower)
             scene.addItem(itemUpper)
 
-        sample = 100 # points to draw per undulator period
+        sample = 4 # points to draw per undulator period
         points = periods*sample
         tRange = [float(i)/points for i in range(points+1)]
         x = [t*length for t in tRange]

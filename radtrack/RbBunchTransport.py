@@ -12,6 +12,9 @@ class RbBunchTransport(rbcbt.RbCbt):
         rbcbt.RbCbt.__init__(self, module, parent)
         self.container = self
 
+    def writeElegantFile(self, fileName, momentum):
+        self.exportToFile(fileName)
+
 def main():
     app = QtGui.QApplication(sys.argv)
     myapp = RbBunchTransport()
