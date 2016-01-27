@@ -169,7 +169,11 @@ class RbDcp(QtGui.QWidget):
                 self.data.setItem(1,i,QtGui.QTableWidgetItem(a))
                         
         phile = QtCore.QFileInfo(openFile)
-        self.x=h5py.File(openFile,"r")
+        self.x=h5py.File(openFile)
+        try:
+            self.x['s']
+        except KeyError:
+            self.x.create_dataset('s', shape = (self.x['lattice']['z'].shape[0],1),data = self.x['lattice']['z'])
         Ncol = len(self.x.keys())
         stringOut = "Columns: "+ str(Ncol) + " Pages: 1" + " ColumnElements: ?"
         self.legend.setText(QtGui.QApplication.translate("dcpwidget", 'FILE INFO \n'+'File Name: '+\
@@ -280,7 +284,7 @@ class RbDcp(QtGui.QWidget):
         self.xaxis.clear()
         self.yaxis.clear()
         for i, name in enumerate(options): #self.x.columnName
-            if is_number(self.data.item(3, i).text()):
+            if is_number(self.data.item(4, i).text()):
                 self.xaxis.addItem(name)
                 self.yaxis.addItem(name)
 
