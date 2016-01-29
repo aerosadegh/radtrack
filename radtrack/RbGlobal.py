@@ -6,7 +6,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import sys, os, shutil, argh, string, sip, traceback, subprocess
 sip.setapi('QString', 2)
-from PyQt4 import QtGui
+from PyQt4 import QtGui, QtCore
 from datetime import datetime
 
 from radtrack.ui.globalgu import Ui_globalgu, _translate
@@ -418,37 +418,62 @@ class RbGlobal(QtGui.QMainWindow):
         if response == QtGui.QMessageBox.No:
             return
 
+        progress = QtGui.QProgressDialog('Update in progress ...', 'Cancel', 0, 0, self)
+        progress.show()
+
         # Pull pykern
         with open(self.logFile, 'a') as log:
             # Pull pykern changes
+            if progress.wasCanceled():
+                return
             os.chdir('/home/vagrant/src/radiasoft/pykern/')
             statusCode = self.updateCommand(log, ['git', 'pull'])
             if statusCode == 2: # Error state
+                progress.reset()
                 return
             anyPyKernChanges = (statusCode == 1)
+            progress.setMaximum(4)
+            progress.setValue(1)
 
             # Set up pykern update
             if anyPyKernChanges:
+                if progress.wasCanceled():
+                    return
                 statusCode = self.updateCommand(log, ['python', 'setup.py', 'develop'])
                 if statusCode == 2: # Error state
+                    progress.reset()
                     return
+                progress.setValue(2)
 
             # Update radtrack
+            if progress.wasCanceled():
+                return
             os.chdir('/home/vagrant/src/radiasoft/radtrack/')
             statusCode = self.updateCommand(log, ['git', 'pull'])
             if statusCode == 2: # Error state
+                progress.reset()
                 return
             anyRadTrackChanges = (statusCode == 1)
+            progress.setValue(3)
 
             if not anyRadTrackChanges and not anyPyKernChanges:
+                progress.reset()
                 QtGui.QMessageBox.information(self, 'Update result',
                                               'RadTrack is already at the latest version. No restart needed.')
                 return
             else:
+                if progress.wasCanceled():
+                    return
                 statusCode = self.updateCommand(log, ['python', 'setup.py', 'develop'])
                 if statusCode == 2: # Error state
                     return
 
+        progress.setValue(4)
+        QtGui.QMessageBox.information(self, 'Update result',
+                                      'RadTrack will now shutdown. To continue your work, select\n' + 
+                                      os.path.basename(os.path.normpath(self.sessionDirectory)) + ' from Recent Projects ' +
+                                      'in the File menu.')
+                                      
         self.close()
 
 
@@ -509,10 +534,20 @@ class RbGlobal(QtGui.QMainWindow):
     #   2 = Errors in either checking or applying update.
     def updateCommand(self, logFile, command):
         logFile.write('\nUpdate command: ' + ' '.join(command) + ':\n')
-        updateProc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        output, errors = updateProc.communicate()
+
+        updateProc = QtCore.QProcess(self)
+        updateProc.start(command[0], command[1:])
+
+        # Allow GUI to process events (like the progress dialog)
+        loop = QtCore.QEventLoop()
+        updateProc.finished.connect(loop.quit)
+        loop.exec_()
+
+        output = str(updateProc.readAllStandardOutput())
+        errors = str(updateProc.readAllStandardError())
         logFile.write('STDOUT: ' + output + '\nSTDERR: ' + errors + '\n')
-        if updateProc.returncode != 0:
+
+        if updateProc.exitCode() == 2:
             box = QtGui.QMessageBox(QtGui.QMessageBox.Warning,
                                     "Update errors",
                                     "Update not successful. See below text for more information.",
