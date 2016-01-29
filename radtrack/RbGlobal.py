@@ -36,10 +36,7 @@ class RbGlobal(QtGui.QMainWindow):
         self.lastUsedDirectory = os.path.expanduser('~').replace('\\', '\\\\')
 
         # Create configuration directory
-        if sys.platform == 'win32': # Windows
-            self.configDirectory = os.path.join(os.getenv('APPDATA'), 'RadTrack')
-        else: # Mac/Linux
-            self.configDirectory = os.path.join(os.path.expanduser('~'), '.radtrack')
+        self.configDirectory = os.path.join(os.path.expanduser('~'), '.radtrack')
         try:
             os.makedirs(self.configDirectory)
         except OSError: # directory already exists or can't be created
