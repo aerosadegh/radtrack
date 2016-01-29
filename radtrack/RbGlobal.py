@@ -128,6 +128,7 @@ class RbGlobal(QtGui.QMainWindow):
         self.ui.actionOpen_New_RadTrack_Window.triggered.connect(self.openNewWindow)
         self.ui.actionImport_File.triggered.connect(lambda : self.importFile())
         self.ui.actionExport_Current_Tab.triggered.connect(self.exportCurrentTab)
+        self.ui.actionCheckForUpdate.triggered.connect(self.checkForUpdates)
         self.ui.actionExit.triggered.connect(self.close)
         self.ui.actionUndo.triggered.connect(self.undo)
         self.ui.actionRedo.triggered.connect(self.redo)
@@ -408,6 +409,49 @@ class RbGlobal(QtGui.QMainWindow):
         getRealWidget(self.tabWidget.currentWidget()).exportToFile()
         self.ui.statusbar.clearMessage()
 
+    def checkForUpdates(self):
+        response = QtGui.QMessageBox.question(self, "Update confirmation",
+            "In order to apply the latest updates, RadTrack will\n" + \
+            "close once the update is complete.\n\n" + \
+            "Do you want to proceed with the update?", QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+
+        if response == QtGui.QMessageBox.No:
+            return
+
+        # Pull pykern
+        with open(self.logFile, 'a') as log:
+            # Pull pykern changes
+            os.chdir('/home/vagrant/src/radiasoft/pykern/')
+            statusCode = self.updateCommand(log, ['git', 'pull'])
+            if statusCode == 2: # Error state
+                return
+            anyPyKernChanges = (statusCode == 1)
+
+            # Set up pykern update
+            if anyPyKernChanges:
+                statusCode = self.updateCommand(log, ['python', 'setup.py', 'develop'])
+                if statusCode == 2: # Error state
+                    return
+
+            # Update radtrack
+            os.chdir('/home/vagrant/src/radiasoft/radtrack/')
+            statusCode = self.updateCommand(log, ['git', 'pull'])
+            if statusCode == 2: # Error state
+                return
+            anyRadTrackChanges = (statusCode == 1)
+
+            if not anyRadTrackChanges and not anyPyKernChanges:
+                QtGui.QMessageBox.information(self, 'Update result',
+                                              'RadTrack is already at the latest version. No restart needed.')
+                return
+            else:
+                statusCode = self.updateCommand(log, ['python', 'setup.py', 'develop'])
+                if statusCode == 2: # Error state
+                    return
+
+        self.close()
+
+
     def allWidgets(self):
         return [getRealWidget(self.tabWidget.widget(i)) for i in range(self.tabWidget.count())]
 
@@ -457,6 +501,29 @@ class RbGlobal(QtGui.QMainWindow):
 
         with open(self.recentFile, 'w') as f:
             f.write('\n'.join(loadedRecentFiles))
+
+
+    # Attempts to update RadTrack from GitHub, returns one of three numbers:
+    #   0 = Successfully checked for updates, no updates found.
+    #   1 = Successfully checked for updates, successfully applied them.
+    #   2 = Errors in either checking or applying update.
+    def updateCommand(self, logFile, command):
+        logFile.write('\nUpdate command: ' + ' '.join(command) + ':\n')
+        updateProc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output, errors = updateProc.communicate()
+        logFile.write('STDOUT: ' + output + '\nSTDERR: ' + errors + '\n')
+        if updateProc.returncode != 0:
+            box = QtGui.QMessageBox(QtGui.QMessageBox.Warning,
+                                    "Update errors",
+                                    "Update not successful. See below text for more information.",
+                                    QtGui.QMessageBox.Ok,
+                                    self)
+            box.setDetailedText('Errors:\n' + errors + '\nOther output:\n' + output)
+            box.exec_()
+            return 2
+        else:
+            return 0 if output.strip() == "Already up-to-date." else 1
+
 
 
 @argh.arg('project_file', nargs='?', default=None, help='project file to open at startup')

@@ -58,6 +58,8 @@
     <addaction name="actionExport_Current_Tab"/>
     <addaction name="menuRecent_Files"/>
     <addaction name="separator"/>
+    <addaction name="actionCheckForUpdate"/>
+    <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
@@ -159,6 +161,11 @@
   <action name="actionRename_Current_Tab">
    <property name="text">
     <string>Rename Current Tab ...</string>
+   </property>
+  </action>
+  <action name="actionCheckForUpdate">
+   <property name="text">
+    <string>Check for updates ...</string>
    </property>
   </action>
   <action name="actionExit">
