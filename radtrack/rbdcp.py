@@ -12,7 +12,7 @@ from PyQt4 import QtGui, QtCore
 from radtrack.dcp.Servicelib import *
 from radtrack.dcp.SRWlib import SRW
 from radtrack.ui.matplotlibwidget import matplotlibWidget
-from radtrack.RbUtility import scatConPlot
+from radtrack.RbUtility import scatConPlot, removeWhitespace
 
 NumPage = 0
 ColumnXAxis =-1
@@ -148,6 +148,8 @@ class RbDcp(QtGui.QWidget):
             self.outselect()
         elif ext == 'sig':
             self.sigselect()         
+        elif ext == 'h5':
+            self.h5select()
              
     def showDCP_gen(self, openFile):
         def genprev(f):
@@ -302,6 +304,18 @@ class RbDcp(QtGui.QWidget):
         self.quickplot.clear()
         self.quickplot.addItem('s v. sigma x')
         self.quickplot.addItem('s v. sigma y')
+
+    def h5select(self):
+        self.quickplot.clear()
+        self.quickplot.addItem('s v. Power')
+        self.quickplot.addItem('s v. Increment')
+        self.quickplot.addItem('s v. Phase')
+        self.quickplot.addItem('s v. Rad. Size')
+        self.quickplot.addItem('s v. Energy')
+        self.quickplot.addItem('s v. X Beam Size')
+        self.quickplot.addItem('s v. Y Beam Size')
+        self.quickplot.addItem('s v. Bunching Fundamental')
+        self.quickplot.addItem('s v. Error')
         
     def graphset(self):
     
@@ -312,7 +326,7 @@ class RbDcp(QtGui.QWidget):
                     output = i
                     break
             if output == None:
-                raise TypeError('Parameter Not Found, NaN')
+                raise TypeError('Parameter Not Found: ' + pname)
             return output
             
         if self.currentFiletype == 'twi':
@@ -337,6 +351,19 @@ class RbDcp(QtGui.QWidget):
             elif self.quickplot.currentIndex() == 1:
                 self.yaxis.setCurrentIndex(find_param('Sy'))#55
 
+        elif self.currentFiletype == 'h5':
+            self.xaxis.setCurrentIndex(find_param('s'))#0
+            param = self.quickplot.currentText().split('.')[1].strip().split()[0].lower()
+            try:
+                self.yaxis.setCurrentIndex(find_param(param))
+            except TypeError:
+                try:
+                    self.yaxis.setCurrentIndex(find_param('signal' + param))
+                except TypeError:
+                    param = removeWhitespace(self.quickplot.currentText()).split('.', 1)[1].lower().strip()
+                    param = param.replace('.', '')
+                    self.yaxis.setCurrentIndex(find_param(param))
+     
         self.customgraph()
     
     def customgraph(self):
