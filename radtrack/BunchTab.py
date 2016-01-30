@@ -508,7 +508,7 @@ class BunchTab(QtGui.QWidget):
 
     def plotGenericBefore(self, hData, vData, _canvas, nDivs, nLevels):
         _canvas.ax.clear()
-        util.scatConPlot(self.plotFlag, hData, vData, _canvas.ax, nDivs, nLevels)
+        util.scatConPlot(self.plotFlag, 'linear', hData, vData, _canvas.ax, nDivs, nLevels)
         _canvas.ax.xaxis.set_major_locator(plt.MaxNLocator(self.numTicks))
         _canvas.ax.yaxis.set_major_locator(plt.MaxNLocator(self.numTicks))
 
