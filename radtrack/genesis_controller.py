@@ -109,7 +109,7 @@ class Base(rt_controller.Controller):
             f.write(' $end \n')
         msg('Finished \nRunning Genesis\n')
         
-        self.process.start('genesis',['verydumb.in'])
+        self.process.start('genesis',['genesis_run.in'])
         
     def newStdInfo(self):
         """Callback with simulation stdout text"""
