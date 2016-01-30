@@ -503,7 +503,7 @@ points, contours :
    Note: value is 'None' if plot wasn't generated
 
 """
-def scatConPlot(plotFlag, x, y, ax, divs=10, levels=10):
+def scatConPlot(plotFlag, plotType, x, y, ax, divs=10, levels=10):
     # logic for finding and plotting density contours
     if plotFlag in ['contour', 'combo']:
 
@@ -581,4 +581,14 @@ def scatConPlot(plotFlag, x, y, ax, divs=10, levels=10):
 
     # Return plot objects; useful for creating colorbars, etc.
     #   Value is 'None' if corresponding plot was not generated.
+
+    if plotFlag in ['line', 'scatter', 'scatter-line']:
+        # Set log or linear axes
+        ax.set_xscale('linear')
+        ax.set_yscale('linear')
+        if plotType in ['log-log', 'semi-logx']:
+            ax.set_xscale('log', nonposx='mask')
+        if plotType in ['log-log', 'semi-logy']:
+            ax.set_yscale('log', nonposy='mask')
+
     return points, contours

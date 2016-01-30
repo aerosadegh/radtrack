@@ -65,14 +65,20 @@ class RbDcp(QtGui.QWidget):
         self.xaxis = QtGui.QComboBox()
         self.yaxis = QtGui.QComboBox()
         self.plotType = QtGui.QComboBox()
-        self.plotType.addItem('Scatter')
-        self.plotType.addItem('Scatter-Line')
-        self.plotType.addItem('Line')
-        self.plotType.addItem('Contour')
-        self.plotType.addItem('Combo')
+        self.plotType.addItem('Linear')
+        self.plotType.addItem('Log-Log')
+        self.plotType.addItem('Semi-Log X')
+        self.plotType.addItem('Semi-Log Y')
+        self.plotStyle = QtGui.QComboBox()
+        self.plotStyle.addItem('Scatter')
+        self.plotStyle.addItem('Scatter-Line')
+        self.plotStyle.addItem('Line')
+        self.plotStyle.addItem('Contour')
+        self.plotStyle.addItem('Combo')
         form.addRow('x-axis',self.xaxis)
         form.addRow('y-axis',self.yaxis)
-        form.addRow('Plot type', self.plotType)
+        form.addRow('Plot Type', self.plotType)
+        form.addRow('Plot Style', self.plotStyle)
         layout.addLayout(form)
         button = QtGui.QPushButton()
         button.setText('open')
@@ -87,6 +93,7 @@ class RbDcp(QtGui.QWidget):
         self.quickplot.activated.connect(self.graphset)
         self.xaxis.activated.connect(self.customgraph)
         self.yaxis.activated.connect(self.customgraph)
+        self.plotStyle.activated.connect(self.customgraph)
         self.plotType.activated.connect(self.customgraph)
         
     def right_panel(self,main):
@@ -400,7 +407,13 @@ class RbDcp(QtGui.QWidget):
             nLevels = 5 + int(math.pow(numParticles, 0.333333333))
             nDivs = 10 + int(math.pow(numParticles, 0.2))
             self.widget.canvas.ax.clear()
-            scatConPlot(self.plotType.currentText().lower(), Xrvec, Yrvec[0,:], self.widget.canvas.ax, nDivs, nLevels)
+            scatConPlot(self.plotStyle.currentText().lower(),
+                        removeWhitespace(self.plotType.currentText().lower()),
+                        Xrvec,
+                        Yrvec[0,:],
+                        self.widget.canvas.ax,
+                        nDivs,
+                        nLevels)
             self.widget.canvas.ax.set_xlabel(xname + xu)
             self.widget.canvas.ax.set_ylabel(yname + yu)
             self.widget.canvas.fig.set_facecolor('w')
