@@ -363,7 +363,7 @@ class RbDcp(QtGui.QWidget):
                 self.yaxis.setCurrentIndex(find_param('Sy'))#55
 
         elif self.currentFiletype == 'h5':
-            self.xaxis.setCurrentIndex(find_param('s'))#0
+            self.xaxis.setCurrentIndex(find_param('s'))
             param = self.quickplot.currentText().split('.')[1].strip().split()[0].lower()
             try:
                 self.yaxis.setCurrentIndex(find_param(param))
@@ -371,7 +371,7 @@ class RbDcp(QtGui.QWidget):
                 try:
                     self.yaxis.setCurrentIndex(find_param('signal' + param))
                 except TypeError:
-                    param = removeWhitespace(self.quickplot.currentText()).split('.', 1)[1].lower().strip()
+                    param = removeWhitespace(self.quickplot.currentText()).split('.', 1)[1].lower()
                     param = param.replace('.', '')
                     self.yaxis.setCurrentIndex(find_param(param))
      
