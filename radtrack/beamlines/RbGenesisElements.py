@@ -8,7 +8,8 @@ from __future__ import print_function, division, unicode_literals, absolute_impo
 from PyQt4.QtCore import Qt
 from radtrack.beamlines.RbElementCommon import *
 from radtrack.beamlines.RbBeamlines import BeamlineCommon
-from radtrack.RbUtility import convertUnitsString, convertUnitsStringToNumber, roundSigFig
+from radtrack.beamlines.RbElegantElements import collapseBeamline, expandBeamline, checkParentheses
+from radtrack.RbUtility import convertUnitsString, convertUnitsStringToNumber, roundSigFig, removeWhitespace
 import math
 from os.path import basename
 from collections import OrderedDict
@@ -246,17 +247,12 @@ def fileExporter(outputFileName, elementDictionary, defaultBeamline):
 
 
     lines = []
-    lines.append('# This Genesis file was created by RadTrack\n')
-    lines.append('# RadTrack (c) 2013, RadiaSoft, LLC\n\n')
-    lines.append('? VERSION = 1.0 \n')
-    lines.append('? UNITLENGTH = ' + str(unitLength) + '\n\n')
-
     elementTypesWritten = [Drift] # Drifts are never written to files
     for elementType in [type(elementDictionary[elementName]) for elementName in beamline.fullElementNameList()]:
         if elementType in elementTypesWritten:
             continue
         elementTypesWritten.append(elementType)
-        lines.append('\n### ' + elementType.__name__ + 's ###\n')
+        lines.append('### ' + elementType.__name__ + 's ###')
         currentPosition = 0.0 # position at end of current element
         lastPositionOfElement = 0.0 # position at end of previous element of same type
         for partName in beamline.fullElementNameList():
@@ -267,38 +263,47 @@ def fileExporter(outputFileName, elementDictionary, defaultBeamline):
                 continue
             lines.append(part.componentLine() + '\t' \
                              + str(int(round(part.getLength()/unitLength))) + '\t' \
-                             + str(int(round((lastPosition - lastPositionOfElement)/unitLength))) + '\n')
+                             + str(int(round((lastPosition - lastPositionOfElement)/unitLength))))
             lastPositionOfElement = currentPosition
 
+
     # Find loops in beamline and abbreviate them
-    loopStart = "! LOOP = "
-    loopEnd = "! ENDLOOP\n"
+    linesToWrite = []
+    collapsedLines = collapseBeamline(lines)
+    completeLine = ''
+    for line in collapsedLines.split(','):
+        if completeLine:
+            completeLine = completeLine + ',' + line.strip()
+        else:
+            completeLine = line.strip()
 
-    startIndex = 0
-    while startIndex < len(lines):
-        loopSize = 1 # number of elements inside loop
+        if not completeLine:
+            continue
 
-        while startIndex + 2*loopSize < len(lines):
-            loops = 0
-            subList = lines[startIndex : startIndex + loopSize]
-            while True:
-                nextLoopIndex = startIndex + loops*loopSize
-                if subList == lines[nextLoopIndex : nextLoopIndex + loopSize]:
-                    loops += 1
-                else:
-                    break
+        if not checkParentheses(completeLine):
+            continue
 
-            if loops == 1:
-                loopSize += 1
-            else:
-                del lines[startIndex : startIndex + loops*loopSize]
-                lines.insert(startIndex, loopEnd)
-                lines[startIndex : startIndex] = subList
-                lines.insert(startIndex, loopStart + str(loops) + '\n')
-                while startIndex < len(lines) and lines[startIndex] != loopEnd:
-                    startIndex += 1
-                break
-        startIndex += 1
+        if not completeLine[0] in string.digits:
+            linesToWrite.append(completeLine)
+            completeLine = ''
+            continue
+
+        # Expand inner loops
+        count, loopedSection = completeLine.split('*', 1)
+        loopedSection = expandBeamline(loopedSection)
+
+        linesToWrite.append("! LOOP = " + count)
+        linesToWrite.extend(loopedSection)
+        linesToWrite.append("! ENDLOOP")
+        completeLine = ''
 
     with open(outputFileName, "w") as outputFile:
-        outputFile.writelines(lines)
+        outputFile.write('# This Genesis file was created by RadTrack\n')
+        outputFile.write('# RadTrack (c) 2013, RadiaSoft, LLC\n\n')
+        outputFile.write('? VERSION = 1.0\n')
+        outputFile.write('? UNITLENGTH = ' + str(unitLength) + '\n\n')
+
+        for line in linesToWrite:
+            if line.startswith('###'):
+                line = '\n' + line
+            outputFile.write(line + '\n')
