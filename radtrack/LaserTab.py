@@ -147,8 +147,6 @@ class LaserTab(QtGui.QWidget):
         # try to make the blank plotting regions look nice
         self.erasePlots()
 
-        self.container = self
-
     def paraxialGaussian(self):
 
         # get input from text boxes

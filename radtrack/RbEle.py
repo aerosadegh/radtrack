@@ -91,7 +91,6 @@ class RbEle(QtGui.QWidget):
         self.progressIndex = 0
         self.beamlineNames = []
 
-        self.container = self
 
     # This tab only pulls together data from other sources.
     # It has no information to save. exportToFile() creates

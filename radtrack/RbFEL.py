@@ -204,8 +204,6 @@ class RbFEL(QtGui.QWidget):
             except AttributeError:
                 pass
 
-        self.container = self
-
     def calculateAll(self):
         self.updateBoxes(calculate(self.userInputDict()))
 

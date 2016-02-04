@@ -35,7 +35,6 @@ class RbDcp(QtGui.QWidget):
         if self.parent is None:
             self.parent = self
             self.parent.lastUsedDirectory = expanduser('~').replace('\\', '\\\\')
-        self.container = self
         self.currentFiletype = ''
         self.fileData = None
         

@@ -27,7 +27,6 @@ class GenesisTab(QtGui.QWidget):
         layout = QtGui.QVBoxLayout(self)
         layout.addWidget(genesis_controller.Base.init_widget(self))
         self.setLayout(layout)
-        self.container = self
         
     def exportToFile(self, fileName = None):
         with open(fileName, 'w'):

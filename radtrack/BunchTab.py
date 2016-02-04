@@ -205,8 +205,6 @@ class BunchTab(QtGui.QWidget):
         # try to make the blank plotting regions look nice
         self.erasePlots()
 
-        self.container = self
-
     def radtrackGaussian(self):
         self.distributionFlag = 'gaussian'
 

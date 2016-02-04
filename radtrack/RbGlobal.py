@@ -212,7 +212,7 @@ class RbGlobal(QtGui.QMainWindow):
     def newTab(self, newTabType):
         newWidget = newTabType(self)
         newTitle = self.uniqueTabTitle(newWidget.defaultTitle)
-        self.tabWidget.addTab(newWidget.container, newTitle)
+        self.tabWidget.addTab(newWidget, newTitle)
         self.tabWidget.setCurrentIndex(self.tabWidget.count()-1)
 
     def uniqueTabTitle(self, title, ignoreIndex = -1):
