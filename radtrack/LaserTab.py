@@ -78,38 +78,6 @@ class LaserTab(QtGui.QWidget):
         self.ui.generateCoeffs.clicked.connect(self.generateCoeffs)
         self.ui.noTitles.clicked.connect(self.togglePlotTitles)
 
-        # create a menu for saving files
-        exportMenu = QtGui.QMenu(self)
-        saveToCSV = QtGui.QAction("RadTrack CSV format",self)
-        exportMenu.addAction(saveToCSV)
-        saveToSDDS = QtGui.QAction("SRW SDDS format",self)
-        exportMenu.addAction(saveToSDDS)
-
-        # associate these actions with class methods
-        saveToCSV.triggered.connect(self.saveToCSV)
-        saveToSDDS.triggered.connect(self.saveToSDDS)
-
-        # grab an existing button & insert the menu
-        saveToFileButton = self.ui.saveToFile
-        saveToFileButton.setMenu(exportMenu)
-        saveToFileButton.setPopupMode(QtGui.QToolButton.InstantPopup)
-
-        # create a menu for importing particle data
-        importMenu = QtGui.QMenu(self)
-        readFromCSV = QtGui.QAction("RadTrack CSV format",self)
-        importMenu.addAction(readFromCSV)
-        readFromSDDS = QtGui.QAction("SRW SDDS format",self)
-        importMenu.addAction(readFromSDDS)
-
-        # associate these actions with class methods
-        readFromCSV.triggered.connect(self.readFromCSV)
-        readFromSDDS.triggered.connect(self.readFromSDDS)
-
-        # grab an existing button & insert the menu
-        importFileButton = self.ui.importFile
-        importFileButton.setMenu(importMenu)
-        importFileButton.setPopupMode(QtGui.QToolButton.InstantPopup)
-
         # create a menu for laser pulse generation
         pulseMenu = QtGui.QMenu(self)
         paraxialGaussian = QtGui.QAction("Paraxial approx - Gaussian",self)
@@ -158,6 +126,7 @@ class LaserTab(QtGui.QWidget):
         self.ui.numTicks.setText(str(self.numTicks))
 
         # load up the table of coefficients
+        self.ui.ghTable.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
         self.ui.ghTable.setEditTriggers(QtGui.QAbstractItemView.CurrentChanged)
         self.ui.ghTable.setItem(0,0,QtGui.QTableWidgetItem('1'))
         self.ui.ghTable.setItem(0,1,QtGui.QTableWidgetItem('1'))
@@ -178,8 +147,7 @@ class LaserTab(QtGui.QWidget):
         # try to make the blank plotting regions look nice
         self.erasePlots()
 
-        self.container = QtGui.QScrollArea(parent)
-        self.container.setWidget(self)
+        self.container = self
 
     def paraxialGaussian(self):
 
@@ -554,19 +522,19 @@ class LaserTab(QtGui.QWidget):
         print(' ')
         print('The least squares minimization has completed:')
         print('  wx  = ', self.wx3, '; ', wxFit)
-        self.ui.ghTable.setItem(0,0,QTableWidgetItem(str(mCFit[0])))
-        self.ui.ghTable.setItem(0,1,QTableWidgetItem(nCFit[0]))
+        self.ui.ghTable.setItem(0,0,QtGui.QTableWidgetItem(str(mCFit[0])))
+        self.ui.ghTable.setItem(0,1,QtGui.QTableWidgetItem(nCFit[0]))
 
         # load the coefficient table in the GUI
         minLoop = min(self.mMax, 101)
         for iLoop in range(0,minLoop):
-            self.ui.ghTable.setItem(iLoop,0,QTableWidgetItem(str(mCFit[iLoop])))
-            self.ui.ghTable.setItem(iLoop,1,QTableWidgetItem(str(nCFit[iLoop])))
+            self.ui.ghTable.setItem(iLoop,0,QtGui.QTableWidgetItem(str(mCFit[iLoop])))
+            self.ui.ghTable.setItem(iLoop,1,QtGui.QTableWidgetItem(str(nCFit[iLoop])))
 
         maxLoop = max(self.mMax, 101)
         for iLoop in range(minLoop+1,maxLoop):
-            self.ui.ghTable.setItem(iLoop,0,QTableWidgetItem('0'))
-            self.ui.ghTable.setItem(iLoop,1,QTableWidgetItem('0'))
+            self.ui.ghTable.setItem(iLoop,0,QtGui.QTableWidgetItem('0'))
+            self.ui.ghTable.setItem(iLoop,1,QtGui.QTableWidgetItem('0'))
 
         # modify the laser pulse object, using these GH coefficients
         self.myPulse.setMCoef(mCFit)
