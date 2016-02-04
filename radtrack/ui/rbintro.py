@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'ui\rbintro.ui'
+# Form implementation generated from reading ui file 'radtrack/ui/rbintro.ui'
 #
-# Created: Fri May 15 17:54:43 2015
-#      by: PyQt4 UI code generator 4.10.4
+# Created: Thu Feb  4 09:28:41 2016
+#      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -33,14 +33,12 @@ class Ui_Widget(object):
         sizePolicy.setHeightForWidth(Widget.sizePolicy().hasHeightForWidth())
         Widget.setSizePolicy(sizePolicy)
         Widget.setMinimumSize(QtCore.QSize(0, 0))
-        self.verticalLayoutWidget_2 = QtGui.QWidget(Widget)
-        self.verticalLayoutWidget_2.setGeometry(QtCore.QRect(1, 1, 290, 77))
-        self.verticalLayoutWidget_2.setObjectName(_fromUtf8("verticalLayoutWidget_2"))
-        self.verticalLayout_2 = QtGui.QVBoxLayout(self.verticalLayoutWidget_2)
+        self.gridLayout = QtGui.QGridLayout(Widget)
+        self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
+        self.verticalLayout_2 = QtGui.QVBoxLayout()
         self.verticalLayout_2.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
-        self.verticalLayout_2.setMargin(0)
         self.verticalLayout_2.setObjectName(_fromUtf8("verticalLayout_2"))
-        self.label = QtGui.QLabel(self.verticalLayoutWidget_2)
+        self.label = QtGui.QLabel(Widget)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -53,7 +51,7 @@ class Ui_Widget(object):
         self.label.setAlignment(QtCore.Qt.AlignCenter)
         self.label.setObjectName(_fromUtf8("label"))
         self.verticalLayout_2.addWidget(self.label)
-        self.line = QtGui.QFrame(self.verticalLayoutWidget_2)
+        self.line = QtGui.QFrame(Widget)
         self.line.setFrameShape(QtGui.QFrame.HLine)
         self.line.setFrameShadow(QtGui.QFrame.Sunken)
         self.line.setObjectName(_fromUtf8("line"))
@@ -64,7 +62,7 @@ class Ui_Widget(object):
         self.beamsVerticalLayout = QtGui.QVBoxLayout()
         self.beamsVerticalLayout.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
         self.beamsVerticalLayout.setObjectName(_fromUtf8("beamsVerticalLayout"))
-        self.label_2 = QtGui.QLabel(self.verticalLayoutWidget_2)
+        self.label_2 = QtGui.QLabel(Widget)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -84,7 +82,7 @@ class Ui_Widget(object):
         self.beamLinesVerticalLayout = QtGui.QVBoxLayout()
         self.beamLinesVerticalLayout.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
         self.beamLinesVerticalLayout.setObjectName(_fromUtf8("beamLinesVerticalLayout"))
-        self.label_3 = QtGui.QLabel(self.verticalLayoutWidget_2)
+        self.label_3 = QtGui.QLabel(Widget)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -104,7 +102,7 @@ class Ui_Widget(object):
         self.simulationsVerticalLayout = QtGui.QVBoxLayout()
         self.simulationsVerticalLayout.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
         self.simulationsVerticalLayout.setObjectName(_fromUtf8("simulationsVerticalLayout"))
-        self.label_4 = QtGui.QLabel(self.verticalLayoutWidget_2)
+        self.label_4 = QtGui.QLabel(Widget)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -124,7 +122,7 @@ class Ui_Widget(object):
         self.toolsVerticalLayout = QtGui.QVBoxLayout()
         self.toolsVerticalLayout.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
         self.toolsVerticalLayout.setObjectName(_fromUtf8("toolsVerticalLayout"))
-        self.label_5 = QtGui.QLabel(self.verticalLayoutWidget_2)
+        self.label_5 = QtGui.QLabel(Widget)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -142,6 +140,7 @@ class Ui_Widget(object):
         self.toolsVerticalLayout.addLayout(self.verticalLayout_10)
         self.horizontalLayout_2.addLayout(self.toolsVerticalLayout)
         self.verticalLayout_2.addLayout(self.horizontalLayout_2)
+        self.gridLayout.addLayout(self.verticalLayout_2, 0, 0, 1, 1)
 
         self.retranslateUi(Widget)
         QtCore.QMetaObject.connectSlotsByName(Widget)
