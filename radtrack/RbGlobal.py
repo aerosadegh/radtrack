@@ -21,7 +21,7 @@ from radtrack.RbFEL import RbFEL
 from radtrack.RbGenesisTab import GenesisTab
 from radtrack.RbSrwTab import RbSrwTab
 from radtrack.RbIntroTab import RbIntroTab
-from radtrack.RbUtility import getRealWidget, fileTypeList
+from radtrack.RbUtility import fileTypeList
 
 class RbGlobal(QtGui.QMainWindow):
     def __init__(self, beta_test=False):
@@ -277,7 +277,7 @@ class RbGlobal(QtGui.QMainWindow):
                 return # Cancel selected
 
         # Check if a tab of this type is already open
-        openWidgetIndexes = [i for i in range(self.tabWidget.count()) if type(getRealWidget(self.tabWidget.widget(i))) == destinationType]
+        openWidgetIndexes = [i for i in range(self.tabWidget.count()) if type(self.tabWidget.widget(i)) == destinationType]
         newTabLabel = 'New ' + destinationType.defaultTitle + ' Tab'
         if openWidgetIndexes:
             choices = [self.tabWidget.tabText(i) for i in openWidgetIndexes] + [newTabLabel]
@@ -303,7 +303,7 @@ class RbGlobal(QtGui.QMainWindow):
             QtGui.QApplication.processEvents()
 
             self.ui.statusbar.showMessage('Importing ' + openFile + ' ...')
-            getRealWidget(self.tabWidget.currentWidget()).importFile(openFile)
+            self.tabWidget.currentWidget().importFile(openFile)
             self.addToRecentMenu(openFile, True)
             if os.path.dirname(openFile) != self.sessionDirectory:
                 shutil.copy2(openFile, self.sessionDirectory)
@@ -373,7 +373,7 @@ class RbGlobal(QtGui.QMainWindow):
             _, _, originalTitle, tabName = os.path.basename(subFileName).split('_')
             tabName = tabName.rsplit(".", 1)[0]
             self.newTab(self.originalNameToTabType[originalTitle])
-            getRealWidget(self.tabWidget.widget(i)).importFile(subFileName)
+            self.tabWidget.widget(i).importFile(subFileName)
             self.tabWidget.setTabText(i, tabName.split('+')[0])
 
         self.setTitleBar('RadTrack - ' + self.sessionDirectory)
@@ -393,7 +393,7 @@ class RbGlobal(QtGui.QMainWindow):
 
             self.ui.statusbar.showMessage('Saving ' + self.tabWidget.tabText(i) + ' ...')
 
-            widget = getRealWidget(self.tabWidget.widget(i))
+            widget = self.tabWidget.widget(i)
             saveProgress.setValue(i)
             subExtension = widget.acceptsFileTypes[0] if widget.acceptsFileTypes else 'save'
             subFileName  = os.path.join(self.sessionDirectory,
@@ -406,7 +406,7 @@ class RbGlobal(QtGui.QMainWindow):
 
     def exportCurrentTab(self):
         self.ui.statusbar.showMessage('Saving ' + self.tabWidget.tabText(self.tabWidget.currentIndex()) + ' ...')
-        getRealWidget(self.tabWidget.currentWidget()).exportToFile()
+        self.tabWidget.currentWidget().exportToFile()
         self.ui.statusbar.clearMessage()
 
     def checkForUpdates(self):
@@ -478,7 +478,7 @@ class RbGlobal(QtGui.QMainWindow):
 
 
     def allWidgets(self):
-        return [getRealWidget(self.tabWidget.widget(i)) for i in range(self.tabWidget.count())]
+        return [self.tabWidget.widget(i) for i in range(self.tabWidget.count())]
 
     def checkMenus(self):
         menuMap = dict()
@@ -486,7 +486,7 @@ class RbGlobal(QtGui.QMainWindow):
         menuMap['undo'] = self.ui.actionUndo
         menuMap['redo'] = self.ui.actionRedo
         for function in menuMap:
-            realWidget = getRealWidget(self.tabWidget.currentWidget())
+            realWidget = self.tabWidget.currentWidget()
             menuMap[function].setEnabled(hasattr(realWidget, function) and type(realWidget) not in [RbIntroTab, RbDcp, RbEle])
 
         self.ui.actionReopen_Closed_Tab.setEnabled(len(self.closedTabs) > 0)
@@ -498,11 +498,11 @@ class RbGlobal(QtGui.QMainWindow):
 
     def undo(self):
         if self.ui.actionUndo.isEnabled():
-            getRealWidget(self.tabWidget.currentWidget()).undo()
+            self.tabWidget.currentWidget().undo()
 
     def redo(self):
         if self.ui.actionRedo.isEnabled():
-            getRealWidget(self.tabWidget.currentWidget()).redo()
+            self.tabWidget.currentWidget().redo()
 
     def closeEvent(self, event):
         self.saveProject()

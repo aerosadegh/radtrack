@@ -12,7 +12,6 @@ from radtrack.RbBunchTransport import RbBunchTransport
 from radtrack.RbGenesisTransport import RbGenesisTransport
 from radtrack.RbUtility import convertUnitsStringToNumber, convertUnitsNumber
 from radtrack.ui.rbele import Ui_ELE
-from radtrack.RbUtility import getRealWidget
 import radtrack.util.resource as resource
 
 SDDS_MOMENTUM_PARAMETER = 'designMomentumEV'
@@ -126,7 +125,7 @@ class RbEle(QtGui.QWidget):
         tab = self.parent.tabWidget
         for i in range(tab.count()):
             if tab.tabText(i) == tab_name:
-                return getRealWidget(tab.widget(i))
+                return tab.widget(i)
         return None
 
     def get_tab_names_for_type(self, tab_type):
@@ -325,7 +324,7 @@ class RbEle(QtGui.QWidget):
     def _new_tab(self, tab_type, file_name):
         """Create a new parent tab and load the data from the specified file"""
         self.parent.newTab(tab_type)
-        getRealWidget(self.parent.tabWidget.currentWidget()).importFile(file_name)
+        self.parent.tabWidget.currentWidget().importFile(file_name)
 
     def _process_finished(self, code, status):
         """Callback when simulation process has finished"""

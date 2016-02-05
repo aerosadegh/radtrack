@@ -415,13 +415,6 @@ class FileParseException(Exception):
     def __init__(self, message):
         self.message = message
 
-# Returns the data-holding widget inside layout widgets (QScrollArea, etc.)
-def getRealWidget(widget):
-    try:
-        return getRealWidget(widget.widget())
-    except Exception:
-        return widget
-
 __fileTypeDescription = dict()
 __fileTypeDescription['*'] = 'All files'
 __fileTypeDescription['lte'] = 'Elegant lattice file'
