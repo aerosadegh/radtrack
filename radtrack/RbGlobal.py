@@ -69,6 +69,7 @@ class RbGlobal(QtGui.QMainWindow):
         self.tabWidget = QtGui.QTabWidget()
         self.ui.verticalLayout.addWidget(self.tabWidget)
         self.tabWidget.setTabsClosable(True)
+        self.tabWidget.setMovable(True)
         self.tabPrefix = '###Tab###' # used to identify files that are the saved data from tabs
 
         if self.beta_test:
