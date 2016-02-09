@@ -419,63 +419,69 @@ class RbGlobal(QtGui.QMainWindow):
         if response == QtGui.QMessageBox.No:
             return
 
-        progress = QtGui.QProgressDialog('Update in progress ...', 'Cancel', 0, 0, self)
-        progress.show()
+        currentDirectory = os.getcwd()
 
-        # Pull pykern
-        with open(self.logFile, 'a') as log:
-            # Pull pykern changes
-            if progress.wasCanceled():
-                return
-            os.chdir('/home/vagrant/src/radiasoft/pykern/')
-            statusCode = self.updateCommand(log, ['git', 'pull'])
-            if statusCode == 2: # Error state
-                progress.reset()
-                return
-            anyPyKernChanges = (statusCode == 1)
-            progress.setMaximum(4)
-            progress.setValue(1)
+        try:
+            progress = QtGui.QProgressDialog('Update in progress ...', 'Cancel', 0, 0, self)
+            progress.show()
 
-            # Set up pykern update
-            if anyPyKernChanges:
+            # Pull pykern
+            with open(self.logFile, 'a') as log:
+                # Pull pykern changes
                 if progress.wasCanceled():
                     return
-                statusCode = self.updateCommand(log, ['python', 'setup.py', 'develop'])
+                os.chdir('/home/vagrant/src/radiasoft/pykern/')
+                statusCode = self.updateCommand(log, ['git', 'pull'])
                 if statusCode == 2: # Error state
                     progress.reset()
                     return
-                progress.setValue(2)
+                anyPyKernChanges = (statusCode == 1)
+                progress.setMaximum(4)
+                progress.setValue(1)
 
-            # Update radtrack
-            if progress.wasCanceled():
-                return
-            os.chdir('/home/vagrant/src/radiasoft/radtrack/')
-            statusCode = self.updateCommand(log, ['git', 'pull'])
-            if statusCode == 2: # Error state
-                progress.reset()
-                return
-            anyRadTrackChanges = (statusCode == 1)
-            progress.setValue(3)
+                # Set up pykern update
+                if anyPyKernChanges:
+                    if progress.wasCanceled():
+                        return
+                    statusCode = self.updateCommand(log, ['python', 'setup.py', 'develop'])
+                    if statusCode == 2: # Error state
+                        progress.reset()
+                        return
+                    progress.setValue(2)
 
-            if not anyRadTrackChanges and not anyPyKernChanges:
-                progress.reset()
-                QtGui.QMessageBox.information(self, 'Update result',
-                                              'RadTrack is already at the latest version. No restart needed.')
-                return
-            else:
+                # Update radtrack
                 if progress.wasCanceled():
                     return
-                statusCode = self.updateCommand(log, ['python', 'setup.py', 'develop'])
+                os.chdir('/home/vagrant/src/radiasoft/radtrack/')
+                statusCode = self.updateCommand(log, ['git', 'pull'])
                 if statusCode == 2: # Error state
+                    progress.reset()
                     return
+                anyRadTrackChanges = (statusCode == 1)
+                progress.setValue(3)
 
-        progress.setValue(4)
-        QtGui.QMessageBox.information(self, 'Update result',
-                                      'RadTrack will now shutdown. To continue your work, select\n' + 
-                                      os.path.basename(os.path.normpath(self.sessionDirectory)) + ' from Recent Projects ' +
-                                      'in the File menu.')
-                                      
-        self.close()
+                if not anyRadTrackChanges and not anyPyKernChanges:
+                    progress.reset()
+                    QtGui.QMessageBox.information(self, 'Update result',
+                                                  'RadTrack is already at the latest version. No restart needed.')
+                    return
+                else:
+                    if progress.wasCanceled():
+                        return
+                    statusCode = self.updateCommand(log, ['python', 'setup.py', 'develop'])
+                    if statusCode == 2: # Error state
+                        return
+
+            progress.setValue(4)
+            QtGui.QMessageBox.information(self, 'Update result',
+                                          'RadTrack will now shutdown. To continue your work, select\n' + 
+                                          os.path.basename(os.path.normpath(self.sessionDirectory)) + ' from Recent Projects ' +
+                                          'in the File menu.')
+                                          
+            self.close()
+
+        finally:
+            os.chdir(currentDirectory)
 
 
     def allWidgets(self):
