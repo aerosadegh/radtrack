@@ -237,13 +237,11 @@ def fileExporter(outputFileName, elementDictionary, defaultBeamline):
             raise IOError('Cannot write file: no beam line was created.')
 
     unitLength = 1.0
-    allLengths = []
     for element in elementDictionary.values():
         if not element.isBeamline():
-            allLengths.append(element.getLength())
-    while not all([isInteger(roundSigFig(x, 6)) for x in allLengths]):
-        unitLength = unitLength/10.0
-        allLengths = [10.0 * x for x in allLengths]
+            length = element.getLength()
+            while not isInteger(roundSigFig(length/unitLength, 6)):
+                unitLength = unitLength/10.0
 
 
     lines = []
