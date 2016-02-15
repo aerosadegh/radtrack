@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'globalgu.ui'
+# Form implementation generated from reading ui file 'radtrack/ui/globalgu.ui'
 #
-# Created: Fri Jan 29 05:33:59 2016
+# Created: Mon Feb 15 23:05:41 2016
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -56,8 +56,6 @@ class Ui_globalgu(object):
         self.menuExamples.setObjectName(_fromUtf8("menuExamples"))
         self.menuLoad_Example_Project = QtGui.QMenu(self.menuExamples)
         self.menuLoad_Example_Project.setObjectName(_fromUtf8("menuLoad_Example_Project"))
-        self.menuImport_Example_File = QtGui.QMenu(self.menuExamples)
-        self.menuImport_Example_File.setObjectName(_fromUtf8("menuImport_Example_File"))
         globalgu.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(globalgu)
         self.statusbar.setObjectName(_fromUtf8("statusbar"))
@@ -88,6 +86,8 @@ class Ui_globalgu(object):
         self.actionCheckForUpdate.setObjectName(_fromUtf8("actionCheckForUpdate"))
         self.actionExit = QtGui.QAction(globalgu)
         self.actionExit.setObjectName(_fromUtf8("actionExit"))
+        self.actionLCLS = QtGui.QAction(globalgu)
+        self.actionLCLS.setObjectName(_fromUtf8("actionLCLS"))
         self.menuFile.addAction(self.actionOpen_Project)
         self.menuFile.addAction(self.actionSet_Current_Project_Location)
         self.menuFile.addAction(self.actionOpen_New_RadTrack_Window)
@@ -108,8 +108,8 @@ class Ui_globalgu(object):
         self.menuTabs.addAction(self.actionReopen_Closed_Tab)
         self.menuTabs.addSeparator()
         self.menuTabs.addAction(self.actionRename_Current_Tab)
+        self.menuLoad_Example_Project.addAction(self.actionLCLS)
         self.menuExamples.addAction(self.menuLoad_Example_Project.menuAction())
-        self.menuExamples.addAction(self.menuImport_Example_File.menuAction())
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
         self.menubar.addAction(self.menuTabs.menuAction())
@@ -128,7 +128,6 @@ class Ui_globalgu(object):
         self.menuNew_Tab.setTitle(_translate("globalgu", "New Tab", None))
         self.menuExamples.setTitle(_translate("globalgu", "Examples", None))
         self.menuLoad_Example_Project.setTitle(_translate("globalgu", "Load Example Project", None))
-        self.menuImport_Example_File.setTitle(_translate("globalgu", "Import Example File", None))
         self.actionOpen.setText(_translate("globalgu", "Open", None))
         self.actionUndo.setText(_translate("globalgu", "Undo", None))
         self.actionRedo.setText(_translate("globalgu", "Redo", None))
@@ -142,4 +141,5 @@ class Ui_globalgu(object):
         self.actionRename_Current_Tab.setText(_translate("globalgu", "Rename Current Tab ...", None))
         self.actionCheckForUpdate.setText(_translate("globalgu", "Check for updates ...", None))
         self.actionExit.setText(_translate("globalgu", "Exit", None))
+        self.actionLCLS.setText(_translate("globalgu", "LCLS", None))
 

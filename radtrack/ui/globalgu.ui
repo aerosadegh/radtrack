@@ -93,14 +93,9 @@
      <property name="title">
       <string>Load Example Project</string>
      </property>
-    </widget>
-    <widget class="QMenu" name="menuImport_Example_File">
-     <property name="title">
-      <string>Import Example File</string>
-     </property>
+     <addaction name="actionLCLS"/>
     </widget>
     <addaction name="menuLoad_Example_Project"/>
-    <addaction name="menuImport_Example_File"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -171,6 +166,11 @@
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionLCLS">
+   <property name="text">
+    <string>LCLS</string>
    </property>
   </action>
  </widget>

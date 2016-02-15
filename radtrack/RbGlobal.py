@@ -139,6 +139,10 @@ class RbGlobal(QtGui.QMainWindow):
         self.ui.actionRename_Current_Tab.triggered.connect(self.renameTab)
         self.tabWidget.currentChanged.connect(self.checkMenus)
 
+        # Example Project
+        self.ui.actionLCLS.triggered.connect(lambda :
+                self.openProject('/home/vagrant/src/radiasoft/radtrack/use_cases/radtrack/lcls'))
+
         QtGui.QShortcut(QtGui.QKeySequence.Undo, self).activated.connect(self.undo)
         QtGui.QShortcut(QtGui.QKeySequence.Redo, self).activated.connect(self.redo)
 
