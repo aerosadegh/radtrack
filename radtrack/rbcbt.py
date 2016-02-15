@@ -672,9 +672,11 @@ class RbCbt(rt_qt.QtGui.QWidget):
                 for parameter in element.inputFileParameters:
                     index = element.parameterNames.index(parameter)
                     if element.data[index]:
-                        path = os.path.join(os.path.dirname(fileName), element.data[index])
                         try:
+                            path = os.path.join(os.path.dirname(fileName), element.data[index])
                             importedPath = os.path.join(self.parent.sessionDirectory, element.data[index])
+                            if path == importedPath:
+                                continue
                             if not os.path.exists(os.path.dirname(importedPath)):
                                 os.makedirs(os.path.dirname(importedPath))
                             if os.path.exists(importedPath):
