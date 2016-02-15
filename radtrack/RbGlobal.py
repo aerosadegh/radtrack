@@ -336,8 +336,8 @@ class RbGlobal(QtGui.QMainWindow):
                 while os.path.lexists(directory + '_' + str(count)):
                     count += 1
                 directory = directory + '_' + count
+            os.makedirs(directory)
 
-        os.makedirs(directory)
         for thing in os.listdir(self.sessionDirectory):
             thingPath = os.path.join(self.sessionDirectory, thing)
             try:
@@ -366,6 +366,7 @@ class RbGlobal(QtGui.QMainWindow):
 
         self.sessionDirectory = directory
         self.lastUsedDirectory = directory
+        os.chdir(self.sessionDirectory)
 
         # Load tab data
         self.tabWidget.clear()
