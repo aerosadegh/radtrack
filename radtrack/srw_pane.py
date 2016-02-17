@@ -50,7 +50,7 @@ class View(QtGui.QWidget):
             self._controller.defaults[name].decl,
             v,
         )
-        
+
     def get_wavefront_params(self):
         skn = self.get_global_param('simulation_kind').name.lower()
         # return self._controller.params['simulation_kind'][skn]['wavefront']
@@ -65,13 +65,13 @@ class View(QtGui.QWidget):
         return res
         '''
         return m.get_params()
-        
+
     def get_source_params(self):
         skn = self.get_global_param('radiation_source').name.lower()
         m = self._enum_info[skn]
-        
+
         return m.get_params()
-        
+
     #def get_source_params(self):
     #    skn = self.get_global_param('radiation_source').name.lower()
 
@@ -147,7 +147,7 @@ class View(QtGui.QWidget):
                 QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
             v.horizontalHeader().setSizePolicy(
                 QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Preferred)
-                
+
             param_vbox.addWidget(v)
             first = _models()
             v.setModel(first)
@@ -155,7 +155,7 @@ class View(QtGui.QWidget):
             self.global_params['simulation_kind'].currentIndexChanged.connect(
                 self._simulation_kind_changed)
             '''
-                
+
             stacker = QtGui.QStackedWidget()
             #self._global_enums = {}
 
@@ -165,16 +165,16 @@ class View(QtGui.QWidget):
                 for j in defaults[i]:
                     d = defaults[i][j]
                     p = params[i][j]
-                    x = rt_popup.WidgetView(d,p,file_prefix='srw',parent=self)
+                    x = rt_popup.WidgetView(d,p,file_prefix=self._controller.FILE_PREFIX,parent=self)
                     stacker.addWidget(x)
                 self._enum_info[i] = x
-            self.global_params[name].currentIndexChanged.connect(stacker.setCurrentIndex) 
-            
+            self.global_params[name].currentIndexChanged.connect(stacker.setCurrentIndex)
+
             #def testo():
             #    print(stacker.currentWidget().get_params()
-            #self.global_params[name].currentIndexChanged.connect(testo) 
-            
-            '''        
+            #self.global_params[name].currentIndexChanged.connect(testo)
+
+            '''
             wf_defaults = self._controller.defaults['simulation_kind']
             wf_params = self._controller.params['simulation_kind']
             for i in wf_defaults:
@@ -185,10 +185,10 @@ class View(QtGui.QWidget):
                     wfstacker.addWidget(x)
             '''
 
-            param_vbox.addWidget(stacker) 
-            #param_vbox.addWidget(wfstacker)           
+            param_vbox.addWidget(stacker)
+            #param_vbox.addWidget(wfstacker)
             #self.global_params['simulation_kind'].currentIndexChanged.connect(wfstacker.setCurrentIndex)
-            #self.global_params['radiation_source'].currentIndexChanged.connect(stacker.setCurrentIndex)    
+            #self.global_params['radiation_source'].currentIndexChanged.connect(stacker.setCurrentIndex)
 
         _global_param('radiation_source')
         _view('radiation_source')
@@ -196,7 +196,7 @@ class View(QtGui.QWidget):
         _global_param('intensity')
         _global_param('simulation_kind')
         _view('simulation_kind')
-        
+
         self._add_vertical_stretch_spacer(param_vbox)
         main.addLayout(param_vbox)
 

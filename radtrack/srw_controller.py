@@ -34,11 +34,8 @@ class Base(rt_controller.Controller):
 
     def init(self, parent_widget=None):
         decl = rt_params.declarations(self.FILE_PREFIX)
-        self.defaults = rt_params.defaults(
-            self.FILE_PREFIX + '_' + self.SRW_MODE,
-            decl['simulation_complexity'][self.SRW_MODE + '_particle'])
+        self.defaults = rt_params.defaults(self.FILE_PREFIX, decl['root'])
         self.params = rt_params.init_params(self.defaults)
-        
         self._view = srw_pane.View(self, parent_widget)
         return self._view
 

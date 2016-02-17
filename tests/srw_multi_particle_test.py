@@ -21,6 +21,7 @@ from radtrack.srw import AnalyticCalc
 
 
 def test_1():
+    pkdp(_params('sample').radiation_source.undulator)
     p = srw_multi_particle.simulate(_params('sample'))
     e_p, I_rad = _results(
         [p.stkF.mesh.eStart, p.stkF.mesh.eFin, p.stkF.mesh.ne],
@@ -67,8 +68,8 @@ def _params(base_name):
     decl = rt_params.declarations('srw')
     defaults = rt_params.defaults_from_dict(
         pkunit.data_yaml('sample'),
-        'srw_multi',
-        decl['simulation_complexity']['multi_particle'],
+        'srw',
+        decl['root'],
     )
     res = rt_params.init_params(defaults)
     res.wavefront = res.simulation_kind.e.wavefront

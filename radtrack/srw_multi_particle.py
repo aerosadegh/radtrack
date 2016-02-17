@@ -30,42 +30,67 @@ def simulate(params, msg_callback=lambda _: _):
     for k in 'simulation_kind', 'wavefront','intensity','polarization':
         v = params[k]
         p[k] = v.value if hasattr(v, 'value') else v
-    if params.radiation_source.name.lower() == 'wiggler':
+    pkdp(type(params))
+    pkdp(params.radiation_source)
+    pkdp('-------------------')
+    if params.radiation_source == 'UNDULATOR':
+        pkdp(params.source)
         pkcollections.mapping_merge(
-        p, srw_params.to_undulator_multi_particle(params.source))
-    elif params.radiation_source.name.lower() == 'dual_dipole':
+            p, srw_params.to_undulator_multi_particle(params.source))
+        pkdp('done')
+    elif params.radiation_source == 'DUAL_DIPOLE':
         pkcollections.mapping_merge(
-        p,srw_params.to_dipoles(params.source))
-    elif params.radiation_source.name.lower() == 'multipole':
+            p,srw_params.to_dipoles(params.source))
+    elif params.radiation_source == 'MULTIPOLE':
         pkcollections.mapping_merge(
-        p,srw_params.to_multipole(params.source))
-    
+            p,srw_params.to_multipole(params.source))
+    else:
+        raise AssertionError('{}: unknown radiation_source'.format(params.radiation_source.name))
+
+    pkdp('')
     p.beam = srw_params.to_beam(params.beam)
+    pkdp('')
     p.stkF = srw_params.to_wavefront_multi_particle(p.wavefront) #flux
+    pkdp('')
     p.stkP = srw_params.to_wavefront_multi_particle(p.wavefront) #power
+    pkdp('')
     p.wfrXY = srw_params.to_wavefront_single_particle(p.wavefront)
+    pkdp('')
     p.ar_prec_f = srw_params.to_flux_precision(params.precision)
+    pkdp('')
     p.ar_prec_p = srw_params.to_power_precision(params.precision)
+    pkdp('')
     p.arPrecPar = [2,0.01,-0.1,0.1,8000,1,0] #General Precision parameters for Trajectory calculation:
+    pkdp('')
     p.fieldInterpMeth = 4
-    
+    pkdp('')
+
     p.wfrE = srw_params.to_wavefront_single_particle(p.wavefront)
+    pkdp('')
     p.wfrE.partBeam = srw_params.to_beam(params.beam)
+    pkdp('')
     p.wfrXY = srw_params.to_wavefront_single_particle(p.wavefront)
+    pkdp('')
     p.wfrXY.partBeam = srw_params.to_beam(params.beam)
-    
+    pkdp('')
+
     p.plots = []
     skv = p.simulation_kind
-    
+
+    pkdp('')
     msg_callback('Performing trajectory calculation')
     #if params.radiation_source.name.lower() == 'wiggler': _trajectory(p)
     if params.simulation_kind == 'E':
+        pkdp('')
         msg_callback('Performing Electric Field (spectrum vs photon energy) calculation')
         msg_callback('Extracting Intensity from calculated Electric Field')
-        if params.radiation_source == 'wiggler':
+        if params.radiation_source == 'UNDULATOR':
+            pkdp('')
             srwlib.srwl.CalcStokesUR(p.stkF, p.beam, p.und, p.ar_prec_f)
         else:
+            pkdp('')
             srwlib.srwl.SRWLStokes()
+        pkdp('')
         p.plots.append([
             uti_plot.uti_plot1d,
             p.stkF.arS,
@@ -76,6 +101,7 @@ def simulate(params, msg_callback=lambda _: _):
                 'Flux through Finite Aperture',
             ],
         ])
+        pkdp('')
     elif params.simulation_kind == 'X':
         msg_callback('Performing Power Density calculation (from field) vs x-coordinate calculation')
         srwlib.srwl.CalcPowDenSR(p.stkP, p.beam, 0, p.magFldCnt, p.ar_prec_p)
@@ -144,7 +170,7 @@ def simulate(params, msg_callback=lambda _: _):
                 [1*p.wfrXY.mesh.yStart, 1*p.wfrXY.mesh.yFin, p.wfrXY.mesh.ny],
                 ['Horizontal Position [m]', 'Vertical Position [m]', 'Intensity at ' + str(p.wfrXY.mesh.eStart) + ' eV'],
             ])#'''
-        
+
     else:
         raise AssertionError('{}: invalid simulation_kind'.format(params.simulation_kind))
     return p
@@ -183,7 +209,7 @@ def _trajectory(p):
         uti_plot.uti_plot1d,
         p.partTraj.arY, p.ctMesh, ['ct [m]', 'Vertical Position [mm]'],
     ])
-    
+
 def _trajectorys(p):
     # Done specifying undulator mag field
     # Initial coordinates of particle trajectory through the ID
@@ -192,7 +218,7 @@ def _trajectorys(p):
     part.y = p.beam.partStatMom1.y
     part.xp = p.beam.partStatMom1.xp
     part.yp = p.beam.partStatMom1.yp
-    part.gamma = p.beam.partStatMom1.gamma #3/0.51099890221e-03 #Relative Energy beam.partStatMom1.gamma 
+    part.gamma = p.beam.partStatMom1.gamma #3/0.51099890221e-03 #Relative Energy beam.partStatMom1.gamma
     part.relE0 = 1
     part.nq = -1
     #zcID = 0
@@ -207,8 +233,8 @@ def _trajectorys(p):
     p.partTraj.ctEnd = 0.1    #0.55 * p.und.nPer * p.und.per #magFldCnt.MagFld[0].rz
     p.partTraj = srwlib.srwl.CalcPartTraj(p.partTraj, p.magFldCnt, p.arPrecPar)
     p.ctMesh = [p.partTraj.ctStart, p.partTraj.ctEnd, p.partTraj.np]
-    
+
     uti_plot.uti_plot1d(p.partTraj.arX, p.ctMesh, ['ct [m]', 'Horizontal Position [m]'])
     #uti_plot.uti_plot1d(p.partTraj.arY, p.ctMesh, ['ct [m]', 'Vertical Position [m]'])
     uti_plot.uti_plot1d(p.partTraj.arXp, p.ctMesh, ['ct [m]', 'Horizontal angle [rad]'])
-    uti_plot.uti_plot_show()    
+    uti_plot.uti_plot_show()

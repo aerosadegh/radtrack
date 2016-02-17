@@ -1,36 +1,29 @@
 ---
 -
+  name: root
+  required: [srw_multi, srw_single]
+  children: [precision, beam, simulation_kind, radiation_source, intensity, polarization, simulation_complexity]
+-
   name: simulation_complexity
   py_type: srw_enums.SimulationComplexity
   required: [srw_multi, srw_single]
-  children:
-    -
-      name: multi_particle
-      label: Multi-Particle
-      required: [srw_multi]
-      children: [precision, beam, simulation_kind, radiation_source, intensity, polarization]
-    -
-      name: single_particle
-      required: [srw_single]
-      children: [precision, beam, simulation_kind, polarization, intensity, radiation_source]
 -
   name: radiation_source
   py_type: srw_enums.RadiationSource
   required: [srw_single, srw_multi]
   children:
     -
-      name: wiggler
+      name: undulator
       children: [undulator]
       required: [srw_single, srw_multi]
     -
       name: dual_dipole
-      children: [two_dipole]
+      children: [dual_dipole]
       required: [srw_single, srw_multi]
     -
       name: multipole
-      children: [magnet]
+      children: [multipole]
       required: [srw_single, srw_multi]
-      
 -
   name: polarization
   py_type: srw_enums.Polarization
@@ -133,7 +126,7 @@
     -
       #TODO(robnagler) bool?
       name: vertical_symmetry
-      label: Vertical Field Component Symmetry 
+      label: Vertical Field Component Symmetry
       py_type: int
       required: [srw_single]
     -
@@ -155,7 +148,7 @@
       units: m
       required: [srw_single]
 -
-  name: two_dipole
+  name: dual_dipole
   required: [srw_single, srw_multi]
   children:
     -
@@ -230,7 +223,7 @@
           units: m
           required: [srw_single, srw_multi]
 -
-  name: magnet
+  name: multipole
   required: [srw_single, srw_multi]
   children:
     -
@@ -260,46 +253,13 @@
       py_type: float
       units: m
       required: [srw_single, srw_multi]
-  
-  
-      
+
+
+
 -
   name: precision
   required: [srw_multi, srw_single]
   children:
-    -
-      name: sr_calculation_method
-      label: SR Calculation Method
-      py_type: srw_enums.SRCalculationMethod
-      required: [srw_single]
-    -
-      name: relative
-      label: Relative Precision
-      py_type: float
-      required: [srw_single]
-    -
-      name: start_integration
-      py_type: float
-      units: m
-      required: [srw_single]
-    -
-      name: end_integration
-      py_type: float
-      units: m
-      required: [srw_single]
-    -
-      name: num_points_trajectory_calculation
-      label: Number of Points for Trajectory Calculation
-      py_type: int
-      required: [srw_single]
-    -
-      name: use_terminating_terms
-      py_type: bool
-      required: [srw_single]
-    -
-      name: sampling_factor
-      py_type: int
-      required: [srw_single]
     -
       name: spectral_flux
       label: Spectral Flux Calculation
@@ -361,6 +321,39 @@
           label: Number of Points along Trajectory
           py_type: int
           required: [srw_multi]
+    -
+      name: sr_calculation_method
+      label: SR Calculation Method
+      py_type: srw_enums.SRCalculationMethod
+      required: [srw_single]
+    -
+      name: relative
+      label: Relative Precision
+      py_type: float
+      required: [srw_single]
+    -
+      name: start_integration
+      py_type: float
+      units: m
+      required: [srw_single]
+    -
+      name: end_integration
+      py_type: float
+      units: m
+      required: [srw_single]
+    -
+      name: num_points_trajectory_calculation
+      label: Number of Points for Trajectory Calculation
+      py_type: int
+      required: [srw_single]
+    -
+      name: use_terminating_terms
+      py_type: bool
+      required: [srw_single]
+    -
+      name: sampling_factor
+      py_type: int
+      required: [srw_single]
 -
   name: beam
   required: [srw_multi, srw_single]
