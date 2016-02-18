@@ -32,7 +32,8 @@ class Base(rt_controller.Controller):
 
     FILE_PREFIX = 'srw'
 
-    def init(self, parent_widget=None):
+    def init(self, parent_widget=None, complexity_widget=None):
+        self.complexity_widget = complexity_widget
         decl = rt_params.declarations(self.FILE_PREFIX)
         self.defaults = rt_params.defaults(self.FILE_PREFIX, decl['root'])
         self.params = rt_params.init_params(self.defaults)
@@ -97,6 +98,11 @@ class Base(rt_controller.Controller):
         """Returns button action"""
         return getattr(self, 'action_' + name.lower())
 
+    def simulate(self, msg_callback):
+        if self.complexity_widget.isChecked():
+            return srw_single_particle.simulate(self.params, msg_callback)
+        return srw_multi_particle.simulate(self.params, msg_callback)
+
     def _pop_up(self, which):
         pu = rt_popup.Window(
             self.defaults[which],
@@ -106,19 +112,3 @@ class Base(rt_controller.Controller):
         )
         if pu.exec_():
             self.params[which] = pu.get_params()
-
-
-class MultiParticle(Base):
-
-    SRW_MODE = 'multi'
-
-    def simulate(self, msg_callback):
-        return srw_multi_particle.simulate(self.params, msg_callback)
-
-
-class SingleParticle(Base):
-
-    SRW_MODE = 'single'
-
-    def simulate(self, msg_callback):
-        return srw_single_particle.simulate(self.params, msg_callback)

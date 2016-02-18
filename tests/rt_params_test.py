@@ -18,13 +18,11 @@ from radtrack import srw_enums
 def test_declarations():
     """Verify a couple of values exist"""
     d = rt_params.declarations('srw')['root']
-    pkdp(d['precision']['spectral_flux'].children)
     assert d['radiation_source']['undulator']['undulator']['period_len'].units == 'm', \
         'Undulator period length units should be centimeters'
     assert d['precision']['spectral_flux']['flux_calculation'].py_type \
         == srw_enums.FluxCalculation, \
         'Flux Calculation type should be srw_enums.Flux'
-    pkdp(d['precision']['spectral_flux'].values()[3])
     l = list(iter(d['precision']['spectral_flux'].values()))
     assert 'Azimuthal Integration Precision' == l[3].label, \
         'Result should be ordered'
@@ -33,9 +31,7 @@ def test_declarations():
 def test_defaults():
     """Verify a couple of values exist"""
     decl = rt_params.declarations('srw')
-    pkdp('start')
     d = rt_params.defaults('srw', decl['root'])
-    pkdp([x for x in d.iteritems()])
     assert isinstance(
         d['radiation_source']['undulator']['undulator']['orientation'].value,
         srw_enums.UndulatorOrientation), \

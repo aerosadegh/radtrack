@@ -23,18 +23,12 @@ class RbSrwTab(QtGui.QWidget):
         else:
             self.parent = self
         QtGui.QWidget.__init__(self)
-        self.stackwidget = QtGui.QStackedWidget(self)
-        self.stackwidget.addWidget(
-            srw_controller.MultiParticle.init_widget(self.stackwidget))
-        self.stackwidget.addWidget(
-            srw_controller.SingleParticle.init_widget(self.stackwidget))
         self.srw_particle = QtGui.QCheckBox(self)
         self.srw_particle.setText('Single-Particle')
         layout = QtGui.QVBoxLayout(self)
         self.setLayout(layout)
         layout.addWidget(self.srw_particle)
-        layout.addWidget(self.stackwidget)
-        self.srw_particle.stateChanged.connect(self.togglesrw)
+        layout.addWidget(srw_controller.Base.init_widget(None, complexity_widget=self.srw_particle))
 
     def exportToFile(self, fileName = None):
         with open(fileName, 'w'):
@@ -43,8 +37,6 @@ class RbSrwTab(QtGui.QWidget):
     def importFile(self, fileName = None):
         pass
 
-    def togglesrw(self):
-        self.stackwidget.setCurrentIndex(int(self.srw_particle.isChecked()))
 
 if '__main__' == __name__:
     from radtrack import rt_qt

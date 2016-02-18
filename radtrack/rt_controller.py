@@ -14,7 +14,7 @@ class Controller(object):
     """Base class for all RadTrack controllers"""
 
     @classmethod
-    def init_widget(cls, parent=None):
+    def init_widget(cls, parent=None, complexity_widget=None):
         """Instantiates `cls` and calls `init`
 
         Args:
@@ -25,7 +25,7 @@ class Controller(object):
             QWidget: widget peer of this controller
 
         """
-        return cls().init(parent)
+        return cls().init(parent_widget=parent, complexity_widget=complexity_widget)
 
     @classmethod
     def run_if_main(cls):

@@ -32,16 +32,18 @@ def simulate(params, msg_callback):
     for k in 'polarization', 'intensity', 'simulation_kind', 'wavefront':
         v = params[k]
         p[k] = v.value if hasattr(v, 'value') else v
-    if params.radiation_source.name.lower() == 'wiggler':
+    if params.radiation_source == 'UNDULATOR':
         pkcollections.mapping_merge(
         p, srw_params.to_undulator_single_particle(params.source))
-    elif params.radiation_source.name.lower() == 'dual_dipole':
+    elif params.radiation_source == 'DUAL_DIPOLE':
         pkcollections.mapping_merge(
         p,srw_params.to_dipoles(params.source))
-    elif params.radiation_source.name.lower() == 'multipole':
+    elif params.radiation_source == 'MULTIPOLE':
         pkcollections.mapping_merge(
         p,srw_params.to_multipole(params.source))
-        
+    else:
+        raise AssertionError('{}: unknown radiation_source'.format(params.radiation_source))
+
     p.arPrecPar = srw_params.to_precision_single_particle(params.precision)
     p.wfrE = srw_params.to_wavefront_single_particle(p.wavefront)
     p.wfrE.partBeam = srw_params.to_beam(params.beam)
@@ -103,7 +105,7 @@ def simulate(params, msg_callback):
             [1*p.wfrXY.mesh.yStart, 1*p.wfrXY.mesh.yFin, p.wfrXY.mesh.ny],
             ['Horizontal Position [m]', 'Vertical Position [m]', 'Intensity at ' + str(p.wfrXY.mesh.eStart) + ' eV'],
         ])'''
-        
+
     elif params.simulation_kind == 'E_AND_X':
         msg_callback('Performing Electric Field (intensity vs energy- and x-coordinate) calculation')
         srwlib.srwl.CalcElecFieldSR(p.wfrXY, 0, p.magFldCnt, p.arPrecPar)
@@ -133,7 +135,7 @@ def simulate(params, msg_callback):
     else:
         raise AssertionError('{}: invalid p.simulation_kind'.format(params.simulation_kind))
     return p
-    
+
 def _trajectory(p):
     # Done specifying undulator mag field
     # Initial coordinates of particle trajectory through the ID
@@ -142,7 +144,7 @@ def _trajectory(p):
     part.y = p.beam.partStatMom1.y
     part.xp = p.beam.partStatMom1.xp
     part.yp = p.beam.partStatMom1.yp
-    part.gamma = p.beam.partStatMom1.gamma #3/0.51099890221e-03 #Relative Energy beam.partStatMom1.gamma 
+    part.gamma = p.beam.partStatMom1.gamma #3/0.51099890221e-03 #Relative Energy beam.partStatMom1.gamma
     part.relE0 = 1
     part.nq = -1
     zcID = 0
@@ -157,7 +159,7 @@ def _trajectory(p):
     p.partTraj.ctEnd = 0.1    #0.55 * p.und.nPer * p.und.per #magFldCnt.MagFld[0].rz
     p.partTraj = srwlib.srwl.CalcPartTraj(p.partTraj, p.magFldCnt, p.arPrecPar)
     p.ctMesh = [p.partTraj.ctStart, p.partTraj.ctEnd, p.partTraj.np]
-    
+
     uti_plot.uti_plot1d(p.partTraj.arX, ctMesh, ['ct [m]', 'Horizontal Position [m]'])
     uti_plot.uti_plot1d(p.partTraj.arY, ctMesh, ['ct [m]', 'Vertical Position [m]'])
     uti_plot.uti_plot1d(p.partTraj.arXp, ctMesh, ['ct [m]', 'Horizontal angle [rad]'])
