@@ -140,8 +140,8 @@ class RbGlobal(QtGui.QMainWindow):
         self.tabWidget.currentChanged.connect(self.checkMenus)
 
         # Example Project
-        self.ui.actionLCLS.triggered.connect(lambda :
-                self.openProject('/home/vagrant/src/radiasoft/radtrack/use_cases/radtrack/lcls'))
+        exampleDirectory = '/home/vagrant/src/radiasoft/radtrack/use_cases/radtrack'
+        self.ui.actionLCLS.triggered.connect(lambda : self.openExampleProject(exampleDirectory + '/lcls'))
 
         QtGui.QShortcut(QtGui.QKeySequence.Undo, self).activated.connect(self.undo)
         QtGui.QShortcut(QtGui.QKeySequence.Redo, self).activated.connect(self.redo)
@@ -317,10 +317,11 @@ class RbGlobal(QtGui.QMainWindow):
         self.ui.statusbar.clearMessage()
 
 
-    def setProjectLocation(self):
-        directory = QtGui.QFileDialog.getExistingDirectory(self,
-                'Choose folder to store project',
-                self.sessionDirectory)
+    def setProjectLocation(self, directory = ''):
+        if not directory:
+            directory = QtGui.QFileDialog.getExistingDirectory(self,
+                    'Choose folder to store project',
+                    self.sessionDirectory)
         if not directory:
             return
 
@@ -383,6 +384,16 @@ class RbGlobal(QtGui.QMainWindow):
             self.tabWidget.setTabText(i, tabName.split('+')[0])
 
         self.setTitleBar('RadTrack - ' + self.sessionDirectory)
+
+    def openExampleProject(self, directory):
+        temp = directory + '_temp'
+        shutil.copytree(directory, temp)
+        self.openProject(directory)
+        session = 'Example_' + datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        newDirectory = os.path.join(os.path.expanduser('~'), 'RadTrack', session)
+        os.makedirs(newDirectory)
+        self.setProjectLocation(newDirectory)
+        shutil.move(temp, directory)
 
     def saveProject(self):
         # Delete previous tab data in self.sessionDirectory
