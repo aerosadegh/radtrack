@@ -140,8 +140,9 @@ class RbGlobal(QtGui.QMainWindow):
         self.tabWidget.currentChanged.connect(self.checkMenus)
 
         # Example Project
-        exampleDirectory = '/home/vagrant/src/radiasoft/radtrack/use_cases/radtrack'
-        self.ui.actionLCLS.triggered.connect(lambda : self.openExampleProject(exampleDirectory + '/lcls'))
+        exampleDirectory = '/home/vagrant/src/radiasoft/radtrack/use_cases/radtrack/'
+        self.ui.actionLCLS.triggered.connect(lambda : self.openExampleProject(exampleDirectory + 'lcls'))
+        self.ui.actionFODO.triggered.connect(lambda : self.openExampleProject(exampleDirectory + 'fodo'))
 
         QtGui.QShortcut(QtGui.QKeySequence.Undo, self).activated.connect(self.undo)
         QtGui.QShortcut(QtGui.QKeySequence.Redo, self).activated.connect(self.redo)
