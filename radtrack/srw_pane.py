@@ -41,12 +41,14 @@ class WidgetHolder(object):
         self.label.setVisible(visible)
         value = d.value
         if self.widget:
+            pkdp('destroy {}', d.decl)
             value = rt_popup.get_widget_value(d.decl, self.widget)
             self.hbox.removeWidget(self.widget)
             if self.stacker:
                 self.widget.currentIndexChanged.disconnect()
-            self.widget.destroy()
+            self.widget.deleteLater()
             self.widget = None
+        pkdp('create {}', d.decl)
         res = rt_popup.value_widget(
             self.default,
             value,
@@ -140,19 +142,6 @@ class View(QtGui.QWidget):
                 param_widget=param_widget,
                 controller=self._controller,
             )
-            '''
-            res = rt_popup.value_widget(
-                df,
-                df.value,
-                param_widget,
-                self._controller,
-            )
-            hb.addWidget(res[0])
-            self.global_params[name] = pkcollections.OrderedMapping(dict(
-                widget=res[0],
-                set_stacker=lambda x: x,
-            ))
-            '''
             param_vbox.addLayout(hb)
 
         def _view(name):
