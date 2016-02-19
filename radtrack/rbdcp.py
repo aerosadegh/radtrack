@@ -215,8 +215,12 @@ class RbDcp(QtGui.QWidget):
         phile = QtCore.QFileInfo(openFile)
 
         #SDDS specific code
-        self.fileData=sdds.SDDS(0)
-        self.fileData.load(openFile)
+        try:
+            self.fileData=sdds.SDDS(0)
+            self.fileData.load(openFile)
+        except Exception:
+            QtGui.QMessageBox.warning(self, "Error Importing File", "The file " + openFile + " does not contain any data.")
+            return
 
         #get # of pages and columns
         (_,_,_,_,Ncol,_,_,Npage)=SDDSreshape(self.fileData,ColumnXAxis,ColumnPicked,NumPage)
