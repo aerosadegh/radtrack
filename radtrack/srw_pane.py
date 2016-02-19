@@ -41,14 +41,12 @@ class WidgetHolder(object):
         self.label.setVisible(visible)
         value = d.value
         if self.widget:
-            pkdp('destroy {}', d.decl)
             value = rt_popup.get_widget_value(d.decl, self.widget)
             self.hbox.removeWidget(self.widget)
             if self.stacker:
                 self.widget.currentIndexChanged.disconnect()
             self.widget.deleteLater()
             self.widget = None
-        pkdp('create {}', d.decl)
         res = rt_popup.value_widget(
             self.default,
             value,
