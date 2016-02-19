@@ -23,12 +23,12 @@ class RbSrwTab(QtGui.QWidget):
         else:
             self.parent = self
         QtGui.QWidget.__init__(self)
-        self.srw_particle = QtGui.QCheckBox(self)
-        self.srw_particle.setText('Single-Particle')
+        self.complexity_widget = QtGui.QCheckBox(self)
+        self.complexity_widget.setText('Single-Particle')
         layout = QtGui.QVBoxLayout(self)
         self.setLayout(layout)
-        layout.addWidget(self.srw_particle)
-        layout.addWidget(srw_controller.Base.init_widget(None, complexity_widget=self.srw_particle))
+        layout.addWidget(self.complexity_widget)
+        layout.addWidget(srw_controller.Base.init_widget(self))
 
     def exportToFile(self, fileName = None):
         with open(fileName, 'w'):

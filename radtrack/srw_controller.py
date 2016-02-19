@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
-"""Multiparticle SRW Pane
+"""Creates SRW pane, and runs SRW simulation
 
-:copyright: Copyright (c) 2013-2015 RadiaBeam Technologies LLC.  All Rights Reserved.
+:copyright: Copyright (c) 2013-2016 RadiaBeam Technologies LLC.  All Rights Reserved.
 :license: http://www.apache.org/licenses/LICENSE-2.0.html
 """
 from __future__ import absolute_import, division, print_function
 
 from pykern import pkarray
 from pykern import pkcompat
+
+from pykern import pkcollections
 from pykern.pkdebug import pkdc, pkdp
 
 from radtrack import rt_controller
@@ -32,15 +34,20 @@ class Base(rt_controller.Controller):
 
     FILE_PREFIX = 'srw'
 
-    def init(self, parent_widget=None, complexity_widget=None):
-        self.complexity_widget = complexity_widget
+    def init(self, parent_widget=None):
+        self._static_widgets = []
+        self.complexity_widget = parent_widget.complexity_widget
         decl = rt_params.declarations(self.FILE_PREFIX)
         self.defaults = rt_params.defaults(self.FILE_PREFIX, decl['root'])
         self.params = rt_params.init_params(self.defaults)
         self._view = srw_pane.View(self, parent_widget)
+        self.complexity_widget.stateChanged.connect(self.toggle_complexity)
         return self._view
 
     def action_analyze(self):
+        self.params['source'] = self._view.get_source_params()
+        for k in 'wavefront', 'simulation_kind', 'polarization', 'intensity','radiation_source':
+            self.params[k] = self._view.get_global_param(k)
         values = AnalyticCalc.compute_all(self.params)
         res = rt_jinja.render(
             '''
@@ -94,20 +101,40 @@ class Base(rt_controller.Controller):
     def action_undulator(self):
         self._pop_up('undulator')
 
+    def decl_is_visible(self, decl):
+        r = decl.required
+        if self.is_single_particle():
+            if not 'srw_single' in r:
+                return False
+        elif not 'srw_multi' in r:
+            return False
+        return True
+
+    def is_single_particle(self):
+        return self.complexity_widget.isChecked()
+
     def name_to_action(self, name):
         """Returns button action"""
         return getattr(self, 'action_' + name.lower())
 
+    def register_static_widget(self, widget):
+        if widget not in self._static_widgets:
+            self._static_widgets.append(widget)
+
     def simulate(self, msg_callback):
-        if self.complexity_widget.isChecked():
+        if self.is_single_particle():
             return srw_single_particle.simulate(self.params, msg_callback)
         return srw_multi_particle.simulate(self.params, msg_callback)
+
+    def toggle_complexity(self):
+        for w in self._static_widgets:
+            w.update_visibility()
 
     def _pop_up(self, which):
         pu = rt_popup.Window(
             self.defaults[which],
             self.params[which],
-            file_prefix=self.FILE_PREFIX,
+            controller=self,
             parent=self._view,
         )
         if pu.exec_():

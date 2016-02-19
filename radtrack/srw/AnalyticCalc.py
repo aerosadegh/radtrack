@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 # version where we do not check wiggler or undulator
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import absolute_import, division, print_function
 from io import open
 
 import copy
+from pykern.pkdebug import pkdc, pkdp
+from pykern import pkcollections
 
 import numpy as np
 import scipy.integrate
@@ -73,6 +75,7 @@ def compute_all(params):
         dict: copy of `params` and results
     """
     res = _merge_params(params)
+    params = res
     v = IDWaveLengthPhotonEnergy(
         params['period_len'],
         #TODO(robnagler) Why is this not res['Bx']?
@@ -134,12 +137,12 @@ def _merge_params(params):
     Returns:
         dict: Merged params
     """
-    res = copy.deepcopy(self.params['undulator'])
+    res = copy.deepcopy(dict(pkcollections.map_items(params['source'])))
     if res['orientation'] == 'VERTICAL':
         res['horizontal_magnetic_field'] = 0
         res['vertical_magnetic_field'] = res['magnetic_field']
     else:
         res['horizontal_magnetic_field'] = res['magnetic_field']
         res['vertical_magnetic_field'] = 0
-    res.update(self.params['beam'])
+    res.update(pkcollections.map_items(params['beam']))
     return res

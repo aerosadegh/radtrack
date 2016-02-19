@@ -71,7 +71,7 @@ def set_widget_value(decl, param, widget):
     return l
 
 
-def value_widget(default, value, parent):
+def value_widget(default, value, parent, controller):
     d = default.decl
     t = d.py_type
     v = None
@@ -80,13 +80,16 @@ def value_widget(default, value, parent):
         v = ''
         choices = t
         if default.children:
-            choices = pkcollections.map_values(
-                default.children, lambda x: x.value)
+            choices = []
+            for c in pkcollections.map_values(default.children):
+                if controller.decl_is_visible(c.decl):
+                    choices.append(c.value)
         for e in choices:
             n = rt_qt.i18n_text(e.display_name)
             widget.addItem(n, userData=e.value)
             if len(n) > len(v):
                 v = n
+        # If value is not in choices, nothing will be selected
         set_widget_value(d, value, widget)
     elif issubclass(t, bool):
         widget = QtGui.QCheckBox(parent)
@@ -99,22 +102,24 @@ def value_widget(default, value, parent):
 
 
 class Window(QtGui.QDialog):
-    def __init__(self, defaults, params, file_prefix, parent=None):
+    def __init__(self, defaults, params, controller, parent=None):
         super(Window, self).__init__(parent)
+        self._controller = controller
         self.setWindowTitle(rt_qt.i18n_text(defaults.decl.label))
-        self.setStyleSheet(pkio.read_text(pkresource.filename(file_prefix + '_popup.css')))
-        self._form = Form(defaults, params, self)
+        self.setStyleSheet(pkio.read_text(pkresource.filename(controller.FILE_PREFIX + '_popup.css')))
+        self._form = Form(defaults, params, self, dynamic_popup=True)
 
     def get_params(self,):
         """Convert values in the window to "param" values"""
         return self._form._get_params()
-        
+
+
 class WidgetView(QtGui.QWidget):
-    def __init__(self, defaults, params, file_prefix, parent=None):
+    def __init__(self, defaults, params, controller, parent=None):
         super(WidgetView, self).__init__(parent)
-        #self.setWindowTitle(rt_qt.i18n_text(defaults.decl.label))
-        self.setStyleSheet(pkio.read_text(pkresource.filename(file_prefix + '_popup.css')))
-        self._form = Form(defaults, params, self, with_button=False)
+        self._controller = controller
+        self.setStyleSheet(pkio.read_text(pkresource.filename(controller.FILE_PREFIX + '_popup.css')))
+        self._form = Form(defaults, params, self, dynamic_popup=False)
 
     def get_params(self,):
         """Convert values in the window to "param" values"""
@@ -129,28 +134,37 @@ class Form(object):
     MARGIN_HEIGHT = 20
     MARGIN_WIDTH = 30
 
-    def __init__(self, defaults, params, window, with_button = True):
+    def __init__(self, defaults, params, window, dynamic_popup=True):
         super(Form, self).__init__()
         self._defaults = defaults
-        #self._frame = QtGui.QWidget(window)
+        self._controller = window._controller
         self._frame = QtGui.QWidget()
-        #self._layout = QtGui.QFormLayout(self._frame)
         self._layout = QtGui.QFormLayout()
         self._layout.setFieldGrowthPolicy(QtGui.QFormLayout.AllNonFixedFieldsGrow)
         self._layout.setMargin(0)
+        self._dynamic_popup = dynamic_popup
         sizes = self._init_fields(params)
-
-        self._set_geometry(sizes)
-
+        if self._dynamic_popup:
+            self._set_geometry(sizes)
         sa = QtGui.QScrollArea()
         self._frame.setLayout(self._layout)
         sa.setWidget(self._frame)
         self.mainlayout = QtGui.QFormLayout(window)
         self.mainlayout.addRow(sa)
-        if with_button:
+        if self._dynamic_popup:
             self._init_buttons(window)
-        #self.mainlayout.setSizeConstraint(QtGui.QLayout.SetFixedSize)
+        else:
+            self._controller.register_static_widget(self)
+        self.update_visibility()
 
+    def update_visibility(self):
+        for f in self._fields.values():
+            visibility = self._controller.decl_is_visible(f['decl'])
+            if f['widget']:
+                f['widget'].setVisible(visibility)
+            f['qlabel'].setVisible(visibility)
+        if not self._dynamic_popup:
+            self._frame.adjustSize()
 
     def _get_params(self):
 
@@ -211,14 +225,22 @@ class Form(object):
                     widget = None
                     _iter_children(df, p[d.name])
                 else:
+                    if not self._dynamic_popup:
+                        qlabel.setWordWrap(True);
                     rt_qt.set_id(qlabel, 'form_field')
-                    (widget, value) = value_widget(df, p[d.name], self._frame)
+                    (widget, value) = value_widget(
+                        df,
+                        p[d.name],
+                        self._frame,
+                        self._controller,
+                    )
                     self._layout.addRow(qlabel, widget)
                     if len(value) > res['max_value']:
                         res['max_value'] = len(value)
                 self._fields[d.qualified_name] = {
                     'qlabel': qlabel,
                     'widget': widget,
+                    'decl': d,
                 }
                 res['num'] += 1
 

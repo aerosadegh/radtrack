@@ -19,6 +19,47 @@ from radtrack import rt_qt
 from radtrack import srw_enums
 
 
+class WidgetHolder(object):
+    def __init__(self, hbox, default, label, param_widget, controller):
+        self.hbox = hbox
+        self.default = default
+        self.label = label
+        self.controller = controller
+        self.param_widget = param_widget
+        self.widget = None
+        self.stacker = None
+        self.update_visibility()
+        self.controller.register_static_widget(self)
+
+    def set_stacker(self, stacker):
+        self.stacker = stacker
+        self.widget.currentIndexChanged.connect(self.stacker.setCurrentIndex)
+
+    def update_visibility(self):
+        d = self.default
+        visible = self.controller.decl_is_visible(d.decl)
+        self.label.setVisible(visible)
+        value = d.value
+        if self.widget:
+            value = rt_popup.get_widget_value(d.decl, self.widget)
+            self.hbox.removeWidget(self.widget)
+            if self.stacker:
+                self.widget.currentIndexChanged.disconnect()
+            self.widget.destroy()
+            self.widget = None
+        res = rt_popup.value_widget(
+            self.default,
+            value,
+            self.param_widget,
+            self.controller,
+        )
+        self.widget = res[0]
+        self.widget.setVisible(visible)
+        self.hbox.addWidget(self.widget)
+        if self.stacker:
+            self.widget.currentIndexChanged.connect(self.stacker.setCurrentIndex)
+
+
 class View(QtGui.QWidget):
     """Pane with buttons, parameters, and results windows.
 
@@ -40,7 +81,6 @@ class View(QtGui.QWidget):
         #TODO (robnagler) hide the abstraction for now
         if name == 'wavefront':
             return self.get_wavefront_params()
-
         try:
             v = self.global_params[name]
         except KeyError:
@@ -48,32 +88,18 @@ class View(QtGui.QWidget):
             return None
         return rt_popup.get_widget_value(
             self._controller.defaults[name].decl,
-            v,
+            v.widget,
         )
 
     def get_wavefront_params(self):
-        skn = self.get_global_param('simulation_kind').name.lower()
-        # return self._controller.params['simulation_kind'][skn]['wavefront']
-        # m = self._wavefront_models[skn]
-        m = self._enum_info[skn]
-        #defaults = self._controller.defaults['simulation_kind'][skn]['wavefront']
-        #res = pkcollections.OrderedMapping()
-        '''
-        for (row, n) in enumerate(defaults):
-            df = defaults[n]
-            res[df.decl.name] = rt_popup.get_widget_value(df.decl, m.item(row, 1))
-        return res
-        '''
+        n = self.get_global_param('simulation_kind').name.lower()
+        m = self._enum_info[n]
         return m.get_params()
 
     def get_source_params(self):
-        skn = self.get_global_param('radiation_source').name.lower()
-        m = self._enum_info[skn]
-
+        n = self.get_global_param('radiation_source').name.lower()
+        m = self._enum_info[n]
         return m.get_params()
-
-    #def get_source_params(self):
-    #    skn = self.get_global_param('radiation_source').name.lower()
 
     def set_result_text(self, which, text):
         w = self._result_text[which]
@@ -81,7 +107,7 @@ class View(QtGui.QWidget):
         w.repaint()
 
     def _add_action_buttons(self, main):
-        """Buttons on the left size"""
+        """Buttons on the left side"""
         frame = QtGui.QWidget(self)
         vbox = QtGui.QVBoxLayout()
         frame.setLayout(vbox)
@@ -107,88 +133,41 @@ class View(QtGui.QWidget):
             label = rt_qt.set_id(QtGui.QLabel(param_widget), 'form_field')
             rt_qt.i18n_text(df.decl.label, label)
             hb.addWidget(label, alignment=QtCore.Qt.AlignRight)
-            res = rt_popup.value_widget(df, df.value, param_widget)
+            self.global_params[name] = WidgetHolder(
+                hbox=hb,
+                default=df,
+                label=label,
+                param_widget=param_widget,
+                controller=self._controller,
+            )
+            '''
+            res = rt_popup.value_widget(
+                df,
+                df.value,
+                param_widget,
+                self._controller,
+            )
             hb.addWidget(res[0])
+            self.global_params[name] = pkcollections.OrderedMapping(dict(
+                widget=res[0],
+                set_stacker=lambda x: x,
+            ))
+            '''
             param_vbox.addLayout(hb)
-            self.global_params[name] = res[0]
-            return res
-
-        def _models():
-            self._wavefront_models = {}
-            params = self._controller.params['simulation_kind']
-            first_sk = None
-            sk_defaults = self._controller.defaults['simulation_kind']
-            for sk_name in sk_defaults:
-                sk = srw_enums.SimulationKind.from_anything(sk_name)
-                wf_defaults = sk_defaults[sk_name]['wavefront']
-                if not first_sk:
-                    first_sk = sk
-                m = QtGui.QStandardItemModel(len(wf_defaults), 2);
-                p = params[sk_name]['wavefront']
-                for (row, n) in enumerate(wf_defaults):
-                    d = wf_defaults[n]
-                    item = QtGui.QStandardItem()
-                    rt_qt.i18n_text(d.decl.label, item)
-                    m.setItem(row, 0, item)
-                    item = QtGui.QStandardItem()
-                    rt_popup.set_widget_value(d.decl, p[d.decl.name], item)
-                    m.setItem(row, 1, item)
-                self._wavefront_models[sk_name] = m
-            return self._wavefront_models[first_sk.name.lower()]
 
         def _view(name):
-            '''
-            v = WavefrontParams(param_widget)
-            v.horizontalHeader().setVisible(0)
-            v.horizontalHeader().setResizeMode(
-                QtGui.QHeaderView.ResizeToContents)
-            v.verticalHeader().setVisible(0)
-            param_widget.setSizePolicy(
-                QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
-            v.horizontalHeader().setSizePolicy(
-                QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Preferred)
-
-            param_vbox.addWidget(v)
-            first = _models()
-            v.setModel(first)
-            self._wavefront_view = v
-            self.global_params['simulation_kind'].currentIndexChanged.connect(
-                self._simulation_kind_changed)
-            '''
-
             stacker = QtGui.QStackedWidget()
-            #self._global_enums = {}
-
             defaults = self._controller.defaults[name]
             params = self._controller.params[name]
             for i in defaults:
                 for j in defaults[i]:
                     d = defaults[i][j]
                     p = params[i][j]
-                    x = rt_popup.WidgetView(d,p,file_prefix=self._controller.FILE_PREFIX,parent=self)
+                    x = rt_popup.WidgetView(d, p, controller=self._controller, parent=self)
                     stacker.addWidget(x)
                 self._enum_info[i] = x
-            self.global_params[name].currentIndexChanged.connect(stacker.setCurrentIndex)
-
-            #def testo():
-            #    print(stacker.currentWidget().get_params()
-            #self.global_params[name].currentIndexChanged.connect(testo)
-
-            '''
-            wf_defaults = self._controller.defaults['simulation_kind']
-            wf_params = self._controller.params['simulation_kind']
-            for i in wf_defaults:
-                for j in wf_defaults[i]:
-                    d = wf_defaults[i][j]
-                    p = wf_params[i][j]
-                    x = rt_popup.WidgetView(d,p,file_prefix='srw',parent=self)
-                    wfstacker.addWidget(x)
-            '''
-
+            self.global_params[name].set_stacker(stacker)
             param_vbox.addWidget(stacker)
-            #param_vbox.addWidget(wfstacker)
-            #self.global_params['simulation_kind'].currentIndexChanged.connect(wfstacker.setCurrentIndex)
-            #self.global_params['radiation_source'].currentIndexChanged.connect(stacker.setCurrentIndex)
 
         _global_param('radiation_source')
         _view('radiation_source')
@@ -208,8 +187,6 @@ class View(QtGui.QWidget):
             vbox = QtGui.QVBoxLayout()
             main.addLayout(vbox, stretch=1)
             qlabel = rt_qt.set_id(QtGui.QLabel(self), 'heading')
-            for v in self.global_params.values():
-                qlabel.setMinimumHeight(v.sizeHint().height())
             rt_qt.i18n_text(label, qlabel)
             vbox.addWidget(qlabel, alignment=QtCore.Qt.AlignCenter)
             text = QtGui.QTextEdit(self)
@@ -241,31 +218,3 @@ class View(QtGui.QWidget):
         fill_vbox.addWidget(fill_widget)
         param_vbox.addLayout(fill_vbox)
         param_vbox.addStretch()
-
-    def _simulation_kind_changed(self):
-        """Called when checkbox changes. Sets model on view appropriately"""
-        self._wavefront_view.setModel(
-            self._wavefront_models[self.get_global_param('simulation_kind').name.lower()])
-
-
-class WavefrontParams(QtGui.QTableView):
-    """Force size of QTableView to be maximum size based on the columns and rows"""
-
-    def minimumSizeHint(self, *args, **kwargs):
-        """Returns sizeHint so that the widget will be fixed size"""
-        return self.sizeHint()
-
-    def sizeHint(self, *args, **kwargs):
-        """Return size dependent on height and width of model rows"""
-        h = self.horizontalScrollBar().sizeHint().height() + 4
-        for i in xrange(self.model().rowCount()):
-            h += self.rowHeight(i)
-        w = self.verticalScrollBar().sizeHint().width() + 10
-        for i in xrange(self.model().columnCount()):
-            w += self.columnWidth(i)
-        return QtCore.QSize(w, h)
-
-    def sizePolicy(self, *args, **kwargs):
-        """Returns preferred so layout honors sizeHint"""
-        return QtGui.QSizePolicy(
-            QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
