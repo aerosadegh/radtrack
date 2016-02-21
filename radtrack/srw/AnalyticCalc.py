@@ -8,6 +8,7 @@ import copy
 import numpy as np
 import scipy.integrate
 import scipy.special
+from pykern import pkcollections
 
 def IDWaveLengthPhotonEnergy(lam_u,Bx,By,Gam):
     Ky=0.934*Bx*lam_u*100
@@ -73,8 +74,9 @@ def compute_all(params):
         dict: copy of `params` and results
     """
     res = _merge_params(params)
+
     v = IDWaveLengthPhotonEnergy(
-        params['period_len'],
+        params['radiation_source']['wiggler']['undulator']['period_len'],
         #TODO(robnagler) Why is this not res['Bx']?
         0,
         params['vertical_magnetic_field'],
@@ -82,10 +84,10 @@ def compute_all(params):
     )
     res.update(zip(('Kx', 'Ky', 'lam_rn', 'e_phn'), v))
     v = RadiatedPowerPlanarWiggler(
-        params['period_len'],
+        params['radiation_source']['wiggler']['undulator']['period_len'],
         #TODO(robnagler) Why is this not res['Bx']?
         params['vertical_magnetic_field'],
-        params['num_periods'],
+        params['radiation_source']['wiggler']['undulator']['num_periods'],
         params['gamma'],
         params['avg_current'],
     )
@@ -97,7 +99,7 @@ def compute_all(params):
     )
     res['P_Wdc'] = CentralPowerDensityPlanarWiggler(
         params['vertical_magnetic_field'],
-        params['num_periods'],
+        params['radiation_source']['wiggler']['undulator']['num_periods'],
         params['gamma'],
         params['avg_current'],
     )
@@ -107,14 +109,14 @@ def compute_all(params):
     )
     res.update(zip(('RadSpotSize', 'RadSpotDivergence'), v))
     res['SpectralFluxValue'] = SpectralFlux(
-        params['num_periods'],
+        params['radiation_source']['wiggler']['undulator']['num_periods'],
         params['gamma'],
         1,
         params['avg_current'],
         res['Kx'],
     )
     res['RadBrightness'] = SpectralCenBrightness(
-        params['num_periods'],
+        params['radiation_source']['wiggler']['undulator']['num_periods'],
         params['gamma'],
         params['avg_current'],
     )
@@ -134,12 +136,15 @@ def _merge_params(params):
     Returns:
         dict: Merged params
     """
-    res = copy.deepcopy(self.params['undulator'])
+    res = copy.deepcopy(params['radiation_source']['wiggler']['undulator'])
     if res['orientation'] == 'VERTICAL':
         res['horizontal_magnetic_field'] = 0
         res['vertical_magnetic_field'] = res['magnetic_field']
     else:
         res['horizontal_magnetic_field'] = res['magnetic_field']
         res['vertical_magnetic_field'] = 0
-    res.update(self.params['beam'])
+    #res.update(params['beam'])
+    pkcollections.mapping_merge(params,params['beam'])
+    pkcollections.mapping_merge(params,res)
+    
     return res
