@@ -58,6 +58,8 @@
     <addaction name="actionExport_Current_Tab"/>
     <addaction name="menuRecent_Files"/>
     <addaction name="separator"/>
+    <addaction name="actionCheckForUpdate"/>
+    <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
@@ -87,18 +89,8 @@
     <property name="title">
      <string>Examples</string>
     </property>
-    <widget class="QMenu" name="menuLoad_Example_Project">
-     <property name="title">
-      <string>Load Example Project</string>
-     </property>
-    </widget>
-    <widget class="QMenu" name="menuImport_Example_File">
-     <property name="title">
-      <string>Import Example File</string>
-     </property>
-    </widget>
-    <addaction name="menuLoad_Example_Project"/>
-    <addaction name="menuImport_Example_File"/>
+    <addaction name="actionLCLS"/>
+    <addaction name="actionFODO"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -161,9 +153,24 @@
     <string>Rename Current Tab ...</string>
    </property>
   </action>
+  <action name="actionCheckForUpdate">
+   <property name="text">
+    <string>Check for updates ...</string>
+   </property>
+  </action>
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionLCLS">
+   <property name="text">
+    <string>LCLS</string>
+   </property>
+  </action>
+  <action name="actionFODO">
+   <property name="text">
+    <string>FODO</string>
    </property>
   </action>
  </widget>

@@ -1,0 +1,49 @@
+&run_setup
+        lattice                  = LCLS21Feb08.lte,
+        use_beamline             = beamline_OTR2UNDBEG,
+!        use_beamline             = beamline_DL1END,
+        output                   = %s.out,
+        centroid                 = %s.cen,
+        sigma                    = %s.sig,
+        final                    = %s.fin,
+        parameters               = %s.par,
+        magnets                  = %s.mag,
+        combine_bunch_statistics = 0,
+        default_order            = 2,
+        concat_order             = 0,
+        print_statistics         = 0,
+        random_number_seed       = 9876543210,
+        p_central                = 264.186,         ! 1M from Impact, L0a,b wakes already included
+        tracking_updates         = 1
+&end
+
+&run_control
+       n_steps                   = 1,
+       reset_rf_for_each_step    = 1
+&end
+
+&sdds_beam
+        input                     = topGunelegant_matched_smoothed.out,
+        input_type                = "elegant",
+        sample_interval           = 1,
+        sample_fraction           = 0.5,
+        p_lower                   = 0,
+        p_upper                   = 1e10,
+        reuse_bunch               = 0
+&end
+
+&twiss_output
+        filename                 = %s.twi,
+        matched                  = 0,
+!        beta_x                   = 2.2824,    ! at DL1END
+!        beta_y                   = 12.4078,
+!        alpha_x                  = 0.1441,
+!        alpha_y                  = -2.0160,
+        beta_x                   = 1.10,    ! at OTR02 @ 135 MeV
+        beta_y                   = 1.10,
+        alpha_x                  = 0.07,
+        alpha_y                  = 0.071,
+        concat_order             = 3
+&end
+
+&track &end

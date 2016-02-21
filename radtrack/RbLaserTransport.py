@@ -11,7 +11,6 @@ class RbLaserTransport(rbcbt.RbCbt):
 
     def __init__(self, parent = None):
         rbcbt.RbCbt.__init__(self, module, parent)
-        self.container = self
 
 
 def main():

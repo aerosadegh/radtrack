@@ -12,7 +12,6 @@ from radtrack.RbBunchTransport import RbBunchTransport
 from radtrack.RbGenesisTransport import RbGenesisTransport
 from radtrack.RbUtility import convertUnitsStringToNumber, convertUnitsNumber
 from radtrack.ui.rbele import Ui_ELE
-from radtrack.RbUtility import getRealWidget
 import radtrack.util.resource as resource
 
 SDDS_MOMENTUM_PARAMETER = 'designMomentumEV'
@@ -91,7 +90,6 @@ class RbEle(QtGui.QWidget):
         self.progressIndex = 0
         self.beamlineNames = []
 
-        self.container = self
 
     # This tab only pulls together data from other sources.
     # It has no information to save. exportToFile() creates
@@ -127,7 +125,7 @@ class RbEle(QtGui.QWidget):
         tab = self.parent.tabWidget
         for i in range(tab.count()):
             if tab.tabText(i) == tab_name:
-                return getRealWidget(tab.widget(i))
+                return tab.widget(i)
         return None
 
     def get_tab_names_for_type(self, tab_type):
@@ -326,7 +324,7 @@ class RbEle(QtGui.QWidget):
     def _new_tab(self, tab_type, file_name):
         """Create a new parent tab and load the data from the specified file"""
         self.parent.newTab(tab_type)
-        getRealWidget(self.parent.tabWidget.currentWidget()).importFile(file_name)
+        self.parent.tabWidget.currentWidget().importFile(file_name)
 
     def _process_finished(self, code, status):
         """Callback when simulation process has finished"""
@@ -393,6 +391,14 @@ class RbEle(QtGui.QWidget):
                             self.progressIndex = 0
                     self.ui.progressBar.setValue(self.progressIndex + 1)
                     self.progressIndex += 1
+
+            if line.endswith('particles left'):
+                numberParticlesTransmitted = float(line.split()[0])
+                if numberParticlesTransmitted == 0:
+                    msg = 'Warning! No particles made it to the end of the beam line.' + \
+                            '\nOutput phase space files will be empty.'
+                    self.append_status(msg)
+
         self.output_file.write(out)
 
     def _read_sdds_header(self, file_name):

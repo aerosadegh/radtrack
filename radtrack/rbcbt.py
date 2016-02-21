@@ -189,14 +189,14 @@ class RbCbt(rt_qt.QtGui.QWidget):
                         lambda: self.addToEndOfWorkingBeamLine(element.name, 1))
                 mouseMenu.addAction('Add multiple copies to current beam line...',
                         lambda: self.addToEndOfWorkingBeamLine(element.name))
-                if element.isBeamline() and hasattr(module, 'ElegantBeamline'):
+                if element.isBeamline() and type(element).__name__ == 'ElegantBeamline':
                     mouseMenu.addAction('Add reversed to current beam line',
                             lambda: self.addReversedToEndOfWorkingBeamLine(element.name, 1))
                     mouseMenu.addAction('Add multiple reversed to current beam line..',
                             lambda: self.addReversedToEndOfWorkingBeamLine(element.name))
 
             if location == 'list':
-                if element.isBeamline() and hasattr(module, 'ElegantBeamline'):
+                if element.isBeamline() and type(element).__name__ == 'ElegantBeamline':
                     mouseMenu.addAction(self.ui.translateUTF8('Reverse'), self.convertToReversed)
 
                 mouseMenu.addAction(self.ui.translateUTF8('Add another'), self.listCopy)
@@ -672,9 +672,11 @@ class RbCbt(rt_qt.QtGui.QWidget):
                 for parameter in element.inputFileParameters:
                     index = element.parameterNames.index(parameter)
                     if element.data[index]:
-                        path = os.path.join(os.path.dirname(fileName), element.data[index])
                         try:
+                            path = os.path.join(os.path.dirname(fileName), element.data[index])
                             importedPath = os.path.join(self.parent.sessionDirectory, element.data[index])
+                            if path == importedPath:
+                                continue
                             if not os.path.exists(os.path.dirname(importedPath)):
                                 os.makedirs(os.path.dirname(importedPath))
                             if os.path.exists(importedPath):

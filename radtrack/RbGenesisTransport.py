@@ -10,7 +10,6 @@ class RbGenesisTransport(rbcbt.RbCbt):
 
     def __init__(self, parent = None):
         rbcbt.RbCbt.__init__(self, module, parent)
-        self.container = self
 
     def writeElegantFile(self, fileName, momentum):
         with open(fileName, "w") as outputFile:

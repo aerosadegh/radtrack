@@ -35,7 +35,6 @@ class RbSrwTab(QtGui.QWidget):
         layout.addWidget(self.srw_particle)
         layout.addWidget(self.stackwidget)
         self.srw_particle.stateChanged.connect(self.togglesrw)
-        self.container = self
 
     def exportToFile(self, fileName = None):
         with open(fileName, 'w'):

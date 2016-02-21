@@ -6,7 +6,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import sys, os, shutil, argh, string, sip, traceback, subprocess
 sip.setapi('QString', 2)
-from PyQt4 import QtGui
+from PyQt4 import QtGui, QtCore
 from datetime import datetime
 
 from radtrack.ui.globalgu import Ui_globalgu, _translate
@@ -21,7 +21,7 @@ from radtrack.RbFEL import RbFEL
 from radtrack.RbGenesisTab import GenesisTab
 from radtrack.RbSrwTab import RbSrwTab
 from radtrack.RbIntroTab import RbIntroTab
-from radtrack.RbUtility import getRealWidget, fileTypeList
+from radtrack.RbUtility import fileTypeList
 
 class RbGlobal(QtGui.QMainWindow):
     def __init__(self, beta_test=False):
@@ -36,10 +36,7 @@ class RbGlobal(QtGui.QMainWindow):
         self.lastUsedDirectory = os.path.expanduser('~').replace('\\', '\\\\')
 
         # Create configuration directory
-        if sys.platform == 'win32': # Windows
-            self.configDirectory = os.path.join(os.getenv('APPDATA'), 'RadTrack')
-        else: # Mac/Linux
-            self.configDirectory = os.path.join(os.path.expanduser('~'), '.radtrack')
+        self.configDirectory = os.path.join(os.path.expanduser('~'), '.radtrack')
         try:
             os.makedirs(self.configDirectory)
         except OSError: # directory already exists or can't be created
@@ -72,6 +69,7 @@ class RbGlobal(QtGui.QMainWindow):
         self.tabWidget = QtGui.QTabWidget()
         self.ui.verticalLayout.addWidget(self.tabWidget)
         self.tabWidget.setTabsClosable(True)
+        self.tabWidget.setMovable(True)
         self.tabPrefix = '###Tab###' # used to identify files that are the saved data from tabs
 
         if self.beta_test:
@@ -131,6 +129,7 @@ class RbGlobal(QtGui.QMainWindow):
         self.ui.actionOpen_New_RadTrack_Window.triggered.connect(self.openNewWindow)
         self.ui.actionImport_File.triggered.connect(lambda : self.importFile())
         self.ui.actionExport_Current_Tab.triggered.connect(self.exportCurrentTab)
+        self.ui.actionCheckForUpdate.triggered.connect(self.checkForUpdates)
         self.ui.actionExit.triggered.connect(self.close)
         self.ui.actionUndo.triggered.connect(self.undo)
         self.ui.actionRedo.triggered.connect(self.redo)
@@ -139,6 +138,11 @@ class RbGlobal(QtGui.QMainWindow):
         self.ui.actionReopen_Closed_Tab.triggered.connect(self.undoCloseTab)
         self.ui.actionRename_Current_Tab.triggered.connect(self.renameTab)
         self.tabWidget.currentChanged.connect(self.checkMenus)
+
+        # Example Project
+        exampleDirectory = '/home/vagrant/src/radiasoft/radtrack/use_cases/radtrack/'
+        self.ui.actionLCLS.triggered.connect(lambda : self.openExampleProject(exampleDirectory + 'lcls'))
+        self.ui.actionFODO.triggered.connect(lambda : self.openExampleProject(exampleDirectory + 'fodo'))
 
         QtGui.QShortcut(QtGui.QKeySequence.Undo, self).activated.connect(self.undo)
         QtGui.QShortcut(QtGui.QKeySequence.Redo, self).activated.connect(self.redo)
@@ -214,7 +218,7 @@ class RbGlobal(QtGui.QMainWindow):
     def newTab(self, newTabType):
         newWidget = newTabType(self)
         newTitle = self.uniqueTabTitle(newWidget.defaultTitle)
-        self.tabWidget.addTab(newWidget.container, newTitle)
+        self.tabWidget.addTab(newWidget, newTitle)
         self.tabWidget.setCurrentIndex(self.tabWidget.count()-1)
 
     def uniqueTabTitle(self, title, ignoreIndex = -1):
@@ -279,7 +283,7 @@ class RbGlobal(QtGui.QMainWindow):
                 return # Cancel selected
 
         # Check if a tab of this type is already open
-        openWidgetIndexes = [i for i in range(self.tabWidget.count()) if type(getRealWidget(self.tabWidget.widget(i))) == destinationType]
+        openWidgetIndexes = [i for i in range(self.tabWidget.count()) if type(self.tabWidget.widget(i)) == destinationType]
         newTabLabel = 'New ' + destinationType.defaultTitle + ' Tab'
         if openWidgetIndexes:
             choices = [self.tabWidget.tabText(i) for i in openWidgetIndexes] + [newTabLabel]
@@ -305,7 +309,7 @@ class RbGlobal(QtGui.QMainWindow):
             QtGui.QApplication.processEvents()
 
             self.ui.statusbar.showMessage('Importing ' + openFile + ' ...')
-            getRealWidget(self.tabWidget.currentWidget()).importFile(openFile)
+            self.tabWidget.currentWidget().importFile(openFile)
             self.addToRecentMenu(openFile, True)
             if os.path.dirname(openFile) != self.sessionDirectory:
                 shutil.copy2(openFile, self.sessionDirectory)
@@ -314,10 +318,11 @@ class RbGlobal(QtGui.QMainWindow):
         self.ui.statusbar.clearMessage()
 
 
-    def setProjectLocation(self):
-        directory = QtGui.QFileDialog.getExistingDirectory(self,
-                'Choose folder to store project',
-                self.sessionDirectory)
+    def setProjectLocation(self, directory = ''):
+        if not directory:
+            directory = QtGui.QFileDialog.getExistingDirectory(self,
+                    'Choose folder to store project',
+                    self.sessionDirectory)
         if not directory:
             return
 
@@ -337,8 +342,8 @@ class RbGlobal(QtGui.QMainWindow):
                 while os.path.lexists(directory + '_' + str(count)):
                     count += 1
                 directory = directory + '_' + count
+            os.makedirs(directory)
 
-        os.makedirs(directory)
         for thing in os.listdir(self.sessionDirectory):
             thingPath = os.path.join(self.sessionDirectory, thing)
             try:
@@ -367,6 +372,7 @@ class RbGlobal(QtGui.QMainWindow):
 
         self.sessionDirectory = directory
         self.lastUsedDirectory = directory
+        os.chdir(self.sessionDirectory)
 
         # Load tab data
         self.tabWidget.clear()
@@ -375,10 +381,20 @@ class RbGlobal(QtGui.QMainWindow):
             _, _, originalTitle, tabName = os.path.basename(subFileName).split('_')
             tabName = tabName.rsplit(".", 1)[0]
             self.newTab(self.originalNameToTabType[originalTitle])
-            getRealWidget(self.tabWidget.widget(i)).importFile(subFileName)
+            self.tabWidget.widget(i).importFile(subFileName)
             self.tabWidget.setTabText(i, tabName.split('+')[0])
 
         self.setTitleBar('RadTrack - ' + self.sessionDirectory)
+
+    def openExampleProject(self, directory):
+        temp = directory + '_temp'
+        shutil.copytree(directory, temp)
+        self.openProject(directory)
+        session = 'Example_' + datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        newDirectory = os.path.join(os.path.expanduser('~'), 'RadTrack', session)
+        os.makedirs(newDirectory)
+        self.setProjectLocation(newDirectory)
+        shutil.move(temp, directory)
 
     def saveProject(self):
         # Delete previous tab data in self.sessionDirectory
@@ -395,7 +411,7 @@ class RbGlobal(QtGui.QMainWindow):
 
             self.ui.statusbar.showMessage('Saving ' + self.tabWidget.tabText(i) + ' ...')
 
-            widget = getRealWidget(self.tabWidget.widget(i))
+            widget = self.tabWidget.widget(i)
             saveProgress.setValue(i)
             subExtension = widget.acceptsFileTypes[0] if widget.acceptsFileTypes else 'save'
             subFileName  = os.path.join(self.sessionDirectory,
@@ -408,11 +424,85 @@ class RbGlobal(QtGui.QMainWindow):
 
     def exportCurrentTab(self):
         self.ui.statusbar.showMessage('Saving ' + self.tabWidget.tabText(self.tabWidget.currentIndex()) + ' ...')
-        getRealWidget(self.tabWidget.currentWidget()).exportToFile()
+        self.tabWidget.currentWidget().exportToFile()
         self.ui.statusbar.clearMessage()
 
+    def checkForUpdates(self):
+        response = QtGui.QMessageBox.question(self, "Update confirmation",
+            "In order to apply the latest updates, RadTrack will\n" + \
+            "close once the update is complete.\n\n" + \
+            "Do you want to proceed with the update?", QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+
+        if response == QtGui.QMessageBox.No:
+            return
+
+        currentDirectory = os.getcwd()
+
+        try:
+            progress = QtGui.QProgressDialog('Update in progress ...', 'Cancel', 0, 0, self)
+            progress.show()
+
+            # Pull pykern
+            with open(self.logFile, 'a') as log:
+                # Pull pykern changes
+                if progress.wasCanceled():
+                    return
+                os.chdir('/home/vagrant/src/radiasoft/pykern/')
+                statusCode = self.updateCommand(log, ['git', 'pull'])
+                if statusCode == 2: # Error state
+                    progress.reset()
+                    return
+                anyPyKernChanges = (statusCode == 1)
+                progress.setMaximum(4)
+                progress.setValue(1)
+
+                # Set up pykern update
+                if anyPyKernChanges:
+                    if progress.wasCanceled():
+                        return
+                    statusCode = self.updateCommand(log, ['python', 'setup.py', 'develop'])
+                    if statusCode == 2: # Error state
+                        progress.reset()
+                        return
+                    progress.setValue(2)
+
+                # Update radtrack
+                if progress.wasCanceled():
+                    return
+                os.chdir('/home/vagrant/src/radiasoft/radtrack/')
+                statusCode = self.updateCommand(log, ['git', 'pull'])
+                if statusCode == 2: # Error state
+                    progress.reset()
+                    return
+                anyRadTrackChanges = (statusCode == 1)
+                progress.setValue(3)
+
+                if not anyRadTrackChanges and not anyPyKernChanges:
+                    progress.reset()
+                    QtGui.QMessageBox.information(self, 'Update result',
+                                                  'RadTrack is already at the latest version. No restart needed.')
+                    return
+                else:
+                    if progress.wasCanceled():
+                        return
+                    statusCode = self.updateCommand(log, ['python', 'setup.py', 'develop'])
+                    if statusCode == 2: # Error state
+                        return
+
+            progress.setValue(4)
+            QtGui.QMessageBox.information(self, 'Update result',
+                                          'RadTrack will now shutdown. To continue your work, select\n' + 
+                                          os.path.basename(os.path.normpath(self.sessionDirectory)) + ' from Recent Projects ' +
+                                          'in the File menu.')
+                                          
+            self.close()
+
+        finally:
+            os.chdir(currentDirectory)
+
+
     def allWidgets(self):
-        return [getRealWidget(self.tabWidget.widget(i)) for i in range(self.tabWidget.count())]
+        return [self.tabWidget.widget(i) for i in range(self.tabWidget.count())]
 
     def checkMenus(self):
         menuMap = dict()
@@ -420,7 +510,7 @@ class RbGlobal(QtGui.QMainWindow):
         menuMap['undo'] = self.ui.actionUndo
         menuMap['redo'] = self.ui.actionRedo
         for function in menuMap:
-            realWidget = getRealWidget(self.tabWidget.currentWidget())
+            realWidget = self.tabWidget.currentWidget()
             menuMap[function].setEnabled(hasattr(realWidget, function) and type(realWidget) not in [RbIntroTab, RbDcp, RbEle])
 
         self.ui.actionReopen_Closed_Tab.setEnabled(len(self.closedTabs) > 0)
@@ -432,11 +522,11 @@ class RbGlobal(QtGui.QMainWindow):
 
     def undo(self):
         if self.ui.actionUndo.isEnabled():
-            getRealWidget(self.tabWidget.currentWidget()).undo()
+            self.tabWidget.currentWidget().undo()
 
     def redo(self):
         if self.ui.actionRedo.isEnabled():
-            getRealWidget(self.tabWidget.currentWidget()).redo()
+            self.tabWidget.currentWidget().redo()
 
     def closeEvent(self, event):
         self.saveProject()
@@ -460,6 +550,39 @@ class RbGlobal(QtGui.QMainWindow):
 
         with open(self.recentFile, 'w') as f:
             f.write('\n'.join(loadedRecentFiles))
+
+
+    # Attempts to update RadTrack from GitHub, returns one of three numbers:
+    #   0 = Successfully checked for updates, no updates found.
+    #   1 = Successfully checked for updates, successfully applied them.
+    #   2 = Errors in either checking or applying update.
+    def updateCommand(self, logFile, command):
+        logFile.write('\nUpdate command: ' + ' '.join(command) + ':\n')
+
+        updateProc = QtCore.QProcess(self)
+        updateProc.start(command[0], command[1:])
+
+        # Allow GUI to process events (like the progress dialog)
+        loop = QtCore.QEventLoop()
+        updateProc.finished.connect(loop.quit)
+        loop.exec_()
+
+        output = str(updateProc.readAllStandardOutput())
+        errors = str(updateProc.readAllStandardError())
+        logFile.write('STDOUT: ' + output + '\nSTDERR: ' + errors + '\n')
+
+        if updateProc.exitCode() == 2:
+            box = QtGui.QMessageBox(QtGui.QMessageBox.Warning,
+                                    "Update errors",
+                                    "Update not successful. See below text for more information.",
+                                    QtGui.QMessageBox.Ok,
+                                    self)
+            box.setDetailedText('Errors:\n' + errors + '\nOther output:\n' + output)
+            box.exec_()
+            return 2
+        else:
+            return 0 if output.strip() == "Already up-to-date." else 1
+
 
 
 @argh.arg('project_file', nargs='?', default=None, help='project file to open at startup')

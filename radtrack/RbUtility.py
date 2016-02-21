@@ -2,6 +2,7 @@ from __future__ import print_function, division
 import math
 import string
 import numpy as np
+from matplotlib.path import Path
 
 # How to use:
 #
@@ -414,13 +415,6 @@ class FileParseException(Exception):
     def __init__(self, message):
         self.message = message
 
-# Returns the data-holding widget inside layout widgets (QScrollArea, etc.)
-def getRealWidget(widget):
-    try:
-        return getRealWidget(widget.widget())
-    except Exception:
-        return widget
-
 __fileTypeDescription = dict()
 __fileTypeDescription['*'] = 'All files'
 __fileTypeDescription['lte'] = 'Elegant lattice file'
@@ -489,24 +483,16 @@ https://github.com/astroML/astroML/blob/master/astroML/plotting/scatter_contour.
 
 Parameters
 ----------
-x, y   : x and y data for the contour plot
-ax     : the axes on which to plot
-divs   : desired number of divisions along each axis
-levels : integer or array (optional, default=10)
+plotFlag : style of plot (scatter, contour, line, etc.)
+plotType : axis scaling (linear, log-log, or semi-log)
+x, y     : x and y data for the contour plot
+ax       : the axes on which to plot
+divs     : desired number of divisions along each axis
+levels   : integer or array (optional, default=10)
          number of contour levels, or array of contour levels
-
-Returns
--------
-points, contours :
-   points   - return value of ax.scatter()
-   contours - return value of ax.contourf()
-   Note: value is 'None' if plot wasn't generated
-
 """
-def scatConPlot(plotFlag, x, y, ax, divs=10, levels=10):
-    # logic for finding and plotting density contours
+def scatConPlot(plotFlag, plotType, x, y, ax, divs=10, levels=10):
     if plotFlag in ['contour', 'combo']:
-
         threshold = 8 if plotFlag == 'combo' else 1
 
         # generate the 2D histogram, allowing the algorithm to use
@@ -533,15 +519,10 @@ def scatConPlot(plotFlag, x, y, ax, divs=10, levels=10):
         #   use myHist.T, rather than full myHist, to limit extent of the contoured region
         #   i.e. only the high-density regions are contoured
         #   the return value is potentially useful to the calling method
-        contours = ax.contourf(myHist.T, levels, extent=extent)
-
-    # no need for contours; particles only
-    else:
-        contours = None
+        ax.contourf(myHist, levels, extent=extent)
 
     # logic for finding particles in low-density regions
     if plotFlag == 'combo':
-
         # create new 2D array that will hold a subset of the particles
         #   i.e. only those in the low-density regions
         lowDensityArray = np.hstack([x[:, None], y[:, None]])
@@ -549,36 +530,37 @@ def scatConPlot(plotFlag, x, y, ax, divs=10, levels=10):
         # extract only those particles outside the high-density region
         if len(outline.allsegs[0]) > 0:
             outer_poly = outline.allsegs[0][0]
-            try:
-                # this works in newer matplotlib versions
-                from matplotlib.path import Path
-                points_inside = Path(outer_poly).contains_points(lowDensityArray)
-            except ImportError:
-                # this works in older matplotlib versions
-                import matplotlib.nxutils as nx
-                points_inside = nx.points_inside_poly(x, outer_poly)
+            points_inside = Path(outer_poly).contains_points(lowDensityArray)
             Xplot = lowDensityArray[~points_inside]
-
-        # there is no high-density region, so plot all the particles
         else:
             Xplot = lowDensityArray
 
-    # load up all of the particles for plotting
     if plotFlag.startswith('scatter') or plotFlag.endswith('line'):
         Xplot = np.hstack([x[:, None], y[:, None]])
 
-    # overlay scatter plot on top of contour plot generated above
-    #   the return value is potentially useful to the calling method
     if plotFlag in ['combo', 'scatter', 'scatter-line']:
-        points = ax.scatter(Xplot[:,0], Xplot[:,1], marker=',', s=1, c='k')
-    else:
-        # no particle plotting needed
-        points = None
 
-    # Draw line connecting scatter plot points
+        # Terrible hack to get around the "fact" that scatter plots
+        # to not get correct axis limits either axis is log scale.
+        # ax.plot(...) seems to work, so draw a plot and then delete
+        # it, leaving the plot with a correct axes view.
+
+        toRemove, = ax.plot(Xplot[:,0], Xplot[:,1], c='w')
+        ax.scatter(Xplot[:,0], Xplot[:,1], marker='.', c='k')
+        ax.lines.remove(toRemove)
+
     if plotFlag.endswith('line'):
         ax.plot(Xplot[:,0], Xplot[:,1], c='k')
 
-    # Return plot objects; useful for creating colorbars, etc.
-    #   Value is 'None' if corresponding plot was not generated.
-    return points, contours
+    if plotFlag in ['line', 'scatter', 'scatter-line']:
+        if plotType in ['log-log', 'semi-logx']:
+            ax.set_xscale('log', nonposx='mask')
+
+        if plotType in ['log-log', 'semi-logy']:
+            ax.set_yscale('log', nonposy='mask')
+
+        if plotType in ['linear', 'semi-logy']:
+            ax.set_xscale('linear')
+
+        if plotType in ['linear', 'semi-logx']:
+            ax.set_yscale('linear')

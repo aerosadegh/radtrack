@@ -28,7 +28,7 @@ from scipy import stats
 from scipy.special import jn
 from matplotlib import pyplot as plt
 import matplotlib as mpl
-mpl.rc('text', usetex=True)
+# mpl.rc('text', usetex=True)
 
 tol = 1.e-8
 

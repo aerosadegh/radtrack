@@ -12,7 +12,7 @@ from PyQt4 import QtGui, QtCore
 from radtrack.dcp.Servicelib import *
 from radtrack.dcp.SRWlib import SRW
 from radtrack.ui.matplotlibwidget import matplotlibWidget
-from radtrack.RbUtility import scatConPlot
+from radtrack.RbUtility import scatConPlot, removeWhitespace
 
 NumPage = 0
 ColumnXAxis =-1
@@ -35,8 +35,8 @@ class RbDcp(QtGui.QWidget):
         if self.parent is None:
             self.parent = self
             self.parent.lastUsedDirectory = expanduser('~').replace('\\', '\\\\')
-        self.container = self
         self.currentFiletype = ''
+        self.fileData = None
         
     def exportToFile(self, fileName):
         with open(fileName, 'w'):
@@ -65,14 +65,20 @@ class RbDcp(QtGui.QWidget):
         self.xaxis = QtGui.QComboBox()
         self.yaxis = QtGui.QComboBox()
         self.plotType = QtGui.QComboBox()
-        self.plotType.addItem('Scatter')
-        self.plotType.addItem('Scatter-Line')
-        self.plotType.addItem('Line')
-        self.plotType.addItem('Contour')
-        self.plotType.addItem('Combo')
+        self.plotType.addItem('Linear')
+        self.plotType.addItem('Log-Log')
+        self.plotType.addItem('Semi-Log X')
+        self.plotType.addItem('Semi-Log Y')
+        self.plotStyle = QtGui.QComboBox()
+        self.plotStyle.addItem('Scatter')
+        self.plotStyle.addItem('Scatter-Line')
+        self.plotStyle.addItem('Line')
+        self.plotStyle.addItem('Contour')
+        self.plotStyle.addItem('Combo')
         form.addRow('x-axis',self.xaxis)
         form.addRow('y-axis',self.yaxis)
-        form.addRow('Plot type', self.plotType)
+        form.addRow('Plot Type', self.plotType)
+        form.addRow('Plot Style', self.plotStyle)
         layout.addLayout(form)
         button = QtGui.QPushButton()
         button.setText('open')
@@ -87,6 +93,7 @@ class RbDcp(QtGui.QWidget):
         self.quickplot.activated.connect(self.graphset)
         self.xaxis.activated.connect(self.customgraph)
         self.yaxis.activated.connect(self.customgraph)
+        self.plotStyle.activated.connect(self.customgraph)
         self.plotType.activated.connect(self.customgraph)
         
     def right_panel(self,main):
@@ -148,6 +155,8 @@ class RbDcp(QtGui.QWidget):
             self.outselect()
         elif ext == 'sig':
             self.sigselect()         
+        elif ext == 'h5':
+            self.h5select()
              
     def showDCP_gen(self, openFile):
         def genprev(f):
@@ -165,30 +174,30 @@ class RbDcp(QtGui.QWidget):
             self.reset()
             self.data.setColumnCount(Ncol)
             self.data.setRowCount(3)
-            for i,a in enumerate(self.x.keys()):
+            for i,a in enumerate(self.fileData.keys()):
                 self.data.setItem(1,i,QtGui.QTableWidgetItem(a))
                         
         phile = QtCore.QFileInfo(openFile)
-        self.x=h5py.File(openFile)
+        self.fileData=h5py.File(openFile)
         try:
-            self.x['s']
+            self.fileData['s']
         except KeyError:
-            self.x.create_dataset('s', shape = (self.x['lattice']['z'].shape[0],1),data = self.x['lattice']['z'])
-        Ncol = len(self.x.keys())
+            self.fileData.create_dataset('s', shape = (self.fileData['lattice']['z'].shape[0],1),data = self.fileData['lattice']['z'])
+        Ncol = len(self.fileData.keys())
         stringOut = "Columns: "+ str(Ncol) + " Pages: 1" + " ColumnElements: ?"
         self.legend.setText(QtGui.QApplication.translate("dcpwidget", 'FILE INFO \n'+'File Name: '+\
             phile.fileName()+'\nFile Size: '+str(phile.size())+' bytes \n'+stringOut, None, QtGui.QApplication.UnicodeUTF8))
         
         preview(Ncol)
         #preview hdf5 file data    
-        genprev(self.x)
+        genprev(self.fileData)
         #populate graph options
-        self.dataopt(self.x.keys())       
+        self.dataopt(self.fileData.keys())       
             
     def showDCP_ele(self, openFile):
         def sddsprev(Ncol):
             ColumnPicked = range(Ncol)
-            (Xrvec,Yrvec,YLab,Npar,Ncol,NcolPicked,NElemCol,Npage)=SDDSreshape(self.x,ColumnXAxis,ColumnPicked,NumPage) #reshapes file into vectors and a matrix
+            (Xrvec,Yrvec,YLab,Npar,Ncol,NcolPicked,NElemCol,Npage)=SDDSreshape(self.fileData,ColumnXAxis,ColumnPicked,NumPage) #reshapes file into vectors and a matrix
 
             for i, a in enumerate(Yrvec):
                 #if i>0:# skip first column i+1=>i to adjust, because of extra 0 column!!!?
@@ -206,19 +215,23 @@ class RbDcp(QtGui.QWidget):
         phile = QtCore.QFileInfo(openFile)
 
         #SDDS specific code
-        self.x=sdds.SDDS(0)
-        self.x.load(openFile)
+        try:
+            self.fileData=sdds.SDDS(0)
+            self.fileData.load(openFile)
+        except Exception:
+            QtGui.QMessageBox.warning(self, "Error Importing File", "The file " + openFile + " does not contain any data.")
+            return
 
         #get # of pages and columns
-        (_,_,_,_,Ncol,_,_,Npage)=SDDSreshape(self.x,ColumnXAxis,ColumnPicked,NumPage)
+        (_,_,_,_,Ncol,_,_,Npage)=SDDSreshape(self.fileData,ColumnXAxis,ColumnPicked,NumPage)
         stringOut="Columns: "+str(Ncol)+" Pages: "+str(Npage)+" ColumnElements: "+\
-        str(np.shape(self.x.columnData)[2])
+        str(np.shape(self.fileData.columnData)[2])
         paramsOut ='\nPARAMTER INFO \n'
-        for i,a in enumerate(self.x.parameterName):
-            paramsOut+=str(a)+'='+str(self.x.parameterData[i])+'\n'
+        for i,a in enumerate(self.fileData.parameterName):
+            paramsOut+=str(a)+'='+str(self.fileData.parameterData[i])+'\n'
         self.legend.setText(QtGui.QApplication.translate("dcpwidget",\
             'FILE INFO \n'+'File Name: '+phile.fileName()+'\nFile Size: '+str(phile.size())+' bytes \n'+\
-            self.x.description[0]+stringOut+paramsOut, None, QtGui.QApplication.UnicodeUTF8))
+            self.fileData.description[0]+stringOut+paramsOut, None, QtGui.QApplication.UnicodeUTF8))
 
         #preview of parameters
         self.preview(Ncol)
@@ -227,12 +240,12 @@ class RbDcp(QtGui.QWidget):
         sddsprev(Ncol)
         
         #populate graph data
-        self.dataopt(self.x.columnName)
+        self.dataopt(self.fileData.columnName)
          
     def showDCP_srw(self, openFile):
         def srwprev(Ncol):
             ColumnPicked = range(Ncol)
-            (Xrvec,Yrvec,Npar,Ncol,NcolPicked,NElemCol)=SRWreshape(self.x,ColumnXAxis,ColumnPicked)
+            (Xrvec,Yrvec,Npar,Ncol,NcolPicked,NElemCol)=SRWreshape(self.fileData,ColumnXAxis,ColumnPicked)
             for i, a in enumerate(Yrvec):
                 for j, b in enumerate(a):
                     if j >= 1000:
@@ -247,31 +260,34 @@ class RbDcp(QtGui.QWidget):
         phile = QtCore.QFileInfo(openFile)
         
         #SRW specific
-        self.x = SRW(openFile,MaxNumParam)
+        self.fileData = SRW(openFile,MaxNumParam)
         #get columns
-        (_,_,_,Ncol,_,_)=SRWreshape(self.x,ColumnXAxis,ColumnPicked)
-        stringOut="Columns: "+str(np.shape(self.x.columnData)[0])+" Pages: 1"+" ColumnElements: "+\
-        str(np.shape(self.x.columnData)[1])
+        (_,_,_,Ncol,_,_)=SRWreshape(self.fileData,ColumnXAxis,ColumnPicked)
+        stringOut="Columns: "+str(np.shape(self.fileData.columnData)[0])+" Pages: 1"+" ColumnElements: "+\
+        str(np.shape(self.fileData.columnData)[1])
         self.legend.setText(QtGui.QApplication.translate("dcpwidget", 'FILE INFO \n'+'File Name: '+\
             phile.fileName()+'\nFile Size: '+str(phile.size())+' bytes \n'+stringOut, None, QtGui.QApplication.UnicodeUTF8))
             
         self.preview(Ncol)
         srwprev(Ncol)
-        self.dataopt(self.x.columnName)
+        self.dataopt(self.fileData.columnName)
 
                     
     def preview(self,Ncol):
+        if not self.fileData:
+            return
+
         self.reset()
 
         #set table sizes
         self.data.setRowCount(1000)
         self.data.setColumnCount(Ncol)
 
-        for i,a in enumerate(self.x.columnDefinition):
+        for i,a in enumerate(self.fileData.columnDefinition):
             self.data.setItem(0,i, QtGui.QTableWidgetItem(a[2]))
             self.data.setItem(2,i, QtGui.QTableWidgetItem(a[1]))
 
-        for i,a in enumerate(self.x.columnName):
+        for i,a in enumerate(self.fileData.columnName):
             self.data.setItem(1,i,QtGui.QTableWidgetItem(a))
 
     def reset(self):
@@ -283,7 +299,7 @@ class RbDcp(QtGui.QWidget):
     def dataopt(self,options):
         self.xaxis.clear()
         self.yaxis.clear()
-        for i, name in enumerate(options): #self.x.columnName
+        for i, name in enumerate(options): #self.fileData.columnName
             if is_number(self.data.item(4, i).text()):
                 self.xaxis.addItem(name)
                 self.yaxis.addItem(name)
@@ -302,6 +318,18 @@ class RbDcp(QtGui.QWidget):
         self.quickplot.clear()
         self.quickplot.addItem('s v. sigma x')
         self.quickplot.addItem('s v. sigma y')
+
+    def h5select(self):
+        self.quickplot.clear()
+        self.quickplot.addItem('s v. Power')
+        self.quickplot.addItem('s v. Increment')
+        self.quickplot.addItem('s v. Phase')
+        self.quickplot.addItem('s v. Rad. Size')
+        self.quickplot.addItem('s v. Energy')
+        self.quickplot.addItem('s v. X Beam Size')
+        self.quickplot.addItem('s v. Y Beam Size')
+        self.quickplot.addItem('s v. Bunching Fundamental')
+        self.quickplot.addItem('s v. Error')
         
     def graphset(self):
     
@@ -312,7 +340,7 @@ class RbDcp(QtGui.QWidget):
                     output = i
                     break
             if output == None:
-                raise TypeError('Parameter Not Found, NaN')
+                raise TypeError('Parameter Not Found: ' + pname)
             return output
             
         if self.currentFiletype == 'twi':
@@ -337,29 +365,45 @@ class RbDcp(QtGui.QWidget):
             elif self.quickplot.currentIndex() == 1:
                 self.yaxis.setCurrentIndex(find_param('Sy'))#55
 
+        elif self.currentFiletype == 'h5':
+            self.xaxis.setCurrentIndex(find_param('s'))
+            param = self.quickplot.currentText().split('.')[1].strip().split()[0].lower()
+            try:
+                self.yaxis.setCurrentIndex(find_param(param))
+            except TypeError:
+                try:
+                    self.yaxis.setCurrentIndex(find_param('signal' + param))
+                except TypeError:
+                    param = removeWhitespace(self.quickplot.currentText()).split('.', 1)[1].lower()
+                    param = param.replace('.', '')
+                    self.yaxis.setCurrentIndex(find_param(param))
+     
         self.customgraph()
     
     def customgraph(self):
+        if not self.fileData:
+            return
+
         self.parent.ui.statusbar.showMessage('Drawing plot ...')
         #ColumnXAxis=0
         xname = self.xaxis.currentText()
         yname = self.yaxis.currentText()
         if self.currentFiletype in ['sdds', 'out', 'twi', 'sig', 'cen', 'bun', 'fin','dat']:
-            ColumnXAxis = self.x.columnName.index(xname)
-            ColumnPicked = [self.x.columnName.index(yname)]
+            ColumnXAxis = self.fileData.columnName.index(xname)
+            ColumnPicked = [self.fileData.columnName.index(yname)]
 
         if self.currentFiletype == 'dat':
-            (Xrvec,Yrvec,Npar,Ncol,NcolPicked,NElemCol)=SRWreshape(self.x,ColumnXAxis,ColumnPicked)
+            (Xrvec,Yrvec,Npar,Ncol,NcolPicked,NElemCol)=SRWreshape(self.fileData,ColumnXAxis,ColumnPicked)
         elif self.currentFiletype in ['sdds', 'out', 'twi', 'sig', 'cen', 'bun', 'fin']:
-            (Xrvec,Yrvec,Ylab,Npar,Ncol,NcolPicked,NElemCol,Npage)=SDDSreshape(self.x,ColumnXAxis,ColumnPicked,NumPage)
+            (Xrvec,Yrvec,Ylab,Npar,Ncol,NcolPicked,NElemCol,Npage)=SDDSreshape(self.fileData,ColumnXAxis,ColumnPicked,NumPage)
         else:
-            shape = numpy.shape(self.x[xname])[0]
-            Xrvec = numpy.reshape(numpy.array(self.x[xname]),-1)
-            Yrvec = numpy.reshape(numpy.array(self.x[yname]),[1,shape])
+            shape = numpy.shape(self.fileData[xname])[0]
+            Xrvec = numpy.reshape(numpy.array(self.fileData[xname]),-1)
+            Yrvec = numpy.reshape(numpy.array(self.fileData[yname]),[1,shape])
 
         try:
-            yu = ' ['+self.x.columnDefinition[ColumnPicked[0]][1]+']'
-            xu = ' ['+self.x.columnDefinition[ColumnXAxis][1]+']'
+            yu = ' ['+self.fileData.columnDefinition[ColumnPicked[0]][1]+']'
+            xu = ' ['+self.fileData.columnDefinition[ColumnXAxis][1]+']'
         except IndexError:
             yu = ''
             xu = ''
@@ -373,7 +417,13 @@ class RbDcp(QtGui.QWidget):
             nLevels = 5 + int(math.pow(numParticles, 0.333333333))
             nDivs = 10 + int(math.pow(numParticles, 0.2))
             self.widget.canvas.ax.clear()
-            scatConPlot(self.plotType.currentText().lower(), Xrvec, Yrvec[0,:], self.widget.canvas.ax, nDivs, nLevels)
+            scatConPlot(self.plotStyle.currentText().lower(),
+                        removeWhitespace(self.plotType.currentText().lower()),
+                        Xrvec,
+                        Yrvec[0,:],
+                        self.widget.canvas.ax,
+                        nDivs,
+                        nLevels)
             self.widget.canvas.ax.set_xlabel(xname + xu)
             self.widget.canvas.ax.set_ylabel(yname + yu)
             self.widget.canvas.fig.set_facecolor('w')

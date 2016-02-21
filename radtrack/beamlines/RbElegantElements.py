@@ -245,7 +245,7 @@ def isSingleGroup(lineString):
 # Example input:  "(2*(a, b, a), 5*c)" (string)
 # Result: ["a", "b", "a", "a", "b", "a", "c", "c", "c", "c", "c"] (list of strings)
 def expandBeamline(beamString):
-    beamString = removeWhitespace(beamString)
+    beamString = beamString.strip()
 
     # Make sure parentheses are well-formed
     if not checkParentheses(beamString):
@@ -286,8 +286,8 @@ def expandBeamline(beamString):
         beamList[index:index] = expandBeamline(beamList.pop(index))
         index += 1
 
-    # Remove empty ('') entries
-    return ' '.join(beamList).split()
+    # Remove empty or pure whitespace entries
+    return [entry.strip() for entry in beamList if entry.strip()]
 
 
 beamlineType = ElegantBeamline

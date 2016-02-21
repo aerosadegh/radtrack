@@ -14,7 +14,7 @@ from radtrack import genesis_controller
 class GenesisTab(QtGui.QWidget):
     defaultTitle = 'Genesis'
     acceptsFileTypes = []
-    task = 'Run an Genesis simulation'
+    task = 'Run a Genesis simulation'
     category = 'simulations'
     
     def __init__(self,parent):
@@ -27,7 +27,6 @@ class GenesisTab(QtGui.QWidget):
         layout = QtGui.QVBoxLayout(self)
         layout.addWidget(genesis_controller.Base.init_widget(self))
         self.setLayout(layout)
-        self.container = self
         
     def exportToFile(self, fileName = None):
         with open(fileName, 'w'):

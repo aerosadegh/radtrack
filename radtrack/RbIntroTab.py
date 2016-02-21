@@ -11,7 +11,6 @@ class RbIntroTab(QtGui.QWidget):
 
         self.ui = Ui_Widget()
         self.ui.setupUi(self)
-        self.container = self
 
 
         categoryLayout = OrderedDict()
