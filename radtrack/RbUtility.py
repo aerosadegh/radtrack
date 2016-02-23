@@ -473,6 +473,10 @@ def getSaveFileName(widget, exts = None):
             return fileName
 
 
+def isSDDS(fileName):
+    with open(fileName) as f:
+        return f.readline().startswith('SDDS')
+
 
 """
 Generalized algorithm for plotting contour and/or scatter plots.
