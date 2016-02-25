@@ -165,7 +165,7 @@ class Base(rt_controller.Controller):
                 name,val=line.split('=')
                 name = name.strip()
                 val = val.strip().strip(',')
-                param_update(name,value)
+                param_update(name,val)
             else:
                 dollar+=1
                 if dollar == 2:

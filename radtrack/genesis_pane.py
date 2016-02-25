@@ -42,7 +42,7 @@ class View(QtGui.QWidget):
         gbox = QtGui.QGridLayout()
         frame.setLayout(gbox)
         for i , n in enumerate(self._controller.ACTION_NAMES):
-            a = QtGui.QPushButton(n, frame)
+            a = QtGui.QPushButton(n.replace('_',' '), frame)
             a.setDefault(False)
             a.setAutoDefault(False)
             columnspan = 1
