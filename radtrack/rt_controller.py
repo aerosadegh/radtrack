@@ -25,7 +25,7 @@ class Controller(object):
             QWidget: widget peer of this controller
 
         """
-        return cls().init(parent)
+        return cls().init(parent_widget=parent)
 
     @classmethod
     def run_if_main(cls):
