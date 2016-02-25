@@ -28,7 +28,7 @@ class Base(rt_controller.Controller):
     FILE_PREFIX = 'genesis'
 
     def init(self, parent_widget=None):
-        self.decl = rt_params.declarations(self.FILE_PREFIX)
+        self.decl = rt_params.declarations(self.FILE_PREFIX)['root']
         self.defaults = rt_params.defaults(self.FILE_PREFIX, self.decl)
         self.params = rt_params.init_params(self.defaults)
         self._view = genesis_pane.View(self, parent_widget)
@@ -152,27 +152,27 @@ class Base(rt_controller.Controller):
         pu = rt_popup.Window(
             self.defaults[which],
             self.params[which],
-            file_prefix=self.FILE_PREFIX,
+            controller=self,
             parent=self._view,
         )
         if pu.exec_():
             self.params[which] = pu.get_params()
-            
+
     def get_in(self,phile):
         def param_update(key,value):
             D=genesis_params.to_genesis()
             for i in self.decl:
                 if D[key] in self.decl[i].children:
                     #compares to both rt_enum and Enum unsure of what radtrack enumerated type is so compare to both
-                    if self.decl[i][D[key]].py_type in [str,int,float,bool] or isinstance(self.params[i][D[key]],rt_enum.Enum) or isinstance(self.params[i][D[key]],Enum):  
+                    if self.decl[i][D[key]].py_type in [str,int,float,bool] or isinstance(self.params[i][D[key]],rt_enum.Enum) or isinstance(self.params[i][D[key]],Enum):
                         self.params[i][D[key]]=self.decl[i][D[key]].py_type(value)
                     elif self.decl[i][D[key]].py_type is list:
                         op_children=value.split()
                         for n,j in enumerate(self.params[i][D[key]]):
-                            self.params[i][D[key]][j]=bool(int(op_children[n]))                           
-                       
-                    
-        dollar = 0    
+                            self.params[i][D[key]][j]=bool(int(op_children[n]))
+
+
+        dollar = 0
         for line in phile:
             if '$' not in line:
                 name,val=line.split('=')
