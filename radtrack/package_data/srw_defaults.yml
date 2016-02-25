@@ -38,35 +38,35 @@ radiation_source:
       morder: 1
       nors: 1
       l_edge: 0.01
-intensity: MULTI_ELECTRON_INTENSITY
-polarization: LINEAR_HORIZONTAL
+intensity: SINGLE_ELECTRON
+polarization: TOTAL
 beam:
-  avg_current: 0.5
+  avg_current: 0.1
   horizontal_coord: 0
   vertical_coord: 0
-  longitudinal_coord: 0
+  longitudinal_coord: -4.59
   horizontal_angle: 0
   vertical_angle: 0
-  gamma: 5870.925
-  rms_energy_spread: 0.00089
-  rms_horizontal_width: 3.33E-05
-  rms_vertical_width: 2.91E-06
-  rms_horizontal_divergence: 1.65E-05
-  rms_vertical_divergence: 2.75E-06
+  gamma: 13698.63
+  rms_energy_spread: 0.0011
+  rms_horizontal_width: 0.000220794021658196
+  rms_vertical_width: 0.00000847053
+  rms_horizontal_divergence: 0.000011322770341446
+  rms_vertical_divergence: 2.95140668050478E-06
 precision:
   spectral_flux:
     initial_harmonic: 1
-    final_harmonic: 21
+    final_harmonic: 11
     longitudinal: 1.5
     azimuthal: 1.5
-    flux_calculation: per_unit_surface
+    flux_calculation: total
   power_density:
     factor: 1.5
     density_computation: far_field
     longitudinal_pos: 0
     azimuthal_pos: 0
     num_points_trajectory: 10000
-  sr_calculation_method: AUTO_WIGGLER
+  sr_calculation_method: AUTO_UNDULATOR
   relative: .01
   start_integration: 0
   end_integration: 0
@@ -81,19 +81,19 @@ simulation_kind:
       num_points_y: 1
       distance_to_window: 20
       initial_photon_energy: 10
-      final_photon_energy: 3000
-      window_left_edge: -0.0025
-      window_top_edge: -0.0025
-      window_right_edge: 0.0025
-      window_bottom_edge: 0.0025
+      final_photon_energy: 25000
+      window_left_edge: -0.015
+      window_top_edge: -0.015
+      window_right_edge: 0.015
+      window_bottom_edge: 0.015
   x:
     wavefront:
       num_points_energy: 1
       num_points_x: 100
       num_points_y: 3
       distance_to_window: 20
-      initial_photon_energy: 396
-      final_photon_energy: 396
+      initial_photon_energy: 5102
+      final_photon_energy: 5102
       window_left_edge: -0.015
       window_top_edge: -0.001
       window_right_edge: 0.015
@@ -104,24 +104,24 @@ simulation_kind:
       num_points_x: 3
       num_points_y: 100
       distance_to_window: 20
-      initial_photon_energy: 396
-      final_photon_energy: 396
+      initial_photon_energy: 5102
+      final_photon_energy: 5102
       window_left_edge: -0.001
       window_top_edge: -0.015
-      window_right_edge: 0.001
+      window_right_edge: 0001
       window_bottom_edge: 0.015
   x_and_y:
     wavefront:
       num_points_energy: 1
-      num_points_x: 101
+      num_points_x: 100
       num_points_y: 100
       distance_to_window: 20
-      initial_photon_energy: 396
-      final_photon_energy: 396
-      window_left_edge: -0.015
-      window_top_edge: -0.015
-      window_right_edge: 0.015
-      window_bottom_edge: 0.015
+      initial_photon_energy: 5102
+      final_photon_energy: 5102
+      window_left_edge: -0.0015
+      window_top_edge: -0.0015
+      window_right_edge: 0.0015
+      window_bottom_edge: 0.0015
   e_and_x:
     wavefront:
       num_points_energy: 1000
@@ -129,20 +129,20 @@ simulation_kind:
       num_points_y: 1
       distance_to_window: 20
       initial_photon_energy: 10
-      final_photon_energy: 3000
-      window_left_edge: -.0025
-      window_top_edge: 0
-      window_right_edge: .0025
-      window_bottom_edge: 0
+      final_photon_energy: 25000
+      window_left_edge: 0
+      window_top_edge: -0.0015
+      window_right_edge: 0
+      window_bottom_edge: 0.0015
   e_and_y:
     wavefront:
       num_points_energy: 1000
-      num_points_x: 1
-      num_points_y: 100
+      num_points_x: 30
+      num_points_y: 30
       distance_to_window: 20
       initial_photon_energy: 10
-      final_photon_energy: 3000
+      final_photon_energy: 25000
       window_left_edge: 0
-      window_top_edge: -.0025
+      window_top_edge: 0
       window_right_edge: 0
-      window_bottom_edge: .0025
+      window_bottom_edge: 0

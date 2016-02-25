@@ -24,9 +24,9 @@ class Base(rt_controller.Controller):
     """Implements contol flow for Genesis tab"""
     ACTION_NAMES = ('Undulator', 'Beam', 'Radiation', 'Particle_Loading','Mesh','Focusing', 'Time_Dependence',
         'Simulation_Control','Scan','IO_Control','Simulate')
-    
+
     FILE_PREFIX = 'genesis'
-    
+
     def init(self, parent_widget=None):
         self.decl = rt_params.declarations(self.FILE_PREFIX)
         self.defaults = rt_params.defaults(self.FILE_PREFIX, self.decl)
@@ -39,42 +39,42 @@ class Base(rt_controller.Controller):
         self.msg_list = []
         self.w = {}
         return self._view
-        
+
     def action_beam(self):
         self._pop_up('beam')
-        
+
     def action_undulator(self):
         self._pop_up('undulator')
-        
+
     def action_radiation(self):
         self._pop_up('radiation')
-        
+
     def action_particle_loading(self):
         self._pop_up('particle_loading')
-        
+
     def action_mesh(self):
         self._pop_up('mesh')
-        
+
     def action_focusing(self):
         self._pop_up('focusing')
-        
+
     def action_time_dependence(self):
         self._pop_up('time_dependence')
-        
+
     def action_simulation_control(self):
         self._pop_up('simulation_control')
-        
+
     def action_scan(self):
         self._pop_up('scan')
-        
+
     def action_io_control(self):
         self._pop_up('io_control')
-        
+
     def action_simulate(self):
         def msg(m):
             self.msg_list.append(m + '... \n \n')
             self._view.set_result_text('simulation', ''.join(self.msg_list))
-        
+
         self.w.update(genesis_params.to_beam(self.params.beam))
         self.w.update(genesis_params.to_undulator(self.params.undulator))
         self.w.update(genesis_params.to_radiation(self.params.radiation))
@@ -85,7 +85,7 @@ class Base(rt_controller.Controller):
         self.w.update(genesis_params.to_sim_control(self.params.simulation_control))
         self.w.update(genesis_params.to_scan(self.params.scan))
         self.w.update(genesis_params.to_io_control(self.params.io_control))
-            
+
         msg('Writing Genesis IN file')
         with open('genesis_run.in','w') as f:
             f.write(' $newrun \n')
@@ -94,7 +94,7 @@ class Base(rt_controller.Controller):
                     f.write(' {}={}\n'.format(i, self.w[i].value))
                 elif isinstance(self.w[i], bool):
                     f.write(' '+i+'='+str(int(self.w[i]))+'\n')
-                elif isinstance(self.w[i], str) or isinstance(self.w[i],unicode): 
+                elif isinstance(self.w[i], str) or isinstance(self.w[i],unicode):
                     if not self.w[i]:
                         pass
                     else:
@@ -109,31 +109,44 @@ class Base(rt_controller.Controller):
                     f.write(' '+i+'='+str(self.w[i])+'\n')
             f.write(' $end \n')
         msg('Finished \nRunning Genesis\n')
+
         '''
         self.process.start('genesis',['genesis_run.in']) # add option so files start with common name
         for output_file in glob.glob('genesis_run.*'):
         	listwidget.addItem(output_file)
         '''
-        
+
+        self.process.start('genesis',['genesis_run.in'])
+
+    def decl_is_visible(self, decl):
+        return True
+
+    def iter_default_children(self, defaults):
+        res = pkcollections.map_values(defaults)
+        return iter(res)
+
     def newStdInfo(self):
         """Callback with simulation stdout text"""
         newString = str(self.process.readAllStandardOutput())
         self.msg_list.append(newString)
         self._view.set_result_text('simulation', ''.join(self.msg_list))
         self._view._result_text['simulation'].moveCursor(QtGui.QTextCursor.End)
-    
+
     def newStdError(self):
         """Callback with simulation stderr text"""
         newString = str(self.process.readAllStandardError())
         self.msg_list.append(newString)
-        self._view.set_result_text('simulation', ''.join(self.msg_list))   
+        self._view.set_result_text('simulation', ''.join(self.msg_list))
         self._view._result_text['simulation'].moveCursor(QtGui.QTextCursor.End)
-        
-        
-        
+
+
+
     def name_to_action(self, name):
         """Returns button action"""
         return getattr(self, 'action_' + name.lower())
+
+    def register_static_widget(self, widget):
+        pass
 
     def _pop_up(self, which):
         pu = rt_popup.Window(
@@ -170,5 +183,3 @@ class Base(rt_controller.Controller):
                 dollar+=1
                 if dollar == 2:
                     break
-                
-        

@@ -474,6 +474,10 @@ def getSaveFileName(widget, exts = None):
             return fileName
 
 
+def isSDDS(fileName):
+    with open(fileName) as f:
+        return f.readline().startswith('SDDS')
+
 
 """
 Generalized algorithm for plotting contour and/or scatter plots.
@@ -498,8 +502,7 @@ def scatConPlot(plotFlag, plotType, x, y, ax, divs=10, levels=10):
 
         # generate the 2D histogram, allowing the algorithm to use
         #   all data points, automatically calculating the 2D extent
-        myHist, edges = np.histogramdd([x,y], divs)
-        xbins, ybins = edges[0], edges[1]
+        myHist, xbins, ybins = np.histogram2d(x, y, divs)
 
         # specify contour levels, allowing user to input simple integer
         levels = np.asarray(levels)
@@ -520,7 +523,7 @@ def scatConPlot(plotFlag, plotType, x, y, ax, divs=10, levels=10):
         #   use myHist.T, rather than full myHist, to limit extent of the contoured region
         #   i.e. only the high-density regions are contoured
         #   the return value is potentially useful to the calling method
-        ax.contourf(myHist, levels, extent=extent)
+        ax.contourf(myHist.T, levels, extent=extent)
 
     # logic for finding particles in low-density regions
     if plotFlag == 'combo':

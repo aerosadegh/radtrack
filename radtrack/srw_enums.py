@@ -69,9 +69,9 @@ class Intensity(rt_enum.Enum):
     SINGLE_ELECTRON_FLUX = 4
     REAL_PART_OF_ELECTRON_E_FIELD = 5
     IMAGINARY_PART_OF_ELECTRON_E_FIELD = 6
-    
+
 @enum.unique
 class RadiationSource(rt_enum.Enum):
-    WIGGLER = 0
+    UNDULATOR = 0
     DUAL_DIPOLE = 1
     MULTIPOLE = 2

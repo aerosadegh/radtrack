@@ -12,7 +12,7 @@ from PyQt4 import QtGui, QtCore
 from radtrack.dcp.Servicelib import *
 from radtrack.dcp.SRWlib import SRW
 from radtrack.ui.matplotlibwidget import matplotlibWidget
-from radtrack.RbUtility import scatConPlot, removeWhitespace
+from radtrack.RbUtility import scatConPlot, removeWhitespace, isSDDS
 
 NumPage = 0
 ColumnXAxis =-1
@@ -124,7 +124,7 @@ class RbDcp(QtGui.QWidget):
                 self.parent.lastUsedDirectory = dirname(openFile)
 
         ext = os.path.splitext(openFile)[-1].lower().lstrip(".")
-        if ext in ['sdds', 'out', 'twi', 'sig', 'cen', 'bun', 'fin']:
+        if isSDDS(openFile):
             self.showDCP_ele(openFile)
         elif ext == 'dat':
             self.showDCP_srw(openFile)
@@ -133,7 +133,8 @@ class RbDcp(QtGui.QWidget):
         elif ext == 'save':
             return
         else:
-            raise ValueError(openFile + " unrecognized file type.")
+            QtGui.QMessageBox.warning(self, "Error Importing File", "Could not open: " + openFile + "\nUnrecognized file type.")
+            return
 
         for index in range(self.files.count()):
             if self.files.item(index).text() == openFile:

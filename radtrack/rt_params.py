@@ -69,7 +69,7 @@ class Declaration(UserDict.DictMixin):
             raise DeclarationException('{}: declaration error for {}'.format(e, n)), None, sys.exc_info()[2]
 
     def __repr__(self):
-        return 'Declaration("{}")'.format(self.name)
+        return 'Declaration({})'.format(self.name or self.qualified_name)
 
     def __getitem__(self, key):
         if not (self.children and key in self.children):
@@ -176,7 +176,7 @@ class Default(UserDict.DictMixin):
                 yield l
 
     def __repr__(self):
-        return 'Default("{}")'.format(self.decl.qualified_name)
+        return 'Default({})'.format(self.decl.qualified_name)
 
     def __getitem__(self, key):
         if not (self.children and key in self.children):
@@ -193,8 +193,6 @@ class Default(UserDict.DictMixin):
             return None
         res = pkcollections.OrderedMapping()
         for child_decl in decl.values():
-            if component not in child_decl.required:
-                continue
             d = Default(
                 values[child_decl.name],
                 component,

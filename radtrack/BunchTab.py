@@ -762,6 +762,10 @@ class BunchTab(QtGui.QWidget):
 
 
     def readFromSDDS(self, fileName):
+        if not util.isSDDS(fileName):
+            QtGui.QMessageBox.warning(self, 'Error Importing File', fileName + ' is not an SDDS file.')
+            return
+
         # index is always zero...?
         sddsIndex = 0
 
