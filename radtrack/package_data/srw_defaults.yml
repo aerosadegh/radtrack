@@ -108,7 +108,7 @@ simulation_kind:
       final_photon_energy: 5102
       window_left_edge: -0.001
       window_top_edge: -0.015
-      window_right_edge: 0001
+      window_right_edge: 0.001
       window_bottom_edge: 0.015
   x_and_y:
     wavefront:
@@ -118,10 +118,10 @@ simulation_kind:
       distance_to_window: 20
       initial_photon_energy: 5102
       final_photon_energy: 5102
-      window_left_edge: -0.0015
-      window_top_edge: -0.0015
-      window_right_edge: 0.0015
-      window_bottom_edge: 0.0015
+      window_left_edge: -0.015
+      window_top_edge: -0.015
+      window_right_edge: 0.015
+      window_bottom_edge: 0.015
   e_and_x:
     wavefront:
       num_points_energy: 1000
