@@ -1,0 +1,10 @@
+! This Elegant file was created by RadTrack
+! RadTrack (c) 2013, RadiaSoft, LLC
+
+L:  DRIF,L=".5"
+QF:  QUAD,L="0.25", K1="2"
+QD:  QUAD,L="0.25", K1="-2"
+FODO_BEAMLINE:  LINE=(QF, L, 2*QD, L, QF)
+FODO_BEAMLINE_X10:  LINE=(10*FODO_BEAMLINE)
+
+RETURN

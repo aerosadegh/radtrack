@@ -391,6 +391,14 @@ class RbEle(QtGui.QWidget):
                             self.progressIndex = 0
                     self.ui.progressBar.setValue(self.progressIndex + 1)
                     self.progressIndex += 1
+
+            if line.endswith('particles left'):
+                numberParticlesTransmitted = float(line.split()[0])
+                if numberParticlesTransmitted == 0:
+                    msg = 'Warning! No particles made it to the end of the beam line.' + \
+                            '\nOutput phase space files will be empty.'
+                    self.append_status(msg)
+
         self.output_file.write(out)
 
     def _read_sdds_header(self, file_name):

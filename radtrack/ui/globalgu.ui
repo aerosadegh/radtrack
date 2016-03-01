@@ -89,13 +89,8 @@
     <property name="title">
      <string>Examples</string>
     </property>
-    <widget class="QMenu" name="menuLoad_Example_Project">
-     <property name="title">
-      <string>Load Example Project</string>
-     </property>
-     <addaction name="actionLCLS"/>
-    </widget>
-    <addaction name="menuLoad_Example_Project"/>
+    <addaction name="actionLCLS"/>
+    <addaction name="actionFODO"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -171,6 +166,11 @@
   <action name="actionLCLS">
    <property name="text">
     <string>LCLS</string>
+   </property>
+  </action>
+  <action name="actionFODO">
+   <property name="text">
+    <string>FODO</string>
    </property>
   </action>
  </widget>

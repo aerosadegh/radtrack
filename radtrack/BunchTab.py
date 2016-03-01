@@ -762,6 +762,10 @@ class BunchTab(QtGui.QWidget):
 
 
     def readFromSDDS(self, fileName):
+        if not util.isSDDS(fileName):
+            QtGui.QMessageBox.warning(self, 'Error Importing File', fileName + ' is not an SDDS file.')
+            return
+
         # index is always zero...?
         sddsIndex = 0
 
@@ -790,14 +794,18 @@ class BunchTab(QtGui.QWidget):
 
         # read parameter data from the SDDS file
         # mus read particle data at the same time
-        errorCode = sdds.sddsdata.ReadPage(sddsIndex)
-        if errorCode != 1:
-            sdds.sddsdata.PrintErrors(1)
-        while errorCode > 0:
-            for jLoop in range(len(columnNames)):
-                columnData[jLoop] = np.array(sdds.sddsdata.GetColumn(sddsIndex,jLoop))
-
+        try:
             errorCode = sdds.sddsdata.ReadPage(sddsIndex)
+            if errorCode != 1:
+                sdds.sddsdata.PrintErrors(1)
+            while errorCode > 0:
+                for jLoop in range(len(columnNames)):
+                    columnData[jLoop] = np.array(sdds.sddsdata.GetColumn(sddsIndex,jLoop))
+
+                errorCode = sdds.sddsdata.ReadPage(sddsIndex)
+        except Exception:
+            QtGui.QMessageBox.warning(self, "Error Importing File", "The file " + fileName + " does not contain any particles.")
+            return
 
         for parameter in ['designMomentumEV', 'totalCharge', 'eMassEV']:
             try:
@@ -864,8 +872,11 @@ class BunchTab(QtGui.QWidget):
             message += '  Not all of the data columns could be correctly interpreted!\n'
             message += '  These are the column headings that were parsed from the file:\n'
             message += '    ' + str(columnNames) + '\n\n'
-            message += 'The parsing logic failed on: ' + columnNames[iLoop] + '\n'
-            message += 'The code is looking for [x, xp, y, yp, s, dp] or something similar.'
+            try:
+                message += 'The parsing logic failed on: ' + columnNames[iLoop] + '\n'
+                message += 'The code is looking for [x, xp, y, yp, s, dp] or something similar.'
+            except UnboundLocalError:
+                message += 'No data found\n'
             msgBox.setText(message)
             msgBox.exec_()
             return
@@ -1045,11 +1056,16 @@ class BunchTab(QtGui.QWidget):
                                       ["","","","",mySDDS.SDDS_DOUBLE,""]]
         mySDDS.columnName = ["x", "xp", "y", "yp", "t", "p"]
 
-        tmp6 = self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D()
-        if not self.userInputEnabled():
-            tmp6 = randomSampleOfBunch(tmp6, int(self.ui.numPtcls.text()))
+        try:
+            tmp6 = self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D()
 
-        mySDDS.columnData = [ [list(tmp6[i,:])] for i in range(6)]
+            if not self.userInputEnabled():
+                tmp6 = randomSampleOfBunch(tmp6, int(self.ui.numPtcls.text()))
+
+            mySDDS.columnData = [ [list(tmp6[i,:])] for i in range(6)]
+
+        except AttributeError: # myBunch is None
+            mySDDS.columnData = [ [[]] for i in range(6)]
 
         mySDDS.columnDefinition = [["","m",  "","",mySDDS.SDDS_DOUBLE,0],
                                    ["","","","",mySDDS.SDDS_DOUBLE,0],
