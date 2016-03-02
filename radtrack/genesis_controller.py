@@ -19,6 +19,7 @@ from radtrack import rt_params
 from radtrack import rt_popup
 from radtrack import rt_enum
 from enum import Enum
+import os
 
 class Base(rt_controller.Controller):
     """Implements contol flow for Genesis tab"""
@@ -117,6 +118,7 @@ class Base(rt_controller.Controller):
         '''
 
         self.process.start('genesis',['genesis_run.in'])
+        print(os.path.realpath('genesis_run.in'))
 
     def decl_is_visible(self, decl):
         return True
@@ -162,23 +164,42 @@ class Base(rt_controller.Controller):
         def param_update(key,value):
             D=genesis_params.to_genesis()
             for i in self.decl:
-                if D[key] in self.decl[i].children:
+                try:
+                    if D[key] in self.decl[i].children:
                     #compares to both rt_enum and Enum unsure of what radtrack enumerated type is so compare to both
-                    if self.decl[i][D[key]].py_type in [str,int,float,bool] or isinstance(self.params[i][D[key]],rt_enum.Enum) or isinstance(self.params[i][D[key]],Enum):
-                        self.params[i][D[key]]=self.decl[i][D[key]].py_type(value)
-                    elif self.decl[i][D[key]].py_type is list:
-                        op_children=value.split()
-                        for n,j in enumerate(self.params[i][D[key]]):
-                            self.params[i][D[key]][j]=bool(int(op_children[n]))
+                        if self.decl[i][D[key]].py_type in [int,float,bool]:
+                            self.params[i][D[key]]=self.decl[i][D[key]].py_type(value)  
+                        elif self.decl[i][D[key]].py_type is str:
+                            self.params[i][D[key]] = value.replace("'",'')    
+                            print(self.params[i][D[key]])                        
+                        elif isinstance(self.params[i][D[key]],rt_enum.Enum) or isinstance(self.params[i][D[key]],Enum):
+                            self.params[i][D[key]] = list(self.decl[i][D[key]].py_type)[int(value)]
+                        elif self.decl[i][D[key]].py_type is list:
+                            op_children=value.split()
+                            for n,j in enumerate(self.params[i][D[key]]):
+                                self.params[i][D[key]][j]=bool(int(op_children[n]))
+                except KeyError:
+                    print(key)
+
+        def parse(line):
+            name,val=line.split('=')
+            name = name.strip()
+            val = val.strip().strip(',').strip('.')
+            param_update(name,val)
 
 
         dollar = 0
         for line in phile:
             if '$' not in line:
-                name,val=line.split('=')
-                name = name.strip()
-                val = val.strip().strip(',')
-                param_update(name,val)
+                if line.count(',') > 1:
+                    for i in line.rstrip('\n').split(','):
+                        try:
+                            parse(i)
+                        except ValueError:
+                            print(i)   
+                else:
+                    parse(line)   
+
             else:
                 dollar+=1
                 if dollar == 2:
