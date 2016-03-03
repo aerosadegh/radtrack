@@ -4,8 +4,7 @@
 :copyright: Copyright (c) 2015 RadiaSoft LLC.  All Rights Reserved.
 :license: http://www.apache.org/licenses/LICENSE-2.0.html
 """
-from pykern.pkdebug import pkdc, pkdp
-
+#from pykern.pkdebug import pkdc, pkdp
 from radtrack.rt_qt import QtGui
 
 from radtrack import genesis_controller
@@ -13,7 +12,7 @@ from radtrack import genesis_controller
 
 class GenesisTab(QtGui.QWidget):
     defaultTitle = 'Genesis'
-    acceptsFileTypes = []
+    acceptsFileTypes = ['in']
     task = 'Run a Genesis simulation'
     category = 'simulations'
     
@@ -25,7 +24,8 @@ class GenesisTab(QtGui.QWidget):
             
         QtGui.QWidget.__init__(self)
         layout = QtGui.QVBoxLayout(self)
-        layout.addWidget(genesis_controller.Base.init_widget(self))
+        self.control = genesis_controller.Base()
+        layout.addWidget(self.control.init_widget(self))
         self.setLayout(layout)
         
     def exportToFile(self, fileName = None):
@@ -33,8 +33,9 @@ class GenesisTab(QtGui.QWidget):
             pass
 
     def importFile(self, fileName = None):
-        pass
-        
+        with open(fileName, 'r') as f:
+            self.control.get_in(f)
+            self.control._in_file = f
 
 if '__main__' == __name__:
     from radtrack import rt_qt

@@ -1,4 +1,18 @@
 -
+  name: root
+  required: [genesis]
+  children:
+    - undulator
+    - beam
+    - radiation
+    - particle_loading
+    - mesh
+    - focusing
+    - time_dependence
+    - simulation_control
+    - scan
+    - io_control
+-
   name: undulator
   required: [genesis]
   children:
@@ -17,7 +31,7 @@
       name: undulator_type
       py_type: genesis_enums.UndulatorType
       label: Undulator Type
-      required: [genesis]  
+      required: [genesis]
     -
       name: horizontal_focus
       py_type: float
@@ -41,7 +55,7 @@
     -
       name: num_section
       py_type: int
-      label: number of sections of the undulator 
+      label: number of sections of the undulator
       required: [genesis]
     -
       name: virtual_undulator_parameter
@@ -52,12 +66,12 @@
       name: taper_start
       py_type: float
       units: m
-      label: start of undulator tapering 
+      label: start of undulator tapering
       required: [genesis]
     -
       name: taper_field
       py_type: float
-      label: relative change of the undulator field over taper length 
+      label: relative change of the undulator field over taper length
       required: [genesis]
     -
       name: taper_type
@@ -67,30 +81,30 @@
     -
       name: error_type
       py_type: genesis_enums.ErrorType
-      label: type of undulator field errors 
+      label: type of undulator field errors
       required: [genesis]
     -
       name: error
       py_type: float
-      label: RMS Undulator Field Error 
+      label: RMS Undulator Field Error
       required: [genesis]
     -
       name: rng_seed
       py_type: int
-      label: random number generator seed for field errors 
+      label: random number generator seed for field errors
       required : [genesis]
     -
       name: horizontal_misalignment
       py_type: float
       units: m
-      label: horizontal misalignment of undulator 
+      label: horizontal misalignment of undulator
       required: [genesis]
     -
       name: vertical_misalignment
       py_type: float
       units: m
       label: vertical misalignment of undulator
-      required: [genesis]     
+      required: [genesis]
 -
   name: beam
   required: [genesis]
@@ -186,13 +200,13 @@
       name: bunch_phase
       py_type: float
       units: rad
-      label: Bunching Phase 
+      label: Bunching Phase
       required: [genesis]
     -
       name: energy_modulation
       py_type: float
       units: rad
-      label: Energy Modulation 
+      label: Energy Modulation
       required: [genesis]
     -
       name: energy_modulation_phase
@@ -208,7 +222,7 @@
       name: condity
       py_type: float
       label: vertically conditioned
-      required: [genesis]  
+      required: [genesis]
 -
   name: radiation
   required: [genesis]
@@ -217,19 +231,19 @@
       name: resonant_wavelength
       py_type: float
       units: m
-      label: Resonant Radiation Wavelength 
+      label: Resonant Radiation Wavelength
       required: [genesis]
     -
       name: input_power
       py_type: float
       units: W
-      label: input_radiation_power 
+      label: input_radiation_power
       required: [genesis]
     -
       name: rayleigh_length
       py_type: float
       units: m
-      label: Rayleigh Length 
+      label: Rayleigh Length
       required: [genesis]
     -
       name: rayleigh_waist
@@ -250,7 +264,7 @@
     -
       name: harmonic_coupling
       py_type: bool
-      label: Couple Harmonic to Beam 
+      label: Couple Harmonic to Beam
       required: [genesis]
     -
       name: harmonic_power
@@ -270,14 +284,14 @@
     -
       name: ham_energy_distribution
       py_type: int
-      label: Hammersley Base for Energy Distribution 
+      label: Hammersley Base for Energy Distribution
       required: [genesis]
     -
       name: ham_horizontal_distribution
       py_type: int
-      label: Hammersley Base for Hoizontal Distribution 
+      label: Hammersley Base for Hoizontal Distribution
       required: [genesis]
-    - 
+    -
       name: ham_vertical_distribution
       py_type: int
       label: Hammersley base for Vertical Distribution
@@ -285,9 +299,9 @@
     -
       name: ham_horizontal_angle
       py_type: int
-      label: Hammersley Base for Horizontal Angle 
+      label: Hammersley Base for Horizontal Angle
       required: [genesis]
-    - 
+    -
       name: ham_vertical_angle
       py_type: int
       label: Hammersley Base for Vertical Angle
@@ -321,7 +335,7 @@
       name: num_bins
       py_type: int
       label: Number of Bins for Phase
-      required: [genesis]   
+      required: [genesis]
 -
   name: mesh
   required: [genesis]
@@ -347,12 +361,12 @@
       units: m
       label: Grid Size
       required: [genesis]
-    - 
+    -
       name: azimuthal_modes
       py_type: int
       label: Space Charge Azimuthal Modes
       required: [genesis]
-    - 
+    -
       name: rad_grid
       py_type: int
       label: Space Charge Radial Grid Points
@@ -367,7 +381,7 @@
       name: sc_calc
       py_type: genesis_enums.SCCalc
       label: Calculate Space Charge at each Step
-      required: [genesis] 
+      required: [genesis]
 -
   name: focusing
   required: [genesis]
@@ -426,7 +440,7 @@
       name: solenoid_length
       py_type: float
       label: Solenoid Length
-      required: [genesis]  
+      required: [genesis]
 -
   name: time_dependence
   required: [genesis]
@@ -440,7 +454,7 @@
       name: bunch_length
       py_type: float
       units: m
-      label: Bunch Length 
+      label: Bunch Length
       required: [genesis]
     -
       name: slice_separation
@@ -462,7 +476,7 @@
       py_type: float
       label: Shotnoise
       required: [genesis]
-    - 
+    -
       name: shotnoise_algorithm
       py_type: genesis_enums.ShotnoiseAlgorithm
       label: Shotnoise Algorithm
@@ -591,7 +605,7 @@
       py_type: bool
       label: Dump Particle Data
       required: [genesis]
-    - 
+    -
       name: beam_file
       py_type: str
       label: Input Beam File
@@ -616,7 +630,7 @@
       py_type: str
       label: Input Field File
       required: [genesis]
-    - 
+    -
       name: align_rad
       py_type: bool
       label: Align Radiation
@@ -667,7 +681,7 @@
     -
       name: trama
       py_type: bool
-      label: Apply Transport Matrix 
+      label: Apply Transport Matrix
       required: [genesis]
     #  children:
     #-
@@ -696,12 +710,12 @@
           py_type: bool
           label: power density at undulator axis
           required: [genesis]
-        - 
+        -
           name: rad_phase
           py_type: bool
           label: radiation phase at the undulator axis
           required: [genesis]
-        - 
+        -
           name: rad_size
           py_type: bool
           label: transverse radiation size
@@ -711,22 +725,22 @@
           py_type: bool
           label: rms diffraction angle of the radiation
           required: [genesis]
-        - 
+        -
           name: beam_energy
           py_type: bool
           label: beam energy
           required: [genesis]
-        - 
+        -
           name: bunch_factor
           py_type: bool
           label: bunching factor
           required: [genesis]
-        - 
+        -
           name: beam_size_x
           py_type: bool
           label: beam size in x
           required: [genesis]
-        - 
+        -
           name: beam_size_y
           py_type: bool
           label: beam size in y
@@ -756,12 +770,12 @@
           py_type: bool
           label: on-axis field intensity in the far field zone
           required: [genesis]
-        - 
+        -
           name: second_harmonic
           py_type: bool
           label: output of 2nd harmonic
           required: [genesis]
-        - 
+        -
           name: third_harmonic
           py_type: bool
           label: output of 3rd harmonic
@@ -776,4 +790,3 @@
           py_type: bool
           label: output of 5th harmonic
           required: [genesis]
-      

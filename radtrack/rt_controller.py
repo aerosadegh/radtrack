@@ -13,8 +13,7 @@ from pykern import pkinspect
 class Controller(object):
     """Base class for all RadTrack controllers"""
 
-    @classmethod
-    def init_widget(cls, parent=None):
+    def init_widget(self, parent=None):
         """Instantiates `cls` and calls `init`
 
         Args:
@@ -25,7 +24,7 @@ class Controller(object):
             QWidget: widget peer of this controller
 
         """
-        return cls().init(parent_widget=parent)
+        return self.init(parent_widget=parent)
 
     @classmethod
     def run_if_main(cls):
@@ -38,4 +37,4 @@ class Controller(object):
         if not pkinspect.is_caller_main():
             return
         from radtrack import rt_qt
-        rt_qt.run_app(cls.init_widget)
+        rt_qt.run_app(cls().init_widget)

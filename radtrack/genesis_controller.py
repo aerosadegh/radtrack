@@ -18,6 +18,8 @@ from radtrack import rt_jinja
 from radtrack import rt_params
 from radtrack import rt_popup
 from radtrack import rt_enum
+from enum import Enum
+import os
 
 class Base(rt_controller.Controller):
     """Implements contol flow for Genesis tab"""
@@ -27,8 +29,8 @@ class Base(rt_controller.Controller):
     FILE_PREFIX = 'genesis'
 
     def init(self, parent_widget=None):
-        decl = rt_params.declarations(self.FILE_PREFIX)
-        self.defaults = rt_params.defaults(self.FILE_PREFIX, decl)
+        self.decl = rt_params.declarations(self.FILE_PREFIX)['root']
+        self.defaults = rt_params.defaults(self.FILE_PREFIX, self.decl)
         self.params = rt_params.init_params(self.defaults)
         self._view = genesis_pane.View(self, parent_widget)
         self.process = QtCore.QProcess()
@@ -109,7 +111,14 @@ class Base(rt_controller.Controller):
             f.write(' $end \n')
         msg('Finished \nRunning Genesis\n')
 
+        '''
+        self.process.start('genesis',['genesis_run.in']) # add option so files start with common name
+        for output_file in glob.glob('genesis_run.*'):
+        	listwidget.addItem(output_file)
+        '''
+
         self.process.start('genesis',['genesis_run.in'])
+        print(os.path.realpath('genesis_run.in'))
 
     def decl_is_visible(self, decl):
         return True
@@ -145,8 +154,53 @@ class Base(rt_controller.Controller):
         pu = rt_popup.Window(
             self.defaults[which],
             self.params[which],
-            file_prefix=self.FILE_PREFIX,
+            controller=self,
             parent=self._view,
         )
         if pu.exec_():
             self.params[which] = pu.get_params()
+
+    def get_in(self,phile):
+        def param_update(key,value):
+            D=genesis_params.to_genesis()
+            for i in self.decl:
+                try:
+                    if D[key] in self.decl[i].children:
+                    #compares to both rt_enum and Enum unsure of what radtrack enumerated type is so compare to both
+                        if self.decl[i][D[key]].py_type in [int,float,bool]:
+                            self.params[i][D[key]]=self.decl[i][D[key]].py_type(value)  
+                        elif self.decl[i][D[key]].py_type is str:
+                            self.params[i][D[key]] = value.replace("'",'')    
+                            print(self.params[i][D[key]])                        
+                        elif isinstance(self.params[i][D[key]],rt_enum.Enum) or isinstance(self.params[i][D[key]],Enum):
+                            self.params[i][D[key]] = list(self.decl[i][D[key]].py_type)[int(value)]
+                        elif self.decl[i][D[key]].py_type is list:
+                            op_children=value.split()
+                            for n,j in enumerate(self.params[i][D[key]]):
+                                self.params[i][D[key]][j]=bool(int(op_children[n]))
+                except KeyError:
+                    print(key)
+
+        def parse(line):
+            name,val=line.split('=')
+            name = name.strip()
+            val = val.strip().strip(',').strip('.')
+            param_update(name,val)
+
+
+        dollar = 0
+        for line in phile:
+            if '$' not in line:
+                if line.count(',') > 1:
+                    for i in line.rstrip('\n').split(','):
+                        try:
+                            parse(i)
+                        except ValueError:
+                            print(i)   
+                else:
+                    parse(line)   
+
+            else:
+                dollar+=1
+                if dollar == 2:
+                    break
