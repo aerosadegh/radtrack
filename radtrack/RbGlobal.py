@@ -438,12 +438,15 @@ class RbGlobal(QtGui.QMainWindow):
 
         currentDirectory = os.getcwd()
 
-        try:
-            progress = QtGui.QProgressDialog('Update in progress ...', 'Cancel', 0, 0, self)
-            progress.show()
+        with open(self.logFile, 'a') as log:
+            try:
+                progress = QtGui.QProgressDialog('Update in progress ...', 'Cancel', 0, 0, self)
+                progress.show()
 
-            # Pull pykern
-            with open(self.logFile, 'a') as log:
+                timestamp = datetime.now().strftime('%Y/%m/%d %H:%M:%S')
+                log.write(string.center(' ' + timestamp + ' ', 80, '-') + '\n')
+                log.write('Updating RadTrack ...\n')
+
                 # Pull pykern changes
                 if progress.wasCanceled():
                     return
@@ -489,16 +492,18 @@ class RbGlobal(QtGui.QMainWindow):
                     if statusCode == 2: # Error state
                         return
 
-            progress.setValue(4)
-            QtGui.QMessageBox.information(self, 'Update result',
-                                          'RadTrack will now shutdown. To continue your work, select\n' + 
-                                          os.path.basename(os.path.normpath(self.sessionDirectory)) + ' from Recent Projects ' +
-                                          'in the File menu.')
-                                          
-            self.close()
+                progress.setValue(4)
+                QtGui.QMessageBox.information(self, 'Update result',
+                                              'RadTrack will now shutdown. To continue your work, select\n' + 
+                                              os.path.basename(os.path.normpath(self.sessionDirectory)) + ' from Recent Projects ' +
+                                              'in the File menu.')
+                                              
+                self.close()
 
-        finally:
-            os.chdir(currentDirectory)
+            finally:
+                log.write('Done.\n')
+                log.write('-'*80 + '\n\n')
+                os.chdir(currentDirectory)
 
 
     def allWidgets(self):
@@ -557,7 +562,8 @@ class RbGlobal(QtGui.QMainWindow):
     #   1 = Successfully checked for updates, successfully applied them.
     #   2 = Errors in either checking or applying update.
     def updateCommand(self, logFile, command):
-        logFile.write('\nUpdate command: ' + ' '.join(command) + ':\n')
+        logFile.write('\nUpdate command: ' + ' '.join(command) + '\n')
+        logFile.write('Current directory: ' + os.getcwd() + '\n')
 
         updateProc = QtCore.QProcess(self)
         updateProc.start(command[0], command[1:])
@@ -569,7 +575,7 @@ class RbGlobal(QtGui.QMainWindow):
 
         output = str(updateProc.readAllStandardOutput())
         errors = str(updateProc.readAllStandardError())
-        logFile.write('STDOUT: ' + output + '\nSTDERR: ' + errors + '\n')
+        logFile.write('\nSTDOUT:\n' + output + '\n--------\n\nSTDERR:\n' + errors + '\n--------\n')
 
         if updateProc.exitCode() == 2:
             box = QtGui.QMessageBox(QtGui.QMessageBox.Warning,
