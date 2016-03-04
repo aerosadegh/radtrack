@@ -33,6 +33,8 @@ class Base(rt_controller.Controller):
         self.process = QtCore.QProcess()
         self.process.readyReadStandardOutput.connect(self.newStdInfo)
         self.process.readyReadStandardError.connect(self.newStdError)
+        self.process.finished.connect(self.list_result_files)
+        self.process.error.connect(self.display_error)
         self._in_file = None
         self.msg_list = []
         self.w = {}
@@ -68,11 +70,11 @@ class Base(rt_controller.Controller):
     def action_io_control(self):
         self._pop_up('io_control')
 
-    def action_simulate(self):
-        def msg(m):
-            self.msg_list.append(m + '... \n \n')
-            self._view.set_result_text('simulation', ''.join(self.msg_list))
+    def msg(self, m):
+        self.msg_list.append(m + '\n')
+        self._view.set_result_text('simulation', ''.join(self.msg_list))
 
+    def action_simulate(self):
         self.w.update(genesis_params.to_beam(self.params.beam))
         self.w.update(genesis_params.to_undulator(self.params.undulator))
         self.w.update(genesis_params.to_radiation(self.params.radiation))
@@ -84,7 +86,7 @@ class Base(rt_controller.Controller):
         self.w.update(genesis_params.to_scan(self.params.scan))
         self.w.update(genesis_params.to_io_control(self.params.io_control))
 
-        msg('Writing Genesis IN file')
+        self.msg('Writing Genesis IN file...')
         with open('genesis_run.in','w') as f:
             f.write(' $newrun \n')
             for i in self.w:
@@ -106,16 +108,30 @@ class Base(rt_controller.Controller):
                 else:
                     f.write(' '+i+'='+str(self.w[i])+'\n')
             f.write(' $end \n')
-        msg('Finished \nRunning Genesis\n')
+        self.msg('Finished')
+        self.msg('\nRunning Genesis...')
 
-        '''
         self.process.start('genesis',['genesis_run.in']) # add option so files start with common name
+
+    def list_result_files(self):
+        self.msg('Genesis finished!')
         for output_file in glob.glob('genesis_run.*'):
         	listwidget.addItem(output_file)
-        '''
 
-        self.process.start('genesis',['genesis_run.in'])
-        print(os.path.realpath('genesis_run.in'))
+    def display_error(self, error):
+        self.msg('Error:')
+        if error == QtCore.QProcess.FailedToStart:
+            self.msg('Genesis could not start.\n\n')
+        if error == QtCore.QProcess.Crashed:
+            self.msg('Genesis crashed.\n\n')
+        if error == QtCore.QProcess.Timedout:
+            self.msg('Genesis timed out.\n\n')
+        if error == QtCore.QProcess.WriteError:
+            self.msg('Could not write to Genesis process.\n\n')
+        if error == QtCore.QProcess.ReadError:
+            self.msg('Could not read from Genesis process.\n\n')
+        if error == QtCore.QProcess.UnknownError:
+            self.msg('Unknown error while running Genesis.\n\n')
 
     def decl_is_visible(self, decl):
         return True
