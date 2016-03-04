@@ -4,7 +4,6 @@
 :license: http://www.apache.org/licenses/LICENSE-2.0.html
 """
 from __future__ import absolute_import, division, print_function
-import subprocess
 
 from PyQt4 import QtCore, QtGui
 
@@ -36,7 +35,6 @@ class Base(rt_controller.Controller):
         self.process.finished.connect(self.list_result_files)
         self.process.error.connect(self.display_error)
         self._in_file = None
-        self.msg_list = []
         self.w = {}
         return self._view
 
@@ -71,8 +69,7 @@ class Base(rt_controller.Controller):
         self._pop_up('io_control')
 
     def msg(self, m):
-        self.msg_list.append(m + '\n')
-        self._view.set_result_text('simulation', ''.join(self.msg_list))
+        self._view._result_text['simulation'].append(m)
 
     def action_simulate(self):
         self.w.update(genesis_params.to_beam(self.params.beam))
@@ -86,6 +83,7 @@ class Base(rt_controller.Controller):
         self.w.update(genesis_params.to_scan(self.params.scan))
         self.w.update(genesis_params.to_io_control(self.params.io_control))
 
+        self._view._result_text['simulation'].clear()
         self.msg('Writing Genesis IN file...')
         with open('genesis_run.in','w') as f:
             f.write(' $newrun \n')
@@ -114,9 +112,16 @@ class Base(rt_controller.Controller):
         self.process.start('genesis',['genesis_run.in']) # add option so files start with common name
 
     def list_result_files(self):
+        self._view._result_text['output'].clear()
         self.msg('Genesis finished!')
         for output_file in glob.glob('genesis_run.*'):
         	self._view._add_result_file(output_file, output_file)
+
+        for key in ['OUTPUTFILE', 'MAGOUTFILE']:
+            if self.w[key]:
+                for output_file in glob.glob(self.w[key] + '*'):
+                    self._view._add_result_file(output_file, output_file)
+
 
     def display_error(self, error):
         self.msg('Error:')
@@ -146,18 +151,12 @@ class Base(rt_controller.Controller):
     def newStdInfo(self):
         """Callback with simulation stdout text"""
         newString = str(self.process.readAllStandardOutput())
-        self.msg_list.append(newString)
-        self._view.set_result_text('simulation', ''.join(self.msg_list))
-        self._view._result_text['simulation'].moveCursor(QtGui.QTextCursor.End)
+        self.msg(newString)
 
     def newStdError(self):
         """Callback with simulation stderr text"""
         newString = str(self.process.readAllStandardError())
-        self.msg_list.append(newString)
-        self._view.set_result_text('simulation', ''.join(self.msg_list))
-        self._view._result_text['simulation'].moveCursor(QtGui.QTextCursor.End)
-
-
+        self.msg(newString)
 
     def name_to_action(self, name):
         """Returns button action"""
