@@ -16,7 +16,7 @@ from radtrack import rt_popup
 from radtrack import rt_enum
 from pykern import pkcollections
 from enum import Enum
-import os, shutil
+import os, shutil, glob
 
 class Base(rt_controller.Controller):
     """Implements contol flow for Genesis tab"""
@@ -116,7 +116,7 @@ class Base(rt_controller.Controller):
     def list_result_files(self):
         self.msg('Genesis finished!')
         for output_file in glob.glob('genesis_run.*'):
-        	listwidget.addItem(output_file)
+        	self._view._add_result_file(output_file, output_file)
 
     def display_error(self, error):
         self.msg('Error:')

@@ -6,6 +6,7 @@ u"""Main panel for simulation
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 from io import open
+import os
 
 from radtrack.rt_qt import QtCore, QtGui
 
