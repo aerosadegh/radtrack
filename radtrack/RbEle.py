@@ -83,6 +83,7 @@ class RbEle(QtGui.QWidget):
         self.process.readyReadStandardError.connect(self._process_stderr)
         self.process.started.connect(self._process_started)
         self.process.finished.connect(self._process_finished)
+        self.process.error.connect(self._process_error)
 
         # states: 'summary' or 'full'
         self.status_mode = 'summary'
@@ -209,6 +210,7 @@ class RbEle(QtGui.QWidget):
 
     def _abort_simulation(self):
         self.process.kill()
+        self.userAbort = True
 
     def _add_menu_actions(self, menu, file_name, tab_type, name):
         """Adds the context menu actions for the specified tab_type"""
@@ -353,6 +355,29 @@ class RbEle(QtGui.QWidget):
         else:
             self.append_status('Simulation was terminated')
 
+    def _process_error(self, error):
+        # User aborted simulation, not an error
+        if self.userAbort:
+            return
+
+        self.append_status('Error:')
+        if error == QtCore.QProcess.FailedToStart:
+            if QtCore.QProcess.execute('which', ['elegant']) != 0:
+                self.append_status('Elegant is not installed on this virtual machine.')
+            else:
+                self.append_status('Elegant could not start.\n\n')
+        if error == QtCore.QProcess.Crashed:
+            self.append_status('Elegant crashed.\n\n')
+        if error == QtCore.QProcess.Timedout:
+            self.append_status('Elegant timed out.\n\n')
+        if error == QtCore.QProcess.WriteError:
+            self.append_status('Could not write to Elegant process.\n\n')
+        if error == QtCore.QProcess.ReadError:
+            self.append_status('Could not read from Elegant process.\n\n')
+        if error == QtCore.QProcess.UnknownError:
+            self.append_status('Unknown error while running Elegant.\n\n')
+
+
     def _process_started(self):
         """Callback when simulation process has started"""
         self.ui.abortButton.setEnabled(True)
@@ -431,6 +456,7 @@ class RbEle(QtGui.QWidget):
             menu.exec_(results.mapToGlobal(position))
 
     def _run_simulation(self):
+        self.userAbort = False
         """Generate the input files and start the Elegant process."""
         momentum = self.validate_momentum()
         if not momentum:
