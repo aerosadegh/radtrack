@@ -6,20 +6,16 @@
 from __future__ import absolute_import, division, print_function
 import subprocess
 
-from pykern import pkarray
-from pykern import pkcompat
-from pykern.pkdebug import pkdc, pkdp
 from PyQt4 import QtCore, QtGui
 
 from radtrack import genesis_pane
 from radtrack import genesis_params
 from radtrack import rt_controller
-from radtrack import rt_jinja
 from radtrack import rt_params
 from radtrack import rt_popup
 from radtrack import rt_enum
 from enum import Enum
-import os
+import os, shutil
 
 class Base(rt_controller.Controller):
     """Implements contol flow for Genesis tab"""
@@ -184,10 +180,31 @@ class Base(rt_controller.Controller):
         def parse(line):
             name,val=line.split('=')
             name = name.strip()
-            val = val.strip().strip(',').strip('.')
+            val = val.strip().strip(',.\'"')
             param_update(name,val)
 
+            # These parameters specify other input files. Copy them into the session directory as well.
+            if name in ['MAGINFILE', 'BEAMFILE', 'RADFILE', 'DISTFILE', 'FIELDFILE', 'PARTFILE']:
+                originalLocation = os.path.join(sourceDirectory, val)
+                if not os.path.exists(originalLocation):
+                    QtGui.QMessageBox.warning(self._view,
+                                              'Missing File Reference',
+                                              'The main input file references a file, ' + 
+                                              val +
+                                              ', that does not exist. Genesis will probably not run successfully.')
+                    return
+                importDestination = os.path.join(self._view.parentWidget().parent.sessionDirectory, val)
+                if originalLocation == importDestination:
+                    return
+                if not os.path.exists(os.path.dirname(importDestination)):
+                    os.makedirs(os.path.dirname(importDestination))
+                if os.path.exists(importDestination):
+                    os.remove(importDestination)
+                shutil.copy2(originalLocation, importDestination)
 
+
+
+        sourceDirectory = os.path.dirname(phile.name)
         dollar = 0
         for line in phile:
             if '$' not in line:
