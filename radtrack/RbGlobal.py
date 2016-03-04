@@ -24,6 +24,8 @@ from radtrack.RbIntroTab import RbIntroTab
 from radtrack.RbUtility import fileTypeList
 
 class RbGlobal(QtGui.QMainWindow):
+    defaultTitle = 'Just copy file' # used for importing files without loading them into a tab
+
     def __init__(self, beta_test=False):
         self.beta_test=beta_test
         QtGui.QMainWindow.__init__(self)
@@ -260,7 +262,7 @@ class RbGlobal(QtGui.QMainWindow):
         ext = os.path.splitext(openFile)[-1].lower().lstrip(".") # lowercased extension after '.'
 
         # Find all types of tabs that accept file type "ext"
-        choices = []
+        choices = [type(self)]
         for tabType in self.availableTabTypes:
             try:
                 if ext in tabType.acceptsFileTypes:
@@ -268,10 +270,7 @@ class RbGlobal(QtGui.QMainWindow):
             except AttributeError:
                 pass
 
-        if len(choices) == 0:
-            QtGui.QMessageBox.warning(self, 'Import Error', 'No suitable tab for file:\n' + openFile)
-            return
-        elif len(choices) == 1:
+        if len(choices) == 1:
             destinationType = choices[0]
         else: # len(choices) > 1
             box = QtGui.QMessageBox(QtGui.QMessageBox.Question, 'Ambiguous Import Destination', 'Multiple tab types can import this file.\nWhich kind of tab should be used?')
@@ -281,6 +280,16 @@ class RbGlobal(QtGui.QMainWindow):
                 destinationType = choices[responses.index(box.clickedButton())]
             except IndexError:
                 return # Cancel selected
+        
+        if destinationType == type(self): # User just wants to copy a file into the session directory
+            destinationPath = os.path.join(self.sessionDirectory, os.path.basename(openFile))
+            if destinationPath == openFile:
+                return
+            if os.path.exists(destinationPath):
+                os.remove(destinationPath)
+            shutil.copy2(openFile, destinationPath)
+            QtGui.QMessageBox.information(self, 'File Copied', openFile + ' has been imported to ' + self.sessionDirectory)
+            return
 
         # Check if a tab of this type is already open
         openWidgetIndexes = [i for i in range(self.tabWidget.count()) if type(self.tabWidget.widget(i)) == destinationType]
