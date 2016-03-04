@@ -121,7 +121,10 @@ class Base(rt_controller.Controller):
     def display_error(self, error):
         self.msg('Error:')
         if error == QtCore.QProcess.FailedToStart:
-            self.msg('Genesis could not start.\n\n')
+            if QtCore.QProcess.execute('which', ['genesis']) != 0:
+                self.msg('Genesis is not installed on this virtual machine.')
+            else:
+                self.msg('Genesis could not start.\n\n')
         if error == QtCore.QProcess.Crashed:
             self.msg('Genesis crashed.\n\n')
         if error == QtCore.QProcess.Timedout:
