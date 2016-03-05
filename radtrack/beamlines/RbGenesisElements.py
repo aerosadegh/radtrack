@@ -9,10 +9,13 @@ from PyQt4.QtCore import Qt
 from radtrack.beamlines.RbElementCommon import *
 from radtrack.beamlines.RbBeamlines import BeamlineCommon
 from radtrack.beamlines.RbElegantElements import collapseBeamline, expandBeamline, checkParentheses
-from radtrack.RbUtility import convertUnitsString, convertUnitsStringToNumber, roundSigFig, removeWhitespace
+from radtrack.util.unitConversion import convertUnitsStringToNumber, convertUnitsString
+from radtrack.util.RbMath import roundSigFig
+from radtrack.util.stringTools import removeWhitespace
 import math
 from os.path import basename
 from collections import OrderedDict
+
 
 class genesisElement(elementCommon):
     def componentLine(self):

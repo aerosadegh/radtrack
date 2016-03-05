@@ -12,7 +12,9 @@ from PyQt4 import QtGui, QtCore
 from radtrack.dcp.Servicelib import *
 from radtrack.dcp.SRWlib import SRW
 from radtrack.ui.matplotlibwidget import matplotlibWidget
-from radtrack.RbUtility import scatConPlot, removeWhitespace, isSDDS
+from radtrack.util.plotTools import scatConPlot
+from radtrack.util.stringTools import removeWhitespace
+from radtrack.util.fileTools import isSDDS
 
 NumPage = 0
 ColumnXAxis =-1

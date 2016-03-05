@@ -18,7 +18,7 @@ from pykern import pkcollections
 from pykern.pkdebug import pkdc, pkdp
 from pykern import pkcompat
 
-from radtrack import RbUtility
+from radtrack.util.unitConversion import convertUnitsStringToNumber, displayWithUnitsNumber
 from radtrack import rt_params
 from radtrack import rt_qt
 
@@ -29,7 +29,7 @@ def get_widget_value(decl, widget):
             return None
         v = w.text()
         if d.units:
-            v = RbUtility.convertUnitsStringToNumber(v, d.units)
+            v = convertUnitsStringToNumber(v, d.units)
         return d.py_type(v)
 
     if issubclass(decl.py_type, bool):
@@ -64,7 +64,7 @@ def set_widget_value(decl, param, widget):
         # Approximate size of checkbox
         return ' '
     if decl.units:
-        l = RbUtility.displayWithUnitsNumber(param, decl.units)
+        l = displayWithUnitsNumber(param, decl.units)
     else:
         l = str(param)
     widget.setText(l)

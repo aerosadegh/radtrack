@@ -18,8 +18,6 @@ import sip
 sip.setapi('QString', 2)
 from PyQt4 import QtGui, QtCore
 
-from radtrack import RbUtility
-
 #: Valid id names
 ID_NAMES = [
     'heading',

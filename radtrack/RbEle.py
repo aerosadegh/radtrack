@@ -10,7 +10,8 @@ from pykern.pkdebug import pkdc
 from radtrack.BunchTab import BunchTab
 from radtrack.RbBunchTransport import RbBunchTransport
 from radtrack.RbGenesisTransport import RbGenesisTransport
-from radtrack.RbUtility import convertUnitsStringToNumber, convertUnitsNumber
+from radtrack.util.unitConversion import convertUnitsStringToNumber, convertUnitsNumber
+from radtrack.util.fileTools import isSDDS
 from radtrack.ui.rbele import Ui_ELE
 import radtrack.util.resource as resource
 
@@ -293,7 +294,7 @@ class RbEle(QtGui.QWidget):
     def _is_bunch_file(self, file_name):
         if re.search('\.csv$', file_name, re.IGNORECASE):
             return True
-        if not self._is_sdds_file(file_name):
+        if not isSDDS(file_name):
             return False
         """Scans the SDDS header for the 6D field names"""
         search_columns = ['x', 'xp', 'y', 'yp', 't', 'p']
@@ -309,13 +310,6 @@ class RbEle(QtGui.QWidget):
 
     def _is_error_text(self, text):
         return re.search(r'^warn|^error|wrong units', text, re.IGNORECASE)
-
-    def _is_sdds_file(self, file_name):
-        """Returns True if the file has the SDDS header"""
-        with open(file_name, 'r') as input_file:
-            if re.search(r'^SDDS', input_file.readline()):
-                return True
-        return False
 
     def _load_tab(self, tab_name, file_name):
         """Load a parent tab with data from the specified file"""

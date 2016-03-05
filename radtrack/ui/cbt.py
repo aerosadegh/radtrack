@@ -1,6 +1,6 @@
 from PyQt4 import QtCore, QtGui
 from math import sqrt
-from radtrack.RbUtility import wordwrap
+from radtrack.util.stringTools import wordwrap
 
 class dtreeWidget(QtGui.QTreeWidget):
     contextMenuClicked = QtCore.pyqtSignal(str,str,QtCore.QPoint)

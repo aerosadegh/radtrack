@@ -16,7 +16,8 @@ from math import sin, cos, tan, pi, sqrt
 def cot(angle):
     return 1/tan(angle)
 
-from radtrack.RbUtility import convertUnitsStringToNumber, rpn
+from radtrack.util.unitConversion import convertUnitsStringToNumber
+from radtrack.util.RbMath import rpn
 
 
 # Creates a QTransform object that rotates and places a QGraphicsItem

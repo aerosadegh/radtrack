@@ -1,4 +1,4 @@
-from radtrack.RbUtility import stripComments
+from radtrack.util.stringTools import stripComments
 
 def test_strip_comments():
     # Test 1 (Quoted comment character)

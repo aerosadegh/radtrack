@@ -1,7 +1,7 @@
 import os, glob, subprocess, string
 import radtrack.beamlines.RbElegantElements as ele
 import radtrack.beamlines.RbOpticalElements as opt
-from radtrack.RbUtility import insideQuote
+from radtrack.util.stringTools import insideQuote
 
 import radtrack.util.resource as resource
 if not os.getenv('RPN_DEFNS', None):

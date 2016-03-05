@@ -21,7 +21,7 @@ from radtrack.RbFEL import RbFEL
 from radtrack.RbGenesisTab import GenesisTab
 from radtrack.RbSrwTab import RbSrwTab
 from radtrack.RbIntroTab import RbIntroTab
-from radtrack.RbUtility import fileTypeList
+from radtrack.util.fileTools import fileTypeList
 
 class RbGlobal(QtGui.QMainWindow):
     defaultTitle = 'Just copy file' # used for importing files without loading them into a tab

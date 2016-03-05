@@ -6,7 +6,7 @@ from PyQt4.QtCore import Qt
 from radtrack.beamlines.RbElementCommon import *
 from radtrack.beamlines.RbElegantElements import importFile, exportToFile
 from radtrack.beamlines.RbBeamlines import BeamlineCommon
-from radtrack.RbUtility import convertUnitsStringToNumber
+from radtrack.util.unitConversion import convertUnitsStringToNumber
 
 class opticalElement(elementCommon):
     def componentLine(self):
