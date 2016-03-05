@@ -300,13 +300,13 @@ class RbFEL(QtGui.QWidget):
             # Plotting
             self.ui.plotWidget.canvas.fig.clear()
             self.ui.plotWidget.canvas.ax = self.ui.plotWidget.canvas.fig.add_subplot(111)
-            c = self.ui.plotWidget.canvas.ax.imshow(numpy.flipud(Z), cmap = 'hot',
+            ca = self.ui.plotWidget.canvas.ax.imshow(numpy.flipud(Z), cmap = 'hot',
                     extent = [min(xRangeUnits), max(xRangeUnits),
                     min(yRangeUnits), max(yRangeUnits)],
                     aspect = 'auto')
             self.ui.plotWidget.canvas.ax.set_xlabel(xAxisLabel)
             self.ui.plotWidget.canvas.ax.set_ylabel(yAxisLabel)
-            cb = self.ui.plotWidget.canvas.fig.colorbar(c)
+            cb = self.ui.plotWidget.canvas.fig.colorbar(ca)
             cb.set_label(zAxisLabel)
             self.ui.plotWidget.canvas.ax.set_xlim(min(xRangeUnits), max(xRangeUnits))
             self.ui.plotWidget.canvas.ax.set_ylim(min(yRangeUnits), max(yRangeUnits))

@@ -46,13 +46,11 @@ def importFile(fileName, importDictionary, classDictionary, nameMangler):
                         'File import stopped because line ' +
                         str(lineNumber+1) + ' produced errors:\n\n' +
                         line + '\n\n' + str(error) + text + ' defined.')
-                return
             except FileParseException as error:
                 raise IOError('In file: ' + fileName + '\n' +
                         'File import stopped because line ' +
                         str(lineNumber+1) + ' produced errors:\n\n' +
                         str(error.message))
-                return
             except IncludeException as include:
                 newFileName = os.path.join(os.path.dirname(fileName), include.fileName)
                 _, defaultBeamlineName = importFile(newFileName, importDictionary,\
@@ -63,6 +61,7 @@ def importFile(fileName, importDictionary, classDictionary, nameMangler):
 
 class IncludeException(Exception):
     def __init__(self, fileName):
+        super(IncludeException, self).__init__()
         self.fileName = fileName
 
 def parseLine(line, importDictionary, classDictionary, nameMangler):

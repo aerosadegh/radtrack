@@ -11,11 +11,8 @@ moduleauthor:: David Bruhwiler <bruhwiler@radiasoft.net>
 Copyright (c) 2014 RadiaBeam Technologies. All rights reserved
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
-import os.path
-#import subprocess
-
-# Python imports
-import math
+import os, math, sip, sys, sdds
+sip.setapi('QString', 2)
 
 # SciPy imports
 import numpy as np
@@ -23,8 +20,6 @@ import matplotlib.pyplot as plt
 from scipy.optimize import leastsq
 
 # PyQt4 imports
-import sip
-sip.setapi('QString', 2)
 from PyQt4 import QtGui
 
 # RadTrack imports
@@ -34,7 +29,6 @@ from radtrack.util.unitConversion import convertUnitsStringToNumber, convertUnit
 from radtrack.util.fileTools import getSaveFileName
 from radtrack.util.plotTools import generateContourLevels
 
-import sdds
 
 class LaserTab(QtGui.QWidget):
     acceptsFileTypes = ['sdds', 'csv']

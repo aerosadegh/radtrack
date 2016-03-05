@@ -115,7 +115,7 @@ class Base(rt_controller.Controller):
         self._view._result_text['output'].clear()
         self.msg('Genesis finished!')
         for output_file in glob.glob('genesis_run.*'):
-        	self._view._add_result_file(output_file, output_file)
+            self._view._add_result_file(output_file, output_file)
 
         for key in ['OUTPUTFILE', 'MAGOUTFILE']:
             if self.w[key]:

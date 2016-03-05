@@ -4,7 +4,7 @@ Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import sys, os, shutil, argh, string, sip, traceback, subprocess
+import sys, os, shutil, argh, string, sip, traceback
 sip.setapi('QString', 2)
 from PyQt4 import QtGui, QtCore
 from datetime import datetime

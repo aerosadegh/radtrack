@@ -337,17 +337,17 @@ class BunchTab(QtGui.QWidget):
             self.myBunch.makeParticlePhaseSpace6D()
 
             # offset the distribution
-            if (self.offsetX  != 0.):
+            if self.offsetX  != 0.:
                 self.myDist.offsetDistribComp(self.offsetX,  0)
-            if (self.offsetXP != 0.):
+            if self.offsetXP != 0.:
                 self.myDist.offsetDistribComp(self.offsetXP, 1)
-            if (self.offsetY  != 0.):
+            if self.offsetY  != 0.:
                 self.myDist.offsetDistribComp(self.offsetY,  2)
-            if (self.offsetYP != 0.):
+            if self.offsetYP != 0.:
                 self.myDist.offsetDistribComp(self.offsetYP, 3)
-            if (self.offsetT  != 0.):
+            if self.offsetT  != 0.:
                 self.myDist.offsetDistribComp(self.offsetT,  4)
-            if (self.offsetPT != 0.):
+            if self.offsetPT != 0.:
                 self.myDist.offsetDistribComp(self.offsetPT, 5)
 
         # generate the plots
