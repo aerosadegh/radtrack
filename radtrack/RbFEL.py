@@ -295,7 +295,7 @@ class RbFEL(QtGui.QWidget):
 
             zUnit, zAxisLabel, _ = rangeUnits(zTextBox, Z.flat)
             for z in numpy.nditer(Z, op_flags=['readwrite']):
-                z[...] = util.convertUnitsNumber(z, zTextBox.unit, zUnit)
+                z[...] = convertUnitsNumber(z, zTextBox.unit, zUnit)
 
             # Plotting
             self.ui.plotWidget.canvas.fig.clear()
