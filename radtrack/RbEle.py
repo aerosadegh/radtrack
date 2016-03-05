@@ -12,6 +12,10 @@ from radtrack.RbBunchTransport import RbBunchTransport
 from radtrack.RbGenesisTransport import RbGenesisTransport
 from radtrack.util.unitConversion import convertUnitsStringToNumber, convertUnitsNumber
 from radtrack.util.fileTools import isSDDS
+from radtrack.util.simulationResultsTools import add_result_file, \
+                                                 results_context_menu, \
+                                                 get_tab_names_for_type, \
+                                                 get_tab_by_name
 from radtrack.ui.rbele import Ui_ELE
 import radtrack.util.resource as resource
 
@@ -122,23 +126,6 @@ class RbEle(QtGui.QWidget):
     def clear_beam_lines(self):
         self.ui.beamLineComboBox.clear()
 
-    def get_tab_by_name(self, tab_name):
-        """Returns an app tab widget by text value"""
-        tab = self.parent.tabWidget
-        for i in range(tab.count()):
-            if tab.tabText(i) == tab_name:
-                return tab.widget(i)
-        return None
-
-    def get_tab_names_for_type(self, tab_type):
-        """Returns a list of app tab names with the specified type"""
-        tab_names = []
-        for i in range(self.parent.tabWidget.count()):
-            name = self.parent.tabWidget.tabText(i)
-            if type(self.get_tab_by_name(name)) == tab_type:
-                tab_names.append(name)
-        return tab_names
-
     def session_file(self, file_name=None, suffix=None):
         """Creates a file path in the sessionDirectory."""
         if not file_name:
@@ -213,27 +200,6 @@ class RbEle(QtGui.QWidget):
         self.process.kill()
         self.userAbort = True
 
-    def _add_menu_actions(self, menu, file_name, tab_type, name):
-        """Adds the context menu actions for the specified tab_type"""
-        for tab_name in self.get_tab_names_for_type(tab_type):
-            menu.addAction(
-                'Open in {} tab'.format(tab_name),
-                lambda: self._load_tab(tab_name, file_name))
-        menu.addAction(
-            'Open in new {} tab'.format(name),
-            lambda: self._new_tab(tab_type, file_name))
-
-    def _add_result_file(self, text, file_name):
-        """Adds the file entry to the simulation results list"""
-        if not os.path.isfile(file_name):
-            pkdc('missing result file: {}', file_name)
-            return
-        results = self.ui.simulationResultsListWidget
-        icon = results.style().standardIcon(QtGui.QStyle.SP_FileIcon)
-        item = QtGui.QListWidgetItem(icon, text)
-        item.setData(QtCore.Qt.UserRole, file_name)
-        results.addItem(item)
-
     def _add_result_files(self):
         """Adds output files from lattice elements and elegant template"""
         loader = self.beam_line_source_manager.get_lattice_element_loader()
@@ -244,7 +210,8 @@ class RbEle(QtGui.QWidget):
             for output_parameter in element.outputFileParameters:
                 i = element.parameterNames.index(output_parameter)
                 if element.data[i]:
-                    self._add_result_file(
+                    add_result_file(
+                        self.ui.simulationResultsListWidget,
                         '{}: {}'.format(element.name, type(element).__name__),
                         self._autocomplete_file_name(element.data[i]))
 
@@ -255,7 +222,7 @@ class RbEle(QtGui.QWidget):
                 text = self._sdds_description(file_name)
                 if not text:
                     text = os.path.basename(file_name)
-                self._add_result_file(text, file_name)
+                add_result_file(self.ui.simulationResultsListWidget, text, file_name)
 
     def _autocomplete_file_name(self, file_name):
         """Removes leading/trailing quotes and autocompletes %s.xxx files"""
@@ -311,17 +278,6 @@ class RbEle(QtGui.QWidget):
     def _is_error_text(self, text):
         return re.search(r'^warn|^error|wrong units', text, re.IGNORECASE)
 
-    def _load_tab(self, tab_name, file_name):
-        """Load a parent tab with data from the specified file"""
-        target = self.get_tab_by_name(tab_name)
-        target.importFile(file_name)
-        self.parent.tabWidget.setCurrentWidget(target)
-
-    def _new_tab(self, tab_type, file_name):
-        """Create a new parent tab and load the data from the specified file"""
-        self.parent.newTab(tab_type)
-        self.parent.tabWidget.currentWidget().importFile(file_name)
-
     def _process_finished(self, code, status):
         """Callback when simulation process has finished"""
         self._enable_parameters(True)
@@ -335,10 +291,10 @@ class RbEle(QtGui.QWidget):
         # so they can be opened in the editor tabs to verify them
         if not self.bunch_source_manager.is_tab_choice():
             file_name = self.bunch_source_manager.get_file_name()
-            self._add_result_file(os.path.basename(file_name), file_name)
+            add_result_file(self.ui.simulationResultsListWidget, os.path.basename(file_name), file_name)
         if not self.beam_line_source_manager.is_tab_choice():
             file_name = self.beam_line_source_manager.get_file_name()
-            self._add_result_file(os.path.basename(file_name), file_name)
+            add_result_file(self.ui.simulationResultsListWidget, os.path.basename(file_name), file_name)
 
         if status == 0:
             if code == 0:
@@ -435,20 +391,6 @@ class RbEle(QtGui.QWidget):
                 line = input_file.readline()
         return lines
 
-    def _results_context_menu(self, position):
-        """Show the context menu for a result item."""
-        results = self.ui.simulationResultsListWidget
-        if results.currentItem():
-            file_name = results.currentItem().data(
-                QtCore.Qt.UserRole).toString()
-            menu = QtGui.QMenu()
-            ext = os.path.splitext(file_name)[1].strip('.')
-            for tabType in self.parent.availableTabTypes:
-                if ext in tabType.acceptsFileTypes:
-                    self._add_menu_actions(
-                        menu, file_name, tabType, tabType.defaultTitle)
-            menu.exec_(results.mapToGlobal(position))
-
     def _run_simulation(self):
         self.userAbort = False
         """Generate the input files and start the Elegant process."""
@@ -494,7 +436,9 @@ class RbEle(QtGui.QWidget):
         self.ui.simulationStatusTextEdit.customContextMenuRequested.connect(
             self._status_context_menu)
         self.ui.simulationResultsListWidget.customContextMenuRequested.connect(
-            self._results_context_menu)
+                lambda position : results_context_menu(self.ui.simulationResultsListWidget,
+                                                       self.parent,
+                                                       position))
         self.bunch_source_manager = BunchSourceManager(
             self, self.ui.bunchSourceComboBox)
         self.beam_line_source_manager = BeamLineSourceManager(
@@ -581,7 +525,7 @@ class ComboManager():
 
     def get_tab_widget(self):
         """Returns the parent tab widget by text name or None"""
-        return self.rbele.get_tab_by_name(self.combo.currentText())
+        return get_tab_by_name(self.rbele.parent, self.combo.currentText())
 
     def get_tab_items(self):
         """Returns the selection items which correspond to app tabs."""
@@ -638,7 +582,7 @@ class ComboManager():
         delete items from the list."""
         tab_names = []
         for tab_type in self.tab_types:
-            tab_names.extend(self.rbele.get_tab_names_for_type(tab_type))
+            tab_names.extend(get_tab_names_for_type(self.rbele.parent, tab_type))
         delete_tabs = []
         for text in self.get_tab_items():
             if text in tab_names:

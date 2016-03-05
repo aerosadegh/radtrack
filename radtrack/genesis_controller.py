@@ -13,6 +13,7 @@ from radtrack import rt_controller
 from radtrack import rt_params
 from radtrack import rt_popup
 from radtrack import rt_enum
+from radtrack.util.simulationResultsTools import results_context_menu, add_result_file
 from pykern import pkcollections
 from enum import Enum
 import os, shutil, glob
@@ -34,6 +35,12 @@ class Base(rt_controller.Controller):
         self.process.readyReadStandardError.connect(self.newStdError)
         self.process.finished.connect(self.list_result_files)
         self.process.error.connect(self.display_error)
+
+        self._view._result_text['output'].customContextMenuRequested.connect(
+                lambda position : results_context_menu(self._view._result_text['output'],
+                                                       self._view.parentWidget().parent,
+                                                       position))
+
         self._in_file = None
         self.w = {}
         return self._view
@@ -115,12 +122,12 @@ class Base(rt_controller.Controller):
         self._view._result_text['output'].clear()
         self.msg('Genesis finished!')
         for output_file in glob.glob('genesis_run.*'):
-            self._view._add_result_file(output_file, output_file)
+            add_result_file(self._view._result_text['output'], output_file, output_file)
 
         for key in ['OUTPUTFILE', 'MAGOUTFILE']:
             if self.w[key]:
                 for output_file in glob.glob(self.w[key] + '*'):
-                    self._view._add_result_file(output_file, output_file)
+                    add_result_file(self._view._result_text['output'], output_file, output_file)
 
 
     def display_error(self, error):

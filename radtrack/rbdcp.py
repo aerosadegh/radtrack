@@ -2,7 +2,7 @@
 Copyright (c) 2015 RadiaBeam Technologies. All rights reserved
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
-from os.path import expanduser, dirname
+from os.path import expanduser, dirname, splitext
 import sdds, sys, math, h5py, numpy
 
 import sip
@@ -125,7 +125,7 @@ class RbDcp(QtGui.QWidget):
             else:
                 self.parent.lastUsedDirectory = dirname(openFile)
 
-        ext = os.path.splitext(openFile)[-1].lower().lstrip(".")
+        ext = splitext(openFile)[-1].lower().lstrip(".")
         if isSDDS(openFile):
             self.showDCP_ele(openFile)
         elif ext == 'dat':
