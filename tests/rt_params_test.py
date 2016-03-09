@@ -36,7 +36,7 @@ def test_defaults():
         d['radiation_source']['undulator']['undulator']['orientation'].value,
         srw_enums.UndulatorOrientation), \
         'Value must be parsed correctly'
-    assert 401 == \
+    assert 100 == \
         d['simulation_kind']['x_and_y']['wavefront']['num_points_x'].value, \
         'Value must be parsed correctly'
 
