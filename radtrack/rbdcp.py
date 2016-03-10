@@ -82,10 +82,7 @@ class RbDcp(QtGui.QWidget):
         form.addRow('Plot Type', self.plotType)
         form.addRow('Plot Style', self.plotStyle)
         layout.addLayout(form)
-        button = QtGui.QPushButton()
-        button.setText('open')
-        button.clicked.connect(lambda : self.importFile())
-        layout.addWidget(button)
+
         layout.addStretch()   
         self.legend = QtGui.QTextEdit()
         self.legend.setSizePolicy(QtGui.QSizePolicy.Maximum,QtGui.QSizePolicy.Preferred)
