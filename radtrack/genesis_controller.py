@@ -168,12 +168,12 @@ class Base(rt_controller.Controller):
                     if D[key] in self.decl[i].children:
                     #compares to both rt_enum and Enum unsure of what radtrack enumerated type is so compare to both
                         if self.decl[i][D[key]].py_type in [int,float,bool]:
-                            self.params[i][D[key]]=self.decl[i][D[key]].py_type(value)  
+                            self.params[i][D[key]]=self.decl[i][D[key]].py_type(float(value.replace('D','E')))  
                         elif self.decl[i][D[key]].py_type is str:
                             self.params[i][D[key]] = value.replace("'",'')    
                             print(self.params[i][D[key]])                        
                         elif isinstance(self.params[i][D[key]],rt_enum.Enum) or isinstance(self.params[i][D[key]],Enum):
-                            self.params[i][D[key]] = list(self.decl[i][D[key]].py_type)[int(value)]
+                            self.params[i][D[key]] = list(self.decl[i][D[key]].py_type)[int(float(value.replace('D','E')))]
                         elif self.decl[i][D[key]].py_type is list:
                             op_children=value.split()
                             for n,j in enumerate(self.params[i][D[key]]):
