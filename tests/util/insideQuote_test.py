@@ -1,4 +1,4 @@
-from radtrack.RbUtility import insideQuote
+from radtrack.util.stringTools import insideQuote
 
 def test_inside_quote():
     s = '"ab"de"hi"kl\\"o\\\\"p'

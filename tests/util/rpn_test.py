@@ -1,4 +1,4 @@
-from radtrack.RbUtility import rpn
+from radtrack.util.RbMath import rpn
 import pytest
 
 def test_rpn_success():

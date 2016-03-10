@@ -1,8 +1,8 @@
-from radtrack.RbUtility import convertUnitsString, \
-                      convertUnitsStringToNumber, \
-                      convertUnitsNumberToString, \
-                      convertUnitsNumber, \
-                      roundSigFig
+from radtrack.util.unitConversion import convertUnitsString, \
+                                         convertUnitsStringToNumber, \
+                                         convertUnitsNumberToString, \
+                                         convertUnitsNumber
+from radtrack.util.RbMath import roundSigFig
 from math import pi
 import pytest
 

@@ -4,22 +4,19 @@
 :license: http://www.apache.org/licenses/LICENSE-2.0.html
 """
 from __future__ import absolute_import, division, print_function
-import subprocess
 
-from pykern import pkarray
-from pykern import pkcompat
-from pykern.pkdebug import pkdc, pkdp
 from PyQt4 import QtCore, QtGui
 
 from radtrack import genesis_pane
 from radtrack import genesis_params
 from radtrack import rt_controller
-from radtrack import rt_jinja
 from radtrack import rt_params
 from radtrack import rt_popup
 from radtrack import rt_enum
+from radtrack.util.simulationResultsTools import results_context_menu, add_result_file
+from pykern import pkcollections
 from enum import Enum
-import os
+import os, shutil, glob
 
 class Base(rt_controller.Controller):
     """Implements contol flow for Genesis tab"""
@@ -36,8 +33,15 @@ class Base(rt_controller.Controller):
         self.process = QtCore.QProcess()
         self.process.readyReadStandardOutput.connect(self.newStdInfo)
         self.process.readyReadStandardError.connect(self.newStdError)
+        self.process.finished.connect(self.list_result_files)
+        self.process.error.connect(self.display_error)
+
+        self._view._result_text['output'].customContextMenuRequested.connect(
+                lambda position : results_context_menu(self._view._result_text['output'],
+                                                       self._view.parentWidget().parent,
+                                                       position))
+
         self._in_file = None
-        self.msg_list = []
         self.w = {}
         return self._view
 
@@ -71,11 +75,10 @@ class Base(rt_controller.Controller):
     def action_io_control(self):
         self._pop_up('io_control')
 
-    def action_simulate(self):
-        def msg(m):
-            self.msg_list.append(m + '... \n \n')
-            self._view.set_result_text('simulation', ''.join(self.msg_list))
+    def msg(self, m):
+        self._view._result_text['simulation'].append(m)
 
+    def action_simulate(self):
         self.w.update(genesis_params.to_beam(self.params.beam))
         self.w.update(genesis_params.to_undulator(self.params.undulator))
         self.w.update(genesis_params.to_radiation(self.params.radiation))
@@ -87,7 +90,8 @@ class Base(rt_controller.Controller):
         self.w.update(genesis_params.to_scan(self.params.scan))
         self.w.update(genesis_params.to_io_control(self.params.io_control))
 
-        msg('Writing Genesis IN file')
+        self._view._result_text['simulation'].clear()
+        self.msg('Writing Genesis IN file...')
         with open('genesis_run.in','w') as f:
             f.write(' $newrun \n')
             for i in self.w:
@@ -109,16 +113,40 @@ class Base(rt_controller.Controller):
                 else:
                     f.write(' '+i+'='+str(self.w[i])+'\n')
             f.write(' $end \n')
-        msg('Finished \nRunning Genesis\n')
+        self.msg('Finished')
+        self.msg('\nRunning Genesis...')
 
-        '''
         self.process.start('genesis',['genesis_run.in']) # add option so files start with common name
-        for output_file in glob.glob('genesis_run.*'):
-        	listwidget.addItem(output_file)
-        '''
 
-        self.process.start('genesis',['genesis_run.in'])
-        print(os.path.realpath('genesis_run.in'))
+    def list_result_files(self):
+        self._view._result_text['output'].clear()
+        self.msg('Genesis finished!')
+        for output_file in glob.glob('genesis_run.*'):
+            add_result_file(self._view._result_text['output'], output_file, output_file)
+
+        for key in ['OUTPUTFILE', 'MAGOUTFILE']:
+            if self.w[key]:
+                for output_file in glob.glob(self.w[key] + '*'):
+                    add_result_file(self._view._result_text['output'], output_file, output_file)
+
+
+    def display_error(self, error):
+        self.msg('Error:')
+        if error == QtCore.QProcess.FailedToStart:
+            if QtCore.QProcess.execute('which', ['genesis']) != 0:
+                self.msg('Genesis is not installed on this virtual machine.')
+            else:
+                self.msg('Genesis could not start.\n\n')
+        if error == QtCore.QProcess.Crashed:
+            self.msg('Genesis crashed.\n\n')
+        if error == QtCore.QProcess.Timedout:
+            self.msg('Genesis timed out.\n\n')
+        if error == QtCore.QProcess.WriteError:
+            self.msg('Could not write to Genesis process.\n\n')
+        if error == QtCore.QProcess.ReadError:
+            self.msg('Could not read from Genesis process.\n\n')
+        if error == QtCore.QProcess.UnknownError:
+            self.msg('Unknown error while running Genesis.\n\n')
 
     def decl_is_visible(self, decl):
         return True
@@ -130,18 +158,12 @@ class Base(rt_controller.Controller):
     def newStdInfo(self):
         """Callback with simulation stdout text"""
         newString = str(self.process.readAllStandardOutput())
-        self.msg_list.append(newString)
-        self._view.set_result_text('simulation', ''.join(self.msg_list))
-        self._view._result_text['simulation'].moveCursor(QtGui.QTextCursor.End)
+        self.msg(newString)
 
     def newStdError(self):
         """Callback with simulation stderr text"""
         newString = str(self.process.readAllStandardError())
-        self.msg_list.append(newString)
-        self._view.set_result_text('simulation', ''.join(self.msg_list))
-        self._view._result_text['simulation'].moveCursor(QtGui.QTextCursor.End)
-
-
+        self.msg(newString)
 
     def name_to_action(self, name):
         """Returns button action"""
@@ -184,10 +206,31 @@ class Base(rt_controller.Controller):
         def parse(line):
             name,val=line.split('=')
             name = name.strip()
-            val = val.strip().strip(',').strip('.')
+            val = val.strip().strip(',.\'"')
             param_update(name,val)
 
+            # These parameters specify other input files. Copy them into the session directory as well.
+            if name in ['MAGINFILE', 'BEAMFILE', 'RADFILE', 'DISTFILE', 'FIELDFILE', 'PARTFILE']:
+                originalLocation = os.path.join(sourceDirectory, val)
+                if not os.path.exists(originalLocation):
+                    QtGui.QMessageBox.warning(self._view,
+                                              'Missing File Reference',
+                                              'The main input file references a file, ' + 
+                                              val +
+                                              ', that does not exist. Genesis will probably not run successfully.')
+                    return
+                importDestination = os.path.join(self._view.parentWidget().parent.sessionDirectory, val)
+                if originalLocation == importDestination:
+                    return
+                if not os.path.exists(os.path.dirname(importDestination)):
+                    os.makedirs(os.path.dirname(importDestination))
+                if os.path.exists(importDestination):
+                    os.remove(importDestination)
+                shutil.copy2(originalLocation, importDestination)
 
+
+
+        sourceDirectory = os.path.dirname(phile.name)
         dollar = 0
         for line in phile:
             if '$' not in line:

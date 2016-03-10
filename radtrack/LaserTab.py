@@ -11,11 +11,8 @@ moduleauthor:: David Bruhwiler <bruhwiler@radiasoft.net>
 Copyright (c) 2014 RadiaBeam Technologies. All rights reserved
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
-import os.path
-#import subprocess
-
-# Python imports
-import math
+import os, math, sip, sys, sdds
+sip.setapi('QString', 2)
 
 # SciPy imports
 import numpy as np
@@ -23,18 +20,15 @@ import matplotlib.pyplot as plt
 from scipy.optimize import leastsq
 
 # PyQt4 imports
-import sip
-sip.setapi('QString', 2)
 from PyQt4 import QtGui
 
 # RadTrack imports
 import radtrack.fields.RbGaussHermiteMN as hermite
 from radtrack.ui.LaserInterface import Ui_LaserInterface
-from radtrack.RbUtility import convertUnitsStringToNumber, convertUnitsNumber, getSaveFileName
-import radtrack.plot.RbPlotUtils
-import sys
+from radtrack.util.unitConversion import convertUnitsStringToNumber, convertUnitsNumber
+from radtrack.util.fileTools import getSaveFileName
+from radtrack.util.plotTools import generateContourLevels
 
-import sdds
 
 class LaserTab(QtGui.QWidget):
     acceptsFileTypes = ['sdds', 'csv']
@@ -213,9 +207,6 @@ class LaserTab(QtGui.QWidget):
         self.plotZX()
 
     def plotZX(self):
-        # instance of the plot utility class
-        myPlotUtils = radtrack.plot.RbPlotUtils.RbPlotUtils()
-
         zArr  = np.zeros(self.numZ)
         xArr  = np.zeros(self.numX)
 
@@ -241,7 +232,7 @@ class LaserTab(QtGui.QWidget):
         canvas = self.ui.zxPlot.canvas
         canvas.ax.clear()
 
-        levels = myPlotUtils.generateContourLevels(zxEData)
+        levels = generateContourLevels(zxEData)
         canvas.ax.contourf(zArr*convertUnitsNumber(1, 'm', self.unitsZ),
                            xArr*convertUnitsNumber(1, 'm', self.unitsXY),
                            zxEData, levels, extent='none', aspect='equal')
@@ -262,9 +253,6 @@ class LaserTab(QtGui.QWidget):
         canvas.draw()
 
     def plotZY(self):
-        # instance of the plot utility class
-        myPlotUtils = radtrack.plot.RbPlotUtils.RbPlotUtils()
-
         freq0 = self.c / self.lambda0
         yLoc = 0.
 
@@ -306,7 +294,7 @@ class LaserTab(QtGui.QWidget):
         canvas = self.ui.zyPlot.canvas
         canvas.ax.clear()
 
-        levels = myPlotUtils.generateContourLevels(zyEData)
+        levels = generateContourLevels(zyEData)
         canvas.ax.contourf(zArr*convertUnitsNumber(1, 'm', self.unitsZ),
                            yArr*convertUnitsNumber(1, 'm', self.unitsXY),
                            zyEData, levels, extent='none', aspect='equal')
@@ -329,9 +317,6 @@ class LaserTab(QtGui.QWidget):
         canvas.draw()
 
     def plotXY(self):
-        # instance of the plot utility class
-        myPlotUtils = radtrack.plot.RbPlotUtils.RbPlotUtils()
-
         # Specify the desired grid size
         self.xyNumH = 64
         self.xyNumV = 64
@@ -366,7 +351,7 @@ class LaserTab(QtGui.QWidget):
         canvas = self.ui.xyPlot.canvas
         canvas.ax.clear()
 
-        levels = myPlotUtils.generateContourLevels(xyEData)
+        levels = generateContourLevels(xyEData)
         canvas.ax.contourf(xArr*convertUnitsNumber(1, 'm', self.unitsXY),
                            yArr*convertUnitsNumber(1, 'm', self.unitsXY),
                            xyEData, levels, extent='none', aspect='equal')
@@ -447,8 +432,7 @@ class LaserTab(QtGui.QWidget):
         canvas = self.ui.xyPlotExtFields.canvas
         canvas.ax.clear()
 
-        myPlotUtils = radtrack.plot.RbPlotUtils.RbPlotUtils()
-        levels = myPlotUtils.generateContourLevels(self.ExGridExternal)
+        levels = generateContourLevels(self.ExGridExternal)
         canvas.ax.contourf(self.xGrid*convertUnitsNumber(1, 'm', self.unitsXY),
                            self.yGrid*convertUnitsNumber(1, 'm', self.unitsXY),
                            self.ExGridExternal, levels,

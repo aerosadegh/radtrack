@@ -1,5 +1,5 @@
 from radtrack.RbFEL import calculate
-from radtrack.RbUtility import roundSigFig
+from radtrack.util.RbMath import roundSigFig
 
 def test_fel():
     inputDict = dict()

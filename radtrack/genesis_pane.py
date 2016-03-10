@@ -6,6 +6,7 @@ u"""Main panel for simulation
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 from io import open
+import os
 
 from radtrack.rt_qt import QtCore, QtGui
 
@@ -85,20 +86,8 @@ class View(QtGui.QWidget):
         rt_qt.i18n_text('output files', qlabel)
         vbox.addWidget(qlabel, alignment=QtCore.Qt.AlignCenter)
         text = QtGui.QListWidget(self)
+        text.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         #rt_qt.i18n_text(desc, text)
         #text.setReadOnly(True)
         vbox.addWidget(text)
         self._result_text['output'] = text
-        
-        
-    def _add_result_file(self, text, file_name):
-        """Adds the file entry to the simulation results list"""
-        if not os.path.isfile(file_name):
-            pkdc('missing result file: {}', file_name)
-            return
-        icon = self._result_text['output'].style().standardIcon(QtGui.QStyle.SP_FileIcon)
-        item = QtGui.QListWidgetItem(icon, text)
-        item.setData(QtCore.Qt.UserRole, file_name)
-        self._result_text['output'].addItem(item)
-        
-    

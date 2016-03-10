@@ -2,7 +2,7 @@
 Copyright (c) 2015 RadiaBeam Technologies. All rights reserved
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
-from os.path import expanduser, dirname
+from os.path import expanduser, dirname, splitext
 import sdds, sys, math, h5py, numpy
 
 import sip
@@ -12,7 +12,9 @@ from PyQt4 import QtGui, QtCore
 from radtrack.dcp.Servicelib import *
 from radtrack.dcp.SRWlib import SRW
 from radtrack.ui.matplotlibwidget import matplotlibWidget
-from radtrack.RbUtility import scatConPlot, removeWhitespace, isSDDS
+from radtrack.util.plotTools import scatConPlot
+from radtrack.util.stringTools import removeWhitespace
+from radtrack.util.fileTools import isSDDS
 
 NumPage = 0
 ColumnXAxis =-1
@@ -123,7 +125,7 @@ class RbDcp(QtGui.QWidget):
             else:
                 self.parent.lastUsedDirectory = dirname(openFile)
 
-        ext = os.path.splitext(openFile)[-1].lower().lstrip(".")
+        ext = splitext(openFile)[-1].lower().lstrip(".")
         if isSDDS(openFile):
             self.showDCP_ele(openFile)
         elif ext == 'dat':

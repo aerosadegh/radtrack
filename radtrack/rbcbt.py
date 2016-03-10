@@ -4,11 +4,11 @@ from collections import OrderedDict
 import radtrack.rt_qt as rt_qt
 
 from radtrack.ui.cbt import Ui_tree, genDialog, advDialog
-from radtrack.RbUtility import displayWithUnitsNumber, \
-                      convertUnitsNumber, \
-                      roundSigFig, \
-                      wordwrap, \
-                      getSaveFileName
+from radtrack.util.unitConversion import displayWithUnitsNumber, \
+                      convertUnitsNumber
+from radtrack.util.RbMath import roundSigFig
+from radtrack.util.stringTools import wordwrap
+from radtrack.util.fileTools import getSaveFileName
 
 
 class RbCbt(rt_qt.QtGui.QWidget):

@@ -4,7 +4,7 @@ Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import sys, os, shutil, argh, string, sip, traceback, subprocess
+import sys, os, shutil, argh, string, sip, traceback
 sip.setapi('QString', 2)
 from PyQt4 import QtGui, QtCore
 from datetime import datetime
@@ -21,9 +21,11 @@ from radtrack.RbFEL import RbFEL
 from radtrack.RbGenesisTab import GenesisTab
 from radtrack.RbSrwTab import RbSrwTab
 from radtrack.RbIntroTab import RbIntroTab
-from radtrack.RbUtility import fileTypeList
+from radtrack.util.fileTools import fileTypeList
 
 class RbGlobal(QtGui.QMainWindow):
+    defaultTitle = 'Just copy file' # used for importing files without loading them into a tab
+
     def __init__(self, beta_test=False):
         self.beta_test=beta_test
         QtGui.QMainWindow.__init__(self)
@@ -267,11 +269,9 @@ class RbGlobal(QtGui.QMainWindow):
                     choices.append(tabType)
             except AttributeError:
                 pass
+        choices.append(type(self))
 
-        if len(choices) == 0:
-            QtGui.QMessageBox.warning(self, 'Import Error', 'No suitable tab for file:\n' + openFile)
-            return
-        elif len(choices) == 1:
+        if len(choices) == 1:
             destinationType = choices[0]
         else: # len(choices) > 1
             box = QtGui.QMessageBox(QtGui.QMessageBox.Question, 'Ambiguous Import Destination', 'Multiple tab types can import this file.\nWhich kind of tab should be used?')
@@ -281,6 +281,16 @@ class RbGlobal(QtGui.QMainWindow):
                 destinationType = choices[responses.index(box.clickedButton())]
             except IndexError:
                 return # Cancel selected
+        
+        if destinationType == type(self): # User just wants to copy a file into the session directory
+            destinationPath = os.path.join(self.sessionDirectory, os.path.basename(openFile))
+            if destinationPath == openFile:
+                return
+            if os.path.exists(destinationPath):
+                os.remove(destinationPath)
+            shutil.copy2(openFile, destinationPath)
+            QtGui.QMessageBox.information(self, 'File Copied', openFile + ' has been imported to ' + self.sessionDirectory)
+            return
 
         # Check if a tab of this type is already open
         openWidgetIndexes = [i for i in range(self.tabWidget.count()) if type(self.tabWidget.widget(i)) == destinationType]
@@ -438,12 +448,15 @@ class RbGlobal(QtGui.QMainWindow):
 
         currentDirectory = os.getcwd()
 
-        try:
-            progress = QtGui.QProgressDialog('Update in progress ...', 'Cancel', 0, 0, self)
-            progress.show()
+        with open(self.logFile, 'a') as log:
+            try:
+                progress = QtGui.QProgressDialog('Update in progress ...', 'Cancel', 0, 0, self)
+                progress.show()
 
-            # Pull pykern
-            with open(self.logFile, 'a') as log:
+                timestamp = datetime.now().strftime('%Y/%m/%d %H:%M:%S')
+                log.write(string.center(' ' + timestamp + ' ', 80, '-') + '\n')
+                log.write('Updating RadTrack ...\n')
+
                 # Pull pykern changes
                 if progress.wasCanceled():
                     return
@@ -489,16 +502,18 @@ class RbGlobal(QtGui.QMainWindow):
                     if statusCode == 2: # Error state
                         return
 
-            progress.setValue(4)
-            QtGui.QMessageBox.information(self, 'Update result',
-                                          'RadTrack will now shutdown. To continue your work, select\n' + 
-                                          os.path.basename(os.path.normpath(self.sessionDirectory)) + ' from Recent Projects ' +
-                                          'in the File menu.')
-                                          
-            self.close()
+                progress.setValue(4)
+                QtGui.QMessageBox.information(self, 'Update result',
+                                              'RadTrack will now shutdown. To continue your work, select\n' + 
+                                              os.path.basename(os.path.normpath(self.sessionDirectory)) + ' from Recent Projects ' +
+                                              'in the File menu.')
+                                              
+                self.close()
 
-        finally:
-            os.chdir(currentDirectory)
+            finally:
+                log.write('Done.\n')
+                log.write('-'*80 + '\n\n')
+                os.chdir(currentDirectory)
 
 
     def allWidgets(self):
@@ -557,7 +572,8 @@ class RbGlobal(QtGui.QMainWindow):
     #   1 = Successfully checked for updates, successfully applied them.
     #   2 = Errors in either checking or applying update.
     def updateCommand(self, logFile, command):
-        logFile.write('\nUpdate command: ' + ' '.join(command) + ':\n')
+        logFile.write('\nUpdate command: ' + ' '.join(command) + '\n')
+        logFile.write('Current directory: ' + os.getcwd() + '\n')
 
         updateProc = QtCore.QProcess(self)
         updateProc.start(command[0], command[1:])
@@ -569,7 +585,7 @@ class RbGlobal(QtGui.QMainWindow):
 
         output = str(updateProc.readAllStandardOutput())
         errors = str(updateProc.readAllStandardError())
-        logFile.write('STDOUT: ' + output + '\nSTDERR: ' + errors + '\n')
+        logFile.write('\nSTDOUT:\n' + output + '\n--------\n\nSTDERR:\n' + errors + '\n--------\n')
 
         if updateProc.exitCode() == 2:
             box = QtGui.QMessageBox(QtGui.QMessageBox.Warning,

@@ -16,7 +16,8 @@ from math import sin, cos, tan, pi, sqrt
 def cot(angle):
     return 1/tan(angle)
 
-from radtrack.RbUtility import convertUnitsStringToNumber, rpn
+from radtrack.util.unitConversion import convertUnitsStringToNumber
+from radtrack.util.RbMath import rpn
 
 
 # Creates a QTransform object that rotates and places a QGraphicsItem
@@ -28,7 +29,7 @@ def placement(pos, angle):
 
 def sanitizeName(name):
     # Strip out invalid characters
-    validCharacters = string.ascii_letters + string.digits + '~@$%^&-_+={}[]\|/?<>.:'
+    validCharacters = string.ascii_letters + string.digits + '~@$%^&-_+={}[]|/?<>.:'
     name = ''.join([char for char in name if char in validCharacters])
 
     if not name.startswith(tuple(string.ascii_letters)):
@@ -695,7 +696,7 @@ class rfPic(zeroLengthPic):
         numberCavities = max([int((length/cavityWidth)+.5), 1])
         cavityWidth = length/numberCavities
 
-        color = pygui.QBrush(pygui.QColor(255, 196, 29)); # ~ copper color
+        color = pygui.QBrush(pygui.QColor(255, 196, 29)) # ~ copper color
         for i in range(numberCavities):
             ellipse = pygui.QGraphicsEllipseItem()
             ellipse.setRect(pycore.QRectF(i*cavityWidth,-cavityHeight/2, cavityWidth,cavityHeight))
@@ -703,7 +704,7 @@ class rfPic(zeroLengthPic):
             ellipse.setBrush(color)
             ellipse.setToolTip(self.toolTip())
             scene.addItem(ellipse)
-        rectangle = pygui.QGraphicsRectItem(0, -cavityHeight/6, length, cavityHeight/3);
+        rectangle = pygui.QGraphicsRectItem(0, -cavityHeight/6, length, cavityHeight/3)
         rectangle.setTransform(placement(pos, angle))
         rectangle.setBrush(color)
         rectangle.setToolTip(self.toolTip())
