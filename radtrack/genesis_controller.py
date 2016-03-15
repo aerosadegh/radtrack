@@ -210,7 +210,8 @@ class Base(rt_controller.Controller):
             param_update(name,val)
 
             # These parameters specify other input files. Copy them into the session directory as well.
-            if name in ['MAGINFILE', 'BEAMFILE', 'RADFILE', 'DISTFILE', 'FIELDFILE', 'PARTFILE']:
+            #if name in ['MAGINFILE', 'BEAMFILE', 'RADFILE', 'DISTFILE', 'FIELDFILE', 'PARTFILE']:
+            if 'FILE' in name:
                 originalLocation = os.path.join(sourceDirectory, val)
                 if not os.path.exists(originalLocation):
                     QtGui.QMessageBox.warning(self._view,
