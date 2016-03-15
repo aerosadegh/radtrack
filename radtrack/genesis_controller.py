@@ -41,7 +41,6 @@ class Base(rt_controller.Controller):
                                                        self._view.parentWidget().parent,
                                                        position))
 
-        self._in_file = None
         self.w = {}
         return self._view
 
