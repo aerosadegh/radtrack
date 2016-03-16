@@ -15,7 +15,8 @@ from radtrack.util.fileTools import isSDDS
 from radtrack.util.simulationResultsTools import add_result_file, \
                                                  results_context_menu, \
                                                  get_tab_names_for_type, \
-                                                 get_tab_by_name
+                                                 get_tab_by_name, \
+                                                 processSimulationEndStatus
 from radtrack.ui.rbele import Ui_ELE
 import radtrack.util.resource as resource
 
@@ -301,32 +302,16 @@ class RbEle(QtGui.QWidget):
                 self.append_status('Simulation completed successfully')
                 self._add_result_files()
             else:
-                self.append_status('Simulation failed with errors')
+                self._process_error(self.process.error())
         else:
-            self.append_status('Simulation was terminated')
+            self._process_error(self.process.error())
 
     def _process_error(self, error):
         # User aborted simulation, not an error
         if self.userAbort:
-            return
+            self.append_status('Simulation was terminated.')
 
-        self.append_status('Error:')
-        if error == QtCore.QProcess.FailedToStart:
-            if QtCore.QProcess.execute('which', ['elegant']) != 0:
-                self.append_status('Elegant is not installed on this virtual machine.')
-            else:
-                self.append_status('Elegant could not start.\n\n')
-        if error == QtCore.QProcess.Crashed:
-            self.append_status('Elegant crashed.\n\n')
-        if error == QtCore.QProcess.Timedout:
-            self.append_status('Elegant timed out.\n\n')
-        if error == QtCore.QProcess.WriteError:
-            self.append_status('Could not write to Elegant process.\n\n')
-        if error == QtCore.QProcess.ReadError:
-            self.append_status('Could not read from Elegant process.\n\n')
-        if error == QtCore.QProcess.UnknownError:
-            self.append_status('Unknown error while running Elegant.\n\n')
-
+        processSimulationEndStatus(error, 'Elegant', self.append_status)
 
     def _process_started(self):
         """Callback when simulation process has started"""

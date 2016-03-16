@@ -13,7 +13,7 @@ from radtrack import rt_controller
 from radtrack import rt_params
 from radtrack import rt_popup
 from radtrack import rt_enum
-from radtrack.util.simulationResultsTools import results_context_menu, add_result_file
+from radtrack.util.simulationResultsTools import results_context_menu, add_result_file, processSimulationEndStatus
 from pykern import pkcollections
 from enum import Enum
 import os, shutil, glob
@@ -119,34 +119,21 @@ class Base(rt_controller.Controller):
         self.process.start('genesis',['genesis_run.in']) # add option so files start with common name
 
     def list_result_files(self):
-        self._view._result_text['output'].clear()
-        self.msg('Genesis finished!')
-        for output_file in glob.glob('genesis_run.*'):
-            add_result_file(self._view._result_text['output'], output_file, output_file)
+        if self.process.exitStatus() != QtCore.QProcess.NormalExit:
+            processSimulationEndStatus(self.process.error(), 'Genesis', self.msg)
+        else:
+            self._view._result_text['output'].clear()
+            self.msg('Genesis finished!')
+            for output_file in glob.glob('genesis_run.*'):
+                add_result_file(self._view._result_text['output'], output_file, output_file)
 
-        for key in ['OUTPUTFILE', 'MAGOUTFILE']:
-            if self.w[key]:
-                for output_file in glob.glob(self.w[key] + '*'):
-                    add_result_file(self._view._result_text['output'], output_file, output_file)
-
+            for key in ['OUTPUTFILE', 'MAGOUTFILE']:
+                if self.w[key]:
+                    for output_file in glob.glob(self.w[key] + '*'):
+                        add_result_file(self._view._result_text['output'], output_file, output_file)
 
     def display_error(self, error):
-        self.msg('Error:')
-        if error == QtCore.QProcess.FailedToStart:
-            if QtCore.QProcess.execute('which', ['genesis']) != 0:
-                self.msg('Genesis is not installed on this virtual machine.')
-            else:
-                self.msg('Genesis could not start.\n\n')
-        if error == QtCore.QProcess.Crashed:
-            self.msg('Genesis crashed.\n\n')
-        if error == QtCore.QProcess.Timedout:
-            self.msg('Genesis timed out.\n\n')
-        if error == QtCore.QProcess.WriteError:
-            self.msg('Could not write to Genesis process.\n\n')
-        if error == QtCore.QProcess.ReadError:
-            self.msg('Could not read from Genesis process.\n\n')
-        if error == QtCore.QProcess.UnknownError:
-            self.msg('Unknown error while running Genesis.\n\n')
+        processSimulationEndStatus(error, 'Genesis', self.msg)
 
     def decl_is_visible(self, decl):
         return True
