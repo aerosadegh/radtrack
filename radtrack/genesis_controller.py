@@ -172,11 +172,16 @@ class Base(rt_controller.Controller):
         pass
 
     def _pop_up(self, which):
+        if which in ['beam']:
+            fromtab=True
+        else:
+            fromtab=False
         pu = rt_popup.Window(
             self.defaults[which],
             self.params[which],
             controller=self,
             parent=self._view,
+            tabinput=fromtab,
         )
         if pu.exec_():
             self.params[which] = pu.get_params()
@@ -209,8 +214,7 @@ class Base(rt_controller.Controller):
             param_update(name,val)
 
             # These parameters specify other input files. Copy them into the session directory as well.
-            #if name in ['MAGINFILE', 'BEAMFILE', 'RADFILE', 'DISTFILE', 'FIELDFILE', 'PARTFILE']:
-            if 'FILE' in name:
+            if name in ['MAGINFILE', 'BEAMFILE', 'RADFILE', 'DISTFILE', 'FIELDFILE', 'PARTFILE']:
                 originalLocation = os.path.join(sourceDirectory, val)
                 if not os.path.exists(originalLocation):
                     QtGui.QMessageBox.warning(self._view,

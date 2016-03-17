@@ -36,6 +36,7 @@ class GenesisTab(QtGui.QWidget):
         with open(fileName, 'r') as f:
             self.control.get_in(f)
 
+
 if '__main__' == __name__:
     from radtrack import rt_qt
     rt_qt.run_app(lambda: GenesisTab(None))
