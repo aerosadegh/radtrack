@@ -78,7 +78,7 @@ class Base(rt_controller.Controller):
     def msg(self, m):
         self._view._result_text['simulation'].append(m)
 
-    def action_simulate(self):
+    def write_simulation_file(self, fileName):
         self.w.update(genesis_params.to_beam(self.params.beam))
         self.w.update(genesis_params.to_undulator(self.params.undulator))
         self.w.update(genesis_params.to_radiation(self.params.radiation))
@@ -90,29 +90,25 @@ class Base(rt_controller.Controller):
         self.w.update(genesis_params.to_scan(self.params.scan))
         self.w.update(genesis_params.to_io_control(self.params.io_control))
 
+        with open(fileName,'w') as f:
+            f.write(' $newrun \n')
+            for parameter, data in self.w.items():
+                if isinstance(data, rt_enum.Enum):
+                    f.write(' {}={}\n'.format(parameter, data.value))
+                elif isinstance(data, bool):
+                    f.write(' ' + parameter + '=' + str(int(data)) + '\n')
+                elif isinstance(data, list):
+                    f.write(' ' + parameter + '=' + ' '.join([str(x) for x in data]) + '\n')
+                elif isinstance(data, basestring) and data:
+                    f.write(' ' + parameter + "='" + data + "'\n")
+                elif data:
+                    f.write(' ' + parameter + "=" + str(data) + "\n")
+            f.write(' $end \n')
+ 
+    def action_simulate(self):
         self._view._result_text['simulation'].clear()
         self.msg('Writing Genesis IN file...')
-        with open('genesis_run.in','w') as f:
-            f.write(' $newrun \n')
-            for i in self.w:
-                if isinstance(self.w[i], rt_enum.Enum):
-                    f.write(' {}={}\n'.format(i, self.w[i].value))
-                elif isinstance(self.w[i], bool):
-                    f.write(' '+i+'='+str(int(self.w[i]))+'\n')
-                elif isinstance(self.w[i], str) or isinstance(self.w[i],unicode):
-                    if not self.w[i]:
-                        pass
-                    else:
-                        f.write(" "+i+"='"+str(self.w[i])+"' \n")
-                elif isinstance(self.w[i], list):
-                    l = str()
-                    for j in self.w[i]:
-                        l += str(j)
-                        l += ' '
-                    f.write(' '+i+'='+l+'\n')
-                else:
-                    f.write(' '+i+'='+str(self.w[i])+'\n')
-            f.write(' $end \n')
+        self.write_simulation_file('genesis_run.in')
         self.msg('Finished')
         self.msg('\nRunning Genesis...')
 
