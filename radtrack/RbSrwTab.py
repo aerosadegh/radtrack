@@ -28,8 +28,8 @@ class RbSrwTab(QtGui.QWidget):
         layout = QtGui.QVBoxLayout(self)
         self.setLayout(layout)
         layout.addWidget(self.complexity_widget)
-        self.controller = srw_controller.Base()
-        layout.addWidget(self.controller.init_widget(self))
+        self.control = srw_controller.Base()
+        layout.addWidget(self.control.init_widget(self))
 
     def exportToFile(self, fileName = None):
         with open(fileName, 'w'):

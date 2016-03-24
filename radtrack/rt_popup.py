@@ -110,7 +110,7 @@ class Window(QtGui.QDialog):
         self._form = Form(defaults, params, self, dynamic_popup=True)
         self.parent=parent
         if tabinput:
-            b=QtGui.QPushButton('Get Other Beam')
+            b=QtGui.QPushButton('Retrieve Beam')
             self._form._buttons.addButton(b,QtGui.QDialogButtonBox.ActionRole)
             b.clicked.connect(self.from_tab)
             
@@ -130,18 +130,17 @@ class Window(QtGui.QDialog):
         responses = [box.addButton(i[1], QtGui.QMessageBox.ActionRole) for i in choices] + [box.addButton(QtGui.QMessageBox.Cancel)]
         box.exec_()
         try:
-            #beamsource = choices[responses.index(box.clickedButton())]
-            print(choices[responses.index(box.clickedButton())])
+            #print(self._form._fields.keys())
+            tc = choices[responses.index(box.clickedButton())]
+            if 'Genesis' in tc[1] and 'Genesis' in self.parent.parentWidget().parent.tabWidget.tabText(self.parent.parentWidget().parent.tabWidget.currentIndex()):
+                for i in self._form._fields.keys():
+                    self._form._fields[i]['widget'].setText(str(self.parent.parentWidget().parent.tabWidget.widget(choices[responses.index(box.clickedButton())][0]).control.params.beam[i.replace('beam.','')]))
+            elif 'SRW' in tc[1] and 'SRW' in self.parent.parentWidget().parent.tabWidget.tabText(self.parent.parentWidget().parent.tabWidget.currentIndex()):
+                for i in self._form._fields.keys():
+                    self._form._fields[i]['widget'].setText(str(self.parent.parentWidget().parent.tabWidget.widget(choices[responses.index(box.clickedButton())][0]).control.params.beam[i.replace('beam.','')]))
         except IndexError:
             return # Cancel selected
                     
-        '''
-        for widget in tabWidget:
-        	try:
-        		ignore = widget.paramas.beam
-        	except AttributeError:
-        		pass
-        '''
 
 class WidgetView(QtGui.QWidget):
     def __init__(self, defaults, params, controller, parent=None):
