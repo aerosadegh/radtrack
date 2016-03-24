@@ -13,7 +13,7 @@ from radtrack import rt_controller
 from radtrack import rt_params
 from radtrack import rt_popup
 from radtrack import rt_enum
-from radtrack.util.simulationResultsTools import results_context_menu, add_result_file
+from radtrack.util.simulationResultsTools import results_context_menu, add_result_file, processSimulationEndStatus
 from pykern import pkcollections
 from enum import Enum
 import os, shutil, glob
@@ -77,7 +77,7 @@ class Base(rt_controller.Controller):
     def msg(self, m):
         self._view._result_text['simulation'].append(m)
 
-    def action_simulate(self):
+    def write_simulation_file(self, fileName):
         self.w.update(genesis_params.to_beam(self.params.beam))
         self.w.update(genesis_params.to_undulator(self.params.undulator))
         self.w.update(genesis_params.to_radiation(self.params.radiation))
@@ -89,63 +89,46 @@ class Base(rt_controller.Controller):
         self.w.update(genesis_params.to_scan(self.params.scan))
         self.w.update(genesis_params.to_io_control(self.params.io_control))
 
+        with open(fileName,'w') as f:
+            f.write(' $newrun \n')
+            for parameter, data in self.w.items():
+                if isinstance(data, rt_enum.Enum):
+                    f.write(' {}={}\n'.format(parameter, data.value))
+                elif isinstance(data, bool):
+                    f.write(' ' + parameter + '=' + str(int(data)) + '\n')
+                elif isinstance(data, list):
+                    f.write(' ' + parameter + '=' + ' '.join([str(x) for x in data]) + '\n')
+                elif isinstance(data, basestring) and data:
+                    f.write(' ' + parameter + "='" + data + "'\n")
+                elif data:
+                    f.write(' ' + parameter + "=" + str(data) + "\n")
+            f.write(' $end \n')
+ 
+    def action_simulate(self):
         self._view._result_text['simulation'].clear()
         self.msg('Writing Genesis IN file...')
-        with open('genesis_run.in','w') as f:
-            f.write(' $newrun \n')
-            for i in self.w:
-                if isinstance(self.w[i], rt_enum.Enum):
-                    f.write(' {}={}\n'.format(i, self.w[i].value))
-                elif isinstance(self.w[i], bool):
-                    f.write(' '+i+'='+str(int(self.w[i]))+'\n')
-                elif isinstance(self.w[i], str) or isinstance(self.w[i],unicode):
-                    if not self.w[i]:
-                        pass
-                    else:
-                        f.write(" "+i+"='"+str(self.w[i])+"' \n")
-                elif isinstance(self.w[i], list):
-                    l = str()
-                    for j in self.w[i]:
-                        l += str(j)
-                        l += ' '
-                    f.write(' '+i+'='+l+'\n')
-                else:
-                    f.write(' '+i+'='+str(self.w[i])+'\n')
-            f.write(' $end \n')
+        self.write_simulation_file('genesis_run.in')
         self.msg('Finished')
         self.msg('\nRunning Genesis...')
 
         self.process.start('genesis',['genesis_run.in']) # add option so files start with common name
 
     def list_result_files(self):
-        self._view._result_text['output'].clear()
-        self.msg('Genesis finished!')
-        for output_file in glob.glob('genesis_run.*'):
-            add_result_file(self._view._result_text['output'], output_file, output_file)
+        if self.process.exitStatus() != QtCore.QProcess.NormalExit:
+            processSimulationEndStatus(self.process.error(), 'Genesis', self.msg)
+        else:
+            self._view._result_text['output'].clear()
+            self.msg('Genesis finished!')
+            for output_file in glob.glob('genesis_run.*'):
+                add_result_file(self._view._result_text['output'], output_file, output_file)
 
-        for key in ['OUTPUTFILE', 'MAGOUTFILE']:
-            if self.w[key]:
-                for output_file in glob.glob(self.w[key] + '*'):
-                    add_result_file(self._view._result_text['output'], output_file, output_file)
-
+            for key in ['OUTPUTFILE', 'MAGOUTFILE']:
+                if self.w[key]:
+                    for output_file in glob.glob(self.w[key] + '*'):
+                        add_result_file(self._view._result_text['output'], output_file, output_file)
 
     def display_error(self, error):
-        self.msg('Error:')
-        if error == QtCore.QProcess.FailedToStart:
-            if QtCore.QProcess.execute('which', ['genesis']) != 0:
-                self.msg('Genesis is not installed on this virtual machine.')
-            else:
-                self.msg('Genesis could not start.\n\n')
-        if error == QtCore.QProcess.Crashed:
-            self.msg('Genesis crashed.\n\n')
-        if error == QtCore.QProcess.Timedout:
-            self.msg('Genesis timed out.\n\n')
-        if error == QtCore.QProcess.WriteError:
-            self.msg('Could not write to Genesis process.\n\n')
-        if error == QtCore.QProcess.ReadError:
-            self.msg('Could not read from Genesis process.\n\n')
-        if error == QtCore.QProcess.UnknownError:
-            self.msg('Unknown error while running Genesis.\n\n')
+        processSimulationEndStatus(error, 'Genesis', self.msg)
 
     def decl_is_visible(self, decl):
         return True

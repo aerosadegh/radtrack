@@ -64,3 +64,21 @@ def get_tab_by_name(globalGUI, tab_name):
         if tab.tabText(i) == tab_name:
             return tab.widget(i)
     return None
+
+def processSimulationEndStatus(error, simulationName, displayFunction):
+    displayFunction('\n\nError:')
+    if error == QtCore.QProcess.FailedToStart:
+        if QtCore.QProcess.execute('which', [simulationName.lower()]) != 0:
+            displayFunction(simulationName + ' is not installed on this virtual machine.')
+        else:
+            displayFunction(simulationName + ' could not start.\n\n')
+    if error == QtCore.QProcess.Crashed:
+        displayFunction(simulationName + ' crashed.\n\n')
+    if error == QtCore.QProcess.Timedout:
+        displayFunction(simulationName + ' timed out.\n\n')
+    if error == QtCore.QProcess.WriteError:
+        displayFunction('Could not write to ' + simulationName + ' process.\n\n')
+    if error == QtCore.QProcess.ReadError:
+        displayFunction('Could not read from ' + simulationName + ' process.\n\n')
+    if error == QtCore.QProcess.UnknownError:
+        displayFunction('Unknown error while running ' + simulationName + '.\n\n')
