@@ -26,7 +26,7 @@ def to_beam(params):
     res['YBEAM']=params['vertical_coord']
     res['PXBEAM']=params['horizontal_angle']
     res['PYBEAM']=params['vertical_angle']
-    res['CURPEAK']=params['peak_current']
+    res['CURPEAK']=params['current']
     res['CUTTAIL']=params['cut_col']
     res['BUNCH']=params['bunch_factor']
     res['BUNCHPHASE']=params['bunch_phase']

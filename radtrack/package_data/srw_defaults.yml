@@ -41,7 +41,7 @@ radiation_source:
 intensity: SINGLE_ELECTRON
 polarization: TOTAL
 beam:
-  avg_current: 0.1
+  current: 0.1
   horizontal_coord: 0
   vertical_coord: 0
   longitudinal_coord: -4.59
