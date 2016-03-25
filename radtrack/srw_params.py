@@ -29,7 +29,7 @@ def to_beam(params):
     """
 
     res = srwlib.SRWLPartBeam()
-    res.Iavg = params['avg_current']
+    res.Iavg = params['current']
     m = res.partStatMom1
     m.x = params['horizontal_coord']
     m.y = params['vertical_coord']

@@ -33,7 +33,7 @@ beam:
   vertical_coord: 0
   horizontal_angle: 0
   vertical_angle: 0
-  peak_current: 3400 #250
+  current: 3400 #250
   cut_col: -1
   bunch_factor: 0
   bunch_phase: 0
