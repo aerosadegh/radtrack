@@ -41,7 +41,6 @@ class Base(rt_controller.Controller):
                                                        self._view.parentWidget().parent,
                                                        position))
 
-        self._in_file = None
         self.w = {}
         return self._view
 
@@ -156,11 +155,16 @@ class Base(rt_controller.Controller):
         pass
 
     def _pop_up(self, which):
+        if which in ['beam']:
+            fromtab=True
+        else:
+            fromtab=False
         pu = rt_popup.Window(
             self.defaults[which],
             self.params[which],
             controller=self,
             parent=self._view,
+            tabinput=fromtab,
         )
         if pu.exec_():
             self.params[which] = pu.get_params()

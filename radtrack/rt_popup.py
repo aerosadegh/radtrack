@@ -102,17 +102,42 @@ def value_widget(default, value, parent, controller):
 
 
 class Window(QtGui.QDialog):
-    def __init__(self, defaults, params, controller, parent=None):
+    def __init__(self, defaults, params, controller, parent=None, tabinput=False):
         super(Window, self).__init__(parent)
         self._controller = controller
         self.setWindowTitle(rt_qt.i18n_text(defaults.decl.label))
         self.setStyleSheet(pkio.read_text(pkresource.filename(controller.FILE_PREFIX + '_popup.css')))
         self._form = Form(defaults, params, self, dynamic_popup=True)
+        self.parent=parent
+        if tabinput:
+            b=QtGui.QPushButton('Retrieve Beam')
+            self._form._buttons.addButton(b,QtGui.QDialogButtonBox.ActionRole)
+            b.clicked.connect(self.from_tab)
+            
 
     def get_params(self,):
         """Convert values in the window to "param" values"""
         return self._form._get_params()
-
+        
+    def from_tab(self):
+        choices = []
+        for i in range(self.parent.parentWidget().parent.tabWidget.count()):
+            T=self.parent.parentWidget().parent.tabWidget.tabText(i)
+            if 'Transport' not in T and self.parent.parentWidget().parent.tabWidget.currentIndex() != i:
+                if 'Genesis' in T or 'SRW' in T:
+                    choices.append([i,T])
+        box = QtGui.QMessageBox(QtGui.QMessageBox.Question, '', 'Multiple beams available.\nRetrieve from which tab?')
+        responses = [box.addButton(i[1], QtGui.QMessageBox.ActionRole) for i in choices] + [box.addButton(QtGui.QMessageBox.Cancel)]
+        box.exec_()
+        try:
+            for i in self._form._fields.keys():
+                try:
+                    self._form._fields[i]['widget'].setText(str(self.parent.parentWidget().parent.tabWidget.widget(choices[responses.index(box.clickedButton())][0]).control.params.beam[i.replace('beam.','')]))
+                except KeyError:
+                    pass #unmatched key(from declarations) between tabs
+        except IndexError:
+            return #Cancel selected
+                    
 
 class WidgetView(QtGui.QWidget):
     def __init__(self, defaults, params, controller, parent=None):
@@ -189,11 +214,15 @@ class Form(object):
         for b in self._buttons.buttons():
             b.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.mainlayout.addRow(self._buttons)
+        #self._buttons.addButton(b,QtGui.QDialogButtonBox.ActionRole)
         QtCore.QObject.connect(
             self._buttons, QtCore.SIGNAL('accepted()'), window.accept)
         QtCore.QObject.connect(
             self._buttons, QtCore.SIGNAL('rejected()'), window.reject)
-
+        #QtCore.QObject.connect(
+        #    self._buttons, QtCore.SIGNAL('clicked()'), report)
+        #b.clicked.connect(report)
+        
     def _init_fields(self, params):
         """Create widgets"""
         self._fields = {}

@@ -131,11 +131,16 @@ class Base(rt_controller.Controller):
             w.update_visibility()
 
     def _pop_up(self, which):
+        if which in ['beam']:
+            fromtab=True
+        else:
+            fromtab=False
         pu = rt_popup.Window(
             self.defaults[which],
             self.params[which],
             controller=self,
             parent=self._view,
+            tabinput=fromtab,
         )
         if pu.exec_():
             self.params[which] = pu.get_params()
