@@ -130,16 +130,13 @@ class Window(QtGui.QDialog):
         responses = [box.addButton(i[1], QtGui.QMessageBox.ActionRole) for i in choices] + [box.addButton(QtGui.QMessageBox.Cancel)]
         box.exec_()
         try:
-            #print(self._form._fields.keys())
-            tc = choices[responses.index(box.clickedButton())]
-            if 'Genesis' in tc[1] and 'Genesis' in self.parent.parentWidget().parent.tabWidget.tabText(self.parent.parentWidget().parent.tabWidget.currentIndex()):
-                for i in self._form._fields.keys():
+            for i in self._form._fields.keys():
+                try:
                     self._form._fields[i]['widget'].setText(str(self.parent.parentWidget().parent.tabWidget.widget(choices[responses.index(box.clickedButton())][0]).control.params.beam[i.replace('beam.','')]))
-            elif 'SRW' in tc[1] and 'SRW' in self.parent.parentWidget().parent.tabWidget.tabText(self.parent.parentWidget().parent.tabWidget.currentIndex()):
-                for i in self._form._fields.keys():
-                    self._form._fields[i]['widget'].setText(str(self.parent.parentWidget().parent.tabWidget.widget(choices[responses.index(box.clickedButton())][0]).control.params.beam[i.replace('beam.','')]))
+                except KeyError:
+                    pass #unmatched key(from declarations) between tabs
         except IndexError:
-            return # Cancel selected
+            return #Cancel selected
                     
 
 class WidgetView(QtGui.QWidget):
