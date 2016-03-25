@@ -181,7 +181,7 @@
       label: Vertical Angle
       required: [genesis]
     -
-      name: peak_current
+      name: current
       py_type: float
       label: Peak Current
       units: A

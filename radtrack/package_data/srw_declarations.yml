@@ -359,7 +359,7 @@
   required: [srw_multi, srw_single]
   children:
     -
-      name: avg_current
+      name: current
       label: Average Current
       py_type: float
       units: A
