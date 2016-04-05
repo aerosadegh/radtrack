@@ -54,3 +54,14 @@ print '<y> :  ', myAverages[2]
 print '<yp>:  ', myAverages[3]
 print '<t> :  ', myAverages[4]
 print '<dp>:  ', myAverages[5]
+
+myRmsValues = myDistribution.calcRmsValues6D()
+
+print ' '
+print 'Here are the RMS values of the distribution:'
+print '<x> :  ', myRmsValues[0]
+print '<xp>:  ', myRmsValues[1]
+print '<y> :  ', myRmsValues[2]
+print '<yp>:  ', myRmsValues[3]
+print '<t> :  ', myRmsValues[4]
+print '<dp>:  ', myRmsValues[5]

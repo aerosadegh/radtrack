@@ -135,6 +135,10 @@ class RbDistribution6D:
         averages = stats.calcAverages6D(self.phaseSpace6D.getArray6D())
         return averages
 
+    def calcRmsValues6D(self):
+        rmsValues = stats.calcRmsValues6D(self.phaseSpace6D.getArray6D())
+        return rmsValues
+
     def calcTwissParams6D(self,twissParams6D):
         alphaRMS = np.zeros(3)
         betaRMS  = np.zeros(3)
