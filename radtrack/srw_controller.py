@@ -140,7 +140,6 @@ class Base(rt_controller.Controller):
             self.params[which],
             controller=self,
             parent=self._view,
-            tabinput=fromtab,
         )
         if pu.exec_():
             self.params[which] = pu.get_params()

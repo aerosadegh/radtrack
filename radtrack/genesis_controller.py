@@ -155,10 +155,11 @@ class Base(rt_controller.Controller):
         pass
 
     def _pop_up(self, which):
-        if which in ['beam']:
-            fromtab=True
-        else:
-            fromtab=False
+        if which == 'beam':
+            fromtab=which
+        #elif which == 'undulator':
+        #    fromtab=which
+        else: fromtab=False
         pu = rt_popup.Window(
             self.defaults[which],
             self.params[which],
