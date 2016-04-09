@@ -192,6 +192,8 @@ class LaserTab(QtGui.QWidget):
         self.plotXY()
         self.plotZY()
         self.plotZX()
+        if self.externalFields:
+            self.mirrorWithHole()
 
     def plotZX(self):
         zArr  = np.zeros(self.numZ)
@@ -541,7 +543,6 @@ class LaserTab(QtGui.QWidget):
     def erasePlots(self):
         self.ui.xyPlot.canvas.ax.clear()
         self.ui.xyPlot.canvas.ax.axis([-1., 1., -1., 1.])
-
         self.ui.xyPlot.canvas.ax.set_xlabel('x ['+self.unitsXY+']')
         self.ui.xyPlot.canvas.ax.set_ylabel('y ['+self.unitsXY+']')
         self.ui.xyPlot.canvas.fig.tight_layout()
@@ -560,6 +561,13 @@ class LaserTab(QtGui.QWidget):
         self.ui.zyPlot.canvas.ax.set_ylabel('y ['+self.unitsXY+']')
         self.ui.zyPlot.canvas.fig.tight_layout()
         self.ui.zyPlot.canvas.fig.set_facecolor('w')
+
+        self.ui.xyPlotExtFields.canvas.ax.clear()
+        self.ui.xyPlotExtFields.canvas.ax.axis([-1., 1., -1., 1.])
+        self.ui.xyPlotExtFields.canvas.ax.set_xlabel('x ['+self.unitsXY+']')
+        self.ui.xyPlotExtFields.canvas.ax.set_ylabel('y ['+self.unitsXY+']')
+        self.ui.xyPlotExtFields.canvas.fig.tight_layout()
+        self.ui.xyPlotExtFields.canvas.fig.set_facecolor('w')
 
     def importFile(self, fileName):
         pass
