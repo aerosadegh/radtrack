@@ -11,7 +11,7 @@ moduleauthor:: David Bruhwiler <bruhwiler@radiasoft.net>
 Copyright (c) 2014 RadiaBeam Technologies. All rights reserved
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
-import os, math, sip, sys, sdds
+import math, sip
 sip.setapi('QString', 2)
 
 # SciPy imports
@@ -26,7 +26,6 @@ from PyQt4 import QtGui
 import radtrack.fields.RbGaussHermiteMN as hermite
 from radtrack.ui.LaserInterface import Ui_LaserInterface
 from radtrack.util.unitConversion import convertUnitsStringToNumber, convertUnitsNumber
-from radtrack.util.fileTools import getSaveFileName
 from radtrack.util.plotTools import generateContourLevels
 
 
@@ -38,7 +37,7 @@ class LaserTab(QtGui.QWidget):
 
     def __init__(self,parent=None):
         # initialization
-        super(LaserTab, self).__init__()
+        super(LaserTab, self).__init__(parent)
         self.ui = Ui_LaserInterface()
         self.ui.setupUi(self)
 
@@ -129,15 +128,6 @@ class LaserTab(QtGui.QWidget):
             self.ui.ghTable.setItem(iLoop,0,QtGui.QTableWidgetItem('0'))
             self.ui.ghTable.setItem(iLoop,1,QtGui.QTableWidgetItem('0'))
 
-        # file directories
-        self.parent = parent
-        if self.parent is None:
-            self.parent = self
-            self.parent.lastUsedDirectory = os.path.expanduser('~')
-        self.fileExtension = '.sdds'
-        self.exportToFile = self.saveToSDDS
-        self.importFile = self.readFromSDDS
-
         # try to make the blank plotting regions look nice
         self.erasePlots()
 
@@ -172,15 +162,12 @@ class LaserTab(QtGui.QWidget):
         self.refreshPlots()
 
     def togglePlotTitles(self):
-        if self.plotTitles == True:
-            self.plotTitles = False
-        else:
-            self.plotTitles = True
+        self.plotTitles = not self.plotTitles
         self.refreshPlots()
 
     def refreshPlots(self):
         # nothing to plot, if beam hasn't been initialized
-        if self.pulseInitialized == False:
+        if not self.pulseInitialized:
             return
 
         # get the specified units for plotting
@@ -212,11 +199,9 @@ class LaserTab(QtGui.QWidget):
 
         for iLoop in range(self.numZ):
             zArr[iLoop] = self.minZ + iLoop * (self.maxZ-self.minZ) / (self.numZ-1)
-#            print('zArr[', iLoop, '] = ', zArr[iLoop])
 
         for jLoop in range(self.numX):
             xArr[jLoop] = self.minX + jLoop * (self.maxX-self.minX) / (self.numX-1)
-#            print('xArr[', jLoop, '] = ', xArr[jLoop])
 
         # specify y position for plot
         yValue = 0.
@@ -226,7 +211,6 @@ class LaserTab(QtGui.QWidget):
         for iLoop in range(self.numZ):
             for jLoop in range(self.numX):
                 zxEData[jLoop, iLoop] = np.real(self.myPulse.evalEnvelopeEx(xArr[jLoop], yValue, zArr[iLoop]))
-#                print('zxEData[', iLoop, jLoop, '] = ', zxEData[iLoop, jLoop]
 
         # generate the xy plot
         canvas = self.ui.zxPlot.canvas
@@ -245,7 +229,7 @@ class LaserTab(QtGui.QWidget):
         canvas.ax.yaxis.set_major_locator(plt.MaxNLocator(self.numTicks))
         canvas.ax.set_xlabel('z ['+self.unitsZ+']')
         canvas.ax.set_ylabel('x ['+self.unitsXY+']')
-        if self.plotTitles == True:
+        if self.plotTitles:
             canvas.ax.set_title('ZX slice, at  y={0:4.2f} [{1}]'.format(yValue*convertUnitsNumber(1, 'm', self.unitsXY),
                                                                         self.unitsXY))
         canvas.fig.tight_layout()
@@ -273,11 +257,9 @@ class LaserTab(QtGui.QWidget):
 
         for iLoop in range(self.zyNumH):
             zArr[iLoop] = self.zyMinH + iLoop * (self.zyMaxH-self.zyMinH) / (self.zyNumH-1)
-#            print('zArr[', iLoop, '] = ', zArr[iLoop])
 
         for jLoop in range(self.zyNumV):
             yArr[jLoop] = self.zyMinV + jLoop * (self.zyMaxV-self.zyMinV) / (self.zyNumV-1)
-#            print('xArr[', jLoop, '] = ', xArr[jLoop])
 
         # Choose values of x,t for plot
         xValue = 0.
@@ -288,7 +270,6 @@ class LaserTab(QtGui.QWidget):
         for iLoop in range(self.zyNumH):
             for jLoop in range(self.zyNumV):
                 zyEData[jLoop, iLoop] = self.myPulse.evaluateEx(xValue, yArr[jLoop], zArr[iLoop], tValue)
-#                print('zyEData[', iLoop, jLoop, '] = ', zyEData[iLoop, jLoop])
 
         # generate the xy plot
         canvas = self.ui.zyPlot.canvas
@@ -309,7 +290,7 @@ class LaserTab(QtGui.QWidget):
         canvas.ax.yaxis.set_major_locator(plt.MaxNLocator(self.numTicks))
         canvas.ax.set_xlabel('z ['+self.unitsZ+']')
         canvas.ax.set_ylabel('y ['+self.unitsXY+']')
-        if self.plotTitles == True:
+        if self.plotTitles:
             canvas.ax.set_title('ZY slice, at  x={0:4.2f} [{1}]'.format(xValue*convertUnitsNumber(1, 'm', self.unitsXY),
                                                                         self.unitsXY))
         canvas.fig.tight_layout()
@@ -368,7 +349,7 @@ class LaserTab(QtGui.QWidget):
         canvas.ax.yaxis.set_major_locator(plt.MaxNLocator(self.numTicks))
         canvas.ax.set_xlabel('x ['+self.unitsXY+']')
         canvas.ax.set_ylabel('y ['+self.unitsXY+']')
-        if self.plotTitles == True:
+        if self.plotTitles:
             canvas.ax.set_title('XY slice, at  z={0:4.2f} [{1}]'.format(self.w0_z*convertUnitsNumber(1, 'm', self.unitsZ),
                                                                         self.unitsZ))
         canvas.fig.tight_layout()
@@ -445,7 +426,7 @@ class LaserTab(QtGui.QWidget):
                         self.xMax*convertUnitsNumber(1, 'm', self.unitsXY),
                         self.yMin*convertUnitsNumber(1, 'm', self.unitsXY),
                         self.yMax*convertUnitsNumber(1, 'm', self.unitsXY)])
-        if self.plotTitles == True:
+        if self.plotTitles:
             canvas.ax.set_title('slice: quadratic square; at z={0:4.2f} [{1}]'.format(0.,self.unitsZ))
 
         canvas.fig.tight_layout()
@@ -454,7 +435,7 @@ class LaserTab(QtGui.QWidget):
 
     def generateCoeffs(self):
         # check whether the external fields exist
-        if self.externalFields == False:
+        if not self.externalFields:
             return   # do nothing (should throw an exception)
 
         # set default values
@@ -554,7 +535,6 @@ class LaserTab(QtGui.QWidget):
         if 100*int(self.numFuncCalls/100.) == self.numFuncCalls:
             print('  ', self.numFuncCalls)
 
-#        xDum = np.real(self.myPulse.evalEnvelopeEx(xTmp, yArr, self.w0_z))
         return _e - np.real(self.hS1.evalEnvelopeEx(_x, _y, self.w0_z)) \
                   - np.real(self.hS2.evalEnvelopeEx(_x, _y, self.w0_z))
 
@@ -564,8 +544,6 @@ class LaserTab(QtGui.QWidget):
 
         self.ui.xyPlot.canvas.ax.set_xlabel('x ['+self.unitsXY+']')
         self.ui.xyPlot.canvas.ax.set_ylabel('y ['+self.unitsXY+']')
-#        if self.plotTitles == True:
-#            self.ui.xyPlot.canvas.ax.set_title('cross-section')
         self.ui.xyPlot.canvas.fig.tight_layout()
         self.ui.xyPlot.canvas.fig.set_facecolor('w')
 
@@ -573,543 +551,19 @@ class LaserTab(QtGui.QWidget):
         self.ui.zxPlot.canvas.ax.axis([-1., 1., -1., 1.])
         self.ui.zxPlot.canvas.ax.set_xlabel('z ['+self.unitsZ+']')
         self.ui.zxPlot.canvas.ax.set_ylabel('x ['+self.unitsXY+']')
-#        if self.plotTitles == True:
-#            self.ui.zxPlot.canvas.ax.set_title('cross-section')
         self.ui.zxPlot.canvas.fig.tight_layout()
         self.ui.zxPlot.canvas.fig.set_facecolor('w')
-#        self.ui.zxPlot.canvas.draw()
 
         self.ui.zyPlot.canvas.ax.clear()
         self.ui.zyPlot.canvas.ax.axis([-1., 1., -1., 1.])
         self.ui.zyPlot.canvas.ax.set_xlabel('z ['+self.unitsZ+']')
         self.ui.zyPlot.canvas.ax.set_ylabel('y ['+self.unitsXY+']')
-#        if self.plotTitles == True:
-#            self.ui.zyPlot.canvas.ax.set_title('cross-section')
         self.ui.zyPlot.canvas.fig.tight_layout()
         self.ui.zyPlot.canvas.fig.set_facecolor('w')
-#        self.ui.zyPlot.canvas.draw()
 
-    def calculateLimits(self, _arr):
-        # nothing to do, if beam hasn't been initialized
-        if self.pulseInitialized == False:
-            return
+    def importFile(self, fileName):
+        pass
 
-    def readFromSDDS(self, fileName = None):
-        # use Qt file dialog
-        if not fileName:
-            fileName = QFileDialog.getOpenFileName(self, "Import Elegant/SDDS particle file -- ",
-                                                  self.parent.lastUsedDirectory, "*.sdds")
-        # if user cancels out, do nothing
-        if not fileName:
-            return
-
-        self.parent.lastUsedDirectory = os.path.dirname(fileName)
-
-        if False:
-            print(' ')
-            print(' File to be parsed: ', fileName)
-
-        # index is always zero...?
-        sddsIndex = 0
-
-        # initialize sdds.sddsdata.pyd library (Windows only) with data file
-        if sdds.sddsdata.InitializeInput(sddsIndex, fileName) != 1:
-            sdds.sddsdata.PrintErrors(1)
-
-        # get data storage mode...?
-        sddsStorageMode = sdds.sddsdata.GetMode(sddsIndex)
-        if False:
-            print(' Storage mode for index ', sddsIndex, ': ', sddsStorageMode)
-
-        # get description text...?
-        sddsDescription = sdds.sddsdata.GetDescription(sddsIndex)
-        if False:
-            print(' Description for index ', sddsIndex, ': ', sddsDescription)
-
-        # get parameter names
-        paramNames = sdds.sddsdata.GetParameterNames(sddsIndex)
-        numParams = len(paramNames)
-        if False:
-            print(' numParams = ', numParams)
-            print(' Parameter names for index ', sddsIndex, ': \n', paramNames)
-
-        # get parameter definitions
-        paramDefs = range(numParams)
-        for iLoop in range(numParams):
-            paramDefs[iLoop] = sdds.sddsdata.GetParameterDefinition(sddsIndex,paramNames[iLoop])
-            if False:
-                print(' paramDefs[',iLoop,'] = ', paramDefs[iLoop])
-
-        # give the user a look at the parameters (if any)
-        msgBox = QtGui.QMessageBox()
-        if numParams == 0:
-            message  = 'WARNING --\n\n'
-            message += 'No parameters were found in your selected SDDS file!!\n\n'
-            message += 'It will be impossible to set the design momentum, or\n'
-            message += '    the total beam charge, etc.'
-        else:
-            message  = 'The parameter names in your selected SDDS file are: \n'
-            for iLoop in range(numParams):
-                message += '    ' + paramNames[iLoop] + '\n'
-            message += 'The parameter definitions in the file are: \n'
-            for iLoop in range(numParams):
-                message += '    ' + str(paramDefs[iLoop]) + '\n\n'
-            message += 'WARNING --\n'
-            message += '  Logic for extracting the design momentum, total beam\n'
-            message += '  charge, etc. has not yet been implemented!'
-        msgBox.setText(message)
-        msgBox.exec_()
-
-        # get column names
-        columnNames = sdds.sddsdata.GetColumnNames(sddsIndex)
-        numColumns = len(columnNames)
-        if False:
-            print(' numColumns = ', numColumns)
-            print(' Column names for index ', sddsIndex, ': \n', columnNames)
-
-        # initialize the parameter arrays
-        paramData = range(numParams)
-        for iLoop in range(numParams):
-            paramData[iLoop] = []
-
-        # column data has to be handled differently;
-        #   it will be a 6D python array of N-D NumPy arrays
-        columnData = range(numColumns)
-
-        # read parameter data from the SDDS file
-        # mus read particle data at the same time
-        errorCode = sdds.sddsdata.ReadPage(sddsIndex)
-#        print(' ')
-#        print(' errorCode = ', errorCode)
-        if errorCode != 1:
-            sdds.sddsdata.PrintErrors(1)
-        while errorCode > 0:
-            for iLoop in range(numParams):
-                paramData[iLoop].append(sdds.sddsdata.GetParameter(sddsIndex,iLoop))
-            for jLoop in range(numColumns):
-                tmpData = []
-                tmpData.append(sdds.sddsdata.GetColumn(sddsIndex,jLoop))
-
-                if False:
-                    print(' ')
-                    print(' jLoop = ', jLoop)
-                    print(' tmpData = ', tmpData)
-
-                columnData[jLoop] = np.array(tmpData[0])
-
-                if False:
-                    print(' ')
-                    print(' columnData[', jLoop, '] = ', columnData[jLoop])
-
-            errorCode = sdds.sddsdata.ReadPage(sddsIndex)
-
-        # logic for deciphering and making use of parameter data goes here!
-
-        # check whether the particle data is 6D
-        if numColumns != 6:
-            msgBox = QtGui.QMessageBox()
-            message  = 'ERROR --\n\n'
-            message += '  Particle data in the selected SDDS file is not 6D!\n\n'
-            message += '  Column names are: \n'
-            message += '    ' + str(columnNames) + '\n\n'
-            message += 'Please select another file.\n'
-            message += 'Thanks!'
-            msgBox.setText(message)
-            msgBox.exec_()
-            return
-
-        # get column definitions
-        # units are in the 2nd column
-        columnDefs = range(numColumns)
-        unitStrings = range(numColumns)
-        for iLoop in range(numColumns):
-            columnDefs[iLoop] = sdds.sddsdata.GetColumnDefinition(sddsIndex,columnNames[iLoop])
-            unitStrings[iLoop] = columnDefs[iLoop][1]
-            if False:
-                print(' columnDefs[',iLoop,'] = ', columnDefs[iLoop])
-                print(' unitStrings[',iLoop,'] = ', unitStrings[iLoop])
-
-        # begin deciphering the column data
-        dataRead = [False, False, False, False, False, False]
-        dataIndex = [-1, -1, -1, -1, -1, -1]
-        for iLoop in range(6):
-            if columnNames[iLoop]=='x' or columnNames[iLoop]=='X':
-                if dataRead[0] == True:
-                    message  = 'Error -- \n\n'
-                    message += '  X column appears twice, for iLoop = '
-                    message += str(dataIndex[0]) + ' and ' + str(iLoop)
-                dataRead[0] = True
-                dataIndex[0] = iLoop
-            if columnNames[iLoop]=='xp' or columnNames[iLoop]=='px' or columnNames[iLoop]=="x'":
-                if dataRead[1] == True:
-                    message  = 'Error -- \n\n'
-                    message += '  XP column appears twice, for iLoop = '
-                    message += str(dataIndex[1]) + ' and ' + str(iLoop)
-                dataRead[1] = True
-                dataIndex[1] = iLoop
-            if columnNames[iLoop]=='y' or columnNames[iLoop]=='Y':
-                if dataRead[2] == True:
-                    message  = 'Error -- \n\n'
-                    message += '  Y column appears twice, for iLoop = '
-                    message += str(dataIndex[2]) + ' and ' + str(iLoop)
-                dataRead[2] = True
-                dataIndex[2] = iLoop
-            if columnNames[iLoop]=='yp' or columnNames[iLoop]=='py' or columnNames[iLoop]=="y'":
-                if dataRead[3] == True:
-                    message  = 'Error -- \n\n'
-                    message += '  YP column appears twice, for iLoop = '
-                    message += str(dataIndex[3]) + ' and ' + str(iLoop)
-                dataRead[3] = True
-                dataIndex[3] = iLoop
-            if columnNames[iLoop]=='s' or columnNames[iLoop]=='ct' or columnNames[iLoop]=='t':
-                if dataRead[4] == True:
-                    message  = 'Error -- \n\n'
-                    message += '  S column appears twice, for iLoop = '
-                    message += str(dataIndex[4]) + ' and ' + str(iLoop)
-                dataRead[4] = True
-                dataIndex[4] = iLoop
-            if columnNames[iLoop]=='p' or columnNames[iLoop]=='pt' or columnNames[iLoop]=='dp':
-                if dataRead[5] == True:
-                    message  = 'Error -- \n\n'
-                    message += '  DP column appears twice, for iLoop = '
-                    message += str(dataIndex[5]) + ' and ' + str(iLoop)
-                dataRead[5] = True
-                dataIndex[5] = iLoop
-
-        # initial validation of the column data
-        for iLoop in range(6):
-            if dataRead[iLoop] == False:
-                msgBox = QtGui.QMessageBox()
-                message  = 'ERROR --\n\n'
-                message += '  Not all of the data columns could be correctly interpreted!\n'
-                message += '  These are the column headings that were parsed from the file:\n'
-                message += '    ' + str(columnNames) + '\n\n'
-                message += 'The parsing logic failed on: ' + columnNames[iLoop] + '\n'
-                message += 'The code is looking for [x, xp, y, yp, s, dp] or something similar.'
-                msgBox.setText(message)
-                msgBox.exec_()
-                return
-
-        # check for unspecified units, and set them to default value
-        # if the units are specified, but incorrect, the problem is detected below
-        defaultUnits = ['m', 'rad', 'm', 'rad', 'm', 'rad']
-        for iLoop in range(6):
-#            print(' before: unitStrings[', iLoop, '] = ', unitStrings[iLoop])
-            if not unitStrings[iLoop]:
-                unitStrings[iLoop] = defaultUnits[dataIndex[iLoop]]
-#            print(' after: unitStrings[', iLoop, '] = ', unitStrings[iLoop])
-
-        if False:
-            print(' ')
-            print(' Here is columnData[:]:')
-            print(columnData)
-
-        # check that all data columns are the same length
-        numElements = [0, 0, 0, 0, 0, 0]
-        for iLoop in range(6):
-            numElements[iLoop] = len(columnData[iLoop])
-#            print(' size of column # ', iLoop, ' = ', numElements[iLoop])
-
-        for iLoop in range(5):
-            if numElements[iLoop+1] != numElements[0]:
-                msgBox = QtGui.QMessageBox()
-                message  = 'ERROR --\n\n'
-                message += '  Not all of the data columns have the same length!\n'
-                message += '  Here is the number of elements found in each column:\n'
-                message += '    ' + str(numElements) + '\n\n'
-                message += 'Please try again with a valid particle file...'
-                message += 'Thanks!'
-                msgBox.setText(message)
-                msgBox.exec_()
-                return
-
-        # now we know the number of macro-particles
-        numParticles = numElements[0]
-#        print(' ')
-#        print(' numParticles = ', numParticles)
-
-        # all seems to be well, so load particle data into local array,
-        #   accounting for any non-standard physical units
-        tmp6 = np.zeros((6,numParticles))
-        for iLoop in range(6):
-            tmp6[dataIndex[iLoop],:] = columnData[iLoop]
-
-        # another sanity check
-#        myShape = np.shape(tmp6)
-#        print(' ')
-#        print(' myShape = ', myShape)
-
-        # close the SDDS particle file
-        if sdds.sddsdata.Terminate(sddsIndex) != 1:
-            sdds.sddsdata.PrintErrors(1)
-
-        # instantiate the particle bunch
-        self.myBunch = beam.RbParticleBeam6D(numParticles)
-        self.myBunch.setDesignMomentumEV(self.designMomentumEV)
-        self.myBunch.setMassEV(self.eMassEV)     # assume electrons
-        self.pulseInitialized = True
-
-        # load particle array into the phase space object
-        self.myBunch.getDistribution6D().getPhaseSpace6D().setArray6D(tmp6)
-
-        # post top-level parameters to GUI
-        self.ui.numPtcls.setText("{:d}".format(numParticles))
-        self.ui.designMomentum.setText("{:.0f}".format(self.designMomentumEV*1.e-6) + ' MeV')
-        self.ui.totalCharge.setText("{:.0f}".format(self.totalCharge*1.e9) + ' nC')
-
-        # calculate bunch statistics and populate text boxes
-        self.calculateTwiss()
-
-        # plot the results
-        self.refreshPlots()
-
-    def readFromCSV(self, fileName = None):
-        if not fileName:
-            fileName = QtGui.QFileDialog.getOpenFileName(self, "Import RadTrack particle file -- ",
-                                                      self.parent.lastUsedDirectory, "*.csv")
-            if not fileName:
-                return
-            self.parent.lastUsedDirectory = os.path.dirname(fileName)
-
-        # check whether this is a RadTrack generated CSV file
-        fileObject = open(fileName)
-        csvReader = csv.reader(fileObject, delimiter=',')
-        lineNumber = 0
-        for rawData in csvReader:
-            lineNumber += 1
-
-            # for testing purposes
-            if False:
-                print(' ')
-                print(' lineNumber = ', lineNumber)
-                print(' rawData = ', rawData)
-
-            # make sure this file follows the RadTrack format
-            if lineNumber == 1:
-                if rawData[0] != 'RadTrack':
-                    fileObject.close()
-                    msgBox = QtGui.QMessageBox()
-                    message  = 'ERROR --\n\n'
-                    message += '  The selected CSV file was not generated by RadTrack.\n'
-                    message += '  Please select another file.\n\n'
-                    message += 'Thanks!'
-                    msgBox.setText(message)
-                    msgBox.exec_()
-            # ignore the 2nd line
-            elif lineNumber == 2:
-                continue
-            # 3rd line contains the parametic data
-            elif lineNumber == 3:
-                self.designMomentumEV = float(rawData[0])
-                self.totalCharge = float(rawData[1])
-                # for testing only
-                if False:
-                    print(' ')
-                    print(' p0 = ', self.designMomentumEV)
-                    print(' Q  = ', self.totalCharge)
-            # don't read beyond the first three lines
-            elif lineNumber > 3:
-                break
-
-        # close the file
-        fileObject.close()
-
-        # load file into temporary data array
-        tmp6 = np.loadtxt(fileName,dtype=float,skiprows=5,delimiter=',',unpack=True)
-
-        # check whether the particle data is 6D
-        arrayShape = np.shape(tmp6)
-        numDimensions = arrayShape[0]
-        if numDimensions != 6:
-            msgBox = QtGui.QMessageBox()
-            message  = 'ERROR --\n\n'
-            message += '  Particle data in the selected CSV file is not 6D!\n'
-            message += '  Please select another file.\n\n'
-            message += 'Thanks!'
-            msgBox.setText(message)
-            msgBox.exec_()
-            return
-
-        # store the number of particles read from the file
-        numParticles = arrayShape[1]
-
-        # instantiate the particle bunch
-        self.myBunch = beam.RbParticleBeam6D(numParticles)
-        self.myBunch.setDesignMomentumEV(self.designMomentumEV)
-        self.myBunch.setMassEV(self.eMassEV)     # assume electrons
-        self.pulseInitialized = True
-
-        # load particle array into the phase space object
-        self.myBunch.getDistribution6D().getPhaseSpace6D().setArray6D(tmp6)
-
-        # for testing purposes only
-        if False:
-            print(' ')
-            print(' numParticles = ', numParticles)
-            q6 = self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D()
-            print(' 1st particle: ', q6[:,0])
-
-        # post top-level parameters to GUI
-        self.ui.numPtcls.setText("{:d}".format(numParticles))
-        self.ui.designMomentum.setText("{:.0f}".format(self.designMomentumEV*1.e-6) + ' MeV')
-        self.ui.totalCharge.setText("{:.0f}".format(self.totalCharge*1.e9) + ' nC')
-
-        # calculate bunch statistics and populate text boxes
-        self.calculateTwiss()
-
-        # plot the results
-        self.refreshPlots()
-
-    def saveToCSV(self, fileName = None):
-        if not fileName:
-            fileName = getSaveFileName(self, 'csv')
-            if not fileName:
-                return
-
-        with open(fileName, 'w'):
-            return
-
-        # make sure the top-level parameters are up-to-date
-        self.designMomentumEV = convertUnitsStringToNumber(self.ui.designMomentum.text(), 'eV')
-        self.totalCharge = convertUnitsStringToNumber(self.ui.totalCharge.text(), 'C')
-
-        # create local pointer to particle array
-        tmp6 = self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D()
-        numParticles = tmp6.shape[1]
-
-        # create a header to identify this as a RadTrack file
-        h1 = 'RadTrack,Copyright 2012-2014 by RadiaBeam Technologies LLC - All rights reserved (C)\n '
-        # names of the top-level parameters
-        h2 = 'p0 [eV],Q [C],mass [eV]\n '
-        # values of the top-level parameters
-        h3 = str(self.designMomentumEV)+','+str(self.totalCharge)+','+str(self.eMassEV)+'\n '
-        # label the columns
-        h4 = 'x,xp,y,yp,s,dp\n '
-        # specify the units
-        h5 = '[m],[rad],[m],[rad],[m],[rad]'
-        # assemble the full header
-        myHeader = h1 + h2 + h3 + h4 + h5
-        # write particle data into the file
-        #   The following ugliness is used to accommodate savetxt()
-        #   There is probably a better way...
-        f6 = np.zeros((numParticles,6))
-        f6[:,0] = tmp6[0,:]
-        f6[:,1] = tmp6[1,:]
-        f6[:,2] = tmp6[2,:]
-        f6[:,3] = tmp6[3,:]
-        f6[:,4] = tmp6[4,:]
-        f6[:,5] = tmp6[5,:]
-        np.savetxt(fileName, f6, fmt='%.12e', delimiter=',', comments='', header=myHeader)
-
-    def saveToSDDS(self, sddsFileName = None):
-        if not sddsFileName:
-            sddsFileName = getSaveFileName(self, 'sdds')
-            if not sddsFileName:
-                return
-
+    def exportToFile(self, sddsFileName):
         with open(sddsFileName, 'w'):
-            return
-
-        # make sure the top-level parameters are up-to-date
-        self.designMomentumEV =convertUnitsStringToNumber(self.ui.designMomentum.text(), 'eV')
-        self.totalCharge = convertUnitsStringToNumber(self.ui.totalCharge.text(), 'C')
-
-        # create local pointer to particle array
-        tmp6 = self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D()
-
-        mySDDS = sdds.SDDS(0)
-        mySDDS.description[0] = "RadTrack"
-        mySDDS.description[1] = "Copyright 2013-2014 by RadiaBeam Technologies. All rights reserved."
-        mySDDS.parameterName = ["designMomentumEV", "totalCharge", "eMassEV"]
-        mySDDS.parameterData = [[self.designMomentumEV],
-                                [self.totalCharge],
-                                [self.eMassEV]]
-        mySDDS.parameterDefinition = [["","","","",mySDDS.SDDS_DOUBLE,""],
-                                      ["","","","",mySDDS.SDDS_DOUBLE,""],
-                                      ["","","","",mySDDS.SDDS_DOUBLE,""]]
-        mySDDS.columnName = ["x", "xp", "y", "yp", "s", "dp"]
-        mySDDS.columnData = [[list(tmp6[0,:])], [list(tmp6[1,:])],
-                             [list(tmp6[2,:])], [list(tmp6[3,:])],
-                             [list(tmp6[4,:])], [list(tmp6[5,:])]]
-
-        if False:
-            print(' ')
-            print(' Here is mySDDS.columnData[:]:')
-            print(mySDDS.columnData)
-
-        mySDDS.columnDefinition = [["","m",  "","",mySDDS.SDDS_DOUBLE,0],
-                                   ["","rad","","",mySDDS.SDDS_DOUBLE,0],
-                                   ["","m",  "","",mySDDS.SDDS_DOUBLE,0],
-                                   ["","rad","","",mySDDS.SDDS_DOUBLE,0],
-                                   ["","m",  "","",mySDDS.SDDS_DOUBLE,0],
-                                   ["","rad","","",mySDDS.SDDS_DOUBLE,0]]
-        mySDDS.save(sddsFileName)
-
-"""
-    def doStuff(self):
-        # get output from text boxes
-        hcoef = int(self.ui.hModeInput.text())
-        vcoef = int(self.ui.vModeInput.text())
-
-        # Specify the desired grid size
-        xyNumH = 128
-        xyNumV = 128
-        xyNumCells = xyNumH * xyNumV
-
-        # Specify the laser beam parameters
-        wavelength = 10.e-06         # central wavelength [m]
-        w0x = 10.*wavelength  # w0 at z=0.
-
-        # load up the x,y locations of the mesh [m]
-        xyMinH = -8.*w0x
-        xyMaxH =  8.*w0x
-        xyMinV = xyMinH
-        xyMaxV = xyMaxH
-
-        xArr  = np.zeros(xyNumH)
-        xGrid = np.zeros((xyNumH, xyNumV))
-        yArr  = np.zeros(xyNumV)
-        yGrid = np.zeros((xyNumH, xyNumV))
-        for iLoop in range(xyNumH):
-            xArr[iLoop] = xyMinH + iLoop * (xyMaxH-xyMinH) / (xyNumH-1)
-
-        for jLoop in range(xyNumV):
-            yArr[jLoop] = xyMinV + jLoop * (xyMaxV-xyMinV) / (xyNumV-1)
-
-        for iLoop in range(xyNumH):
-            for jLoop in range(xyNumV):
-                xGrid[iLoop,jLoop] = xyMinH + iLoop * (xyMaxH-xyMinH) / (xyNumH-1)
-                yGrid[iLoop,jLoop] = xyMinV + jLoop * (xyMaxV-xyMinV) / (xyNumV-1)
-
-        # Create a class instance for mode 0,0 (Gaussian)
-        exMax = 1.3e+09
-        gh00 = RbGaussHermiteMN.RbGaussMN(wavelength,w0x,2.0*w0x,0.)
-        gh00.setCoeffSingleModeX(hcoef, exMax)
-        gh00.setCoeffSingleModeY(vcoef, 1.)
-
-        # Calculate Ex at the 2D array of x,y values
-        Ex = np.reshape(gh00.evaluateEx(np.reshape(xGrid,xyNumCells),   \
-                                        np.reshape(yGrid,xyNumCells), 0., 0.), (xyNumH, xyNumV))
-
-        # Create scaled values, so the plot can show microns, rather than meters
-        x_nm  = xGrid*1.e6
-        xL_nm = xyMinH *1.e6
-        xR_nm = xyMaxH *1.e6
-
-        y_nm  = yGrid*1.e6
-        yL_nm = xyMinV *1.e6
-        yR_nm = xyMaxV *1.e6
-
-        self.ui.widget.canvas.ax.clear()
-        self.ui.widget.canvas.ax.contourf(x_nm, y_nm, Ex, 20)
-        self.ui.widget.canvas.draw()
-"""
-
-def main():
-    app = QtGui.QApplication(sys.argv)
-    myapp = LaserTab()
-    myapp.show()
-    sys.exit(app.exec_())
-
-if __name__ == '__main__':
-   main()
+            pass

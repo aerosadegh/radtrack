@@ -155,10 +155,11 @@ class Base(rt_controller.Controller):
         pass
 
     def _pop_up(self, which):
-        if which in ['beam']:
-            fromtab=True
-        else:
-            fromtab=False
+        if which == 'beam':
+            fromtab=which
+        #elif which == 'undulator':
+        #    fromtab=which
+        else: fromtab=False
         pu = rt_popup.Window(
             self.defaults[which],
             self.params[which],
@@ -168,12 +169,12 @@ class Base(rt_controller.Controller):
         )
         if pu.exec_():
             self.params[which] = pu.get_params()
-            if which is 'undulator' and self.params[which]['vertical_focus']+self.params[which]['horizontal_focus'] !=1.0:
+            if which is 'undulator' and self.params[which]['vertical_focus']+self.params[which]['horizontal_focus']!=1.0:
                 box = QtGui.QMessageBox()
                 box.setIcon(QtGui.QMessageBox.Warning)
                 box.setText('Sum of undulator horizontal and vertical focus should equal 1.')
                 box.exec_()
-            elif which is 'beam' and self.params[which]['num_particle']%4*self.params['particle_loading']['num_bins']  != 0:
+            elif which is 'beam' and self.params[which]['num_particle']%(4*self.params['particle_loading']['num_bins'])!= 0:
                 box = QtGui.QMessageBox()
                 box.setIcon(QtGui.QMessageBox.Warning)
                 box.setText('Number of Particles must be a multiple of 4*Number of Bins for Phase. \n (specified in particle loading)')
