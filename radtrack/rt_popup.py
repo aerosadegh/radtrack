@@ -111,7 +111,7 @@ class Window(QtGui.QDialog):
         self.parent=parent
         if tabinput:
             if tabinput:
-                b=QtGui.QPushButton('Retrieve'+tabinput)
+                b=QtGui.QPushButton('Retrieve '+tabinput)
             self._form._buttons.addButton(b,QtGui.QDialogButtonBox.ActionRole)
             #b.clicked.connect(lambda:self.from_tab(tabinput))
             

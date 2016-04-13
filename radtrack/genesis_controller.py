@@ -14,9 +14,11 @@ from radtrack import rt_params
 from radtrack import rt_popup
 from radtrack import rt_enum
 from radtrack.util.simulationResultsTools import results_context_menu, add_result_file, processSimulationEndStatus
+from radtrack.BunchTab import BunchTab
 from pykern import pkcollections
 from enum import Enum
 import os, shutil, glob
+
 
 class Base(rt_controller.Controller):
     """Implements contol flow for Genesis tab"""
@@ -200,21 +202,33 @@ class Base(rt_controller.Controller):
         for j in range(self._view.parent.parent.tabWidget.count()):
             T=self._view.parent.parent.tabWidget.tabText(j)
             if 'Transport' not in T and self._view.parent.parent.tabWidget.currentIndex() != j:
-                if 'Genesis' in T or 'SRW' in T:
+                if 'Genesis' in T or 'SRW' in T or 'Elegant' in T:
                     choices.append([j,T])
         box = QtGui.QMessageBox(QtGui.QMessageBox.Question, '', tabinput+'s available.\nRetrieve from which tab?')
         responses = [box.addButton(j[1], QtGui.QMessageBox.ActionRole) for j in choices] + [box.addButton(QtGui.QMessageBox.Cancel)]
         box.exec_()
         try:
-            for j in pu._form._fields.keys():
-                try:
-                    if tabinput == 'beam':
-                        pu._form._fields[j]['widget'].setText(str(self._view.parent.parent.tabWidget.widget(choices[responses.index(box.clickedButton())][0]).control.params.beam[j.replace('beam.','')]))
-                    elif tabinput == 'undulator': 
-                        #self._form._fields[i]['widget'].setText(str(self.parent.parentWidget().parent.tabWidget.widget(choices[responses.index(box.clickedButton())][0]).control.params.radiation_source.undulator[i.replace('undulator.','')]))
-                        pass
-                except KeyError:
-                    pass #unmatched key(from declarations) between tabs
+            selected=choices[responses.index(box.clickedButton())]
+            if 'Elegant' in selected[1]:
+                if self._view.parent.parent.tabWidget.widget(selected[0]).ui.simulationResultsListWidget.count()!=0:
+                    ops=self._view.parent.parent.tabWidget.widget(selected[0]).ui.simulationResultsListWidget.item(0).data(QtCore.Qt.UserRole).toString()
+                    reader = BunchTab()
+                    reader.readFromSDDS(ops)
+                    print(reader.myBunch.getGamma0())
+                else:
+                    error=QtGui.QMessageBox()
+                    error.setIcon(QtGui.QMessageBox.Critical)
+                    error.setText('No Resultant Output Phase Space')
+            else:
+                for j in pu._form._fields.keys():
+                    try:
+                        if tabinput == 'beam':
+                            pu._form._fields[j]['widget'].setText(str(self._view.parent.parent.tabWidget.widget(selected[0]).control.params.beam[j.replace('beam.','')]))
+                        elif tabinput == 'undulator': 
+                            #self._form._fields[i]['widget'].setText(str(self.parent.parentWidget().parent.tabWidget.widget(choices[responses.index(box.clickedButton())][0]).control.params.radiation_source.undulator[i.replace('undulator.','')]))
+                            pass
+                    except KeyError:
+                        pass #unmatched key(from declarations) between tabs
         except IndexError:
             return       #Cancel selected 
                       
