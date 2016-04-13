@@ -110,40 +110,15 @@ class Window(QtGui.QDialog):
         self._form = Form(defaults, params, self, dynamic_popup=True)
         self.parent=parent
         if tabinput:
-            if tabinput == 'beam':
-                b=QtGui.QPushButton('Retrieve Beam')
-            elif tabinput == 'undulator':
-                b=QtGui.QPushButton('Retrieve Undulator')
+            if tabinput:
+                b=QtGui.QPushButton('Retrieve'+tabinput)
             self._form._buttons.addButton(b,QtGui.QDialogButtonBox.ActionRole)
-            b.clicked.connect(lambda:self.from_tab(tabinput))
+            #b.clicked.connect(lambda:self.from_tab(tabinput))
             
 
     def get_params(self,):
         """Convert values in the window to "param" values"""
         return self._form._get_params()
-        
-    def from_tab(self,tabinput):
-        choices = []
-        for i in range(self.parent.parentWidget().parent.tabWidget.count()):
-            T=self.parent.parentWidget().parent.tabWidget.tabText(i)
-            if 'Transport' not in T and self.parent.parentWidget().parent.tabWidget.currentIndex() != i:
-                if 'Genesis' in T or 'SRW' in T:
-                    choices.append([i,T])
-        box = QtGui.QMessageBox(QtGui.QMessageBox.Question, '', tabinput+'s available.\nRetrieve from which tab?')
-        responses = [box.addButton(i[1], QtGui.QMessageBox.ActionRole) for i in choices] + [box.addButton(QtGui.QMessageBox.Cancel)]
-        box.exec_()
-        try:
-            for i in self._form._fields.keys():
-                try:
-                    if tabinput == 'beam':
-                        self._form._fields[i]['widget'].setText(str(self.parent.parentWidget().parent.tabWidget.widget(choices[responses.index(box.clickedButton())][0]).control.params.beam[i.replace('beam.','')]))
-                    elif tabinput == 'undulator': 
-                        #self._form._fields[i]['widget'].setText(str(self.parent.parentWidget().parent.tabWidget.widget(choices[responses.index(box.clickedButton())][0]).control.params.radiation_source.undulator[i.replace('undulator.','')]))
-                        pass
-                except KeyError:
-                    pass #unmatched key(from declarations) between tabs
-        except IndexError:
-            return #Cancel selected
                     
 
 class WidgetView(QtGui.QWidget):

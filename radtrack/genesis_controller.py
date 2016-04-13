@@ -167,6 +167,11 @@ class Base(rt_controller.Controller):
             parent=self._view,
             tabinput=fromtab,
         )
+        for i in pu._form._buttons.buttons():
+            if 'Retrieve' in i.text():
+                i.clicked.connect(lambda:self.from_tab('beam',pu))
+        
+        
         if pu.exec_():
             self.params[which] = pu.get_params()
             if which is 'undulator' and self.params[which]['vertical_focus']+self.params[which]['horizontal_focus']!=1.0:
@@ -190,6 +195,29 @@ class Base(rt_controller.Controller):
                 box.setText('Genesis Grid Size Automation Disabled.')
                 box.exec_()
                 
+    def from_tab(self,tabinput,pu):
+        choices = []
+        for j in range(self._view.parent.parent.tabWidget.count()):
+            T=self._view.parent.parent.tabWidget.tabText(j)
+            if 'Transport' not in T and self._view.parent.parent.tabWidget.currentIndex() != j:
+                if 'Genesis' in T or 'SRW' in T:
+                    choices.append([j,T])
+        box = QtGui.QMessageBox(QtGui.QMessageBox.Question, '', tabinput+'s available.\nRetrieve from which tab?')
+        responses = [box.addButton(j[1], QtGui.QMessageBox.ActionRole) for j in choices] + [box.addButton(QtGui.QMessageBox.Cancel)]
+        box.exec_()
+        try:
+            for j in pu._form._fields.keys():
+                try:
+                    if tabinput == 'beam':
+                        pu._form._fields[j]['widget'].setText(str(self._view.parent.parent.tabWidget.widget(choices[responses.index(box.clickedButton())][0]).control.params.beam[j.replace('beam.','')]))
+                    elif tabinput == 'undulator': 
+                        #self._form._fields[i]['widget'].setText(str(self.parent.parentWidget().parent.tabWidget.widget(choices[responses.index(box.clickedButton())][0]).control.params.radiation_source.undulator[i.replace('undulator.','')]))
+                        pass
+                except KeyError:
+                    pass #unmatched key(from declarations) between tabs
+        except IndexError:
+            return       #Cancel selected 
+                      
     def get_in(self,phile):
         def param_update(key,value):
             D=genesis_params.to_genesis()

@@ -11,7 +11,7 @@ from pykern import pkcompat
 
 from pykern import pkcollections
 from pykern.pkdebug import pkdc, pkdp
-
+from PyQt4 import QtGui
 from radtrack import rt_controller
 from radtrack import rt_jinja
 from radtrack import rt_params
@@ -131,8 +131,10 @@ class Base(rt_controller.Controller):
             w.update_visibility()
 
     def _pop_up(self, which):
-        if which in ['beam']:
-            fromtab=True
+        if which == 'beam':
+            fromtab=which
+        #elif which == 'undulator':
+        #    fromtab=which
         else:
             fromtab=False
         pu = rt_popup.Window(
@@ -140,6 +142,34 @@ class Base(rt_controller.Controller):
             self.params[which],
             controller=self,
             parent=self._view,
+            tabinput=fromtab,
         )
+        for i in pu._form._buttons.buttons():
+            if 'Retrieve' in i.text():
+                i.clicked.connect(lambda:self.from_tab('beam',pu))
+                
         if pu.exec_():
             self.params[which] = pu.get_params()
+            
+    def from_tab(self,tabinput,pu):
+        choices = []
+        for j in range(self._view.parent.parent.tabWidget.count()):
+            T=self._view.parent.parent.tabWidget.tabText(j)
+            if 'Transport' not in T and self._view.parent.parent.tabWidget.currentIndex() != j:
+                if 'Genesis' in T or 'SRW' in T:
+                    choices.append([j,T])
+        box = QtGui.QMessageBox(QtGui.QMessageBox.Question, '', tabinput+'s available.\nRetrieve from which tab?')
+        responses = [box.addButton(j[1], QtGui.QMessageBox.ActionRole) for j in choices] + [box.addButton(QtGui.QMessageBox.Cancel)]
+        box.exec_()
+        try:
+            for j in pu._form._fields.keys():
+                try:
+                    if tabinput == 'beam':
+                        pu._form._fields[j]['widget'].setText(str(self._view.parent.parent.tabWidget.widget(choices[responses.index(box.clickedButton())][0]).control.params.beam[j.replace('beam.','')]))
+                    elif tabinput == 'undulator': 
+                        #self._form._fields[i]['widget'].setText(str(self.parent.parentWidget().parent.tabWidget.widget(choices[responses.index(box.clickedButton())][0]).control.params.radiation_source.undulator[i.replace('undulator.','')]))
+                        pass
+                except KeyError:
+                    pass #unmatched key(from declarations) between tabs
+        except IndexError:
+            return
