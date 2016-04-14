@@ -1,9 +1,9 @@
-# 
+#
 # Generate a 6D distribution that conforms very closely to a 'unit sphere'.
-#  
-# Copyright (c) 2013 RadiaBeam Technologies. All rights reserved 
-# 
-# Python imports 
+#
+# Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
+#
+# Python imports
 import math
 
 # SciPy imports
@@ -21,7 +21,7 @@ class RbDistribution6D:
             print ' '
             print ' ...in RbDistribution6D:__init__'
             print ' phaseSpace6D object will be instantiated!'
-            
+
         self.phaseSpace6D = ps.RbPhaseSpace6D(numParticles)
         self.phaseSpace6D.checkArray()
 
@@ -35,7 +35,7 @@ class RbDistribution6D:
 
     def getDistributionType(self):
         return self.distributionType
-        
+
     def setDistributionType(self, distributionType):
         if ( (distributionType == 'uniform')  or
              (distributionType == 'gaussian') or
@@ -77,10 +77,10 @@ class RbDistribution6D:
 
         numInsideCircle = 0
         while (numInsideCircle < numParticles):
-            testPx = 2. * np.random.uniform(0.0,1.0,1) - 1. 
-            testPy = 2. * np.random.uniform(0.0,1.0,1) - 1. 
-            testPz = 2. * np.random.uniform(0.0,1.0,1) - 1. 
-            testSum = testPx**2 + testPy**2 + testPz**2 
+            testPx = 2. * np.random.uniform(0.0,1.0,1) - 1.
+            testPy = 2. * np.random.uniform(0.0,1.0,1) - 1.
+            testPz = 2. * np.random.uniform(0.0,1.0,1) - 1.
+            testSum = testPx**2 + testPy**2 + testPz**2
 
             if (testSum < 1.):
                 array6D[1, numInsideCircle] = testPx
@@ -131,6 +131,14 @@ class RbDistribution6D:
         self.cleanPhaseSpace6D()
         return
 
+    def calcAverages6D(self):
+        averages = stats.calcAverages6D(self.phaseSpace6D.getArray6D())
+        return averages
+
+    def calcRmsValues6D(self):
+        rmsValues = stats.calcRmsValues6D(self.phaseSpace6D.getArray6D())
+        return rmsValues
+
     def calcTwissParams6D(self,twissParams6D):
         alphaRMS = np.zeros(3)
         betaRMS  = np.zeros(3)
@@ -169,7 +177,7 @@ class RbDistribution6D:
             if False:
                 print ' '
                 print ' alphaRMS, betaRMS, emitRMS = ', alphaRMS[iLoop], betaRMS[iLoop], emitRMS[iLoop]
-        
+
         twissParams6D['twissX'] = twiss.RbTwiss2D(alphaRMS[0], betaRMS[0], emitRMS[0])
         twissParams6D['twissY'] = twiss.RbTwiss2D(alphaRMS[1], betaRMS[1], emitRMS[1])
         twissParams6D['twissZ'] = twiss.RbTwiss2D(alphaRMS[2], betaRMS[2], emitRMS[2])
@@ -182,10 +190,10 @@ class RbDistribution6D:
         temp6D = array6D.copy()
 #        for iLoop in range(6):
 #            for nLoop in range(self.phaseSpace6D.getNumParticles()): array6D[iLoop,nLoop] = 0.0
-        
-        ii = -1  
+
+        ii = -1
         for iLoop in range(0,5,2):
-            
+
             ii +=1
             if   ii==0: twissObject = twissParams6D['twissX']
             elif ii==1: twissObject = twissParams6D['twissY']
@@ -193,11 +201,11 @@ class RbDistribution6D:
             else:
                 message = 'Error:  ii = ' + ii + ' -- not valid.'
                 raise Exception(message)
-            
+
             alphaII = twissObject.getAlphaRMS()
             betaII  = twissObject.getBetaRMS()
             gammaII = (1.0 + alphaII**2) / betaII
-            
+
             if 0:
                 print ' '
                 print ' alpha, beta, gamma[', ii, '] = ', alphaII, betaII, gammaII
@@ -207,7 +215,7 @@ class RbDistribution6D:
 
             if 0:
                 print ' gMinusB, rootFac[', ii, '] = ', gMinusB, rootFac
-            
+
             if gMinusB >= 0.0:
                 fac  = math.sqrt(0.5*(gammaII+betaII-rootFac))
                 fInv = math.sqrt(0.5*(gammaII+betaII+rootFac))
@@ -217,16 +225,16 @@ class RbDistribution6D:
 
             if 0:
                 print ' fac, fInv[', ii, '] = ', fac, fInv
-            
+
             if alphaII == 0.0:
                 sinPhi = 0.0
                 cosPhi = 1.0
             else:
                 sinPhi = math.sqrt(0.5*(1.-math.fabs(gMinusB)/rootFac))
                 cosPhi = math.sqrt(0.5*(1.+math.fabs(gMinusB)/rootFac))
-                
+
             if alphaII*gMinusB < 0.0: sinPhi = -sinPhi
-            
+
             rootFac = math.sqrt(twissObject.getEmitRMS())
 
             if 0:
@@ -244,7 +252,7 @@ class RbDistribution6D:
         if ( (index<0) or (index>5) ):
             message = 'ERROR!  index is out of range: ' + str(index)
             raise Exception(message)
-            
+
         array6D = self.phaseSpace6D.getArray6D()
         array6D[index,:] += offset
 
@@ -255,7 +263,7 @@ class RbDistribution6D:
         if ( (index<0) or (index>5) ):
             message = 'ERROR!  index is out of range: ' + str(index)
             raise Exception(message)
-            
+
         array6D = self.phaseSpace6D.getArray6D()
         array6D[index,:] *= factor
 
