@@ -64,7 +64,7 @@ def calcCorrelations6D(array6D):
                         (array6D[iLoop,nLoop] - averages6D[iLoop]) * \
                         (array6D[jLoop,nLoop] - averages6D[jLoop])
                 correlations6D[iLoop, jLoop] /= npoints
-                correlations6D[jLoop, iLoop]  = correlations6D[iLoop, jLoop]
+                #correlations6D[jLoop, iLoop]  = correlations6D[iLoop, jLoop]
     return correlations6D
 
 def eraseCorrelations6D(array6D):
