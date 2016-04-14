@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'radtrack/ui/LaserInterface.ui'
 #
-# Created: Thu Feb  4 10:53:19 2016
+# Created: Sat Apr  9 00:11:01 2016
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -372,21 +372,12 @@ class Ui_LaserInterface(object):
         self.zyPlot.setToolTip(_fromUtf8(""))
         self.zyPlot.setObjectName(_fromUtf8("zyPlot"))
         self.horizontalLayout_2.addWidget(self.zyPlot)
-        self.verticalLayout_4.addLayout(self.horizontalLayout_2)
-        self.gridLayout_2.addLayout(self.verticalLayout_4, 0, 1, 1, 1)
-        self.verticalLayout_5 = QtGui.QVBoxLayout()
-        self.verticalLayout_5.setObjectName(_fromUtf8("verticalLayout_5"))
         self.xyPlotExtFields = matplotlibWidget(LaserInterface)
         self.xyPlotExtFields.setToolTip(_fromUtf8(""))
         self.xyPlotExtFields.setObjectName(_fromUtf8("xyPlotExtFields"))
-        self.verticalLayout_5.addWidget(self.xyPlotExtFields)
-        self.xyPlotFitDiff = matplotlibWidget(LaserInterface)
-        self.xyPlotFitDiff.setToolTip(_fromUtf8(""))
-        self.xyPlotFitDiff.setObjectName(_fromUtf8("xyPlotFitDiff"))
-        self.verticalLayout_5.addWidget(self.xyPlotFitDiff)
-        self.gridLayout_2.addLayout(self.verticalLayout_5, 0, 2, 1, 1)
-        self.gridLayout_2.setColumnStretch(1, 2)
-        self.gridLayout_2.setColumnStretch(2, 1)
+        self.horizontalLayout_2.addWidget(self.xyPlotExtFields)
+        self.verticalLayout_4.addLayout(self.horizontalLayout_2)
+        self.gridLayout_2.addLayout(self.verticalLayout_4, 0, 1, 1, 1)
 
         self.retranslateUi(LaserInterface)
         QtCore.QMetaObject.connectSlotsByName(LaserInterface)

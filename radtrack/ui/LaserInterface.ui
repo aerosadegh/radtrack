@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,2,1">
+  <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,0">
    <item row="0" column="0">
     <layout class="QVBoxLayout" name="verticalLayout_3">
      <item>
@@ -801,42 +801,18 @@
          </property>
         </widget>
        </item>
+       <item>
+        <widget class="matplotlibWidget" name="xyPlotExtFields" native="true">
+         <property name="toolTip">
+          <string/>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
     </layout>
    </item>
-   <item row="0" column="2">
-    <layout class="QVBoxLayout" name="verticalLayout_5">
-     <item>
-      <widget class="matplotlibWidget" name="xyPlotExtFields" native="true">
-       <property name="toolTip">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="matplotlibWidget" name="xyPlotFitDiff" native="true">
-       <property name="toolTip">
-        <string/>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
   </layout>
-  <zorder>formLayoutWidget</zorder>
-  <zorder>highLevelInputsLabel</zorder>
-  <zorder>offsetLabel</zorder>
-  <zorder>ghTable</zorder>
-  <zorder>xyPlot</zorder>
-  <zorder>zyPlot</zorder>
-  <zorder>zxPlot</zorder>
-  <zorder>unitsLabel</zorder>
-  <zorder>formLayoutWidget_2</zorder>
-  <zorder>xyPlotExtFields</zorder>
-  <zorder>xyPlotFitDiff</zorder>
-  <zorder>gridLayoutWidget</zorder>
-  <zorder>zxPlot</zorder>
  </widget>
  <customwidgets>
   <customwidget>

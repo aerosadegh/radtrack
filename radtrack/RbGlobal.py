@@ -333,8 +333,8 @@ class RbGlobal(QtGui.QMainWindow):
             directory = QtGui.QFileDialog.getExistingDirectory(self,
                     'Choose folder to store project',
                     self.sessionDirectory)
-        if not directory:
-            return
+            if not directory:
+                return
 
         if os.listdir(directory):
             box = QtGui.QMessageBox(QtGui.QMessageBox.Question, 'File Overwrite Warning',
@@ -351,7 +351,7 @@ class RbGlobal(QtGui.QMainWindow):
                 count = 1
                 while os.path.lexists(directory + '_' + str(count)):
                     count += 1
-                directory = directory + '_' + count
+                directory = directory + '_' + str(count)
             os.makedirs(directory)
 
         for thing in os.listdir(self.sessionDirectory):
@@ -399,12 +399,11 @@ class RbGlobal(QtGui.QMainWindow):
     def openExampleProject(self, directory):
         temp = directory + '_temp'
         shutil.copytree(directory, temp)
-        self.openProject(directory)
+        self.openProject(temp)
         session = 'Example_' + datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         newDirectory = os.path.join(os.path.expanduser('~'), 'RadTrack', session)
         os.makedirs(newDirectory)
         self.setProjectLocation(newDirectory)
-        shutil.move(temp, directory)
 
     def saveProject(self):
         # Delete previous tab data in self.sessionDirectory
