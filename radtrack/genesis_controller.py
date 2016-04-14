@@ -213,14 +213,13 @@ class Base(rt_controller.Controller):
                     ops=self._view.parent.parent.tabWidget.widget(selected[0]).ui.simulationResultsListWidget.item(0).data(QtCore.Qt.UserRole).toString()
                     reader = BunchTab()
                     reader.readFromSDDS(ops)
-                    reader.calculateTwiss()
+                    reader.calculateTwiss()                  
                     for j in pu._form._fields.keys():
                         key=j.replace('beam.','')
                         if 'num' in key:
                             pu._form._fields[j]['widget'].setText(str(reader.myBunch.getDistribution6D().getPhaseSpace6D().getNumParticles()))
                         elif 'gamma' in key:
-                            pu._form._fields[j]['widget'].setText(str(reader.myBunch.getGamma0()))
-                        
+                            pu._form._fields[j]['widget'].setText(str(reader.myBunch.getGamma0()))                        
                 else:
                     error=QtGui.QMessageBox()
                     error.setIcon(QtGui.QMessageBox.Critical)
