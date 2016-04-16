@@ -220,30 +220,45 @@ class Base(rt_controller.Controller):
                         key=j.replace('beam.','')
                         if 'num' in key:
                             pu._form._fields[j]['widget'].setText(str(reader.myBunch.getDistribution6D().getPhaseSpace6D().getNumParticles()))
+                            #print(key,':',pu._form._fields[j]['widget'].text())
                         elif 'gamma' in key:
                             pu._form._fields[j]['widget'].setText(str(reader.myBunch.getGamma0())) 
+                            #print(key,':',pu._form._fields[j]['widget'].text())
                         elif 'spread' in key:
                             pu._form._fields[j]['widget'].setText(str(rms[5]))
+                            #print(key,':',pu._form._fields[j]['widget'].text())
                         elif 'horizontal_width' in key:
                             pu._form._fields[j]['widget'].setText(str(rms[0]))
+                            #print(key,':',pu._form._fields[j]['widget'].text())
                         elif 'vertical_width' in key:
                             pu._form._fields[j]['widget'].setText(str(rms[2]))
-                        elif 'horizontal_emitance' in key:
+                            #print(key,':',pu._form._fields[j]['widget'].text())
+                        elif 'horizontal_emittance' in key:
                             pu._form._fields[j]['widget'].setText(str(reader.myBunch.getTwissParamsByName2D('twissX').getEmitRMS()))
-                        elif 'vertical_emitance' in key:
+                            #print(key,':',pu._form._fields[j]['widget'].text())
+                        elif 'vertical_emittance' in key:
                             pu._form._fields[j]['widget'].setText(str(reader.myBunch.getTwissParamsByName2D('twissY').getEmitRMS()))
+                            #print(key,':',pu._form._fields[j]['widget'].text())
                         elif 'horizontal_alpha' in key:
                             pu._form._fields[j]['widget'].setText(str(reader.myBunch.getTwissParamsByName2D('twissX').getAlphaRMS()))
+                            #print(key,':',pu._form._fields[j]['widget'].text())
                         elif 'vertical_alpha' in key:
                             pu._form._fields[j]['widget'].setText(str(reader.myBunch.getTwissParamsByName2D('twissY').getAlphaRMS()))
+                            #print(key,':',pu._form._fields[j]['widget'].text())
                         elif 'horizontal_coord' in key:
                             pu._form._fields[j]['widget'].setText(str(average[0]))
+                            #print(key,':',pu._form._fields[j]['widget'].text())
                         elif 'vertical_coord' in key:
                             pu._form._fields[j]['widget'].setText(str(average[2]))
+                            #print(key,':',pu._form._fields[j]['widget'].text())
                         elif 'horizontal_angle' in key:
                             pu._form._fields[j]['widget'].setText(str(average[1]))
+                            #print(key,':',pu._form._fields[j]['widget'].text())
                         elif 'vertical_angle' in key:
                             pu._form._fields[j]['widget'].setText(str(average[3]))
+                            #print(key,':',pu._form._fields[j]['widget'].text())
+                        elif 'current' in key:
+                            pu._form._fields[j]['widget'].setText(reader.myBunch.getCurrent())
                 else:
                     error=QtGui.QMessageBox()
                     error.setIcon(QtGui.QMessageBox.Critical)

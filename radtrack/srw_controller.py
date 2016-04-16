@@ -162,14 +162,27 @@ class Base(rt_controller.Controller):
         responses = [box.addButton(j[1], QtGui.QMessageBox.ActionRole) for j in choices] + [box.addButton(QtGui.QMessageBox.Cancel)]
         box.exec_()
         try:
-            for j in pu._form._fields.keys():
-                try:
-                    if tabinput == 'beam':
-                        pu._form._fields[j]['widget'].setText(str(self._view.parent.parent.tabWidget.widget(choices[responses.index(box.clickedButton())][0]).control.params.beam[j.replace('beam.','')]))
-                    elif tabinput == 'undulator': 
-                        #self._form._fields[i]['widget'].setText(str(self.parent.parentWidget().parent.tabWidget.widget(choices[responses.index(box.clickedButton())][0]).control.params.radiation_source.undulator[i.replace('undulator.','')]))
+            selected=choices[responses.index(box.clickedButton())]
+            if 'Elegant' in selected[1]:
+                if self._view.parent.parent.tabWidget.widget(selected[0]).ui.simulationResultsListWidget.count()!=0:
+                    ops=self._view.parent.parent.tabWidget.widget(selected[0]).ui.simulationResultsListWidget.item(0).data(QtCore.Qt.UserRole).toString()
+                    reader = BunchTab()
+                    reader.readFromSDDS(ops)
+                    reader.calculateTwiss()
+                    rms = reader.myBunch.getDistribution6D().calcRmsValues6D()
+                    average = reader.myBunch.getDistribution6D().calcAverages6D()
+                    for j in pu._form._fields.keys():
+                        key=j.replace('beam.','')
                         pass
-                except KeyError:
-                    pass #unmatched key(from declarations) between tabs
+            else:
+                for j in pu._form._fields.keys():
+                    try:
+                        if tabinput == 'beam':
+                            pu._form._fields[j]['widget'].setText(str(self._view.parent.parent.tabWidget.widget(seleceted[0]).control.params.beam[j.replace('beam.','')]))
+                        elif tabinput == 'undulator': 
+                            #self._form._fields[i]['widget'].setText(str(self.parent.parentWidget().parent.tabWidget.widget(choices[responses.index(box.clickedButton())][0]).control.params.radiation_source.undulator[i.replace('undulator.','')]))
+                            pass
+                    except KeyError:
+                        pass #unmatched key(from declarations) between tabs
         except IndexError:
             return
