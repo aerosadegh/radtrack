@@ -153,11 +153,45 @@ class Base(rt_controller.Controller):
             self.params[which] = pu.get_params()
             
     def from_tab(self,tabinput,pu):
+        def importBunch(pu,reader):
+            rms = reader.myBunch.getDistribution6D().calcRmsValues6D()
+            average = reader.myBunch.getDistribution6D().calcAverages6D() 
+            for j in pu._form._fields.keys():
+                key=j.replace('beam.','')
+                if 'gamma' in key:
+                    pu._form._fields[j]['widget'].setText(str(reader.myBunch.getGamma0())) 
+                elif 'horizontal_coord' in key:
+                    pu._form._fields[j]['widget'].setText(str(average[0]))
+                elif 'vertical_coord' in key:
+                    pu._form._fields[j]['widget'].setText(str(average[2]))
+                elif 'longitudinal' in key:
+                    pu._form._fields[j]['widget'].setText(str(average[4])) 
+                elif 'horizontal_angle' in key:
+                    pu._form._fields[j]['widget'].setText(str(average[1]))
+                    #print(key,':',pu._form._fields[j]['widget'].text())
+                elif 'vertical_angle' in key:
+                    pu._form._fields[j]['widget'].setText(str(average[3]))
+                    #print(key,':',pu._form._fields[j]['widget'].text())
+                elif 'spread' in key:
+                    pu._form._fields[j]['widget'].setText(str(rms[5]))
+                elif 'horizontal_width' in key:
+                    pu._form._fields[j]['widget'].setText(str(rms[0]))
+                    #print(key,':',pu._form._fields[j]['widget'].text())
+                elif 'vertical_width' in key:
+                    pu._form._fields[j]['widget'].setText(str(rms[2]))
+                    #print(key,':',pu._form._fields[j]['widget'].text())
+                elif 'horizontal_divergence' in key:
+                    pu._form._fields[j]['widget'].setText(str(2*rms[1]))
+                elif 'vertical_divergence' in key:
+                    pu._form._fields[j]['widget'].setText(str(2*rms[4]))
+                elif 'current' in key:
+                    print(reader.myBunch.getCurrent()/2)
+                    
         choices = []
         for j in range(self._view.parent.parent.tabWidget.count()):
             T=self._view.parent.parent.tabWidget.tabText(j)
             if 'Transport' not in T and self._view.parent.parent.tabWidget.currentIndex() != j:
-                if 'Genesis' in T or 'SRW' in T or 'Elegant' in T:
+                if 'Genesis' in T or 'SRW' in T or 'Elegant' in T or 'Bunch' in T:
                     choices.append([j,T])
         box = QtGui.QMessageBox(QtGui.QMessageBox.Question, '', tabinput+'s available.\nRetrieve from which tab?')
         responses = [box.addButton(j[1], QtGui.QMessageBox.ActionRole) for j in choices] + [box.addButton(QtGui.QMessageBox.Cancel)]
@@ -170,38 +204,14 @@ class Base(rt_controller.Controller):
                     reader = BunchTab()
                     reader.readFromSDDS(ops)
                     reader.calculateTwiss()
-                    rms = reader.myBunch.getDistribution6D().calcRmsValues6D()
-                    average = reader.myBunch.getDistribution6D().calcAverages6D()
-                    for j in pu._form._fields.keys():
-                        key=j.replace('beam.','')
-                        if 'gamma' in key:
-                            pu._form._fields[j]['widget'].setText(str(reader.myBunch.getGamma0())) 
-                        elif 'horizontal_coord' in key:
-                            pu._form._fields[j]['widget'].setText(str(average[0]))
-                        elif 'vertical_coord' in key:
-                            pu._form._fields[j]['widget'].setText(str(average[2]))
-                        elif 'longitudinal' in key:
-                            pu._form._fields[j]['widget'].setText(str(average[4])) 
-                        elif 'horizontal_angle' in key:
-                            pu._form._fields[j]['widget'].setText(str(average[1]))
-                            #print(key,':',pu._form._fields[j]['widget'].text())
-                        elif 'vertical_angle' in key:
-                            pu._form._fields[j]['widget'].setText(str(average[3]))
-                            #print(key,':',pu._form._fields[j]['widget'].text())
-                        elif 'spread' in key:
-                            pu._form._fields[j]['widget'].setText(str(rms[5]))
-                        elif 'horizontal_width' in key:
-                            pu._form._fields[j]['widget'].setText(str(rms[0]))
-                            #print(key,':',pu._form._fields[j]['widget'].text())
-                        elif 'vertical_width' in key:
-                            pu._form._fields[j]['widget'].setText(str(rms[2]))
-                            #print(key,':',pu._form._fields[j]['widget'].text())
-                        elif 'horizontal_divergence' in key:
-                            pu._form._fields[j]['widget'].setText(str(2*rms[1]))
-                        elif 'vertical_divergence' in key:
-                            pu._form._fields[j]['widget'].setText(str(2*rms[4]))
-                        elif 'current' in key:
-                            print(reader.myBunch.getCurrent()/2)
+                    importBunch(pu,reader)
+                else:
+                    error=QtGui.QMessageBox()
+                    error.setIcon(QtGui.QMessageBox.Critical)
+                    error.setText('No Resultant Output Phase Space')
+                    error.exec_()
+            elif 'Bunch' in selected[1]:
+                importBunch(pu,self._view.parent.parent.tabWidget.widget(selected[0]))
             else:
                 for j in pu._form._fields.keys():
                     try:
