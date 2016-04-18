@@ -68,7 +68,7 @@ def scatConPlot(plotFlag, plotType, x, y, ax, divs=10, levels=10):
     if plotFlag in ['combo', 'scatter', 'scatter-line']:
 
         # Terrible hack to get around the "fact" that scatter plots
-        # to not get correct axis limits either axis is log scale.
+        # do not get correct axis limits if either axis is log scale.
         # ax.plot(...) seems to work, so draw a plot and then delete
         # it, leaving the plot with a correct axes view.
 
