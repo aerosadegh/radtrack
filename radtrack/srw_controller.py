@@ -6,6 +6,8 @@
 """
 from __future__ import absolute_import, division, print_function
 
+import numpy as np
+
 from pykern import pkarray
 from pykern import pkcompat
 
@@ -21,10 +23,7 @@ from radtrack import srw_params
 from radtrack import srw_multi_particle
 from radtrack import srw_single_particle
 from radtrack.srw import AnalyticCalc
-
-# Must be last, because srw_params initializes srwlib and uti_plot
-import uti_plot
-
+from radtrack.util.plotTools import scatConPlot
 
 class Base(rt_controller.Controller):
     """Implements contol flow for SRW multiparticle tab"""
@@ -42,6 +41,7 @@ class Base(rt_controller.Controller):
         self.params = rt_params.init_params(self.defaults)
         self._view = srw_pane.View(self, parent_widget)
         self.complexity_widget.stateChanged.connect(self.toggle_complexity)
+        self._view.plot.canvas.fig.set_facecolor('w')
         return self._view
 
     def action_analyze(self):
@@ -93,10 +93,23 @@ class Base(rt_controller.Controller):
 
         res = self.simulate(msg)
         msg('Plotting the results')
+        self._view.plot.canvas.ax.clear()
         for plot in res.plots:
-            plot[0](*plot[1:])
-        msg('NOTE: Close all graph windows to proceed')
-        uti_plot.uti_plot_show()
+            dataXLimits = plot[-2]
+            dataX = np.linspace(dataXLimits[0], dataXLimits[1], dataXLimits[2])
+            xLabel = plot[-1][0]
+
+            dataY = np.array(plot[0][0:dataXLimits[2]])
+            yLabel = plot[-1][1]
+
+            title = plot[-1][2]
+
+            scatConPlot('line', 'linear', dataX, dataY, self._view.plot.canvas.ax)
+            self._view.plot.canvas.ax.set_xlabel(xLabel)
+            self._view.plot.canvas.ax.set_ylabel(yLabel)
+            self._view.plot.canvas.ax.set_title(title)
+            self._view.plot.canvas.fig.tight_layout()
+            self._view.plot.canvas.draw()
 
     def action_undulator(self):
         self._pop_up('undulator')

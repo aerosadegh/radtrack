@@ -17,6 +17,7 @@ from pykern import pkresource
 from radtrack import rt_popup
 from radtrack import rt_qt
 from radtrack import srw_enums
+from radtrack.ui.matplotlibwidget import matplotlibWidget
 
 
 class WidgetHolder(object):
@@ -75,6 +76,7 @@ class View(QtGui.QWidget):
         self._add_action_buttons(main)
         self._add_param_vbox(main)
         self._add_result_texts(main)
+        self._add_plot_area(main)
         self.setLayout(main)
 
     def get_global_param(self, name):
@@ -193,6 +195,11 @@ class View(QtGui.QWidget):
             'Analysis Results',
             'Click Analysis to approximate a simulation',
         )
+
+    def _add_plot_area(self, main):
+        self.plot = matplotlibWidget()
+        main.addWidget(self.plot)
+        self.plot.canvas.fig.tight_layout()
 
     def _add_vertical_stretch_spacer(self, param_vbox):
         """Only way to ensure that the wavefront_view won't stretch"""

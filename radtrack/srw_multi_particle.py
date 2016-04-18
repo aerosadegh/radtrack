@@ -14,7 +14,6 @@ from radtrack import srw_params
 
 # Must be after srw_params import
 import srwlib
-import uti_plot
 
 def simulate(params, msg_callback=lambda _: _):
     """Run a multi-particle (thick) simulation and return results
@@ -69,7 +68,6 @@ def simulate(params, msg_callback=lambda _: _):
         else:
             srwlib.srwl.SRWLStokes()
         p.plots.append([
-            uti_plot.uti_plot1d,
             p.stkF.arS,
             [p.stkF.mesh.eStart, p.stkF.mesh.eFin, p.stkF.mesh.ne],
             [
@@ -87,7 +85,6 @@ def simulate(params, msg_callback=lambda _: _):
         for i in xrange(p.stkP.mesh.nx):
             p.powDenVsX[i] = p.stkP.arS[p.stkP.mesh.nx*int(p.stkP.mesh.ny*0.5) + i]
         p.plots.append([
-            uti_plot.uti_plot1d,
             p.powDenVsX,
             p.plotMeshX,
             [
@@ -105,7 +102,6 @@ def simulate(params, msg_callback=lambda _: _):
         for i in xrange(p.stkP.mesh.ny):
             p.powDenVsY[i] = p.stkP.arS[p.stkP.mesh.ny*int(p.stkP.mesh.nx*0.5) + i]
         p.plots.append([
-            uti_plot.uti_plot1d,
             p.powDenVsY,
             p.plotMeshY,
             [
@@ -122,7 +118,6 @@ def simulate(params, msg_callback=lambda _: _):
             p.plotMeshX = [1000*p.stkP.mesh.xStart, 1000*p.stkP.mesh.xFin, p.stkP.mesh.nx]
             p.plotMeshY = [1000*p.stkP.mesh.yStart, 1000*p.stkP.mesh.yFin, p.stkP.mesh.ny]
             p.plots.append([
-                uti_plot.uti_plot2d,
                 p.stkP.arS,
                 p.plotMeshX,
                 p.plotMeshY,
@@ -140,7 +135,6 @@ def simulate(params, msg_callback=lambda _: _):
             p.arI1 = pkarray.new_float([0]*p.wfrXY.mesh.nx*p.wfrXY.mesh.ny)
             srwlib.srwl.CalcIntFromElecField(p.arI1, p.wfrXY, p.polarization, p.intensity, skv, p.wfrXY.mesh.eStart, p.wfrXY.mesh.xStart, p.wfrXY.mesh.yStart)
             p.plots.append([
-                uti_plot.uti_plot2d,
                 p.arI1,
                 [1*p.wfrXY.mesh.xStart, 1*p.wfrXY.mesh.xFin, p.wfrXY.mesh.nx],
                 [1*p.wfrXY.mesh.yStart, 1*p.wfrXY.mesh.yFin, p.wfrXY.mesh.ny],
@@ -150,67 +144,3 @@ def simulate(params, msg_callback=lambda _: _):
     else:
         raise AssertionError('{}: invalid simulation_kind'.format(params.simulation_kind))
     return p
-
-def _trajectory(p):
-    # Done specifying undulator mag field
-    # Initial coordinates of particle trajectory through the ID
-    part = srwlib.SRWLParticle()
-    part.x = p.beam.partStatMom1.x
-    part.y = p.beam.partStatMom1.y
-    part.xp = p.beam.partStatMom1.xp
-    part.yp = p.beam.partStatMom1.yp
-    part.gamma = 3/0.51099890221e-03 #Relative Energy beam.partStatMom1.gamma #
-    part.relE0 = 1
-    part.nq = -1
-    zcID = 0
-    # number of trajectory points along longitudinal axis
-    npTraj = 10001
-    #Definitions and allocation for the Trajectory waveform
-    part.z = zcID #- 0.5*magFldCnt.MagFld[0].rz
-    p.partTraj = srwlib.SRWLPrtTrj()
-    p.partTraj.partInitCond = part
-    p.partTraj.allocate(npTraj, True)
-    p.partTraj.ctStart = -0.55 * p.und.nPer * p.und.per
-    p.partTraj.ctEnd = 0.55 * p.und.nPer * p.und.per #magFldCnt.MagFld[0].rz
-    p.partTraj = srwlib.srwl.CalcPartTraj(p.partTraj, p.magFldCnt, p.arPrecPar)
-    p.ctMesh = [p.partTraj.ctStart, p.partTraj.ctEnd, p.partTraj.np]
-    for i in range(p.partTraj.np):
-        p.partTraj.arX[i] *= 1000
-        p.partTraj.arY[i] *= 1000
-    p.plots.append([
-        uti_plot.uti_plot1d,
-        p.partTraj.arX, p.ctMesh, ['ct [m]', 'Horizontal Position [mm]'],
-    ])
-    p.plots.append([
-        uti_plot.uti_plot1d,
-        p.partTraj.arY, p.ctMesh, ['ct [m]', 'Vertical Position [mm]'],
-    ])
-
-def _trajectorys(p):
-    # Done specifying undulator mag field
-    # Initial coordinates of particle trajectory through the ID
-    part = srwlib.SRWLParticle()
-    part.x = p.beam.partStatMom1.x
-    part.y = p.beam.partStatMom1.y
-    part.xp = p.beam.partStatMom1.xp
-    part.yp = p.beam.partStatMom1.yp
-    part.gamma = p.beam.partStatMom1.gamma #3/0.51099890221e-03 #Relative Energy beam.partStatMom1.gamma
-    part.relE0 = 1
-    part.nq = -1
-    #zcID = 0
-    # number of trajectory points along longitudinal axis
-    npTraj = 1000
-    #Definitions and allocation for the Trajectory waveform
-    part.z = 0 #zcID #- 0.5*magFldCnt.MagFld[0].rz
-    p.partTraj = srwlib.SRWLPrtTrj()
-    p.partTraj.partInitCond = part
-    p.partTraj.allocate(npTraj, True)
-    p.partTraj.ctStart = -0.1 #-0.55 * p.und.nPer * p.und.per
-    p.partTraj.ctEnd = 0.1    #0.55 * p.und.nPer * p.und.per #magFldCnt.MagFld[0].rz
-    p.partTraj = srwlib.srwl.CalcPartTraj(p.partTraj, p.magFldCnt, p.arPrecPar)
-    p.ctMesh = [p.partTraj.ctStart, p.partTraj.ctEnd, p.partTraj.np]
-
-    uti_plot.uti_plot1d(p.partTraj.arX, p.ctMesh, ['ct [m]', 'Horizontal Position [m]'])
-    #uti_plot.uti_plot1d(p.partTraj.arY, p.ctMesh, ['ct [m]', 'Vertical Position [m]'])
-    uti_plot.uti_plot1d(p.partTraj.arXp, p.ctMesh, ['ct [m]', 'Horizontal angle [rad]'])
-    uti_plot.uti_plot_show()
