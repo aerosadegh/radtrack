@@ -76,6 +76,7 @@ class View(QtGui.QWidget):
         self._add_param_vbox(main)
         self._add_result_texts(main)
         self.setLayout(main)
+        self.parent=parent
 
     def get_global_param(self, name):
         #TODO (robnagler) hide the abstraction for now

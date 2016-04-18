@@ -14,9 +14,11 @@ from radtrack import rt_params
 from radtrack import rt_popup
 from radtrack import rt_enum
 from radtrack.util.simulationResultsTools import results_context_menu, add_result_file, processSimulationEndStatus
+from radtrack.BunchTab import BunchTab
 from pykern import pkcollections
 from enum import Enum
 import os, shutil, glob
+
 
 class Base(rt_controller.Controller):
     """Implements contol flow for Genesis tab"""
@@ -167,6 +169,10 @@ class Base(rt_controller.Controller):
             parent=self._view,
             tabinput=fromtab,
         )
+        for i in pu._form._buttons.buttons():
+            if 'Retrieve' in i.text():
+                i.clicked.connect(lambda:self.from_tab('beam',pu))
+        
         if pu.exec_():
             self.params[which] = pu.get_params()
             if which is 'undulator' and self.params[which]['vertical_focus']+self.params[which]['horizontal_focus']!=1.0:
@@ -190,6 +196,92 @@ class Base(rt_controller.Controller):
                 box.setText('Genesis Grid Size Automation Disabled.')
                 box.exec_()
                 
+    def from_tab(self,tabinput,pu):
+        def importBunch(pu,reader):
+            rms = reader.myBunch.getDistribution6D().calcRmsValues6D()
+            average = reader.myBunch.getDistribution6D().calcAverages6D() 
+            for j in pu._form._fields.keys():
+                key=j.replace('beam.','')
+                if 'num' in key:
+                    pu._form._fields[j]['widget'].setText(str(reader.myBunch.getDistribution6D().getPhaseSpace6D().getNumParticles()))
+                    #print(key,':',pu._form._fields[j]['widget'].text())
+                elif 'gamma' in key:
+                    pu._form._fields[j]['widget'].setText(str(reader.myBunch.getGamma0())) 
+                    #print(key,':',pu._form._fields[j]['widget'].text())
+                elif 'spread' in key:
+                    pu._form._fields[j]['widget'].setText(str(rms[5]))
+                    #print(key,':',pu._form._fields[j]['widget'].text())
+                elif 'horizontal_width' in key:
+                    pu._form._fields[j]['widget'].setText(str(rms[0]))
+                    #print(key,':',pu._form._fields[j]['widget'].text())
+                elif 'vertical_width' in key:
+                    pu._form._fields[j]['widget'].setText(str(rms[2]))
+                    #print(key,':',pu._form._fields[j]['widget'].text())
+                elif 'horizontal_emittance' in key:
+                    pu._form._fields[j]['widget'].setText(str(reader.myBunch.getTwissParamsByName2D('twissX').getEmitRMS()))
+                    #print(key,':',pu._form._fields[j]['widget'].text())
+                elif 'vertical_emittance' in key:
+                    pu._form._fields[j]['widget'].setText(str(reader.myBunch.getTwissParamsByName2D('twissY').getEmitRMS()))
+                    #print(key,':',pu._form._fields[j]['widget'].text())
+                elif 'horizontal_alpha' in key:
+                    pu._form._fields[j]['widget'].setText(str(reader.myBunch.getTwissParamsByName2D('twissX').getAlphaRMS()))
+                    #print(key,':',pu._form._fields[j]['widget'].text())
+                elif 'vertical_alpha' in key:
+                    pu._form._fields[j]['widget'].setText(str(reader.myBunch.getTwissParamsByName2D('twissY').getAlphaRMS()))
+                    #print(key,':',pu._form._fields[j]['widget'].text())
+                elif 'horizontal_coord' in key:
+                    pu._form._fields[j]['widget'].setText(str(average[0]))
+                    #print(key,':',pu._form._fields[j]['widget'].text())
+                elif 'vertical_coord' in key:
+                    pu._form._fields[j]['widget'].setText(str(average[2]))
+                    #print(key,':',pu._form._fields[j]['widget'].text())
+                elif 'horizontal_angle' in key:
+                    pu._form._fields[j]['widget'].setText(str(average[1]))
+                    #print(key,':',pu._form._fields[j]['widget'].text())
+                elif 'vertical_angle' in key:
+                    pu._form._fields[j]['widget'].setText(str(average[3]))
+                    #print(key,':',pu._form._fields[j]['widget'].text())
+                elif 'current' in key:
+                    pu._form._fields[j]['widget'].setText(str(reader.myBunch.getCurrent()))
+                        
+        choices = []
+        for j in range(self._view.parent.parent.tabWidget.count()):
+            T=self._view.parent.parent.tabWidget.tabText(j)
+            if 'Transport' not in T and self._view.parent.parent.tabWidget.currentIndex() != j:
+                if 'Genesis' in T or 'SRW' in T or 'Elegant' in T or 'Bunch' in T:
+                    choices.append([j,T])
+        box = QtGui.QMessageBox(QtGui.QMessageBox.Question, '', tabinput+'s available.\nRetrieve from which tab?')
+        responses = [box.addButton(j[1], QtGui.QMessageBox.ActionRole) for j in choices] + [box.addButton(QtGui.QMessageBox.Cancel)]
+        box.exec_()
+        try:
+            selected=choices[responses.index(box.clickedButton())]
+            if 'Elegant' in selected[1]:
+                if self._view.parent.parent.tabWidget.widget(selected[0]).ui.simulationResultsListWidget.count()!=0:
+                    ops=self._view.parent.parent.tabWidget.widget(selected[0]).ui.simulationResultsListWidget.item(0).data(QtCore.Qt.UserRole).toString()
+                    reader = BunchTab()
+                    reader.readFromSDDS(ops)
+                    reader.calculateTwiss()
+                    importBunch(pu,reader)
+                else:
+                    error=QtGui.QMessageBox()
+                    error.setIcon(QtGui.QMessageBox.Critical)
+                    error.setText('No Resultant Output Phase Space')
+                    error.exec_()
+            elif 'Bunch' in selected[1]:
+                importBunch(pu,self._view.parent.parent.tabWidget.widget(selected[0]))
+            else:
+                for j in pu._form._fields.keys():
+                    try:
+                        if tabinput == 'beam':
+                            pu._form._fields[j]['widget'].setText(str(self._view.parent.parent.tabWidget.widget(selected[0]).control.params.beam[j.replace('beam.','')]))
+                        elif tabinput == 'undulator': 
+                            #self._form._fields[i]['widget'].setText(str(self.parent.parentWidget().parent.tabWidget.widget(choices[responses.index(box.clickedButton())][0]).control.params.radiation_source.undulator[i.replace('undulator.','')]))
+                            pass
+                    except KeyError:
+                        pass #unmatched key(from declarations) between tabs
+        except IndexError:
+            return       #Cancel selected 
+                      
     def get_in(self,phile):
         def param_update(key,value):
             D=genesis_params.to_genesis()
@@ -250,7 +342,6 @@ class Base(rt_controller.Controller):
                             print(i)   
                 else:
                     parse(line)   
-
             else:
                 dollar+=1
                 if dollar == 2:
