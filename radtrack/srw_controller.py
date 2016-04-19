@@ -84,14 +84,14 @@ class Base(rt_controller.Controller):
     def action_simulate(self):
         msg_list = []
         def msg(m):
-            msg_list.append(m + '... \n \n')
+            msg_list.append(m + '\n \n')
             self._view.set_result_text('simulation', ''.join(msg_list))
         self.params['source'] = self._view.get_source_params()
         for k in 'wavefront', 'simulation_kind', 'polarization', 'intensity','radiation_source':
             self.params[k] = self._view.get_global_param(k)
 
         res = self.simulate(msg)
-        msg('Plotting the results')
+        msg('Plotting the results ...')
         self._view.reset_plot_area()
         for plot in res.plots:
             dataXLimits = plot[1]
@@ -118,6 +118,7 @@ class Base(rt_controller.Controller):
             self._view.plot.canvas.ax.set_title(title)
             self._view.plot.canvas.fig.tight_layout()
             self._view.plot.canvas.draw()
+        msg('Finished plotting.')
 
     def action_undulator(self):
         self._pop_up('undulator')

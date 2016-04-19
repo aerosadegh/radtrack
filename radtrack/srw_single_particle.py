@@ -52,9 +52,9 @@ def simulate(params, msg_callback):
     p.plots = []
     skv = p.simulation_kind
     if params.simulation_kind == 'E':
-        msg_callback('Performing Electric Field (spectrum vs photon energy) calculation')
+        msg_callback('Performing Electric Field (spectrum vs photon energy) calculation ...')
         srwlib.srwl.CalcElecFieldSR(p.wfrE, 0, p.magFldCnt, p.arPrecPar)
-        msg_callback('Extracting Intensity from calculated Electric Field')
+        msg_callback('Extracting Intensity from calculated Electric Field ...')
         p.arI1 = pkarray.new_float([0]*p.wfrE.mesh.ne)
         srwlib.srwl.CalcIntFromElecField(
             p.arI1, p.wfrE, p.polarization, p.intensity, skv, p.wfrE.mesh.eStart, 0, 0)
@@ -64,9 +64,9 @@ def simulate(params, msg_callback):
             ['Photon energy, eV','Spectral intensity, ph/s/0.1%BW','Intensity vs photon energy'],
         ])
     elif params.simulation_kind == 'X':
-        msg_callback('Performing Electric Field (intensity vs x-coordinate) calculation')
+        msg_callback('Performing Electric Field (intensity vs x-coordinate) calculation ...')
         srwlib.srwl.CalcElecFieldSR(p.wfrXY, 0, p.magFldCnt, p.arPrecPar)
-        msg_callback('Extracting Intensity from calculated Electric Field')
+        msg_callback('Extracting Intensity from calculated Electric Field ...')
         p.arI1 = pkarray.new_float([0]*p.wfrXY.mesh.nx)
         srwlib.srwl.CalcIntFromElecField(p.arI1, p.wfrXY, p.polarization, p.intensity, skv, 0, p.wfrXY.mesh.xStart, 0)
         p.plots.append([
@@ -75,9 +75,9 @@ def simulate(params, msg_callback):
             ['Horizontal Position [m]','Spectral intensity, ph/s/0.1%BW','Intensity vs x-coordinate'],
         ])
     elif params.simulation_kind == 'Y':
-        msg_callback('Performing Electric Field (intensity vs y-coordinate) calculation')
+        msg_callback('Performing Electric Field (intensity vs y-coordinate) calculation ...')
         srwlib.srwl.CalcElecFieldSR(p.wfrXY, 0, p.magFldCnt, p.arPrecPar)
-        msg_callback('Extracting Intensity from calculated Electric Field')
+        msg_callback('Extracting Intensity from calculated Electric Field ...')
         p.arI1 = pkarray.new_float([0]*p.wfrXY.mesh.ny)
         srwlib.srwl.CalcIntFromElecField(p.arI1, p.wfrXY, p.polarization, p.intensity, skv, 0, p.wfrXY.mesh.yStart, 0)
         p.plots.append([
@@ -86,12 +86,12 @@ def simulate(params, msg_callback):
             ['Vertical Position [m]','Spectral intensity, ph/s/0.1%BW','Intensity vs y-coordinate'],
         ])
     elif params.simulation_kind == 'X_AND_Y':
-        msg_callback('Performing Electric Field (intensity vs x- and y-coordinate) calculation')
+        msg_callback('Performing Electric Field (intensity vs x- and y-coordinate) calculation ...')
         #srwlib.srwl.CalcElecFieldSR(p.wfrXY, 0, p.magFldCnt, p.arPrecPar)
         print(p.magFldCnt.__dict__)
         '''
         srwlib.srwl.CalcElecFieldSR(p.wfrXY,p.beam,p.magFldCnt, p.arPrecPar)
-        msg_callback('Extracting Intensity from calculated Electric Field')
+        msg_callback('Extracting Intensity from calculated Electric Field ...')
         p.arI1 = pkarray.new_float([0]*p.wfrXY.mesh.nx*p.wfrXY.mesh.ny)
         srwlib.srwl.CalcIntFromElecField(p.arI1, p.wfrXY, p.polarization, p.intensity, skv, p.wfrXY.mesh.eStart, p.wfrXY.mesh.xStart, p.wfrXY.mesh.yStart)
         p.plots.append([
@@ -102,9 +102,9 @@ def simulate(params, msg_callback):
         ])'''
 
     elif params.simulation_kind == 'E_AND_X':
-        msg_callback('Performing Electric Field (intensity vs energy- and x-coordinate) calculation')
+        msg_callback('Performing Electric Field (intensity vs energy- and x-coordinate) calculation ...')
         srwlib.srwl.CalcElecFieldSR(p.wfrXY, 0, p.magFldCnt, p.arPrecPar)
-        msg_callback('* Extracting Intensity from calculated Electric Field')
+        msg_callback('* Extracting Intensity from calculated Electric Field ...')
         p.arI1 = pkarray.new_float([0]*p.wfrXY.mesh.ne*p.wfrXY.mesh.nx)
         srwlib.srwl.CalcIntFromElecField(p.arI1, p.wfrXY, p.polarization, p.intensity, skv, p.wfrXY.mesh.eStart, p.wfrXY.mesh.xStart, p.wfrXY.mesh.yStart)
         p.plots.append([
@@ -114,9 +114,9 @@ def simulate(params, msg_callback):
             ['Energy [eV]', 'Horizontal Position [m]', 'Intensity integrated from ' + str(p.wfrXY.mesh.yStart) + ' to ' + str(p.wfrXY.mesh.yFin) + ' ,m in y-coordinate'],
         ])
     elif params.simulation_kind == 'E_AND_Y':
-        msg_callback('Performing Electric Field (intensity vs energy- and y-coordinate) calculation')
+        msg_callback('Performing Electric Field (intensity vs energy- and y-coordinate) calculation ...')
         srwlib.srwl.CalcElecFieldSR(p.wfrXY, 0, p.magFldCnt, p.arPrecPar)
-        msg_callback('Extracting Intensity from calculated Electric Field')
+        msg_callback('Extracting Intensity from calculated Electric Field ...')
         p.arI1 = pkarray.new_float([0]*p.wfrXY.mesh.ne*p.wfrXY.mesh.ny)
         srwlib.srwl.CalcIntFromElecField(p.arI1, p.wfrXY, p.polarization, p.intensity, skv, p.wfrXY.mesh.eStart, p.wfrXY.mesh.xStart, p.wfrXY.mesh.yStart)
         p.plots.append([
