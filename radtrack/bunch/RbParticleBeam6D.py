@@ -122,6 +122,14 @@ class RbParticleBeam6D:
 #        self.distribution6D.offsetDistribComp(self.getBetaGamma0(), 5)
 #        self.distribution6D.multiplyDistribComp(self.cInv, 4)
         return
+        
+    def getCurrent(self):
+        s=self.distribution6D.calcRmsValues6D()[4]
+        #print('meters:',s)
+        v=math.sqrt(self.getBeta0()*self.cSq)
+        I = self.totalCharge/(s/v)
+        print('I:',I)
+        return I
 
 
 

@@ -78,6 +78,7 @@ class View(QtGui.QWidget):
         self._add_result_texts(main)
         self._add_plot_area(main)
         self.setLayout(main)
+        self.parent=parent
 
     def get_global_param(self, name):
         #TODO (robnagler) hide the abstraction for now

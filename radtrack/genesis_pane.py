@@ -31,6 +31,7 @@ class View(QtGui.QWidget):
         #self._add_param_vbox(main)
         self._add_result_texts(main)
         self.setLayout(main)
+        self.parent=parent
         
     def set_result_text(self, which, text):
         w = self._result_text[which]
