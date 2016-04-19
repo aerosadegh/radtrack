@@ -206,6 +206,7 @@ class View(QtGui.QWidget):
     def reset_plot_area(self):
         layout = self.plot.layoutContainer
         layout.removeWidget(self.plot)
+        self.plot.close()
         self._add_plot_area(layout)
 
     def _add_vertical_stretch_spacer(self, param_vbox):
