@@ -1,3 +1,4 @@
+import math
 import numpy as np
 from matplotlib.path import Path
 
@@ -20,33 +21,44 @@ levels   : integer or array (optional, default=10)
          number of contour levels, or array of contour levels
 """
 def scatConPlot(plotFlag, plotType, x, y, ax, divs=10, levels=10):
+    ref = None
     if plotFlag in ['contour', 'combo']:
-        threshold = 8 if plotFlag == 'combo' else 1
+        if type(x) is list: # x contains data for 2 axis ranges
+            xDim = len(x[0])
+            yDim = len(x[1])
+            X, Y = np.meshgrid(x[0], x[1])
+            Z = y.reshape([math.sqrt(y.size), math.sqrt(y.size)])
+            Z = Z[0:xDim, 0:yDim]
 
-        # generate the 2D histogram, allowing the algorithm to use
-        #   all data points, automatically calculating the 2D extent
-        myHist, xbins, ybins = np.histogram2d(x, y, divs)
+            ref = ax.contourf(X, Y, Z)
 
-        # specify contour levels, allowing user to input simple integer
-        levels = np.asarray(levels)
-        # if user specified an integer, then populate levels reasonably
-        if levels.size == 1:
-            levels = np.linspace(threshold, myHist.max(), levels)
+        else:
+            threshold = 8 if plotFlag == 'combo' else 1
 
-        # define the 'extent' of the contoured area, using the
-        #   the horizontal and vertical arrays generaed by histogram2d()
-        extent = [xbins[0], xbins[-1], ybins[0], ybins[-1]]
-        i_min = np.argmin(levels)
+            # generate the 2D histogram, allowing the algorithm to use
+            #   all data points, automatically calculating the 2D extent
+            myHist, xbins, ybins = np.histogram2d(x, y, divs)
 
-        # draw a zero-width line, which defines the outer polygon,
-        #   in order to reduce the number of points drawn
-        outline = ax.contour(myHist.T, levels[i_min:i_min+1],linewidths=0,extent=extent)
+            # specify contour levels, allowing user to input simple integer
+            levels = np.asarray(levels)
+            # if user specified an integer, then populate levels reasonably
+            if levels.size == 1:
+                levels = np.linspace(threshold, myHist.max(), levels)
 
-        # generate the contoured image, filled or not
-        #   use myHist.T, rather than full myHist, to limit extent of the contoured region
-        #   i.e. only the high-density regions are contoured
-        #   the return value is potentially useful to the calling method
-        ax.contourf(myHist.T, levels, extent=extent)
+            # define the 'extent' of the contoured area, using the
+            #   the horizontal and vertical arrays generaed by histogram2d()
+            extent = [xbins[0], xbins[-1], ybins[0], ybins[-1]]
+            i_min = np.argmin(levels)
+
+            # draw a zero-width line, which defines the outer polygon,
+            #   in order to reduce the number of points drawn
+            outline = ax.contour(myHist.T, levels[i_min:i_min+1],linewidths=0,extent=extent)
+
+            # generate the contoured image, filled or not
+            #   use myHist.T, rather than full myHist, to limit extent of the contoured region
+            #   i.e. only the high-density regions are contoured
+            #   the return value is potentially useful to the calling method
+            ref = ax.contourf(myHist.T, levels, extent=extent)
 
     # logic for finding particles in low-density regions
     if plotFlag == 'combo':
@@ -91,6 +103,8 @@ def scatConPlot(plotFlag, plotType, x, y, ax, divs=10, levels=10):
 
         if plotType in ['linear', 'semi-logx']:
             ax.set_yscale('linear')
+
+    return ref
 
 
 

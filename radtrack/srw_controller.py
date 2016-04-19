@@ -41,7 +41,6 @@ class Base(rt_controller.Controller):
         self.params = rt_params.init_params(self.defaults)
         self._view = srw_pane.View(self, parent_widget)
         self.complexity_widget.stateChanged.connect(self.toggle_complexity)
-        self._view.plot.canvas.fig.set_facecolor('w')
         return self._view
 
     def action_analyze(self):
@@ -93,18 +92,27 @@ class Base(rt_controller.Controller):
 
         res = self.simulate(msg)
         msg('Plotting the results')
-        self._view.plot.canvas.ax.clear()
+        self._view.reset_plot_area()
         for plot in res.plots:
-            dataXLimits = plot[-2]
+            dataXLimits = plot[1]
             dataX = np.linspace(dataXLimits[0], dataXLimits[1], dataXLimits[2])
+
+            contourPlot = (len(plot) == 4)
+            if contourPlot:
+                dataX = [dataX, np.linspace(plot[2][0], plot[2][1], plot[2][2])]
+                dataY = np.array(plot[0])
+            else:
+                dataY = np.array(plot[0][0:dataXLimits[2]])
+
+
             xLabel = plot[-1][0]
-
-            dataY = np.array(plot[0][0:dataXLimits[2]])
             yLabel = plot[-1][1]
-
             title = plot[-1][2]
 
-            scatConPlot('line', 'linear', dataX, dataY, self._view.plot.canvas.ax)
+            plt = scatConPlot('contour' if contourPlot else 'line', 'linear', dataX, dataY, self._view.plot.canvas.ax)
+            if contourPlot:
+                self._view.plot.canvas.fig.colorbar(plt)
+                self._view.plot.canvas.ax.set_aspect('equal')
             self._view.plot.canvas.ax.set_xlabel(xLabel)
             self._view.plot.canvas.ax.set_ylabel(yLabel)
             self._view.plot.canvas.ax.set_title(title)

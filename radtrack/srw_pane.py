@@ -198,8 +198,15 @@ class View(QtGui.QWidget):
 
     def _add_plot_area(self, main):
         self.plot = matplotlibWidget()
+        self.plot.layoutContainer = main
         main.addWidget(self.plot)
         self.plot.canvas.fig.tight_layout()
+        self.plot.canvas.fig.set_facecolor('w')
+
+    def reset_plot_area(self):
+        layout = self.plot.layoutContainer
+        layout.removeWidget(self.plot)
+        self._add_plot_area(layout)
 
     def _add_vertical_stretch_spacer(self, param_vbox):
         """Only way to ensure that the wavefront_view won't stretch"""
