@@ -6,6 +6,8 @@
 """
 from __future__ import absolute_import, division, print_function
 
+import numpy as np
+
 from pykern import pkarray
 from pykern import pkcompat
 
@@ -22,9 +24,7 @@ from radtrack import srw_multi_particle
 from radtrack import srw_single_particle
 from radtrack.srw import AnalyticCalc
 from radtrack.BunchTab import BunchTab
-
-# Must be last, because srw_params initializes srwlib and uti_plot
-import uti_plot
+from radtrack.util.plotTools import scatConPlot
 
 
 class Base(rt_controller.Controller):
@@ -94,10 +94,32 @@ class Base(rt_controller.Controller):
 
         res = self.simulate(msg)
         msg('Plotting the results')
+        self._view.reset_plot_area()
         for plot in res.plots:
-            plot[0](*plot[1:])
-        msg('NOTE: Close all graph windows to proceed')
-        uti_plot.uti_plot_show()
+            dataXLimits = plot[1]
+            dataX = np.linspace(dataXLimits[0], dataXLimits[1], dataXLimits[2])
+
+            contourPlot = (len(plot) == 4)
+            if contourPlot:
+                dataX = [dataX, np.linspace(plot[2][0], plot[2][1], plot[2][2])]
+                dataY = np.array(plot[0])
+            else:
+                dataY = np.array(plot[0][0:dataXLimits[2]])
+
+
+            xLabel = plot[-1][0]
+            yLabel = plot[-1][1]
+            title = plot[-1][2]
+
+            plt = scatConPlot('contour' if contourPlot else 'line', 'linear', dataX, dataY, self._view.plot.canvas.ax)
+            if contourPlot:
+                self._view.plot.canvas.fig.colorbar(plt)
+                self._view.plot.canvas.ax.set_aspect('equal')
+            self._view.plot.canvas.ax.set_xlabel(xLabel)
+            self._view.plot.canvas.ax.set_ylabel(yLabel)
+            self._view.plot.canvas.ax.set_title(title)
+            self._view.plot.canvas.fig.tight_layout()
+            self._view.plot.canvas.draw()
 
     def action_undulator(self):
         self._pop_up('undulator')

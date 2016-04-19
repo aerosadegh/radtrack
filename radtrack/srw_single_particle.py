@@ -15,7 +15,6 @@ from pykern.pkdebug import pkdc, pkdp
 from radtrack import srw_params
 
 import srwlib
-import uti_plot
 
 
 def simulate(params, msg_callback):
@@ -60,7 +59,6 @@ def simulate(params, msg_callback):
         srwlib.srwl.CalcIntFromElecField(
             p.arI1, p.wfrE, p.polarization, p.intensity, skv, p.wfrE.mesh.eStart, 0, 0)
         p.plots.append([
-            uti_plot.uti_plot1d,
             p.arI1,
             [p.wfrE.mesh.eStart, p.wfrE.mesh.eFin, p.wfrE.mesh.ne],
             ['Photon energy, eV','Spectral intensity, ph/s/0.1%BW','Intensity vs photon energy'],
@@ -72,7 +70,6 @@ def simulate(params, msg_callback):
         p.arI1 = pkarray.new_float([0]*p.wfrXY.mesh.nx)
         srwlib.srwl.CalcIntFromElecField(p.arI1, p.wfrXY, p.polarization, p.intensity, skv, 0, p.wfrXY.mesh.xStart, 0)
         p.plots.append([
-            uti_plot.uti_plot1d,
             p.arI1,
             [p.wfrXY.mesh.xStart, p.wfrXY.mesh.xFin, p.wfrXY.mesh.nx],
             ['Horizontal Position [m]','Spectral intensity, ph/s/0.1%BW','Intensity vs x-coordinate'],
@@ -84,7 +81,6 @@ def simulate(params, msg_callback):
         p.arI1 = pkarray.new_float([0]*p.wfrXY.mesh.ny)
         srwlib.srwl.CalcIntFromElecField(p.arI1, p.wfrXY, p.polarization, p.intensity, skv, 0, p.wfrXY.mesh.yStart, 0)
         p.plots.append([
-            uti_plot.uti_plot1d,
             p.arI1,
             [p.wfrXY.mesh.yStart, p.wfrXY.mesh.yFin, p.wfrXY.mesh.ny],
             ['Vertical Position [m]','Spectral intensity, ph/s/0.1%BW','Intensity vs y-coordinate'],
@@ -99,7 +95,6 @@ def simulate(params, msg_callback):
         p.arI1 = pkarray.new_float([0]*p.wfrXY.mesh.nx*p.wfrXY.mesh.ny)
         srwlib.srwl.CalcIntFromElecField(p.arI1, p.wfrXY, p.polarization, p.intensity, skv, p.wfrXY.mesh.eStart, p.wfrXY.mesh.xStart, p.wfrXY.mesh.yStart)
         p.plots.append([
-            uti_plot.uti_plot2d,
             p.arI1,
             [1*p.wfrXY.mesh.xStart, 1*p.wfrXY.mesh.xFin, p.wfrXY.mesh.nx],
             [1*p.wfrXY.mesh.yStart, 1*p.wfrXY.mesh.yFin, p.wfrXY.mesh.ny],
@@ -113,7 +108,6 @@ def simulate(params, msg_callback):
         p.arI1 = pkarray.new_float([0]*p.wfrXY.mesh.ne*p.wfrXY.mesh.nx)
         srwlib.srwl.CalcIntFromElecField(p.arI1, p.wfrXY, p.polarization, p.intensity, skv, p.wfrXY.mesh.eStart, p.wfrXY.mesh.xStart, p.wfrXY.mesh.yStart)
         p.plots.append([
-            uti_plot.uti_plot1d,
             p.arI1,
             [1*p.wfrXY.mesh.eStart, 1*p.wfrXY.mesh.eFin, p.wfrXY.mesh.ne],
             [1*p.wfrXY.mesh.xStart, 1*p.wfrXY.mesh.xFin, p.wfrXY.mesh.nx],
@@ -126,7 +120,6 @@ def simulate(params, msg_callback):
         p.arI1 = pkarray.new_float([0]*p.wfrXY.mesh.ne*p.wfrXY.mesh.ny)
         srwlib.srwl.CalcIntFromElecField(p.arI1, p.wfrXY, p.polarization, p.intensity, skv, p.wfrXY.mesh.eStart, p.wfrXY.mesh.xStart, p.wfrXY.mesh.yStart)
         p.plots.append([
-            uti_plot.uti_plot1d,
             p.arI1,
             [1*p.wfrXY.mesh.eStart, 1*p.wfrXY.mesh.eFin, p.wfrXY.mesh.ne],
             [1*p.wfrXY.mesh.yStart, 1*p.wfrXY.mesh.yFin, p.wfrXY.mesh.ny],
@@ -135,45 +128,3 @@ def simulate(params, msg_callback):
     else:
         raise AssertionError('{}: invalid p.simulation_kind'.format(params.simulation_kind))
     return p
-
-def _trajectory(p):
-    # Done specifying undulator mag field
-    # Initial coordinates of particle trajectory through the ID
-    part = srwlib.SRWLParticle()
-    part.x = p.beam.partStatMom1.x
-    part.y = p.beam.partStatMom1.y
-    part.xp = p.beam.partStatMom1.xp
-    part.yp = p.beam.partStatMom1.yp
-    part.gamma = p.beam.partStatMom1.gamma #3/0.51099890221e-03 #Relative Energy beam.partStatMom1.gamma
-    part.relE0 = 1
-    part.nq = -1
-    zcID = 0
-    # number of trajectory points along longitudinal axis
-    npTraj = 100
-    #Definitions and allocation for the Trajectory waveform
-    part.z = zcID #- 0.5*magFldCnt.MagFld[0].rz
-    p.partTraj = srwlib.SRWLPrtTrj()
-    p.partTraj.partInitCond = part
-    p.partTraj.allocate(npTraj, True)
-    p.partTraj.ctStart = -0.1 #-0.55 * p.und.nPer * p.und.per
-    p.partTraj.ctEnd = 0.1    #0.55 * p.und.nPer * p.und.per #magFldCnt.MagFld[0].rz
-    p.partTraj = srwlib.srwl.CalcPartTraj(p.partTraj, p.magFldCnt, p.arPrecPar)
-    p.ctMesh = [p.partTraj.ctStart, p.partTraj.ctEnd, p.partTraj.np]
-
-    uti_plot.uti_plot1d(p.partTraj.arX, ctMesh, ['ct [m]', 'Horizontal Position [m]'])
-    uti_plot.uti_plot1d(p.partTraj.arY, ctMesh, ['ct [m]', 'Vertical Position [m]'])
-    uti_plot.uti_plot1d(p.partTraj.arXp, ctMesh, ['ct [m]', 'Horizontal angle [rad]'])
-    uti_plot.uti_plot_show()
-    '''
-    for i in range(p.partTraj.np):
-        p.partTraj.arX[i] *= 1000
-        p.partTraj.arY[i] *= 1000
-    p.plots.append([
-        uti_plot.uti_plot1d,
-        p.partTraj.arX, p.ctMesh, ['ct [m]', 'Horizontal Position [mm]'],
-    ])
-    p.plots.append([
-        uti_plot.uti_plot1d,
-        p.partTraj.arY, p.ctMesh, ['ct [m]', 'Vertical Position [mm]'],
-    ])
-    '''
