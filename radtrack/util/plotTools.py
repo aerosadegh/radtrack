@@ -24,13 +24,25 @@ def scatConPlot(plotFlag, plotType, x, y, ax, divs=10, levels=10):
     ref = None
     if plotFlag in ['contour', 'combo']:
         if type(x) is list: # x contains data for 2 axis ranges
-            xDim = len(x[0])
-            yDim = len(x[1])
-            X, Y = np.meshgrid(x[0], x[1])
-            Z = y.reshape([math.sqrt(y.size), math.sqrt(y.size)])
-            Z = Z[0:xDim, 0:yDim]
+            levels = np.asarray(levels)
+            if levels.size == 1:
+                levels = np.linspace(min(y), max(y), levels)
 
-            ref = ax.contourf(X, Y, Z)
+            minX = min(x[0])
+            maxX = max(x[0])
+
+            minY = min(x[1])
+            maxY = max(x[1])
+
+            points = len(y)
+            ratio = float(maxX - minX)/(maxY - minY)
+            shapeX = math.sqrt(points*ratio)
+            shapeY = math.sqrt(points/ratio)
+            X, Y = np.meshgrid(x[0], x[1])
+            Z = y.reshape([shapeX, shapeY])
+            Z = Z[0:len(x[0]), 0:len(x[1])]
+
+            ref = ax.contourf(X, Y, Z, levels=levels, extent=[minX, maxX, minY, maxY])
 
         else:
             threshold = 8 if plotFlag == 'combo' else 1
