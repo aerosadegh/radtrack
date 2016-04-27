@@ -1057,6 +1057,7 @@ class BunchTab(QtGui.QWidget):
         mySDDS.columnName = ["x", "xp", "y", "yp", "t", "p"]
 
         try:
+            tmp6 = self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D()
             if not self.userInputEnabled():
                 tmp6 = randomSampleOfBunch(tmp6, int(self.ui.numPtcls.text()))
 
