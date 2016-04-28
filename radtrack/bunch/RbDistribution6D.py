@@ -248,8 +248,7 @@ class RbDistribution6D:
         return
 
     def offsetDistribComp(self,offset,index):
-
-        if ( (index<0) or (index>5) ):
+        if index < 0 or index > 5:
             message = 'ERROR!  index is out of range: ' + str(index)
             raise Exception(message)
 
@@ -259,8 +258,7 @@ class RbDistribution6D:
         return
 
     def multiplyDistribComp(self,factor,index):
-
-        if ( (index<0) or (index>5) ):
+        if index < 0 or index > 5:
             message = 'ERROR!  index is out of range: ' + str(index)
             raise Exception(message)
 
