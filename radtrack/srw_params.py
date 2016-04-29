@@ -14,9 +14,6 @@ from pykern import pkcollections
 
 import srwlib
 from array import array
-import uti_plot
-# Initialize so that SRW doesn't generate files
-uti_plot.uti_plot_init(backend=uti_plot.DEFAULT_BACKEND, fname_format=None)
 
 def to_beam(params):
     """Convert params to `SRWLPartBeam`
