@@ -235,6 +235,9 @@ class RbDcp(QtGui.QWidget):
 
         #preview of parameters
         self.preview(Ncol)
+        #temp fix for wrong units in column 4 of output phase space file from elegant
+        self.data.setItem(1,4,QtGui.QTableWidgetItem('z'))
+        self.data.setItem(2,4, QtGui.QTableWidgetItem('m'))
 
         #preview of sdds data
         sddsprev(Ncol)
@@ -311,7 +314,7 @@ class RbDcp(QtGui.QWidget):
         
     def outselect(self):
         self.quickplot.clear()
-        self.quickplot.addItem('t v. p')
+        self.quickplot.addItem('z v. p')
         self.quickplot.addItem('x v. y')
         
     def sigselect(self):
