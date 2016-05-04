@@ -334,7 +334,7 @@ class BunchTab(QtGui.QWidget):
                                                 self.twissEmitNZ,'twissZ')
 
             # create the distribution
-            self.myBunch.makeParticlePhaseSpace6D()
+            self.myBunch.makeParticlePhaseSpace6D(self.designMomentumEV)
 
             # offset the distribution
             if self.offsetX  != 0.:
@@ -430,7 +430,7 @@ class BunchTab(QtGui.QWidget):
                      nDivs, nLevels)
 
         self.plotSDP(convertUnitsNumber(tmp6[4,:], 'm', self.unitsPos),
-                     convertUnitsNumber(tmp6[5,:], 'rad', self.unitsAngle),
+                     tmp6[5,:],
                      nDivs, nLevels)
 
         self.parent.ui.statusbar.clearMessage()
@@ -460,7 +460,7 @@ class BunchTab(QtGui.QWidget):
             self.xpMax = (abs(avgArray[1])+diffZero[1])*convertUnitsNumber(1, 'rad', self.unitsAngle)
             self.yMax  = (abs(avgArray[2])+diffZero[2])*convertUnitsNumber(1, 'm', self.unitsPos)
             self.ypMax = (abs(avgArray[3])+diffZero[3])*convertUnitsNumber(1, 'rad', self.unitsAngle)
-            self.ptMax = (abs(avgArray[5])+diffZero[5])*convertUnitsNumber(1, 'rad', self.unitsAngle)
+            self.ptMax = (abs(avgArray[5])+diffZero[5])
 
             self.xMin  = -self.xMax
             self.xpMin = -self.xpMax
@@ -474,13 +474,13 @@ class BunchTab(QtGui.QWidget):
             self.xpMin = (avgArray[1]-3.*rmsArray[1])*convertUnitsNumber(1, 'rad', self.unitsAngle)
             self.yMin  = (avgArray[2]-3.*rmsArray[2])*convertUnitsNumber(1, 'm', self.unitsPos)
             self.ypMin = (avgArray[3]-3.*rmsArray[3])*convertUnitsNumber(1, 'rad', self.unitsAngle)
-            self.ptMin = (avgArray[5]-3.*rmsArray[5])*convertUnitsNumber(1, 'rad', self.unitsAngle)
+            self.ptMin = (avgArray[5]-3.*rmsArray[5])
 
             self.xMax  = (avgArray[0]+3.*rmsArray[0])*convertUnitsNumber(1, 'm', self.unitsPos)
             self.xpMax = (avgArray[1]+3.*rmsArray[1])*convertUnitsNumber(1, 'rad', self.unitsAngle)
             self.yMax  = (avgArray[2]+3.*rmsArray[2])*convertUnitsNumber(1, 'm', self.unitsPos)
             self.ypMax = (avgArray[3]+3.*rmsArray[3])*convertUnitsNumber(1, 'rad', self.unitsAngle)
-            self.ptMax = (avgArray[5]+3.*rmsArray[5])*convertUnitsNumber(1, 'rad', self.unitsAngle)
+            self.ptMax = (avgArray[5]+3.*rmsArray[5])
 
         # symmetric around the bunch
         elif self.axisFlag == 'bunch-centered':
@@ -488,13 +488,13 @@ class BunchTab(QtGui.QWidget):
             self.xpMin = (avgArray[1]-diffZero[1])*convertUnitsNumber(1, 'rad', self.unitsAngle)
             self.yMin  = (avgArray[2]-diffZero[2])*convertUnitsNumber(1, 'm', self.unitsPos)
             self.ypMin = (avgArray[3]-diffZero[3])*convertUnitsNumber(1, 'rad', self.unitsAngle)
-            self.ptMin = (avgArray[5]-diffZero[5])*convertUnitsNumber(1, 'rad', self.unitsAngle)
+            self.ptMin = (avgArray[5]-diffZero[5])
 
             self.xMax  = (avgArray[0]+diffZero[0])*convertUnitsNumber(1, 'm', self.unitsPos)
             self.xpMax = (avgArray[1]+diffZero[1])*convertUnitsNumber(1, 'rad', self.unitsAngle)
             self.yMax  = (avgArray[2]+diffZero[2])*convertUnitsNumber(1, 'm', self.unitsPos)
             self.ypMax = (avgArray[3]+diffZero[3])*convertUnitsNumber(1, 'rad', self.unitsAngle)
-            self.ptMax = (avgArray[5]+diffZero[5])*convertUnitsNumber(1, 'rad', self.unitsAngle)
+            self.ptMax = (avgArray[5]+diffZero[5])
 
         if self.axisFlag=='compact' or self.axisFlag=='symmetric-compact':
             # sMin / sMax always have to be 'bunch centered'
@@ -552,7 +552,7 @@ class BunchTab(QtGui.QWidget):
         self.plotGenericBefore(hData, vData, self.ui.tpzPlot.canvas, nDivs, nLevels)
         self.ui.tpzPlot.canvas.ax.axis([self.sMin, self.sMax, self.ptMin, self.ptMax])
         self.ui.tpzPlot.canvas.ax.set_xlabel('s ['+self.unitsPos+']')
-        self.ui.tpzPlot.canvas.ax.set_ylabel(r'$(p-p_0)/p_0$ ['+self.unitsAngle+']')
+        self.ui.tpzPlot.canvas.ax.set_ylabel('p [eV/c]')
         self.plotGenericAfter(self.ui.tpzPlot.canvas, 'longitudinal')
 
     def erasePlots(self):
@@ -887,7 +887,7 @@ class BunchTab(QtGui.QWidget):
 
         # check for unspecified units, and set them to default value
         # if the units are specified, but incorrect, the problem is detected below
-        defaultUnits = ['m', 'rad', 'm', 'rad', 'm', 'rad']
+        defaultUnits = ['m', 'rad', 'm', 'rad', 'm', 'm_ec']
         for iLoop in range(6):
             if not unitStrings[iLoop]:
                 unitStrings[iLoop] = defaultUnits[dataIndex[iLoop]]
@@ -915,15 +915,21 @@ class BunchTab(QtGui.QWidget):
 
         # instantiate the particle bunch
         self.myBunch = beam.RbParticleBeam6D(numParticles)
+        self.designMomentumEV = convertUnitsStringToNumber(self.ui.designMomentum.text(), 'eV')
         self.myBunch.setDesignMomentumEV(self.designMomentumEV)
         self.myBunch.setMassEV(self.eMassEV)     # assume electrons
 
         # all seems to be well, so load particle data into local array,
         #   accounting for any non-standard physical units
         tmp6 = np.array([columnData[dataIndex[i]] for i in range(6)])
+        #check for negative energy means p is relative
+        relativeMomentum = any(n<0 for n in tmp6[5,:])
 
         # load particle array into the phase space object
         self.myBunch.getDistribution6D().getPhaseSpace6D().setArray6D(tmp6)
+        if relativeMomentum:
+            self.myBunch.getDistribution6D().multiplyDistribComp(self.designMomentumEV,5)
+            self.myBunch.getDistribution6D().offsetDistribComp(self.designMomentumEV,5)
 
         self.putParametersInGUI(numParticles)
 

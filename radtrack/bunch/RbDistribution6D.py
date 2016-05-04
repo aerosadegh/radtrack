@@ -183,7 +183,7 @@ class RbDistribution6D:
         twissParams6D['twissZ'] = twiss.RbTwiss2D(alphaRMS[2], betaRMS[2], emitRMS[2])
         return
 
-    def makeTwissDist6D(self,twissParams6D):
+    def makeTwissDist6D(self,twissParams6D, meanMomentum):
         self.roundPhaseSpace6D()
 
         array6D = self.phaseSpace6D.getArray6D()
@@ -245,7 +245,8 @@ class RbDistribution6D:
                                                   fInv*sinPhi*temp6D[iLoop+1,nLoop])
                 array6D[iLoop+1,nLoop] = rootFac*(fac *sinPhi*temp6D[iLoop,  nLoop] + \
                                                   fInv*cosPhi*temp6D[iLoop+1,nLoop])
-        return
+        self.multiplyDistribComp(meanMomentum, 5)
+        self.offsetDistribComp(meanMomentum, 5)
 
     def offsetDistribComp(self,offset,index):
         if index < 0 or index > 5:

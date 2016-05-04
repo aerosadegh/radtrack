@@ -117,8 +117,8 @@ class RbParticleBeam6D:
     def getDistribution6D(self):
         return self.distribution6D
 
-    def makeParticlePhaseSpace6D(self):
-        self.distribution6D.makeTwissDist6D(self.twissParams6D)
+    def makeParticlePhaseSpace6D(self, meanMomentum):
+        self.distribution6D.makeTwissDist6D(self.twissParams6D, meanMomentum)
 #        self.distribution6D.offsetDistribComp(self.getBetaGamma0(), 5)
 #        self.distribution6D.multiplyDistribComp(self.cInv, 4)
         return
