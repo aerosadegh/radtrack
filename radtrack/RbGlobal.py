@@ -398,6 +398,10 @@ class RbGlobal(QtGui.QMainWindow):
 
     def openExampleProject(self, directory):
         temp = directory + '_temp'
+        try:
+            shutil.rmtree(temp)
+        except Exception:
+            pass
         shutil.copytree(directory, temp)
         self.openProject(temp)
         session = 'Example_' + datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
