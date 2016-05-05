@@ -312,7 +312,7 @@ class BunchTab(QtGui.QWidget):
             self.offsetT  = convertUnitsStringToNumber(self.ui.offsetTable.item(2,0).text(), 'm')
             self.offsetXP = convertUnitsStringToNumber(self.ui.offsetTable.item(0,1).text(), 'rad')
             self.offsetYP = convertUnitsStringToNumber(self.ui.offsetTable.item(1,1).text(), 'rad')
-            self.offsetPT = convertUnitsStringToNumber(self.ui.offsetTable.item(2,1).text(), 'rad')
+            self.offsetPT = convertUnitsStringToNumber(self.ui.offsetTable.item(2,1).text(), 'rad')*self.designMomentumEV
 
             # instantiate the particle bunch
             self.myBunch = beam.RbParticleBeam6D(numParticles)
@@ -1071,6 +1071,10 @@ class BunchTab(QtGui.QWidget):
 
             if not self.userInputEnabled():
                 tmp6 = randomSampleOfBunch(tmp6, int(self.ui.numPtcls.text()))
+                
+            if any(n>1e-5 for n in tmp6[4,:]):
+                for i,t in enumerate(tmp6[4,:]):
+                    tmp6[4,i]=t/self.c
 
             mySDDS.columnData = [ [list(tmp6[i,:])] for i in range(6)]
 
