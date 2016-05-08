@@ -17,7 +17,7 @@ from scipy.special import jn
 from matplotlib import pyplot as plt
 import matplotlib as mpl
 mpl.rc('font',**{'family':'serif','serif':['Palatino']})
-mpl.rc('text', usetex=True)
+mpl.rc('text', usetex=False)
 
 # Beam parameters
 gamma0 = 264.188
