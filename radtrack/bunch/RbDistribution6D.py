@@ -265,5 +265,5 @@ class RbDistribution6D:
 
         array6D = self.phaseSpace6D.getArray6D()
         array6D[index,:] *= factor
-
+        
         return

@@ -125,7 +125,7 @@ class RbParticleBeam6D:
         
     def getCurrent(self):
         s=self.distribution6D.calcRmsValues6D()[4]
-        t=s/self.c
+        t=s/(self.Beta0*self.c)
         I = self.totalCharge/t
         print('I:',I)
         return I
