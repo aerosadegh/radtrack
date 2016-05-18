@@ -312,7 +312,7 @@ class BunchTab(QtGui.QWidget):
             self.offsetT  = convertUnitsStringToNumber(self.ui.offsetTable.item(2,0).text(), 'm')
             self.offsetXP = convertUnitsStringToNumber(self.ui.offsetTable.item(0,1).text(), 'rad')
             self.offsetYP = convertUnitsStringToNumber(self.ui.offsetTable.item(1,1).text(), 'rad')
-            self.offsetPT = convertUnitsStringToNumber(self.ui.offsetTable.item(2,1).text(), 'rad')*beta0gamma0
+            self.offsetPT = convertUnitsStringToNumber(self.ui.offsetTable.item(2,1).text(), 'rad')*self.designMomentumEV
 
             # instantiate the particle bunch
             self.myBunch = beam.RbParticleBeam6D(numParticles)
@@ -334,7 +334,7 @@ class BunchTab(QtGui.QWidget):
                                                 self.twissEmitNZ,'twissZ')
 
             # create the distribution
-            self.myBunch.makeParticlePhaseSpace6D(beta0gamma0) #self.designMomentumEV
+            self.myBunch.makeParticlePhaseSpace6D(self.designMomentumEV)
 
             # offset the distribution
             if self.offsetX  != 0.:
@@ -388,7 +388,7 @@ class BunchTab(QtGui.QWidget):
         self.plotFlag = 'combo'
         self.refreshPlots()
 
-    def refreshPlots(self):
+    def refreshPlots(self,internal=False):
         self.parent.ui.statusbar.showMessage('Redrawing plots ...')
         self.erasePlots()
 
@@ -552,7 +552,7 @@ class BunchTab(QtGui.QWidget):
         self.plotGenericBefore(hData, vData, self.ui.tpzPlot.canvas, nDivs, nLevels)
         self.ui.tpzPlot.canvas.ax.axis([self.sMin, self.sMax, self.ptMin, self.ptMax])
         self.ui.tpzPlot.canvas.ax.set_xlabel('s ['+self.unitsPos+']')
-        self.ui.tpzPlot.canvas.ax.set_ylabel('p [beta*gamma]')
+        self.ui.tpzPlot.canvas.ax.set_ylabel('p [eV/c]')
         self.plotGenericAfter(self.ui.tpzPlot.canvas, 'longitudinal')
 
     def erasePlots(self):
@@ -763,6 +763,9 @@ class BunchTab(QtGui.QWidget):
 
         self.calculateTwiss()
         self.refreshPlots()
+        self.ui.tpzPlot.canvas.ax.set_xlabel('t [s]')
+        self.ui.tpzPlot.canvas.ax.set_ylabel('p [beta*gamma]')
+        self.ui.tpzPlot.canvas.draw()
 
 
     def readFromSDDS(self, fileName):
@@ -887,7 +890,7 @@ class BunchTab(QtGui.QWidget):
 
         # check for unspecified units, and set them to default value
         # if the units are specified, but incorrect, the problem is detected below
-        defaultUnits = ['m', 'rad', 'm', 'rad', 'm', 'm_ec']
+        defaultUnits = ['m', 'rad', 'm', 'rad', 'm', 'm$be$nc']
         for iLoop in range(6):
             if not unitStrings[iLoop]:
                 unitStrings[iLoop] = defaultUnits[dataIndex[iLoop]]
@@ -930,7 +933,15 @@ class BunchTab(QtGui.QWidget):
         if relativeMomentum:
             self.myBunch.getDistribution6D().multiplyDistribComp(self.designMomentumEV,5)
             self.myBunch.getDistribution6D().offsetDistribComp(self.designMomentumEV,5)
+            print('relative')
+        else: 
+            self.designMomentumEV=self.myBunch.getDistribution6D().calcAverages6D()[5]*self.myBunch.eMassEV
+            self.myBunch.setDesignMomentumEV(self.designMomentumEV)
+            #self.ui.designMomentum.setText(convertUnitsNumberToString(self.designMomentumEV, 'eV', 'MeV'))
 
+        self.totalCharge = numParticles*self.eCharge
+        #self.ui.totalCharge.setText(convertUnitsNumberToString(self.totalCharge, 'C', 'nC'))
+        #self.ui.designMomentum.setText(convertUnitsNumberToString(self.designMomentumEV, 'eV', 'MeV'))
         self.putParametersInGUI(numParticles)
 
         # plot the results
@@ -1073,10 +1084,8 @@ class BunchTab(QtGui.QWidget):
                 tmp6 = randomSampleOfBunch(tmp6, int(self.ui.numPtcls.text()))
                 
             if any(n>1e-5 for n in tmp6[4,:]):
-                beta0gamma0 = self.designMomentumEV / self.eMassEV
-                beta0 = beta0gamma0 / math.sqrt(beta0gamma0**2 + 1.)
                 for i,t in enumerate(tmp6[4,:]):
-                    tmp6[4,i]=t/(beta0*self.c)
+                    tmp6[4,i]=t/self.c
 
             mySDDS.columnData = [ [list(tmp6[i,:])] for i in range(6)]
 

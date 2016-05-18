@@ -127,7 +127,6 @@ class RbParticleBeam6D:
         s=self.distribution6D.calcRmsValues6D()[4]
         t=s/(self.Beta0*self.c)
         I = self.totalCharge/t
-        print('I:',I)
         return I
 
 
