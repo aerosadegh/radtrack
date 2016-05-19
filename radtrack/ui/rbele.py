@@ -204,6 +204,16 @@ class Ui_ELE(object):
         self.beamLineSourceLabel.setBuddy(self.beamLineSourceComboBox)
         self.beamLineLabel.setBuddy(self.beamLineComboBox)
         self.momentumLabel.setBuddy(self.momentumLineEdit)
+        
+        self.particleLabel = QtGui.QLabel(ELE)
+        self.particleLabel.setEnabled(False)
+        self.particleLabel.setObjectName(_fromUtf8("particleLabel"))
+        self.particleComboBox = QtGui.QComboBox(ELE)
+        self.particleComboBox.addItem('electron')
+        self.particleComboBox.addItem('proton')
+        self.particleComboBox.setEnabled(False)
+        self.particleLabel.setBuddy(self.particleComboBox)
+        self.formLayout.insertRow(1,self.particleLabel,self.particleComboBox)
 
         self.retranslateUi(ELE)
         QtCore.QMetaObject.connectSlotsByName(ELE)
@@ -222,4 +232,5 @@ class Ui_ELE(object):
         self.simulationStatusLabel.setText(_translate("ELE", "Simulation Status", None))
         self.simulationResultsLabel.setText(_translate("ELE", "Simulation Results", None))
         self.simulationResultsListWidget.setToolTip(_translate("ELE", "Right-click to open the selected files.", None))
+        self.particleLabel.setText(_translate("ELE", "Particle:", None))
 

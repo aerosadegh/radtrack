@@ -312,7 +312,7 @@ class BunchTab(QtGui.QWidget):
             self.offsetT  = convertUnitsStringToNumber(self.ui.offsetTable.item(2,0).text(), 'm')
             self.offsetXP = convertUnitsStringToNumber(self.ui.offsetTable.item(0,1).text(), 'rad')
             self.offsetYP = convertUnitsStringToNumber(self.ui.offsetTable.item(1,1).text(), 'rad')
-            self.offsetPT = convertUnitsStringToNumber(self.ui.offsetTable.item(2,1).text(), 'rad')*self.designMomentumEV
+            self.offsetPT = convertUnitsStringToNumber(self.ui.offsetTable.item(2,1).text(), 'rad')*beta0gamma0
 
             # instantiate the particle bunch
             self.myBunch = beam.RbParticleBeam6D(numParticles)
@@ -334,7 +334,7 @@ class BunchTab(QtGui.QWidget):
                                                 self.twissEmitNZ,'twissZ')
 
             # create the distribution
-            self.myBunch.makeParticlePhaseSpace6D(self.designMomentumEV)
+            self.myBunch.makeParticlePhaseSpace6D(beta0gamma0)
 
             # offset the distribution
             if self.offsetX  != 0.:
@@ -552,7 +552,7 @@ class BunchTab(QtGui.QWidget):
         self.plotGenericBefore(hData, vData, self.ui.tpzPlot.canvas, nDivs, nLevels)
         self.ui.tpzPlot.canvas.ax.axis([self.sMin, self.sMax, self.ptMin, self.ptMax])
         self.ui.tpzPlot.canvas.ax.set_xlabel('s ['+self.unitsPos+']')
-        self.ui.tpzPlot.canvas.ax.set_ylabel('p [eV/c]')
+        self.ui.tpzPlot.canvas.ax.set_ylabel('p [beta*gamma]')
         self.plotGenericAfter(self.ui.tpzPlot.canvas, 'longitudinal')
 
     def erasePlots(self):
@@ -577,7 +577,8 @@ class BunchTab(QtGui.QWidget):
         self.ui.ypyPlot.canvas.ax.set_ylabel("y' ["+self.unitsAngle+']')
 
         self.ui.tpzPlot.canvas.ax.set_xlabel('s ['+self.unitsPos+']')
-        self.ui.tpzPlot.canvas.ax.set_ylabel(r'$(p-p_0)/p_0$ ['+self.unitsAngle+']')
+        #self.ui.tpzPlot.canvas.ax.set_ylabel(r'$(p-p_0)/p_0$ ['+self.unitsAngle+']')
+        self.ui.tpzPlot.canvas.ax.set_ylabel('p []')
 
 
         for plot in plots:
@@ -933,7 +934,6 @@ class BunchTab(QtGui.QWidget):
         if relativeMomentum:
             self.myBunch.getDistribution6D().multiplyDistribComp(self.designMomentumEV,5)
             self.myBunch.getDistribution6D().offsetDistribComp(self.designMomentumEV,5)
-            print('relative')
         else: 
             self.designMomentumEV=self.myBunch.getDistribution6D().calcAverages6D()[5]*self.myBunch.eMassEV
             self.myBunch.setDesignMomentumEV(self.designMomentumEV)
@@ -1082,7 +1082,8 @@ class BunchTab(QtGui.QWidget):
 
             if not self.userInputEnabled():
                 tmp6 = randomSampleOfBunch(tmp6, int(self.ui.numPtcls.text()))
-                
+            
+            #crude check, fails if bunch is shorter than 10 microns    
             if any(n>1e-5 for n in tmp6[4,:]):
                 for i,t in enumerate(tmp6[4,:]):
                     tmp6[4,i]=t/self.c

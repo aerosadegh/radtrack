@@ -32,6 +32,10 @@ class RbEle(QtGui.QWidget):
     OUTPUT_FILE_NAME = 'elegant_output.txt'
     ELEGANT_BASE_NAME = 'elegantSimulation'
     ELEGANT_TEMPLATE = '''
+&change_particle
+    name="{particle}"
+&end
+
 &run_setup
     lattice = "{latticeFileName}",
     use_beamline = {beamlineName},
@@ -163,6 +167,10 @@ class RbEle(QtGui.QWidget):
         if show_momentum and not self.ui.momentumLineEdit.text():
             enable_button = False
         self.ui.simulateButton.setEnabled(enable_button)
+        
+        if self.bunch_source_manager.has_selection():
+            self.ui.particleLabel.setEnabled(True)
+            self.ui.particleComboBox.setEnabled(True)
 
     def validate_momentum(self):
         """Ensure the momentum value is valid"""
@@ -479,7 +487,8 @@ class RbEle(QtGui.QWidget):
                 latticeFileName=os.path.basename(self.beam_line_source_manager.get_lattice_file_name(momentum)),
                 beamlineName=self.ui.beamLineComboBox.currentText(),
                 momentum=str(momentum),
-                bunchFileName=os.path.basename(self.bunch_source_manager.get_bunch_file_name())
+                bunchFileName=os.path.basename(self.bunch_source_manager.get_bunch_file_name()),
+                particle=self.ui.particleComboBox.currentText()
             ))
         
         for fileName in [self.beam_line_source_manager.get_lattice_file_name(momentum),
