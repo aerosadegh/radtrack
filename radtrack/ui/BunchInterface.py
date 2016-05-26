@@ -74,7 +74,7 @@ class Ui_bunchInterface(object):
         self.generateBunch.setFocusPolicy(QtCore.Qt.TabFocus)
         self.generateBunch.setToolTip(_fromUtf8(""))
         self.generateBunch.setObjectName(_fromUtf8("generateBunch"))
-        self.gridLayout_2.addWidget(self.generateBunch, 1, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.generateBunch, 2, 1, 1, 1)
         self.axisType = QtGui.QToolButton(bunchInterface)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -283,6 +283,11 @@ class Ui_bunchInterface(object):
         bunchInterface.setTabOrder(self.unitsAngle, self.twissTable)
         bunchInterface.setTabOrder(self.twissTable, self.twissTableZ)
         bunchInterface.setTabOrder(self.twissTableZ, self.offsetTable)
+        
+        self.particleType = QtGui.QToolButton(bunchInterface)
+        self.particleType.setText('Particle')
+        self.particleType.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed))
+        self.gridLayout_2.addWidget(self.particleType,1,0,1,1)
 
     def retranslateUi(self, bunchInterface):
         bunchInterface.setWindowTitle(_translate("bunchInterface", "Form", None))

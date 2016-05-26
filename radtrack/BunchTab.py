@@ -14,6 +14,7 @@ import sys, re, os, math, csv
 
 # SciPy imports
 import numpy as np
+from scipy import constants
 import matplotlib.pyplot as plt
 
 # PyQt4 imports
@@ -67,7 +68,7 @@ class BunchTab(QtGui.QWidget):
 #        bunchMenu.addAction(radtrackUniform)
 #        elegantGaussian = QtGui.QAction("Elegant - gaussian",self)
 #        bunchMenu.addAction(elegantGaussian)
-
+         
         # associate these actions with class methods
         radtrackGaussian.triggered.connect(self.radtrackGaussian)
  #       radtrackUniform.triggered.connect(self.radtrackUniform)
@@ -77,6 +78,22 @@ class BunchTab(QtGui.QWidget):
         distribTypeButton = self.ui.distribType
         distribTypeButton.setMenu(bunchMenu)
         distribTypeButton.setPopupMode(QtGui.QToolButton.InstantPopup)
+        
+        #create menu for particle type
+        particlmenu = QtGui.QMenu(self)
+        electron = QtGui.QAction("Electron",self)
+        proton = QtGui.QAction("Proton",self)
+        positron = QtGui.QAction("Positron",self)
+        #muon = QtGui.QAction("Muon",self)
+        particlmenu.addAction(electron)
+        particlmenu.addAction(proton)
+        particlmenu.addAction(positron)
+        
+        self.ui.particleType.setMenu(particlmenu)
+        self.ui.particleType.setPopupMode(QtGui.QToolButton.InstantPopup)
+        electron.triggered.connect(lambda:self.ui.particleType.setText('Electron'))
+        proton.triggered.connect(lambda:self.ui.particleType.setText('Proton'))
+        positron.triggered.connect(lambda:self.ui.particleType.setText('Positron'))
 
         # create a menu for plot type
         plotsMenu = QtGui.QMenu(self)
@@ -155,13 +172,13 @@ class BunchTab(QtGui.QWidget):
         longTwissButton.setPopupMode(QtGui.QToolButton.InstantPopup)
 
         # specify physical constants
-        self.c     = 299792458.           # speed of light [m/s]
+        self.c     = constants.c          # speed of light [m/s]
         self.cSq   = self.c**2            # speed of light squared
         self.cInv  = 1./self.c            # one over the speed of light
-        self.mu0   = 4.0e-07 * math.pi    # permeability of free space
-        self.eps0  = 1./self.mu0/self.cSq # permittivity of free space
-        self.eMass   = 9.10938215e-31     # electron mass [kG]
-        self.eCharge = 1.602176487e-19    # elementary charge [C]
+        self.mu0   = constants.mu_0    # permeability of free space
+        self.eps0  = constants.epsilon_0 # permittivity of free space
+        self.eMass   = constants.m_e    # electron mass [kG]
+        self.eCharge = constants.e    # elementary charge [C]
         self.eMassEV = self.eMass*self.cSq/self.eCharge  # eMass [eV]
 
         # specify default values for all input fields
