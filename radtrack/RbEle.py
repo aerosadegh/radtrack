@@ -428,9 +428,14 @@ class RbEle(QtGui.QWidget):
         # The replace() command escapes backslashes
         # since Elegant interprets \x as a special character.
         elegant_input_file = self._write_simulation_input_files(momentum).replace('\\', '\\\\')
-        program = 'elegant' if self.ui.numProcSlider.value() == 1 else 'Pelegant'
+        if self.ui.numProcSlider.value() == 1:
+            program = 'elegant'
+            args = [elegant_input_file]
+        else:
+            program = 'mpirun'
+            args = ['-np', str(self.ui.numProcSlider.value()), 'Pelegant', elegant_input_file]
         self.append_status('Running simulation ...\n')
-        self.process.start(program, [elegant_input_file])
+        self.process.start(program, args)
 
     def _sdds_description(self, file_name):
         """Return the sdds file description if present"""
