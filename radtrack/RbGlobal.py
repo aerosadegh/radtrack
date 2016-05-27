@@ -289,7 +289,7 @@ class RbGlobal(QtGui.QMainWindow):
             if os.path.exists(destinationPath):
                 os.remove(destinationPath)
             shutil.copy2(openFile, destinationPath)
-            QtGui.QMessageBox.information(self, 'File Copied', openFile + ' has been imported to ' + self.sessionDirectory)
+            self.addToRecentMenu(openFile, True)
             return
 
         # Check if a tab of this type is already open
