@@ -204,7 +204,7 @@ class RbEle(QtGui.QWidget):
                     self.show_warning_box(
                         'Bunch was not properly generated in tab: ' + self.bunch_source_manager.combo.currentText())
                     return None
-            else:
+            elif self.bunch_source_manager.has_selection():
                 sddsIndex = 0
                 momentumIndex = sdds.sddsdata.GetParameterNames(sddsIndex).index(SDDS_MOMENTUM_PARAMETER)
                 if sdds.sddsdata.ReadPage(sddsIndex) != 1:
@@ -212,6 +212,9 @@ class RbEle(QtGui.QWidget):
                     self.show_warning_box('Could not read momentum from ' + self.get_file_name())
                     return None
                 return convertUnitsNumber(sdds.sddsdata.GetParameter(sddsIndex, momentumIndex), 'eV', 'MeV')
+            else:
+                # No bunch source selected. Can only get here from clicking the "Create ELE file and edit" button.
+                return None
 
     def _abort_simulation(self):
         self.process.kill()
