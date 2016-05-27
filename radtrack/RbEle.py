@@ -428,7 +428,7 @@ class RbEle(QtGui.QWidget):
         # The replace() command escapes backslashes
         # since Elegant interprets \x as a special character.
         elegant_input_file = self._write_simulation_input_files(momentum).replace('\\', '\\\\')
-        program = 'elegant' if self.ui.numProcSlider.value() == 1 else 'pelegant'
+        program = 'elegant' if self.ui.numProcSlider.value() == 1 else 'Pelegant'
         self.append_status('Running simulation ...\n')
         self.process.start(program, [elegant_input_file])
 
