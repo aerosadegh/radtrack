@@ -84,16 +84,18 @@ class BunchTab(QtGui.QWidget):
         electron = QtGui.QAction("Electron",self)
         proton = QtGui.QAction("Proton",self)
         positron = QtGui.QAction("Positron",self)
-        #muon = QtGui.QAction("Muon",self)
+        muon = QtGui.QAction("Muon",self)
         particlmenu.addAction(electron)
         particlmenu.addAction(proton)
         particlmenu.addAction(positron)
+        particlmenu.addAction(muon)
         
         self.ui.particleType.setMenu(particlmenu)
         self.ui.particleType.setPopupMode(QtGui.QToolButton.InstantPopup)
-        electron.triggered.connect(lambda:self.ui.particleType.setText('Electron'))
-        proton.triggered.connect(lambda:self.ui.particleType.setText('Proton'))
-        positron.triggered.connect(lambda:self.ui.particleType.setText('Positron'))
+        electron.triggered.connect(lambda:self.changeMass('Electron'))
+        proton.triggered.connect(lambda:self.changeMass('Proton'))
+        positron.triggered.connect(lambda:self.changeMass('Positron'))
+        muon.triggered.connect(lambda:self.changeMass('Muon'))
 
         # create a menu for plot type
         plotsMenu = QtGui.QMenu(self)
@@ -1124,6 +1126,18 @@ class BunchTab(QtGui.QWidget):
 
     def userInputEnabled(self):
         return self.ui.twissTable.isEnabled()
+        
+    def changeMass(self,name):
+        self.ui.particleType.setText(name)
+        if name in ['Electron','Positron']:
+            self.eMass=constants.m_e
+            self.eMassEV=constants.physical_constants['electron mass energy equivalent in MeV'][0]*1e6
+        elif name == 'Proton':
+            self.eMass=constants.m_p
+            self.eMassEV=constants.physical_constants['proton mass energy equivalent in MeV'][0]*1e6
+        elif name == 'Muon':
+            self.eMass=constants.physical_constants['muon mass']
+            self.eMassEV=constants.physical_constants['muon mass energy equivalent in MeV'][0]*1e6
 
 
 def randomSampleOfBunch(bunch, maxParticles):
