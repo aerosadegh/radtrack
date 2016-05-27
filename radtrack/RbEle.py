@@ -515,7 +515,7 @@ class RbEle(QtGui.QWidget):
                     beamlineName=self.ui.beamLineComboBox.currentText(),
                     momentum=str(momentum),
                     bunchFileName=os.path.basename(self.bunch_source_manager.get_bunch_file_name()),
-                    particle=self.ui.particleComboBox.currentText()
+                    particle=self._get_particle()
                     )
         else:
             elegantText = self.ui.elegantTextEdit.toPlainText()
@@ -556,10 +556,16 @@ class RbEle(QtGui.QWidget):
                 beamlineName=self.ui.beamLineComboBox.currentText(),
                 momentum=str(momentum),
                 bunchFileName=os.path.basename(self.bunch_source_manager.get_bunch_file_name()),
-                particle=self.ui.particleComboBox.currentText()
+                particle=self._get_particle()
                 )
         self.ui.elegantTextEdit.setPlainText(elegantText)
         self._toggle_edit_mode()
+
+    def _get_particle(self):
+        if self.bunch_source_manager.is_tab_choice():
+            return self.bunch_source_manager.get_tab_widget().ui.particleType.text().lower()
+        else:
+            return self.ui.particleComboBox.currentText().lower()
 
 
 
