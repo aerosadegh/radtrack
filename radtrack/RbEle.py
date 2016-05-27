@@ -23,7 +23,7 @@ import radtrack.util.resource as resource
 SDDS_MOMENTUM_PARAMETER = 'designMomentumEV'
 
 class RbEle(QtGui.QWidget):
-    acceptsFileTypes = []
+    acceptsFileTypes = ['ele']
     defaultTitle = 'Elegant'
     task = 'Run an Elegant simulation'
     category = 'simulations'
@@ -111,7 +111,12 @@ class RbEle(QtGui.QWidget):
             pass
 
     def importFile(self, fileName):
-        pass
+        if self.ui.elegantEditStackedWidget.currentIndex() == 0:
+            self._toggle_edit_mode()
+        self.ui.elegantTextEdit.clear()
+        with open(fileName) as f:
+            for line in f:
+                self.ui.elegantTextEdit.insertPlainText(line)
 
     def append_status(self, line):
         """Formats and appends the line to the status field"""
@@ -162,6 +167,9 @@ class RbEle(QtGui.QWidget):
         show_momentum = self.bunch_source_manager.is_momentum_required()
         self.ui.momentumLabel.setVisible(show_momentum)
         self.ui.momentumLineEdit.setVisible(show_momentum)
+        show_particle = not self.bunch_source_manager.is_tab_choice()
+        self.ui.particleLabel.setVisible(show_particle)
+        self.ui.particleComboBox.setVisible(show_particle)
         enable_button = self.bunch_source_manager.has_selection() \
            and self.beam_line_source_manager.has_selection()
         if show_momentum and not self.ui.momentumLineEdit.text():
@@ -211,7 +219,16 @@ class RbEle(QtGui.QWidget):
 
     def _add_result_files(self):
         """Adds output files from lattice elements and elegant template"""
-        loader = self.beam_line_source_manager.get_lattice_element_loader()
+        if self.ui.elegantEditStackedWidget.currentIndex() == 0:
+            loader = self.beam_line_source_manager.get_lattice_element_loader()
+        else:
+            loader = RbBunchTransport(self.parent)
+            for line in self.ui.elegantTextEdit.document().toPlainText().split('\n'):
+                if '=' in line:
+                    parameter, value = line.split('=', 1)
+                    if parameter.strip() == "lattice":
+                        loader.importFile(value.strip().rstrip(','))
+                        break
 
         for element in loader.elementDictionary.values():
             if element.isBeamline():
@@ -251,7 +268,8 @@ class RbEle(QtGui.QWidget):
                   self.ui.beamLineComboBox,
                   self.ui.momentumLabel,
                   self.ui.momentumLineEdit,
-                  self.ui.simulateButton):
+                  self.ui.simulateButton,
+                  self.ui.elegantEditToggleButton):
             w.setEnabled(is_enabled)
 
     def _enable_status_and_results(self):
@@ -291,6 +309,8 @@ class RbEle(QtGui.QWidget):
         """Callback when simulation process has finished"""
         self._enable_parameters(True)
         self.ui.abortButton.setEnabled(False)
+        if self.ui.progressBar.maximum() == 0:
+            self.ui.progressBar.setMaximum(1)
         self.ui.progressBar.setValue(self.ui.progressBar.maximum())
         self.output_file.close()
         self.error_file.close()
@@ -305,12 +325,9 @@ class RbEle(QtGui.QWidget):
             file_name = self.beam_line_source_manager.get_file_name()
             add_result_file(self.ui.simulationResultsListWidget, os.path.basename(file_name), file_name)
 
-        if status == 0:
-            if code == 0:
-                self.append_status('Simulation completed successfully')
-                self._add_result_files()
-            else:
-                self._process_error(self.process.error())
+        if status == 0 and code == 0:
+            self.append_status('Simulation completed successfully')
+            self._add_result_files()
         else:
             self._process_error(self.process.error())
 
@@ -325,7 +342,11 @@ class RbEle(QtGui.QWidget):
         """Callback when simulation process has started"""
         self.ui.abortButton.setEnabled(True)
         beamlineName=self.ui.beamLineComboBox.currentText()
-        self.beamlineNames = self.beam_line_source_manager.get_lattice_element_loader().elementDictionary[beamlineName].fullElementNameList()
+        beamline_source = self.beam_line_source_manager.get_lattice_element_loader()
+        if beamline_source:
+            self.beamlineNames = beamline_source.elementDictionary[beamlineName].fullElementNameList()
+        else:
+            self.beamlineNames = []
         self.ui.progressBar.setMaximum(len(self.beamlineNames))
         self.ui.progressBar.reset()
         self.progressIndex = 0
@@ -387,7 +408,11 @@ class RbEle(QtGui.QWidget):
     def _run_simulation(self):
         self.userAbort = False
         """Generate the input files and start the Elegant process."""
-        momentum = self.validate_momentum()
+        if self.ui.elegantEditStackedWidget.currentIndex() == 0:
+            momentum = self.validate_momentum()
+        else:
+            momentum = 1 # momentum will be specified in text editor
+
         if not momentum:
             return
         if not os.getenv('RPN_DEFNS', None):
@@ -437,6 +462,8 @@ class RbEle(QtGui.QWidget):
         self.beam_line_source_manager = BeamLineSourceManager(
             self, self.ui.beamLineSourceComboBox)
         self.ui.numProcSlider.valueChanged.connect(self.update_proc_count)
+        self.ui.elegantEditToggleButton.clicked.connect(self._toggle_edit_mode)
+        self.ui.simpleParamsToEleButton.clicked.connect(self._simple_to_elegant)
 
     def update_proc_count(self):
         baseText = self.ui.numProcLabel.text()
@@ -482,21 +509,58 @@ class RbEle(QtGui.QWidget):
         """Generates and writes simulation input files"""
         self.append_status('Writing Elegant simulation file ...')
         elegant_file_name = self.session_file(suffix='ele')
+        if self.ui.elegantEditStackedWidget.currentIndex() == 0:
+            elegantText = self.ELEGANT_TEMPLATE.format(
+                    latticeFileName=os.path.basename(self.beam_line_source_manager.get_lattice_file_name(momentum)),
+                    beamlineName=self.ui.beamLineComboBox.currentText(),
+                    momentum=str(momentum),
+                    bunchFileName=os.path.basename(self.bunch_source_manager.get_bunch_file_name()),
+                    particle=self.ui.particleComboBox.currentText()
+                    )
+        else:
+            elegantText = self.ui.elegantTextEdit.toPlainText()
+
         with open(elegant_file_name, 'w') as output_file:
-            output_file.write(self.ELEGANT_TEMPLATE.format(
+            output_file.write(elegantText)
+        
+        for fileName in [self.beam_line_source_manager.get_lattice_file_name(momentum),
+                         self.bunch_source_manager.get_bunch_file_name()]:
+            if fileName and os.path.dirname(fileName) != self.parent.sessionDirectory:
+                    shutil.copy2(fileName, self.parent.sessionDirectory)
+
+        return elegant_file_name
+
+    def _toggle_edit_mode(self):
+        index = self.ui.elegantEditStackedWidget.currentIndex()
+        if index == 0:
+            self.ui.elegantEditToggleButton.setText('Simple Parameters')
+            self.ui.parametersLabel.setText('Elegant File Editor')
+            self.ui.simulateButton.setEnabled(True)
+        else:
+            self.ui.elegantEditToggleButton.setText('Edit Elegant File')
+            self.ui.parametersLabel.setText('Simple Parameter Input')
+            self.update_widget_state()
+        self.ui.elegantEditStackedWidget.setCurrentIndex(0 if index == 1 else 1)
+
+    def _simple_to_elegant(self):
+        if self.ui.elegantTextEdit.document().isModified():
+            response = QtGui.QMessageBox.warning(self, "RadTrack - Overwrite warning",
+                    "This will overwrite changes made in the Elegant file editor.\n\nDo you want to proceed?",
+                    QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+            if response == QtGui.QMessageBox.No:
+                return
+
+        momentum = self.validate_momentum()
+        elegantText = self.ELEGANT_TEMPLATE.format(
                 latticeFileName=os.path.basename(self.beam_line_source_manager.get_lattice_file_name(momentum)),
                 beamlineName=self.ui.beamLineComboBox.currentText(),
                 momentum=str(momentum),
                 bunchFileName=os.path.basename(self.bunch_source_manager.get_bunch_file_name()),
                 particle=self.ui.particleComboBox.currentText()
-            ))
-        
-        for fileName in [self.beam_line_source_manager.get_lattice_file_name(momentum),
-                         self.bunch_source_manager.get_bunch_file_name()]:
-            if os.path.dirname(fileName) != self.parent.sessionDirectory:
-                shutil.copy2(fileName, self.parent.sessionDirectory)
+                )
+        self.ui.elegantTextEdit.setPlainText(elegantText)
+        self._toggle_edit_mode()
 
-        return elegant_file_name
 
 
 class ComboManager():

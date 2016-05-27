@@ -7,33 +7,35 @@ class FileParseException(Exception):
         super(FileParseException, self).__init__()
         self.message = message
 
+
 __fileTypeDescription = dict()
 __fileTypeDescription['*'] = 'All files'
-__fileTypeDescription['lte'] = 'Elegant lattice file'
-__fileTypeDescription['sdds'] = 'Self-Describing Data Set'
-__fileTypeDescription['save'] = None
-__fileTypeDescription['start'] = None
-__fileTypeDescription['csv'] = 'Comma-separated value file'
-__fileTypeDescription['rad'] = 'Laser beam line file'
-__fileTypeDescription['out'] = 'Output file'
-__fileTypeDescription['bun'] = 'Beam bunch file'
-__fileTypeDescription['twi'] = 'Twiss parameter file'
-__fileTypeDescription['sig'] = 'Sigma matrix file'
-__fileTypeDescription['cen'] = 'Centroid output file'
-__fileTypeDescription['dat'] = 'Data file'
-__fileTypeDescription['txt'] = 'Text file'
-__fileTypeDescription['fin'] = 'Elegant final properties file'
-__fileTypeDescription['fel'] = 'FEL Calculator file'
-__fileTypeDescription['lat'] = 'Genesis lattice file'
-__fileTypeDescription['png'] = 'PNG Image'
-__fileTypeDescription['jpg'] = 'JPG Image'
 __fileTypeDescription['bmp'] = 'BMP Image'
-__fileTypeDescription['ppm'] = 'PPM Image'
-__fileTypeDescription['tiff'] = 'TIFF Image'
-__fileTypeDescription['xbm'] = 'XBM Image'
-__fileTypeDescription['xpm'] = 'XPM Image'
+__fileTypeDescription['bun'] = 'Beam bunch file'
+__fileTypeDescription['cen'] = 'Centroid output file'
+__fileTypeDescription['csv'] = 'Character-separated value file'
+__fileTypeDescription['dat'] = 'Data file'
+__fileTypeDescription['ele'] = 'Elegant simulation file'
+__fileTypeDescription['fel'] = 'FEL Calculator file'
+__fileTypeDescription['fin'] = 'Elegant final properties file'
 __fileTypeDescription['h5'] = 'Hierarchial Data Format'
 __fileTypeDescription['in'] = 'Genesis Input File'
+__fileTypeDescription['jpg'] = 'JPG Image'
+__fileTypeDescription['lat'] = 'Genesis lattice file'
+__fileTypeDescription['lte'] = 'Elegant lattice file'
+__fileTypeDescription['out'] = 'Output file'
+__fileTypeDescription['png'] = 'PNG Image'
+__fileTypeDescription['ppm'] = 'PPM Image'
+__fileTypeDescription['rad'] = 'Laser beam line file'
+__fileTypeDescription['save'] = None
+__fileTypeDescription['sdds'] = 'Self-Describing Data Set'
+__fileTypeDescription['sig'] = 'Sigma matrix file'
+__fileTypeDescription['start'] = None
+__fileTypeDescription['tiff'] = 'TIFF Image'
+__fileTypeDescription['twi'] = 'Twiss parameter file'
+__fileTypeDescription['txt'] = 'Text file'
+__fileTypeDescription['xbm'] = 'XBM Image'
+__fileTypeDescription['xpm'] = 'XPM Image'
 
 def fileTypeDescription(ext):
     try:
