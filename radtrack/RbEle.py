@@ -2,7 +2,7 @@
 Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 version 2
 """
-import os, re, cgi, shutil, sdds
+import os, re, cgi, shutil, sdds, multiprocessing
 from PyQt4 import QtCore, QtGui
 
 from pykern.pkdebug import pkdc
@@ -428,8 +428,9 @@ class RbEle(QtGui.QWidget):
         # The replace() command escapes backslashes
         # since Elegant interprets \x as a special character.
         elegant_input_file = self._write_simulation_input_files(momentum).replace('\\', '\\\\')
+        program = 'elegant' if self.ui.numProcSlider.value() == 1 else 'pelegant'
         self.append_status('Running simulation ...\n')
-        self.process.start('elegant', [elegant_input_file])
+        self.process.start(program, [elegant_input_file])
 
     def _sdds_description(self, file_name):
         """Return the sdds file description if present"""
@@ -465,6 +466,11 @@ class RbEle(QtGui.QWidget):
         self.beam_line_source_manager = BeamLineSourceManager(
             self, self.ui.beamLineSourceComboBox)
         self.ui.numProcSlider.valueChanged.connect(self.update_proc_count)
+        self.ui.numProcSlider.setMinimum(1)
+        self.ui.numProcSlider.setMaximum(multiprocessing.cpu_count())
+        if self.ui.numProcSlider.maximum() == 1:
+            self.ui.numProcSlider.setVisible(False)
+            self.ui.numProcLabel.setVisible(False)
         self.ui.elegantEditToggleButton.clicked.connect(self._toggle_edit_mode)
         self.ui.simpleParamsToEleButton.clicked.connect(self._simple_to_elegant)
 
