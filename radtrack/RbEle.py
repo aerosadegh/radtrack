@@ -577,7 +577,7 @@ class RbEle(QtGui.QWidget):
 
     def _get_particle(self):
         if self.bunch_source_manager.is_tab_choice():
-            return self.bunch_source_manager.get_tab_widget().ui.particleType.text().lower()
+            return self.bunch_source_manager.get_tab_widget().ui.particleType.currentText().lower()
         else:
             return self.ui.particleComboBox.currentText().lower()
 

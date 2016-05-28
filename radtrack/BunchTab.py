@@ -46,7 +46,6 @@ class BunchTab(QtGui.QWidget):
         # set default values for flags
         self.numTicks = 5
         self.plotFlag = 'scatter'
-        self.axisFlag = 'bunch-centered'
         self.plotTitles = True
         self.longTwissFlag = 'alpha-bct-dp'
         self.perpTwissFlag = 'rms-geometric'
@@ -79,23 +78,7 @@ class BunchTab(QtGui.QWidget):
         distribTypeButton.setMenu(bunchMenu)
         distribTypeButton.setPopupMode(QtGui.QToolButton.InstantPopup)
         
-        #create menu for particle type
-        particlmenu = QtGui.QMenu(self)
-        electron = QtGui.QAction("Electron",self)
-        proton = QtGui.QAction("Proton",self)
-        positron = QtGui.QAction("Positron",self)
-        muon = QtGui.QAction("Muon",self)
-        particlmenu.addAction(electron)
-        particlmenu.addAction(proton)
-        particlmenu.addAction(positron)
-        particlmenu.addAction(muon)
-        
-        self.ui.particleType.setMenu(particlmenu)
-        self.ui.particleType.setPopupMode(QtGui.QToolButton.InstantPopup)
-        electron.triggered.connect(lambda:self.changeMass('Electron'))
-        proton.triggered.connect(lambda:self.changeMass('Proton'))
-        positron.triggered.connect(lambda:self.changeMass('Positron'))
-        muon.triggered.connect(lambda:self.changeMass('Muon'))
+        self.ui.particleType.currentIndexChanged.connect(self.changeMass)
 
         # create a menu for plot type
         plotsMenu = QtGui.QMenu(self)
@@ -115,25 +98,6 @@ class BunchTab(QtGui.QWidget):
         plotsButton = self.ui.plotType
         plotsButton.setMenu(plotsMenu)
         plotsButton.setPopupMode(QtGui.QToolButton.InstantPopup)
-
-        # create a menu for axis type
-        axisMenu = QtGui.QMenu(self)
-        bunchCenteredAxis = QtGui.QAction("bunch-centered",self)
-        axisMenu.addAction(bunchCenteredAxis)
-        compactAxis = QtGui.QAction("compact",self)
-        axisMenu.addAction(compactAxis)
-        symmetricAxis = QtGui.QAction("symmetric",self)
-        axisMenu.addAction(symmetricAxis)
-
-        # associate these actions with class methods
-        bunchCenteredAxis.triggered.connect(self.bunchCenteredAxis)
-        compactAxis.triggered.connect(self.compactAxis)
-        symmetricAxis.triggered.connect(self.symmetricAxis)
-
-        # grab an existing button & insert the menu
-        axisButton = self.ui.axisType
-        axisButton.setMenu(axisMenu)
-        axisButton.setPopupMode(QtGui.QToolButton.InstantPopup)
 
         # create a menu for transverse Twiss conventions
         perpTwissMenu = QtGui.QMenu(self)
@@ -375,18 +339,6 @@ class BunchTab(QtGui.QWidget):
 
         self.parent.ui.statusbar.clearMessage()
 
-    def compactAxis(self):
-        self.axisFlag = 'compact'
-        self.refreshPlots()
-
-    def symmetricAxis(self):
-        self.axisFlag = 'symmetric'
-        self.refreshPlots()
-
-    def bunchCenteredAxis(self):
-        self.axisFlag = 'bunch-centered'
-        self.refreshPlots()
-
     def toggleAspectRatio(self):
         self.xyAspectRatioSquare = not self.xyAspectRatioSquare
         self.refreshPlots()
@@ -430,8 +382,6 @@ class BunchTab(QtGui.QWidget):
 
         numParticles = tmp6.shape[1]
 
-        self.calculateLimits(tmp6)
-
         nLevels = 5 + int(math.pow(numParticles, 0.33333333))
         nDivs = 10 + int(math.pow(numParticles, 0.2))
 
@@ -455,77 +405,6 @@ class BunchTab(QtGui.QWidget):
         self.parent.ui.statusbar.clearMessage()
 
 
-    def calculateLimits(self, _arr):
-        # nothing to do, if beam hasn't been initialized
-        if not self.myBunch:
-            return
-
-        # get average, RMS, min, max values and diffs
-        avgArray = stat.calcAverages6D(_arr)
-        rmsArray = stat.calcRmsValues6D(_arr)
-        minArray = stat.calcMinValues6D(_arr)
-        maxArray = stat.calcMaxValues6D(_arr)
-
-        # calculate the differences, imposing symmetry
-        diffZero = np.zeros(6)
-        for iLoop in range(6):
-            diffZero[iLoop] = max( (avgArray[iLoop]-minArray[iLoop]),
-                    (maxArray[iLoop]-avgArray[iLoop]) )
-
-        # now switch based on the specified axis flag
-        # specify plot limits, symmetric around the zero axis
-        if self.axisFlag == 'symmetric':
-            self.xMax  = (abs(avgArray[0])+diffZero[0])*convertUnitsNumber(1, 'm', self.unitsPos)
-            self.xpMax = (abs(avgArray[1])+diffZero[1])*convertUnitsNumber(1, 'rad', self.unitsAngle)
-            self.yMax  = (abs(avgArray[2])+diffZero[2])*convertUnitsNumber(1, 'm', self.unitsPos)
-            self.ypMax = (abs(avgArray[3])+diffZero[3])*convertUnitsNumber(1, 'rad', self.unitsAngle)
-            self.ptMax = (abs(avgArray[5])+diffZero[5])
-
-            self.xMin  = -self.xMax
-            self.xpMin = -self.xpMax
-            self.yMin  = -self.yMax
-            self.ypMin = -self.ypMax
-            self.ptMin = -self.ptMax
-
-        # specify plot limits, symmetric around the bunch (confined to 3 rms)
-        elif self.axisFlag == 'compact':
-            self.xMin  = (avgArray[0]-3.*rmsArray[0])*convertUnitsNumber(1, 'm', self.unitsPos)
-            self.xpMin = (avgArray[1]-3.*rmsArray[1])*convertUnitsNumber(1, 'rad', self.unitsAngle)
-            self.yMin  = (avgArray[2]-3.*rmsArray[2])*convertUnitsNumber(1, 'm', self.unitsPos)
-            self.ypMin = (avgArray[3]-3.*rmsArray[3])*convertUnitsNumber(1, 'rad', self.unitsAngle)
-            self.ptMin = (avgArray[5]-3.*rmsArray[5])
-
-            self.xMax  = (avgArray[0]+3.*rmsArray[0])*convertUnitsNumber(1, 'm', self.unitsPos)
-            self.xpMax = (avgArray[1]+3.*rmsArray[1])*convertUnitsNumber(1, 'rad', self.unitsAngle)
-            self.yMax  = (avgArray[2]+3.*rmsArray[2])*convertUnitsNumber(1, 'm', self.unitsPos)
-            self.ypMax = (avgArray[3]+3.*rmsArray[3])*convertUnitsNumber(1, 'rad', self.unitsAngle)
-            self.ptMax = (avgArray[5]+3.*rmsArray[5])
-
-        # symmetric around the bunch
-        elif self.axisFlag == 'bunch-centered':
-            self.xMin  = (avgArray[0]-diffZero[0])*convertUnitsNumber(1, 'm', self.unitsPos)
-            self.xpMin = (avgArray[1]-diffZero[1])*convertUnitsNumber(1, 'rad', self.unitsAngle)
-            self.yMin  = (avgArray[2]-diffZero[2])*convertUnitsNumber(1, 'm', self.unitsPos)
-            self.ypMin = (avgArray[3]-diffZero[3])*convertUnitsNumber(1, 'rad', self.unitsAngle)
-            self.ptMin = (avgArray[5]-diffZero[5])
-
-            self.xMax  = (avgArray[0]+diffZero[0])*convertUnitsNumber(1, 'm', self.unitsPos)
-            self.xpMax = (avgArray[1]+diffZero[1])*convertUnitsNumber(1, 'rad', self.unitsAngle)
-            self.yMax  = (avgArray[2]+diffZero[2])*convertUnitsNumber(1, 'm', self.unitsPos)
-            self.ypMax = (avgArray[3]+diffZero[3])*convertUnitsNumber(1, 'rad', self.unitsAngle)
-            self.ptMax = (avgArray[5]+diffZero[5])
-
-        if self.axisFlag=='compact' or self.axisFlag=='symmetric-compact':
-            # sMin / sMax always have to be 'bunch centered'
-            self.sMin  = (avgArray[4]-3.*rmsArray[4])*convertUnitsNumber(1, 'm', self.unitsPos)
-            self.sMax  = (avgArray[4]+3.*rmsArray[4])*convertUnitsNumber(1, 'm', self.unitsPos)
-
-        if self.axisFlag=='symmetric' or self.axisFlag=='bunch-centered':
-            # sMin / sMax always have to be 'bunch centered'
-            self.sMin  = (avgArray[4]-diffZero[4])*convertUnitsNumber(1, 'm', self.unitsPos)
-            self.sMax  = (avgArray[4]+diffZero[4])*convertUnitsNumber(1, 'm', self.unitsPos)
-
-
     def plotGenericBefore(self, hData, vData, _canvas, nDivs, nLevels):
         _canvas.ax.clear()
         scatConPlot(self.plotFlag, 'linear', hData, vData, _canvas.ax, nDivs, nLevels)
@@ -542,7 +421,6 @@ class BunchTab(QtGui.QWidget):
 
     def plotXY(self, hData, vData, nDivs, nLevels):
         self.plotGenericBefore(hData, vData, self.ui.xyPlot.canvas, nDivs, nLevels)
-        self.ui.xyPlot.canvas.ax.axis([self.xMin, self.xMax, self.yMin, self.yMax])
         if self.xyAspectRatioSquare:
             self.ui.xyPlot.canvas.ax.set_aspect('equal', 'datalim')
         else:
@@ -554,22 +432,18 @@ class BunchTab(QtGui.QWidget):
 
     def plotXPX(self, hData, vData, nDivs, nLevels):
         self.plotGenericBefore(hData, vData, self.ui.xpxPlot.canvas, nDivs, nLevels)
-        self.ui.xpxPlot.canvas.ax.axis([self.xMin, self.xMax, self.xpMin, self.xpMax])
         self.ui.xpxPlot.canvas.ax.set_xlabel('x ['+self.unitsPos+']')
         self.ui.xpxPlot.canvas.ax.set_ylabel("x' ["+self.unitsAngle+']')
         self.plotGenericAfter(self.ui.xpxPlot.canvas, 'horizontal')
 
     def plotYPY(self, hData, vData, nDivs, nLevels):
         self.plotGenericBefore(hData, vData, self.ui.ypyPlot.canvas, nDivs, nLevels)
-        self.plotGenericBefore(hData, vData, self.ui.ypyPlot.canvas, nDivs, nLevels)
-        self.ui.ypyPlot.canvas.ax.axis([self.yMin, self.yMax, self.ypMin, self.ypMax])
         self.ui.ypyPlot.canvas.ax.set_xlabel('y ['+self.unitsPos+']')
         self.ui.ypyPlot.canvas.ax.set_ylabel("y' ["+self.unitsAngle+']')
         self.plotGenericAfter(self.ui.ypyPlot.canvas, 'vertical')
 
     def plotSDP(self, hData, vData, nDivs, nLevels):
         self.plotGenericBefore(hData, vData, self.ui.tpzPlot.canvas, nDivs, nLevels)
-        self.ui.tpzPlot.canvas.ax.axis([self.sMin, self.sMax, self.ptMin, self.ptMax])
         self.ui.tpzPlot.canvas.ax.set_xlabel('s ['+self.unitsPos+']')
         self.ui.tpzPlot.canvas.ax.set_ylabel('p [beta*gamma]')
         self.plotGenericAfter(self.ui.tpzPlot.canvas, 'longitudinal')
@@ -1127,8 +1001,8 @@ class BunchTab(QtGui.QWidget):
     def userInputEnabled(self):
         return self.ui.twissTable.isEnabled()
         
-    def changeMass(self,name):
-        self.ui.particleType.setText(name)
+    def changeMass(self):
+        name = self.ui.particleType.currentText()
         if name in ['Electron','Positron']:
             self.eMass=constants.m_e
             self.eMassEV=constants.physical_constants['electron mass energy equivalent in MeV'][0]*1e6
