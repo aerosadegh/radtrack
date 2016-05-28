@@ -18,57 +18,10 @@
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="0" column="0">
-        <widget class="QToolButton" name="distribType">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>23</height>
-          </size>
-         </property>
-         <property name="toolTip">
-          <string>Particle distribution type</string>
-         </property>
-         <property name="text">
-          <string>Distribution</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QToolButton" name="aspectRatio">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>23</height>
-          </size>
-         </property>
-         <property name="toolTip">
-          <string>Toggle aspect ratio of the x-y plot</string>
-         </property>
-         <property name="text">
-          <string>Plot Aspect Ratio</string>
-         </property>
-         <property name="popupMode">
-          <enum>QToolButton::InstantPopup</enum>
-         </property>
-        </widget>
-       </item>
        <item row="1" column="3">
         <widget class="QPushButton" name="generateBunch">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -90,58 +43,14 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="3">
-        <widget class="QToolButton" name="plotType">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>23</height>
-          </size>
-         </property>
-         <property name="toolTip">
-          <string/>
-         </property>
-         <property name="text">
-          <string>Plot Type</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QToolButton" name="noTitles">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>23</height>
-          </size>
-         </property>
-         <property name="toolTip">
-          <string/>
-         </property>
-         <property name="statusTip">
-          <string/>
-         </property>
-         <property name="text">
-          <string>Toggle Plot Titles</string>
-         </property>
-         <property name="popupMode">
-          <enum>QToolButton::InstantPopup</enum>
-         </property>
-        </widget>
-       </item>
        <item row="1" column="0">
         <widget class="QComboBox" name="particleType">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <item>
           <property name="text">
            <string>Electron</string>
@@ -164,74 +73,149 @@
          </item>
         </widget>
        </item>
+       <item row="0" column="3">
+        <widget class="QComboBox" name="plotType">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <item>
+          <property name="text">
+           <string>Scatter</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Contour</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Combo</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QCheckBox" name="aspectRatio">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Equal Axis Scales</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QCheckBox" name="plotTitles">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Plot Titles</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QComboBox" name="distribType">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <item>
+          <property name="text">
+           <string>Gaussian</string>
+          </property>
+         </item>
+        </widget>
+       </item>
       </layout>
      </item>
      <item>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="0">
-        <widget class="QLabel" name="highLevelInputsLabel">
-         <property name="text">
-          <string>Charge &amp; Energy</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2" colspan="2">
-        <widget class="QLabel" name="unitsLabel">
-         <property name="text">
-          <string>Plotting units</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="numPtclsLabel">
-         <property name="text">
-          <string>Number of particles   </string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLineEdit" name="numPtcls">
-         <property name="toolTip">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
-        <widget class="QLabel" name="unitsPosLabel">
-         <property name="text">
-          <string>Position     </string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="3">
+       <item row="2" column="3">
         <widget class="QLineEdit" name="unitsPos">
          <property name="toolTip">
           <string>Units for position-like axes</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="designMomentumLabel">
+       <item row="1" column="2" colspan="2">
+        <widget class="QLabel" name="unitsLabel">
          <property name="text">
-          <string>Momentum [eV]</string>
+          <string>Plotting units</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
          </property>
         </widget>
        </item>
-       <item row="2" column="1">
+       <item row="3" column="1">
         <widget class="QLineEdit" name="designMomentum">
          <property name="toolTip">
           <string>Average momentum for zero offset</string>
          </property>
         </widget>
        </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="designMomentumLabel">
+         <property name="text">
+          <string>Momentum [eV]</string>
+         </property>
+        </widget>
+       </item>
        <item row="2" column="2">
+        <widget class="QLabel" name="unitsPosLabel">
+         <property name="text">
+          <string>Position     </string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="numPtcls">
+         <property name="toolTip">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="numPtclsLabel">
+         <property name="text">
+          <string>Number of particles   </string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="2">
+        <widget class="QLabel" name="highLevelInputsLabel">
+         <property name="text">
+          <string>Charge &amp; Energy</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="2">
         <widget class="QLabel" name="unitsAngleLabel">
          <property name="text">
           <string>Angle</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="3">
+       <item row="3" column="3">
         <widget class="QLineEdit" name="unitsAngle">
          <property name="toolTip">
           <string>Units for angle-like axes</string>
@@ -241,31 +225,38 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="0">
+       <item row="4" column="0">
         <widget class="QLabel" name="charge">
          <property name="text">
           <string>Total charge [C]</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="1">
+       <item row="4" column="1">
         <widget class="QLineEdit" name="totalCharge">
          <property name="toolTip">
           <string/>
          </property>
         </widget>
        </item>
-       <item row="3" column="2">
+       <item row="4" column="2">
         <widget class="QLabel" name="ticksLabel">
          <property name="text">
           <string>Axis Ticks</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="3">
+       <item row="4" column="3">
         <widget class="QLineEdit" name="numTicks">
          <property name="toolTip">
           <string>Maximum number of tick marks for plot axes</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0" colspan="4">
+        <widget class="Line" name="line">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
          </property>
         </widget>
        </item>
@@ -287,31 +278,18 @@
         </widget>
        </item>
        <item>
-        <widget class="QToolButton" name="perpTwissSpec">
+        <widget class="QComboBox" name="perpTwissFlag">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <property name="minimumSize">
-          <size>
-           <width>125</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>125</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="toolTip">
-          <string>Transverse Twiss parameter specification</string>
-         </property>
-         <property name="text">
-          <string>Spec</string>
-         </property>
+         <item>
+          <property name="text">
+           <string>rms-normalized</string>
+          </property>
+         </item>
         </widget>
        </item>
       </layout>
@@ -326,6 +304,9 @@
        </property>
        <property name="toolTip">
         <string/>
+       </property>
+       <property name="cornerButtonEnabled">
+        <bool>false</bool>
        </property>
        <row>
         <property name="text">
@@ -364,7 +345,7 @@
        <item>
         <widget class="QLabel" name="longTwissLabel">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -375,31 +356,18 @@
         </widget>
        </item>
        <item>
-        <widget class="QToolButton" name="longTwissSpec">
+        <widget class="QComboBox" name="longTwissFlag">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <property name="minimumSize">
-          <size>
-           <width>125</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>125</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="toolTip">
-          <string>Longitudinal Twiss parameter specification</string>
-         </property>
-         <property name="text">
-          <string>Spec</string>
-         </property>
+         <item>
+          <property name="text">
+           <string>alpha-bct-dp</string>
+          </property>
+         </item>
         </widget>
        </item>
       </layout>
@@ -414,6 +382,9 @@
        </property>
        <property name="toolTip">
         <string/>
+       </property>
+       <property name="cornerButtonEnabled">
+        <bool>false</bool>
        </property>
        <row>
         <property name="text">
@@ -455,6 +426,9 @@
        <property name="toolTip">
         <string/>
        </property>
+       <property name="cornerButtonEnabled">
+        <bool>false</bool>
+       </property>
        <row>
         <property name="text">
          <string>x-x'</string>
@@ -481,6 +455,19 @@
         </property>
        </column>
       </widget>
+     </item>
+     <item>
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>
@@ -527,12 +514,21 @@
   </customwidget>
  </customwidgets>
  <tabstops>
+  <tabstop>distribType</tabstop>
+  <tabstop>particleType</tabstop>
+  <tabstop>plotTitles</tabstop>
+  <tabstop>aspectRatio</tabstop>
+  <tabstop>plotType</tabstop>
+  <tabstop>generateBunch</tabstop>
   <tabstop>numPtcls</tabstop>
   <tabstop>designMomentum</tabstop>
-  <tabstop>distribType</tabstop>
+  <tabstop>totalCharge</tabstop>
   <tabstop>unitsPos</tabstop>
   <tabstop>unitsAngle</tabstop>
+  <tabstop>numTicks</tabstop>
+  <tabstop>perpTwissFlag</tabstop>
   <tabstop>twissTable</tabstop>
+  <tabstop>longTwissFlag</tabstop>
   <tabstop>twissTableZ</tabstop>
   <tabstop>offsetTable</tabstop>
  </tabstops>

@@ -35,7 +35,7 @@ import sdds
 class BunchTab(QtGui.QWidget):
     acceptsFileTypes = ['sdds', 'csv', 'out', 'bun']
     defaultTitle = 'Bunch'
-    task = 'Create an electron beam'
+    task = 'Create a particle beam'
     category = 'beams'
 
     def __init__(self,parent=None):       # initialization
@@ -45,107 +45,23 @@ class BunchTab(QtGui.QWidget):
 
         # set default values for flags
         self.numTicks = 5
-        self.plotFlag = 'scatter'
-        self.plotTitles = True
-        self.longTwissFlag = 'alpha-bct-dp'
-        self.perpTwissFlag = 'rms-geometric'
         self.myBunch = None
-        self.distributionFlag = 'gaussian'
-        self.xyAspectRatioSquare = True
         self.maxParticles = 10000
 
         # link the simple push buttons to appropriate methods
-        self.ui.aspectRatio.clicked.connect(self.toggleAspectRatio)
-        self.ui.noTitles.clicked.connect(self.togglePlotTitles)
+        self.ui.aspectRatio.stateChanged.connect(self.refreshPlots)
         self.ui.generateBunch.clicked.connect(lambda : self.generateBunch(self.maxParticles))
 
-        # create a menu for defining the distribution type (need to rename)
-        bunchMenu = QtGui.QMenu(self)
-        radtrackGaussian = QtGui.QAction("RadTrack - gaussian",self)
-        bunchMenu.addAction(radtrackGaussian)
-#        radtrackUniform = QtGui.QAction("RadTrack - uniform",self)
-#        bunchMenu.addAction(radtrackUniform)
-#        elegantGaussian = QtGui.QAction("Elegant - gaussian",self)
-#        bunchMenu.addAction(elegantGaussian)
-         
-        # associate these actions with class methods
-        radtrackGaussian.triggered.connect(self.radtrackGaussian)
- #       radtrackUniform.triggered.connect(self.radtrackUniform)
- #       elegantGaussian.triggered.connect(self.elegantGaussian)
-
-        # define the distribTypeButton
-        distribTypeButton = self.ui.distribType
-        distribTypeButton.setMenu(bunchMenu)
-        distribTypeButton.setPopupMode(QtGui.QToolButton.InstantPopup)
-        
         self.ui.particleType.currentIndexChanged.connect(self.changeMass)
-
-        # create a menu for plot type
-        plotsMenu = QtGui.QMenu(self)
-        scatterPlots = QtGui.QAction("scatter",self)
-        plotsMenu.addAction(scatterPlots)
-        contourPlots = QtGui.QAction("contour",self)
-        plotsMenu.addAction(contourPlots)
-        comboPlots = QtGui.QAction("combo",self)
-        plotsMenu.addAction(comboPlots)
-
-        # associate these actions with class methods
-        scatterPlots.triggered.connect(self.scatterPlots)
-        contourPlots.triggered.connect(self.contourPlots)
-        comboPlots.triggered.connect(self.comboPlots)
-
-        # grab an existing button & insert the menu
-        plotsButton = self.ui.plotType
-        plotsButton.setMenu(plotsMenu)
-        plotsButton.setPopupMode(QtGui.QToolButton.InstantPopup)
-
-        # create a menu for transverse Twiss conventions
-        perpTwissMenu = QtGui.QMenu(self)
-        rmsNormalized = QtGui.QAction("rms, normalized",self)
-        perpTwissMenu.addAction(rmsNormalized)
-#        ninetyNormalized = QtGui.QAction("90%, normalized",self)
-#        perpTwissMenu.addAction(ninetyNormalized)
-#        rmsGeometric = QtGui.QAction("rms, geometric",self)
-#        perpTwissMenu.addAction(rmsGeometric)
-
-        # associate these actions with class methods
-        rmsNormalized.triggered.connect(self.rmsNormalized)
-#        ninetyNormalized.triggered.connect(self.ninetyNormalized)
-#        rmsGeometric.triggered.connect(self.rmsGeometric)
-
-        # grab an existing button & insert the menu
-        perpTwissButton = self.ui.perpTwissSpec
-        perpTwissButton.setMenu(perpTwissMenu)
-        perpTwissButton.setPopupMode(QtGui.QToolButton.InstantPopup)
-
-        # create a menu for longitudinal Twiss conventions
-        longTwissMenu = QtGui.QMenu(self)
-        alphaBctDp = QtGui.QAction("alpha-bct-dp",self)
-        longTwissMenu.addAction(alphaBctDp)
-#        couplingBctDp = QtGui.QAction("coupling-bct-dp",self)
-#        longTwissMenu.addAction(couplingBctDp)
-#        alphaBetaEmit = QtGui.QAction("alpha-beta-emit",self)
-#        longTwissMenu.addAction(alphaBetaEmit)
-
-        # associate these actions with class methods
-        alphaBctDp.triggered.connect(self.alphaBctDp)
-#        couplingBctDp.triggered.connect(self.couplingBctDp)
-#        alphaBetaEmit.triggered.connect(self.alphaBetaEmit)
-
-        # grab an existing button & insert the menu
-        longTwissButton = self.ui.longTwissSpec
-        longTwissButton.setMenu(longTwissMenu)
-        longTwissButton.setPopupMode(QtGui.QToolButton.InstantPopup)
+        self.ui.plotType.currentIndexChanged.connect(self.refreshPlots)
+        self.ui.plotTitles.stateChanged.connect(self.refreshPlots)
+        self.ui.distribType.currentIndexChanged.connect(self.refreshPlots)
 
         # specify physical constants
         self.c     = constants.c          # speed of light [m/s]
-        self.cSq   = self.c**2            # speed of light squared
-        self.cInv  = 1./self.c            # one over the speed of light
-        self.mu0   = constants.mu_0    # permeability of free space
-        self.eps0  = constants.epsilon_0 # permittivity of free space
         self.eMass   = constants.m_e    # electron mass [kG]
         self.eCharge = constants.e    # elementary charge [C]
-        self.eMassEV = self.eMass*self.cSq/self.eCharge  # eMass [eV]
+        self.eMassEV = self.eMass*(self.c**2)/self.eCharge  # eMass [eV]
 
         # specify default values for all input fields
         numParticles = 800
@@ -191,19 +107,6 @@ class BunchTab(QtGui.QWidget):
 
         # try to make the blank plotting regions look nice
         self.erasePlots()
-
-    def radtrackGaussian(self):
-        self.distributionFlag = 'gaussian'
-
-#    def radtrackUniform(self):
-#        msgBox = QtGui.QMessageBox()
-#        msgBox.setText("This feature has not yet been implemented. Coming soon!")
-#        msgBox.exec_()
-
-#    def elegantGaussian(self):
-#        msgBox = QtGui.QMessageBox()
-#        msgBox.setText("This feature has not yet been implemented. Coming soon!")
-#        msgBox.exec_()
 
     def generateBunch(self, particleLimit = None):
         if self.userInputEnabled():
@@ -256,38 +159,13 @@ class BunchTab(QtGui.QWidget):
             self.twissEmitNX = convertUnitsStringToNumber(self.ui.twissTable.item(0,2).text(), 'm*rad')
             self.twissEmitNY = convertUnitsStringToNumber(self.ui.twissTable.item(1,2).text(), 'm*rad')
 
-            if self.longTwissFlag == "alpha-bct-dp":
+            if self.ui.longTwissFlag.currentText() == "alpha-bct-dp":
                 self.twissAlphaZ = convertUnitsStringToNumber(self.ui.twissTableZ.item(0,0).text(), '')
                 self.bctRms = convertUnitsStringToNumber(self.ui.twissTableZ.item(0,1).text(), 'm')
                 self.dPopRms  = float(self.ui.twissTableZ.item(0,2).text())
 
                 self.twissEmitNZ = (self.bctRms/beta0) * self.dPopRms / math.sqrt(1.+self.twissAlphaZ**2)
                 self.twissBetaZ  = (self.bctRms/beta0) / self.dPopRms * math.sqrt(1.+self.twissAlphaZ**2)
-
-            # elif self.longTwissFlag == "coupling-bct-dp":
-            #     msgBox = QtGui.QMessageBox()
-            #     message  = 'Error --\n\n'
-            #     message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
-            #     message += '  This value is not yet supported, but is coming soon!\n\n'
-            #     message += 'Please go to the "Specification Type" button and choose "alpha-bct-dp".\n\n'
-            #     msgBox.setText(message)
-            #     msgBox.exec_()
-            # elif self.longTwissFlag == "alpha-beta-emit":
-            #     msgBox = QtGui.QMessageBox()
-            #     message  = 'Error --\n\n'
-            #     message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
-            #     message += '  This value is not yet supported, but is coming soon!\n\n'
-            #     message += 'Please go to the "Specification Type" button and choose "alpha-bct-dp".\n\n'
-            #     msgBox.setText(message)
-            #     msgBox.exec_()
-            # else:
-            #     msgBox = QtGui.QMessageBox()
-            #     message  = 'Error --\n\n'
-            #     message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
-            #     message += '  This choice is invalid!\n\n'
-            #     message += 'Please use the "Specification Type" button to choose a valid option.\n\n'
-            #     msgBox.setText(message)
-            #     msgBox.exec_()
 
             # Get input from the table of phase space offsets
             self.offsetX  = convertUnitsStringToNumber(self.ui.offsetTable.item(0,0).text(), 'm')
@@ -301,11 +179,11 @@ class BunchTab(QtGui.QWidget):
             self.myBunch = beam.RbParticleBeam6D(numParticles)
             self.myBunch.setDesignMomentumEV(self.designMomentumEV)
             self.myBunch.setTotalCharge(self.totalCharge)
-            self.myBunch.setMassEV(self.eMassEV)     # assume electrons
+            self.myBunch.setMassEV(self.eMassEV)
 
             # specify the distribution flag and extent
             self.myDist = self.myBunch.getDistribution6D()
-            self.myDist.setDistributionType(self.distributionFlag)
+            self.myDist.setDistributionType(self.ui.distribType.currentText().lower())
             self.myDist.setMaxRmsFactor(3.)
 
             # specify the Twiss parameters
@@ -338,26 +216,6 @@ class BunchTab(QtGui.QWidget):
             self.refreshPlots()
 
         self.parent.ui.statusbar.clearMessage()
-
-    def toggleAspectRatio(self):
-        self.xyAspectRatioSquare = not self.xyAspectRatioSquare
-        self.refreshPlots()
-
-    def togglePlotTitles(self):
-        self.plotTitles = not self.plotTitles
-        self.refreshPlots()
-
-    def scatterPlots(self):
-        self.plotFlag = 'scatter'
-        self.refreshPlots()
-
-    def contourPlots(self):
-        self.plotFlag = 'contour'
-        self.refreshPlots()
-
-    def comboPlots(self):
-        self.plotFlag = 'combo'
-        self.refreshPlots()
 
     def refreshPlots(self,internal=False):
         self.parent.ui.statusbar.showMessage('Redrawing plots ...')
@@ -407,12 +265,12 @@ class BunchTab(QtGui.QWidget):
 
     def plotGenericBefore(self, hData, vData, _canvas, nDivs, nLevels):
         _canvas.ax.clear()
-        scatConPlot(self.plotFlag, 'linear', hData, vData, _canvas.ax, nDivs, nLevels)
+        scatConPlot(self.ui.plotType.currentText().lower(), 'linear', hData, vData, _canvas.ax, nDivs, nLevels)
         _canvas.ax.xaxis.set_major_locator(plt.MaxNLocator(self.numTicks))
         _canvas.ax.yaxis.set_major_locator(plt.MaxNLocator(self.numTicks))
 
     def plotGenericAfter(self, _canvas, title):
-        if self.plotTitles:
+        if self.ui.plotTitles.isChecked():
             _canvas.ax.set_title(title)
         _canvas.fig.set_facecolor('w')
         _canvas.fig.tight_layout()
@@ -421,32 +279,32 @@ class BunchTab(QtGui.QWidget):
 
     def plotXY(self, hData, vData, nDivs, nLevels):
         self.plotGenericBefore(hData, vData, self.ui.xyPlot.canvas, nDivs, nLevels)
-        if self.xyAspectRatioSquare:
+        if self.ui.aspectRatio.isChecked():
             self.ui.xyPlot.canvas.ax.set_aspect('equal', 'datalim')
         else:
             self.ui.xyPlot.canvas.ax.set_aspect('auto', 'datalim')
         self.ui.xyPlot.canvas.ax.set_xlabel('x ['+self.unitsPos+']')
         self.ui.xyPlot.canvas.ax.set_ylabel('y ['+self.unitsPos+']')
 
-        self.plotGenericAfter(self.ui.xyPlot.canvas, 'cross-section')
+        self.plotGenericAfter(self.ui.xyPlot.canvas, 'Cross-Section')
 
     def plotXPX(self, hData, vData, nDivs, nLevels):
         self.plotGenericBefore(hData, vData, self.ui.xpxPlot.canvas, nDivs, nLevels)
         self.ui.xpxPlot.canvas.ax.set_xlabel('x ['+self.unitsPos+']')
         self.ui.xpxPlot.canvas.ax.set_ylabel("x' ["+self.unitsAngle+']')
-        self.plotGenericAfter(self.ui.xpxPlot.canvas, 'horizontal')
+        self.plotGenericAfter(self.ui.xpxPlot.canvas, 'Horizontal')
 
     def plotYPY(self, hData, vData, nDivs, nLevels):
         self.plotGenericBefore(hData, vData, self.ui.ypyPlot.canvas, nDivs, nLevels)
         self.ui.ypyPlot.canvas.ax.set_xlabel('y ['+self.unitsPos+']')
         self.ui.ypyPlot.canvas.ax.set_ylabel("y' ["+self.unitsAngle+']')
-        self.plotGenericAfter(self.ui.ypyPlot.canvas, 'vertical')
+        self.plotGenericAfter(self.ui.ypyPlot.canvas, 'Vertical')
 
     def plotSDP(self, hData, vData, nDivs, nLevels):
         self.plotGenericBefore(hData, vData, self.ui.tpzPlot.canvas, nDivs, nLevels)
         self.ui.tpzPlot.canvas.ax.set_xlabel('s ['+self.unitsPos+']')
         self.ui.tpzPlot.canvas.ax.set_ylabel('p [beta*gamma]')
-        self.plotGenericAfter(self.ui.tpzPlot.canvas, 'longitudinal')
+        self.plotGenericAfter(self.ui.tpzPlot.canvas, 'Longitudinal')
 
     def erasePlots(self):
         plots = [self.ui.xyPlot, self.ui.xpxPlot, self.ui.ypyPlot, self.ui.tpzPlot]
@@ -454,11 +312,11 @@ class BunchTab(QtGui.QWidget):
         for plot in plots:
             plot.canvas.ax.clear()
 
-        if self.plotTitles:
-            self.ui.xyPlot.canvas.ax.set_title('cross-section')
-            self.ui.xpxPlot.canvas.ax.set_title('horizontal')
-            self.ui.ypyPlot.canvas.ax.set_title('vertical')
-            self.ui.tpzPlot.canvas.ax.set_title('longitudinal')
+        if self.ui.plotTitles.isChecked():
+            self.ui.xyPlot.canvas.ax.set_title('Cross-Section')
+            self.ui.xpxPlot.canvas.ax.set_title('Horizontal')
+            self.ui.ypyPlot.canvas.ax.set_title('Vertical')
+            self.ui.tpzPlot.canvas.ax.set_title('Longitudinal')
 
         self.ui.xyPlot.canvas.ax.set_xlabel('x ['+self.unitsPos+']')
         self.ui.xyPlot.canvas.ax.set_ylabel('y ['+self.unitsPos+']')
@@ -470,7 +328,6 @@ class BunchTab(QtGui.QWidget):
         self.ui.ypyPlot.canvas.ax.set_ylabel("y' ["+self.unitsAngle+']')
 
         self.ui.tpzPlot.canvas.ax.set_xlabel('s ['+self.unitsPos+']')
-        #self.ui.tpzPlot.canvas.ax.set_ylabel(r'$(p-p_0)/p_0$ ['+self.unitsAngle+']')
         self.ui.tpzPlot.canvas.ax.set_ylabel('p []')
 
 
@@ -479,58 +336,6 @@ class BunchTab(QtGui.QWidget):
             plot.canvas.fig.set_facecolor('w')
             plot.canvas.fig.tight_layout()
             plot.canvas.draw()
-
-    def rmsNormalized(self):
-        # specify the perpendicular Twiss conventions
-        self.perpTwissFlag = 'rms-normalized'
-
-        # Do nothing for now, as this is the default choice
-        #   and alternate choices haven't yet been implemented.
-        # In the future, the 'Twiss Parameters' input box will
-        #   be appropriately modified.
-
-#     def rmsGeometric(self):
-#         # specify the perpendicular Twiss conventions
-# #        self.perpTwissFlag = 'rms-geometric'
-#
-#         # not yet implemented...
-#         msgBox = QtGui.QMessageBox()
-#         msgBox.setText("This feature has not yet been implemented. Coming soon!")
-#         msgBox.exec_()
-#
-#     def ninetyNormalized(self):
-#         # specify the perpendicular Twiss conventions
-# #        self.perpTwissFlag = '90%-normalized'
-#
-#         # not yet implemented...
-#         msgBox = QtGui.QMessageBox()
-#         msgBox.setText("This feature has not yet been implemented. Coming soon!")
-#         msgBox.exec_()
-
-    def alphaBctDp(self):
-        # specify the longitudinal Twiss conventions
-        self.longTwissFlag = 'alpha-bct-dp'
-
-        # Do nothing for now, as this is the default choice
-        #   and alternate choices haven't yet been implemented.
-        # In the future, the 'Longitudinal phase space' input box will
-        #   be appropriately modified.
-
-#     def couplingBctDp(self):
-#         # specify the longitudinal Twiss conventions
-# #        self.longTwissFlag = 'coupling-bct-dp'
-#
-#         msgBox = QtGui.QMessageBox()
-#         msgBox.setText("This feature has not yet been implemented. Coming soon!")
-#         msgBox.exec_()
-#
-#     def alphaBetaEmit(self):
-#         # specify the longitudinal Twiss conventions
-# #        self.longTwissFlag = 'alpha-beta-emit'
-#
-#         msgBox = QtGui.QMessageBox()
-#         msgBox.setText("This feature has not yet been implemented. Coming soon!")
-#         msgBox.exec_()
 
     # calculate the Twiss parameters
     def calculateTwiss(self):
@@ -566,7 +371,7 @@ class BunchTab(QtGui.QWidget):
         gamma0 = math.sqrt(beta0gamma0**2 + 1.)
         beta0 = beta0gamma0 / gamma0
 
-        if self.longTwissFlag == "alpha-bct-dp":
+        if self.ui.longTwissFlag.currentText() == "alpha-bct-dp":
             self.twissAlphaZ = self.twissZ.getAlphaRMS()
             self.twissBetaZ = self.twissZ.getBetaRMS()
             self.twissEmitNZ = self.twissZ.getEmitRMS()
@@ -578,31 +383,6 @@ class BunchTab(QtGui.QWidget):
             self.ui.twissTableZ.setItem(0,0,QtGui.QTableWidgetItem("{:.5e}".format(self.twissAlphaZ)))
             self.ui.twissTableZ.setItem(0,1,QtGui.QTableWidgetItem("{:.5e}".format(self.bctRms)))
             self.ui.twissTableZ.setItem(0,2,QtGui.QTableWidgetItem("{:.5e}".format(self.dPopRms)))
-
-        # elif self.longTwissFlag == "coupling-bct-dp":
-        #     msgBox = QtGui.QMessageBox()
-        #     message  = 'Error --\n\n'
-        #     message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
-        #     message += '  This value is not yet supported, but is coming soon!\n\n'
-        #     message += 'Please go to the "Specification Type" button and choose "alpha-bct-dp".\n\n'
-        #     msgBox.setText(message)
-        #     msgBox.exec_()
-        # elif self.longTwissFlag == "alpha-beta-emit":
-        #     msgBox = QtGui.QMessageBox()
-        #     message  = 'Error --\n\n'
-        #     message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
-        #     message += '  This value is not yet supported, but is coming soon!\n\n'
-        #     message += 'Please go to the "Specification Type" button and choose "alpha-bct-dp".\n\n'
-        #     msgBox.setText(message)
-        #     msgBox.exec_()
-        # else:
-        #     msgBox = QtGui.QMessageBox()
-        #     message  = 'Error --\n\n'
-        #     message += '  longTwissFlag has been specified as "'+self.longTwissFlag+'".\n'
-        #     message += '  This choice is invalid!\n\n'
-        #     message += 'Please use the "Specification Type" button to choose a valid option.\n\n'
-        #     msgBox.setText(message)
-        #     msgBox.exec_()
 
         # get average values
         avgArray = stat.calcAverages6D(self.myBunch.getDistribution6D().getPhaseSpace6D().getArray6D())
@@ -814,7 +594,7 @@ class BunchTab(QtGui.QWidget):
         self.myBunch = beam.RbParticleBeam6D(numParticles)
         self.designMomentumEV = convertUnitsStringToNumber(self.ui.designMomentum.text(), 'eV')
         self.myBunch.setDesignMomentumEV(self.designMomentumEV)
-        self.myBunch.setMassEV(self.eMassEV)     # assume electrons
+        self.myBunch.setMassEV(self.eMassEV)
 
         # all seems to be well, so load particle data into local array,
         #   accounting for any non-standard physical units
@@ -830,11 +610,8 @@ class BunchTab(QtGui.QWidget):
         else: 
             self.designMomentumEV=self.myBunch.getDistribution6D().calcAverages6D()[5]*self.myBunch.eMassEV
             self.myBunch.setDesignMomentumEV(self.designMomentumEV)
-            #self.ui.designMomentum.setText(convertUnitsNumberToString(self.designMomentumEV, 'eV', 'MeV'))
 
         self.totalCharge = numParticles*self.eCharge
-        #self.ui.totalCharge.setText(convertUnitsNumberToString(self.totalCharge, 'C', 'nC'))
-        #self.ui.designMomentum.setText(convertUnitsNumberToString(self.designMomentumEV, 'eV', 'MeV'))
         self.putParametersInGUI(numParticles)
 
         # plot the results
@@ -893,7 +670,7 @@ class BunchTab(QtGui.QWidget):
         # instantiate the particle bunch
         self.myBunch = beam.RbParticleBeam6D(numParticles)
         self.myBunch.setDesignMomentumEV(self.designMomentumEV)
-        self.myBunch.setMassEV(self.eMassEV)     # assume electrons
+        self.myBunch.setMassEV(self.eMassEV)
 
         # load particle array into the phase space object
         self.myBunch.getDistribution6D().getPhaseSpace6D().setArray6D(tmp6)
