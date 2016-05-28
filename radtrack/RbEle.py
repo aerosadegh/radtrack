@@ -230,7 +230,7 @@ class RbEle(QtGui.QWidget):
                 if '=' in line:
                     parameter, value = line.split('=', 1)
                     if parameter.strip() == "lattice":
-                        loader.importFile(value.strip().rstrip(','))
+                        loader.importFile(value.strip().rstrip(',').strip('"'))
                         break
 
         for element in loader.elementDictionary.values():
@@ -550,11 +550,12 @@ class RbEle(QtGui.QWidget):
             self.ui.elegantEditToggleButton.setText('Simple Parameters')
             self.ui.parametersLabel.setText('Elegant File Editor')
             self.ui.simulateButton.setEnabled(True)
+            self.ui.elegantEditStackedWidget.setCurrentIndex(1)
         else:
             self.ui.elegantEditToggleButton.setText('Edit Elegant File')
             self.ui.parametersLabel.setText('Simple Parameter Input')
             self.update_widget_state()
-        self.ui.elegantEditStackedWidget.setCurrentIndex(0 if index == 1 else 1)
+            self.ui.elegantEditStackedWidget.setCurrentIndex(0)
 
     def _simple_to_elegant(self):
         if self.ui.elegantTextEdit.document().isModified():
