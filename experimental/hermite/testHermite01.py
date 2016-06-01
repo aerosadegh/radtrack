@@ -1,6 +1,6 @@
-# 
+#
 # Test executable to exercise the Gauss-Hermite class
-# 
+#
 # Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 #
 # python imports
@@ -8,23 +8,17 @@ import math
 
 # SciPy imports
 import numpy as np
-# import matplotlib
-# matplotlib.use('Qt4Agg')
-# matplotlib.rcParams['backend.qt4']='PyQt4'
 import matplotlib.pyplot as plt
 
 # RadiaBeam imports
-import radtrack.fields.RbGaussHermiteMN as hermite
-import radtrack.plot.RbPlotUtils as plotutils
-import radtrack.plot.RbPlotImageSequence as imageseq
-
-# instance of the plot utility class
-myPlotUtils = plotutils.RbPlotUtils()
+from radtrack.fields import RbGaussHermiteMN
+from radtrack.util import plotTools
+from radtrack.plot import RbPlotImageSequence
 
 # Specify the desired grid size
-numX = 100 
+numX = 100
 numY = 100
-numCells = numX * numY 
+numCells = numX * numY
 
 # Specify the laser beam parameters
 wavelength = 10.e-06         # central wavelength [m]
@@ -58,7 +52,7 @@ for iLoop in range(numX):
 exMax = 1.3e+09
 xMode = 3
 yMode = 0
-gh00 = hermite.RbGaussHermiteMN(wavelength,w0x,2.0*w0x,0.)
+gh00 = RbGaussHermiteMN.RbGaussHermiteMN(wavelength,w0x,2.0*w0x,0.)
 gh00.setCoeffSingleModeX(xMode, exMax)
 gh00.setCoeffSingleModeY(yMode, 1.)
 
@@ -72,16 +66,16 @@ Ex = np.reshape(gh00.evaluateEx(np.reshape(xGrid,numCells),
 # Create scaled values, so the plot can show microns, rather than meters
 xMM  = xGrid*1.e3
 yMM  = yGrid*1.e3
-zMM = zLoc *1.e3 
+zMM = zLoc *1.e3
 sliceNumber = 1
 
 # Create a single matplotlib window, with multiple plots
-axes = imageseq.RbPlotImageSequence()
+axes = RbPlotImageSequence.RbPlotImageSequence()
 
 # first plot
 ax = axes.new()
 # ax.axis('equal')
-vLevels = myPlotUtils.generateContourLevels(Ex)
+vLevels = plotTools.generateContourLevels(Ex)
 cs1 = ax.contourf(xMM, yMM, Ex, vLevels, extent='none', aspect='equal')
 # plt.colorbar(cs1, format='%3.2e')
 plt.gcf().colorbar(cs1, format='%3.2e')
@@ -94,7 +88,7 @@ sliceNumber +=1
 # Create a class instance for mode 0,1 (Gaussian)
 xMode = 0
 yMode = 1
-gh01 = hermite.RbGaussHermiteMN(wavelength,w0x,0.75*w0x,0.)
+gh01 = RbGaussHermiteMN.RbGaussHermiteMN(wavelength,w0x,0.75*w0x,0.)
 gh01.setCoeffSingleModeX(xMode, 1.)
 gh01.setCoeffSingleModeY(yMode, exMax)
 
@@ -121,7 +115,7 @@ sliceNumber +=1
 xMode = 2
 yMode = 1
 rot_angle = math.pi/4.
-gh21 = hermite.RbGaussHermiteMN(wavelength,w0x,w0x,rot_angle)
+gh21 = RbGaussHermiteMN.RbGaussHermiteMN(wavelength,w0x,w0x,rot_angle)
 gh21.setCoeffSingleModeX(xMode, exMax)
 gh21.setCoeffSingleModeY(yMode, 1.)
 
@@ -148,7 +142,7 @@ sliceNumber +=1
 xMode = 3
 yMode = 3
 rot_angle = -math.pi/10.
-gh33 = hermite.RbGaussHermiteMN(wavelength,1.3*w0x,0.6*w0x,rot_angle)
+gh33 = RbGaussHermiteMN.RbGaussHermiteMN(wavelength,1.3*w0x,0.6*w0x,rot_angle)
 gh33.setCoeffSingleModeX(xMode, 1.)
 gh33.setCoeffSingleModeY(yMode, exMax)
 
