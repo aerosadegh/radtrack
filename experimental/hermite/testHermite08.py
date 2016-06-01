@@ -1,6 +1,6 @@
-# 
+#
 # Test executable to exercise the Gauss-Hermite class
-# 
+#
 # Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 #
 # python imports
@@ -8,18 +8,12 @@ import math
 
 # SciPy imports
 import numpy as np
-# import matplotlib
-# matplotlib.use('Qt4Agg')
-# matplotlib.rcParams['backend.qt4']='PyQt4'
 import matplotlib.pyplot as plt
 
 # RadiaBeam imports
-import radtrack.fields.RbGaussHermiteMN as hermite
-import radtrack.plot.RbPlotUtils as plotutils
-import radtrack.plot.RbPlotImageSequence as imageseq
-
-# instance of the plot utility class
-myPlotUtils = plotutils.RbPlotUtils()
+from radtrack.fields import RbGaussHermiteMN
+from radtrack.util import plotTools
+from radtrack.plot import RbPlotImageSequence
 
 # Specify the desired grid size
 numX = 30
@@ -28,7 +22,7 @@ nCells = numX * numZ
 
 # Specify the laser beam parameters
 wavelength = 10.e-06       # central wavelength [m]
-freq0 = 299792458. / wavelength 
+freq0 = 299792458. / wavelength
 w0x = 4.*wavelength    # w0 at z=zRx
 w0y = w0x
 
@@ -50,7 +44,7 @@ dx = (xMax-xMin) / (numX-1)
 for iLoop in range(numX):
     xArray[iLoop] = xMin + iLoop * dx
     yArray[iLoop] = yLoc
-    
+
 dz = (zMax-zMin) / (numZ-1)
 for iLoop in range(numZ):
     zArray[iLoop] = zMin + iLoop * dz
@@ -68,7 +62,7 @@ for iLoop in range(numZ):
 # Create a class instance for mode 0,0 (Gaussian)
 xMode = 0
 yMode = 0
-gh = hermite.RbGaussHermiteMN(wavelength,w0x,w0y,0.)
+gh = RbGaussHermiteMN.RbGaussHermiteMN(wavelength,w0x,w0y,0.)
 gh.setCoeffSingleModeX(xMode, 1.)
 gh.setCoeffSingleModeY(yMode, 1.)
 
@@ -80,19 +74,19 @@ Ex = np.zeros((numZ, numX))
 Ex = np.reshape(gh.evaluateEx(np.reshape(xGrid,nCells),
                 np.reshape(yGrid,nCells), 0., 0.),
                 (numZ, numX) )
-vLevels = myPlotUtils.generateContourLevels(Ex)
+vLevels = plotTools.generateContourLevels(Ex)
 
 # Instead of x,y cross-sections, sliding along the z-axis,
 #   we plot an x-z cross-section, which we slide along the z-axis.
 
 # create the 'axes' object for scrolling through images
-axes = imageseq.RbPlotImageSequence()
+axes = RbPlotImageSequence.RbPlotImageSequence()
 
 nPlots = 11
 zShift_i = -3.* zR_x
 zShift_f =  3.* zR_x
 deltaZ = (zShift_f - zShift_i) / (nPlots-1)
-for nLoop in range(nPlots): 
+for nLoop in range(nPlots):
     zShift = zShift_i + nLoop*deltaZ
 
     # load up the shifted array of longitudinal positions
