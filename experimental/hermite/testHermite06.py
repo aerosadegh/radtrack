@@ -1,6 +1,6 @@
-# 
+#
 # Test executable to exercise the Gauss-Hermite class
-# 
+#
 # Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 #
 # python imports
@@ -8,18 +8,12 @@ import math
 
 # SciPy imports
 import numpy as np
-# import matplotlib
-# matplotlib.use('Qt4Agg')
-# matplotlib.rcParams['backend.qt4']='PyQt4'
 import matplotlib.pyplot as plt
 
 # RadiaBeam imports
-import radtrack.fields.RbGaussHermiteMN as hermite
-import radtrack.plot.RbPlotUtils as plotutils
-import radtrack.plot.RbPlotImageSequence as imageseq
-
-# instance of the plot utility class
-myPlotUtils = plotutils.RbPlotUtils()
+from radtrack.fields import RbGaussHermiteMN
+from radtrack.util import plotTools
+from radtrack.plot import RbPlotImageSequence
 
 # Specify the desired grid size
 numPts = 40
@@ -53,7 +47,7 @@ for iLoop in range(numPts):
 # Create a class instance for mode 0,0 (Gaussian)
 xMode = 0
 yMode = 4
-gh = hermite.RbGaussHermiteMN(wavelength,w0x,w0y,0.)
+gh = RbGaussHermiteMN.RbGaussHermiteMN(wavelength,w0x,w0y,0.)
 gh.setCoeffSingleModeX(xMode, 1.)
 gh.setCoeffSingleModeY(yMode, 1.)
 
@@ -67,15 +61,15 @@ Ex = np.reshape(gh.evaluateEx(np.reshape(xGrid,numCells),
                              0.,
                              0.),
                 (numPts,numPts) )
-vLevels = myPlotUtils.generateContourLevels(Ex)
+vLevels = plotTools.generateContourLevels(Ex)
 
 # create the 'axes' object for scrolling through images
-axes = imageseq.RbPlotImageSequence()
+axes = RbPlotImageSequence.RbPlotImageSequence()
 
 nPlots = 11
 dz = (zMax-zMin) / (nPlots-1)
 for nLoop in range(nPlots):
-    
+
 # Calculate Ex at the 2D array of x,y values
     zLoc = zMin + nLoop*dz
     zMM = 1000.*zLoc

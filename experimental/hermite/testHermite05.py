@@ -2,7 +2,7 @@
 # Here, we fit two Gauss-Hermite expansions to a donut shaped profile
 # (Each one forces one of the zero'th order coefficients to be zero)
 # The SciPy least squares method is used.
-# 
+#
 # Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 
 # python imports
@@ -10,14 +10,11 @@ import math
 
 # SciPy imports
 import numpy as np
-import matplotlib
-matplotlib.use('Qt4Agg')
-matplotlib.rcParams['backend.qt4']='PyQt4'
 import matplotlib.pyplot as plt
 from scipy.optimize import leastsq
 
 # RadiaBeam imports
-import radtrack.fields.RbGaussHermiteMN as hermite
+from radtrack.fields import RbGaussHermiteMN
 
 # ---------------------------------------------------------
 # Make sure the residual() method has access to necessary
@@ -34,8 +31,8 @@ w0 = 10.*lambda0
 mMax = 24    # horizontal and vertical
 
 # Create two instances of the Hermite expansion class
-hS1 = hermite.RbGaussHermiteMN(lambda0,w0,w0,0.)
-hS2 = hermite.RbGaussHermiteMN(lambda0,w0,w0,0.)
+hS1 = RbGaussHermiteMN.RbGaussHermiteMN(lambda0,w0,w0,0.)
+hS2 = RbGaussHermiteMN.RbGaussHermiteMN(lambda0,w0,w0,0.)
 
 # Specify the desired grid size
 numPts = 50
@@ -75,7 +72,7 @@ for iLoop in range(numPts):
         xArg = xArr[iLoop]
         yArg = yArr[jLoop]
         rArg = math.sqrt(xArg**2 + yArg**2)
-        rFactor = 1.0 
+        rFactor = 1.0
         if rArg <= rad2:
             rFactor = 0.5 + 0.5*math.cos(math.pi*((rArg-rad1)/(rad2-rad1) - 1.))
         if rArg <= rad1:
@@ -109,10 +106,10 @@ def residuals(params, e, x, y):
     hS1.setNCoef(vCoefs)
     hS2.setMCoef(vCoefs)
 
-# let the user know what's going on if many function calls are required    
+# let the user know what's going on if many function calls are required
     if numFuncCalls == 0:
         print ' '
-        print 'Number of calls to method residual():'        
+        print 'Number of calls to method residual():'
     numFuncCalls += 1
     if 100*int(numFuncCalls/100.) == numFuncCalls:
         print '  ', numFuncCalls
@@ -122,7 +119,7 @@ def residuals(params, e, x, y):
 
 # plot the transverse field profile
 ncLevels = 12
-vLevels = [0.001, 0.05, 0.15, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.95, 1.05] 
+vLevels = [0.001, 0.05, 0.15, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.95, 1.05]
 plt.figure(1)
 cs1 = plt.contourf(xGrid, yGrid, ExGrid, vLevels)
 plt.colorbar(cs1)

@@ -1,7 +1,7 @@
 # Test executable #4 to exercise the Gauss-Hermite class
 # Here, we fit a Gauss-Hermite expansion to an arbitrary profile.
 # The SciPy least squares method is used.
-# 
+#
 # Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 
 # python imports
@@ -9,14 +9,11 @@ import math
 
 # SciPy imports
 import numpy as np
-import matplotlib
-matplotlib.use('Qt4Agg')
-matplotlib.rcParams['backend.qt4']='PyQt4'
 import matplotlib.pyplot as plt
 from scipy.optimize import leastsq
 
 # RadiaBeam imports
-import radtrack.fields.RbGaussHermiteMN as hermite
+from radtrack.fields import RbGaussHermiteMN
 
 # ---------------------------------------------------------
 # Make sure the residual() method has access to necessary
@@ -33,12 +30,12 @@ w0 = 10.*lambda0
 mMax = 40    # horizontal
 
 # Create an instance of the Hermite expansion class
-hermiteSeries = hermite.RbGaussHermiteMN(lambda0,w0,w0,0.)
+hermiteSeries = RbGaussHermiteMN.RbGaussHermiteMN(lambda0,w0,w0,0.)
 
 # Specify the desired grid size
 numX   = 50
 numY   = 50
-nCells = numX * numY 
+nCells = numX * numY
 
 # load up the x,y locations of the mesh
 xMin = -4.*w0
@@ -72,7 +69,7 @@ for iLoop in range(numX):
         xArg = xArr[iLoop]
         yArg = yArr[jLoop]
         rArg = math.sqrt(xArg**2 + yArg**2)
-        rFactor = 1.0 
+        rFactor = 1.0
         if rArg <= rad2:
             rFactor = 0.5 + 0.5*math.cos(math.pi*((rArg-rad1)/(rad2-rad1) - 1.))
         if rArg <= rad1:
@@ -102,10 +99,10 @@ def residuals(params, e, x, y):
         vCoefs[ii] = params[mMax+2+ii]
     hermiteSeries.setNCoef(vCoefs)
 
-# let the user know what's going on if many function calls are required    
+# let the user know what's going on if many function calls are required
     if numFuncCalls == 0:
         print ' '
-        print 'Number of calls to method residual():'        
+        print 'Number of calls to method residual():'
     numFuncCalls += 1
     if 100*int(numFuncCalls/100.) == numFuncCalls:
         print '  ', numFuncCalls
@@ -114,7 +111,7 @@ def residuals(params, e, x, y):
 
 # plot the transverse field profile
 ncLevels = 12
-vLevels = [0.001, 0.05, 0.15, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.95, 1.05] 
+vLevels = [0.001, 0.05, 0.15, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.95, 1.05]
 plt.figure(1)
 cs1 = plt.contourf(xGrid, yGrid, ExGrid, vLevels)
 plt.colorbar(cs1)

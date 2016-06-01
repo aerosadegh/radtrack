@@ -1,6 +1,6 @@
-# 
+#
 # Test executable to exercise the Gauss-Hermite class
-# 
+#
 # Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 #
 # python imports
@@ -8,26 +8,20 @@ import math
 
 # SciPy imports
 import numpy as np
-# import matplotlib
-# matplotlib.use('Qt4Agg')
-# matplotlib.rcParams['backend.qt4']='PyQt4'
 import matplotlib.pyplot as plt
 
 # RadiaBeam imports
-import radtrack.fields.RbGaussHermiteMN as hermite
-import radtrack.plot.RbPlotUtils as plotutils
-import radtrack.plot.RbPlotImageSequence as imageseq
-
-# instance of the plot utility class
-myPlotUtils = plotutils.RbPlotUtils()
+from radtrack.fields import RbGaussHermiteMN
+from radtrack.util import plotTools
+from radtrack.plot import RbPlotImageSequence
 
 # Specify the desired grid size
 numPts = 40
-nCells = numPts**2 
+nCells = numPts**2
 
 # Specify the laser beam parameters
 wavelength = 10.e-06         # central wavelength [m]
-freq0 = 299792458. / wavelength 
+freq0 = 299792458. / wavelength
 w0x  =   20.*wavelength  # w0 at z=zRx
 w0y  =   20.*wavelength  # w0 at z=zRy
 
@@ -53,7 +47,7 @@ for iLoop in range(numPts):
 # Create a class instance for mode 0,0 (Gaussian)
 xMode = 1
 yMode = 0
-gh = hermite.RbGaussHermiteMN(wavelength,w0x,w0y,0.)
+gh = RbGaussHermiteMN.RbGaussHermiteMN(wavelength,w0x,w0y,0.)
 gh.setCoeffSingleModeX(xMode, 1.)
 gh.setCoeffSingleModeY(yMode, 1.)
 
@@ -65,16 +59,16 @@ y_mm  = yGrid*1.e3
 Ex = np.reshape(                                   \
      gh.evaluateEx(np.reshape(xGrid,nCells),       \
                    np.reshape(yGrid,nCells), zLoc, tLoc), (numPts, numPts) )
-vLevels = myPlotUtils.generateContourLevels(Ex)
+vLevels = plotTools.generateContourLevels(Ex)
 
 # create the 'axes' object for scrolling through images
-axes = imageseq.RbPlotImageSequence()
+axes = RbPlotImageSequence.RbPlotImageSequence()
 
 nPlots = 20
 tI = 0.
 tF = 1./freq0
 dt = (tF-tI) / nPlots
-for nLoop in range(nPlots): 
+for nLoop in range(nPlots):
     tLoc = tI + nLoop*dt
     tFS = tLoc * 1.e15
 
