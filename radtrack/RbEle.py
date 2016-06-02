@@ -102,13 +102,20 @@ class RbEle(QtGui.QWidget):
         self.beamlineNames = []
 
 
-    # This tab only pulls together data from other sources.
-    # It has no information to save. exportToFile() creates
-    # an empty file to signal to RadTrack to create a new
-    # tab when a project is opened that had this tab.
     def exportToFile(self, fileName):
-        with open(fileName, 'w'):
-            pass
+        if self.ui.elegantEditStackedWidget.currentIndex() == 0:
+            try:
+                momentum = self.validate_momentum()
+                if not momentum:
+                    momentum = 0
+                elegant_input_file = self._write_simulation_input_files(momentum).replace('\\', '\\\\')
+                shutil.move(elegant_input_file, fileName)
+            except:
+                with open(fileName, 'w'):
+                    pass
+        else:
+            with open(fileName, 'w') as f:
+                f.write(self.ui.elegantTextEdit.document().toPlainText())
 
     def importFile(self, fileName):
         if self.ui.elegantEditStackedWidget.currentIndex() == 0:
@@ -118,7 +125,7 @@ class RbEle(QtGui.QWidget):
             directory = os.path.dirname(fileName)
             for line in f:
                 self.ui.elegantTextEdit.insertPlainText(line)
-                if line.strip().startswith('!'):
+                if line.strip().startswith('!') or directory == self.parent.sessionDirectory:
                     continue
                 if '=' in line:
                     value = line.split('=', 1)[1].strip().rstrip(',').strip('"')
