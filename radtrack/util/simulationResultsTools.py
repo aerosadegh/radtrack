@@ -1,6 +1,9 @@
 from pykern.pkdebug import pkdc
 from PyQt4 import QtGui, QtCore
-import os
+from radtrack.util.fileTools import getSaveFileName
+import os, shutil
+
+from radtrack.RbRawDataDialogBox import RbRawDataDialogBox
 
 def add_result_file(listWidget, text, file_name):
     """Adds the file entry to the simulation results list"""
@@ -15,13 +18,15 @@ def add_result_file(listWidget, text, file_name):
 def results_context_menu(listWidget, globalGUI, position):
     """Show the context menu for a result item."""
     if listWidget.currentItem():
-        file_name = listWidget.currentItem().data(
-            QtCore.Qt.UserRole).toString()
+        file_name = listWidget.currentItem().data(QtCore.Qt.UserRole).toString()
         menu = QtGui.QMenu()
         ext = os.path.splitext(file_name)[1].strip('.')
         for tabType in globalGUI.availableTabTypes:
             if ext in tabType.acceptsFileTypes:
                 _add_menu_actions(globalGUI, menu, file_name, tabType, tabType.defaultTitle)
+        menu.addSeparator()
+        menu.addAction('View raw file ...', lambda : _raw_file_data_dialog(globalGUI, file_name))
+        menu.addAction('Save file as ...', lambda : _save_file_as(globalGUI, file_name))
         menu.exec_(listWidget.mapToGlobal(position))
 
 def _add_menu_actions(globalGUI, menu, file_name, tab_type, name):
@@ -33,6 +38,16 @@ def _add_menu_actions(globalGUI, menu, file_name, tab_type, name):
     menu.addAction(
         'Open in new {} tab'.format(name),
         lambda: _new_tab(globalGUI, tab_type, file_name))
+
+def _raw_file_data_dialog(parent, file_name):
+    box = RbRawDataDialogBox(parent, file_name)
+    box.exec_()
+
+def _save_file_as(globalGUI, file_name):
+    new_file_name = QtGui.QFileDialog.getSaveFileName(globalGUI, 'Save file as', globalGUI.lastUsedDirectory)
+    if new_file_name:
+        shutil.copy2(file_name, new_file_name)
+
 
 def _load_tab(globalGUI, tab_name, file_name):
     """Load a globalGUI tab with data from the specified file"""

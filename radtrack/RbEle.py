@@ -262,7 +262,11 @@ class RbEle(QtGui.QWidget):
                         '{}: {}'.format(element.name, type(element).__name__),
                         self._autocomplete_file_name(element.data[i]))
 
-        matches = re.findall(r'\%s\.\w+', self.ELEGANT_TEMPLATE)
+        if self.ui.elegantEditStackedWidget.currentIndex() == 0:
+            matches = re.findall(r'\%s\.\w+', self.ELEGANT_TEMPLATE)
+        else:
+            matches = re.findall(r'\%s\.\w+', self.ui.elegantTextEdit.document().toPlainText())
+
         for match in matches:
             file_name = self._autocomplete_file_name(match)
             if os.path.isfile(file_name):
