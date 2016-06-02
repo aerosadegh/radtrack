@@ -44,12 +44,6 @@ def calcMaxValues6D(array6D):
     return np.max(array6D, axis=1)
 
 def calcCorrelations6D(array6D):
-    # for testing purposes only
-    if False:
-        print ' '
-        print '...in RbStatistics6D:calcCorrelations6D()'
-        print ' 1st particle: ', array6D[:,0]
-
     npoints = array6D.shape[1]
     averages6D = calcAverages6D(array6D)
     variance6D = calcVariance6D(array6D)
@@ -64,7 +58,6 @@ def calcCorrelations6D(array6D):
                         (array6D[iLoop,nLoop] - averages6D[iLoop]) * \
                         (array6D[jLoop,nLoop] - averages6D[jLoop])
                 correlations6D[iLoop, jLoop] /= npoints
-                #correlations6D[jLoop, iLoop]  = correlations6D[iLoop, jLoop]
     return correlations6D
 
 def eraseCorrelations6D(array6D):
