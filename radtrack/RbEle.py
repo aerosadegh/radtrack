@@ -378,7 +378,7 @@ class RbEle(QtGui.QWidget):
             self.beamlineNames = beamline_source.elementDictionary[beamlineName].fullElementNameList()
         else:
             self.beamlineNames = []
-        self.ui.progressBar.setMaximum(len(self.beamlineNames))
+        self.ui.progressBar.setMaximum(len(self.beamlineNames) + 1)
         self.ui.progressBar.reset()
         self.progressIndex = 0
 
@@ -565,20 +565,22 @@ class RbEle(QtGui.QWidget):
         # Make sure that print_statistics = 1
         modifiedElegantText = ''
         insideRunSetup = False
-        printStatsSeen = False
+        printStatsWritten = False
         for line in elegantText.split('\n'):
-            if printStatsSeen:
+            if printStatsWritten:
                 modifiedElegantText = modifiedElegantText + '\n' + line
             elif line.strip().startswith('print_statistics'):
                 modifiedElegantText = modifiedElegantText + \
                                       '\n\tprint_statistics = 1,'
-                printStatsSeen = True
+                printStatsWritten = True
             elif line.strip() == '&run_setup':
                 insideRunSetup = True
                 modifiedElegantText = modifiedElegantText + '\n' + line
             elif line.strip() == '&end' and insideRunSetup:
                 modifiedElegantText = modifiedElegantText + \
                                       '\n\tprint_statistics = 1,\n' + line
+                insideRunSetup = False
+                printStatsWritten = True
             else:
                 modifiedElegantText = modifiedElegantText + '\n' + line
         elegantText = modifiedElegantText + '\n'
