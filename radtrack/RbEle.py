@@ -115,8 +115,19 @@ class RbEle(QtGui.QWidget):
             self._toggle_edit_mode()
         self.ui.elegantTextEdit.clear()
         with open(fileName) as f:
+            directory = os.path.dirname(fileName)
             for line in f:
                 self.ui.elegantTextEdit.insertPlainText(line)
+                if line.strip().startswith('!'):
+                    continue
+                if '=' in line:
+                    value = line.split('=', 1)[1].strip().rstrip(',').strip('"')
+                    filePath = os.path.join(directory, value)
+                    if os.path.isfile(filePath):
+                        shutil.copy2(filePath, self.parent.sessionDirectory)
+                        if filePath.lower().endswith('.lte'):
+                            loader = RbBunchTransport(self.parent)
+                            loader.importFile(filePath)
 
     def append_status(self, line):
         """Formats and appends the line to the status field"""
@@ -344,7 +355,13 @@ class RbEle(QtGui.QWidget):
     def _process_started(self):
         """Callback when simulation process has started"""
         self.ui.abortButton.setEnabled(True)
-        beamlineName=self.ui.beamLineComboBox.currentText()
+        if self.ui.elegantEditStackedWidget.currentIndex() == 0:
+            beamlineName=self.ui.beamLineComboBox.currentText()
+        else:
+            for line in self.ui.elegantTextEdit.document().toPlainText().split('\n'):
+                if line.strip().startswith('use_beamline'):
+                    beamlineName = line.split('=', 1)[1].strip().rstrip(',').strip('"').upper()
+                    break
         beamline_source = self.beam_line_source_manager.get_lattice_element_loader()
         if beamline_source:
             self.beamlineNames = beamline_source.elementDictionary[beamlineName].fullElementNameList()
@@ -533,6 +550,27 @@ class RbEle(QtGui.QWidget):
                     )
         else:
             elegantText = self.ui.elegantTextEdit.toPlainText()
+
+        # Make sure that print_statistics = 1
+        modifiedElegantText = ''
+        insideRunSetup = False
+        printStatsSeen = False
+        for line in elegantText.split('\n'):
+            if printStatsSeen:
+                modifiedElegantText = modifiedElegantText + '\n' + line
+            elif line.strip().startswith('print_statistics'):
+                modifiedElegantText = modifiedElegantText + \
+                                      '\n\tprint_statistics = 1,'
+                printStatsSeen = True
+            elif line.strip() == '&run_setup':
+                insideRunSetup = True
+                modifiedElegantText = modifiedElegantText + '\n' + line
+            elif line.strip() == '&end' and insideRunSetup:
+                modifiedElegantText = modifiedElegantText + \
+                                      '\n\tprint_statistics = 1,\n' + line
+            else:
+                modifiedElegantText = modifiedElegantText + '\n' + line
+        elegantText = modifiedElegantText + '\n'
 
         with open(elegant_file_name, 'w') as output_file:
             output_file.write(elegantText)
@@ -751,16 +789,26 @@ class BeamLineSourceManager(ComboManager):
     def get_lattice_element_loader(self):
         """Returns the RbBunchTransport instance with the lattice elements"""
         loader = None
-        if self.is_tab_choice():
+        if self.rbele.ui.elegantEditStackedWidget.currentIndex() == 1:
+            for line in self.rbele.ui.elegantTextEdit.document().toPlainText().split('\n'):
+                if line.strip().startswith('lattice'):
+                    fileName = line.split('=', 1)[1].strip().rstrip(',').strip('"')
+                    self._add_file_to_loader_cache(fileName)
+                    loader = self.loaderCache[fileName]
+                    break
+        elif self.is_tab_choice():
             loader = self.get_tab_widget()
         elif self.has_selection():
             fileName = self.get_file_name()
-            if fileName not in self.loaderCache:
-                loader = RbBunchTransport(parent=self.rbele.parent)
-                loader.importFile(fileName)
-                self.loaderCache[fileName] = loader
+            self._add_file_to_loader_cache(fileName)
             loader = self.loaderCache[fileName]
         return loader
+
+    def _add_file_to_loader_cache(self, fileName):
+        if fileName not in self.loaderCache:
+            loader = RbBunchTransport(parent=self.rbele.parent)
+            loader.importFile(fileName)
+            self.loaderCache[fileName] = loader
 
     def _beam_line_source_changed(self):
         """Load beam line file and loads beam info into beamLineComboBox"""

@@ -674,6 +674,8 @@ class RbCbt(rt_qt.QtGui.QWidget):
                     if element.data[index]:
                         try:
                             path = os.path.join(os.path.dirname(fileName), element.data[index])
+                            if not os.path.isabs(path):
+                                path = os.path.abspath(path)
                             importedPath = os.path.join(self.parent.sessionDirectory, element.data[index])
                             if path == importedPath:
                                 continue
