@@ -1,8 +1,8 @@
-# 
+#
 # Test executable #3 to exercise the Gauss-Hermite class
 # Here, we fit a Gauss-Hermite expansion to an arbitrary profile.
 # The SciPy least squares method is used.
-# 
+#
 # Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 #
 # python imports
@@ -10,14 +10,11 @@ import math
 
 # SciPy imports
 import numpy as np
-import matplotlib
-matplotlib.use('Qt4Agg')
-matplotlib.rcParams['backend.qt4']='PyQt4'
 import matplotlib.pyplot as plt
 from scipy.optimize import leastsq
 
 # RadiaBeam imports
-import radtrack.fields.RbGaussHermiteMN as hermite
+from radtrack.fields import RbGaussHermiteMN
 
 # ---------------------------------------------------------
 # Make sure the residual() method has access to necessary
@@ -35,12 +32,12 @@ mMax = 20    # horizontal
 nMax = mMax  # vertical
 
 # Create an instance of the Hermite expansion class
-hermiteSeries = hermite.RbGaussHermiteMN(lambda0,w0,w0,0.)
+hermiteSeries = RbGaussHermiteMN.RbGaussHermiteMN(lambda0,w0,w0,0.)
 
 # Specify the desired grid size
 numX   = 50
 numY   = 50
-nCells = numX * numY 
+nCells = numX * numY
 
 # load up the x,y locations of the mesh
 xMin = -4.*w0
@@ -70,9 +67,9 @@ yLeft  = 0.1*yMin
 yRight = 0.5*yMax
 
 xMid = 0.5 * (xRight + xLeft)
-xDif = 0.5 * (xRight - xLeft)   
-yMid = 0.5 * (yRight + yLeft)   
-yDif = 0.5 * (yRight - yLeft)   
+xDif = 0.5 * (xRight - xLeft)
+yMid = 0.5 * (yRight + yLeft)
+yDif = 0.5 * (yRight - yLeft)
 
 # Create transverse field profile (#2 quadratic square)
 ExGrid = np.zeros((numX, numY))
@@ -82,7 +79,7 @@ for iLoop in range(numX):
     for jLoop in range(numY):
         xArg =  xArr[iLoop]*math.cos(phi2) + yArr[jLoop]*math.sin(phi2)
         yArg = -xArr[iLoop]*math.sin(phi2) + yArr[jLoop]*math.cos(phi2)
-        if (xArg>=xLeft) and (xArg<=xRight) and (yArg>=yLeft) and (yArg<=yRight): 
+        if (xArg>=xLeft) and (xArg<=xRight) and (yArg>=yLeft) and (yArg<=yRight):
             ExGrid[iLoop, jLoop] = (1.-((xArg-xMid)/xDif)**2) * (1.-((yArg-yMid)/yDif)**2)
             maxVal = max(ExGrid[iLoop, jLoop], maxVal)
 
@@ -111,10 +108,10 @@ def residuals(params, e, x, y):
         vCoefs[2*ii] = params[6+mMax/2+ii]
     hermiteSeries.setNCoef(vCoefs)
 
-# let the user know what's going on if many function calls are required    
+# let the user know what's going on if many function calls are required
     if numFuncCalls == 0:
         print ' '
-        print 'Number of calls to method residual():'        
+        print 'Number of calls to method residual():'
     numFuncCalls += 1
     if 10*int(numFuncCalls/10.) == numFuncCalls:
         print '  ', numFuncCalls
@@ -123,7 +120,7 @@ def residuals(params, e, x, y):
 
 # plot the transverse field profile
 ncLevels = 12
-vLevels = [0.001, 0.05, 0.15, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.95, 1.05] 
+vLevels = [0.001, 0.05, 0.15, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.95, 1.05]
 plt.figure(1)
 cs1 = plt.contourf(xGrid, yGrid, ExGrid, vLevels)
 plt.colorbar(cs1)
