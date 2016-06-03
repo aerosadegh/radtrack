@@ -41,6 +41,7 @@ def _add_menu_actions(globalGUI, menu, file_name, tab_type, name):
 
 def _raw_file_data_dialog(parent, file_name):
     box = RbRawDataDialogBox(parent, file_name)
+    box.setWindowTitle('RadTrack - File Viewer')
     box.exec_()
 
 def _save_file_as(globalGUI, file_name):

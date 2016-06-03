@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'radtrack/ui/RbRawDataDialogBox.ui'
 #
-# Created: Thu Jun  2 22:32:08 2016
+# Created: Fri Jun  3 23:14:36 2016
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -27,9 +27,7 @@ class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName(_fromUtf8("Dialog"))
         Dialog.resize(400, 300)
-        self.verticalLayout_2 = QtGui.QVBoxLayout(Dialog)
-        self.verticalLayout_2.setObjectName(_fromUtf8("verticalLayout_2"))
-        self.verticalLayout = QtGui.QVBoxLayout()
+        self.verticalLayout = QtGui.QVBoxLayout(Dialog)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.label = QtGui.QLabel(Dialog)
         font = QtGui.QFont()
@@ -37,18 +35,16 @@ class Ui_Dialog(object):
         font.setBold(True)
         font.setWeight(75)
         self.label.setFont(font)
-        self.label.setTextFormat(QtCore.Qt.AutoText)
         self.label.setObjectName(_fromUtf8("label"))
         self.verticalLayout.addWidget(self.label)
         self.textBrowser = QtGui.QTextBrowser(Dialog)
         self.textBrowser.setObjectName(_fromUtf8("textBrowser"))
         self.verticalLayout.addWidget(self.textBrowser)
-        self.verticalLayout_2.addLayout(self.verticalLayout)
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(_translate("Dialog", "Dialog", None))
-        self.label.setText(_translate("Dialog", "File Name", None))
+        self.label.setText(_translate("Dialog", "TextLabel", None))
 
