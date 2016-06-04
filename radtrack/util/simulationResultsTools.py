@@ -73,8 +73,8 @@ def _save_file_as(globalGUI, file_name):
 def _load_tab(globalGUI, tab_name, file_name):
     """Load a globalGUI tab with data from the specified file"""
     target = get_tab_by_name(globalGUI, tab_name)
-    target.importFile(file_name)
     globalGUI.tabWidget.setCurrentWidget(target)
+    target.importFile(file_name)
 
 
 def _new_tab(globalGUI, tab_type, file_name):
