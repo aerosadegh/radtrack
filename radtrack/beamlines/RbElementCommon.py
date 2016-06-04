@@ -57,6 +57,7 @@ class elementCommon(object):
     outputFileParameters = []
 
     def __init__(self, inputData = None):
+        super(elementCommon, self).__init__()
         if inputData is None:
             # one more [''] for the name
             inputData = ['' for item in [''] + self.parameterNames]
@@ -147,7 +148,7 @@ class elementCommon(object):
         return not self == other
 
 # xPic classes are for drawing a beamline preview
-class alphaPic:
+class alphaPic(object):
     def picture(self, scene, pos = pycore.QPointF(0,0), angle = 0):
         length = self.getLength()*self.getResolution()
         if length == 0:
@@ -187,7 +188,7 @@ class alphaPic:
         return pos, exitAngle
 
 
-class bendPic:
+class bendPic(object):
     def picture(self, scene, pos = pycore.QPointF(0,0), angle = 0):
         xSize = self.getLength()*self.getResolution()
         if xSize == 0:
@@ -237,7 +238,7 @@ class bendPic:
 
 
 
-class driftPic:
+class driftPic(object):
     def getNumberOfElements(self):
         return 0
 
@@ -320,7 +321,7 @@ def curvedSurface(sign, height, position):
     return surface, 2*drawRadius*(1-cos(totalAngle/2))
 
 
-class reflectiveGratingPic:
+class reflectiveGratingPic(object):
     def picture(self, scene, pos = pycore.QPointF(0,0), angle = 0):
         ySize = self.getRadius()*self.getResolution()
         if ySize == 0:
@@ -355,7 +356,7 @@ class reflectiveGratingPic:
         return pos, angle-(pi-rotationAngle*2)
 
 
-class gratingPic:
+class gratingPic(object):
     def picture(self, scene, pos = pycore.QPointF(0,0), angle = 0):
         ySize = self.getRadius()*self.getResolution()
         if ySize == 0:
@@ -386,7 +387,7 @@ class gratingPic:
 
 
 
-class lensPic:
+class lensPic(object):
     def picture(self, scene, pos = pycore.QPointF(0,0), angle = 0):
         height = self.getRadius()*self.getResolution()
         if height == 0:
@@ -423,7 +424,7 @@ class lensPic:
         return pos, angle
 
 
-class magnetPic:
+class magnetPic(object):
     def picture(self, scene, pos = pycore.QPointF(0,0), angle = 0):
         length = self.getLength()*self.getResolution()
         height = 0.5*self.getResolution()
@@ -453,7 +454,7 @@ class magnetPic:
         return exitPoint, angle
 
 
-class mirrorPic:
+class mirrorPic(object):
     def picture(self, scene, pos = pycore.QPointF(0,0), angle = 0):
         rotationAngle = self.findParameter(['THETA'])
         focalLength = self.findParameter(['F'])
@@ -485,7 +486,7 @@ class mirrorPic:
         return pos, angle-(pi-rotationAngle*2)
 
 
-class recircPic:
+class recircPic(object):
     def picture(self, scene, pos = pycore.QPointF(0,0), angle = 0):
         radius = .3*self.getResolution()
         initAngle = .2
@@ -529,7 +530,7 @@ class recircPic:
         return pos, angle
 
 
-class solenoidPic:
+class solenoidPic(object):
     def picture(self, scene, pos = pycore.QPointF(0,0), angle = 0):
         length = self.getLength()*self.getResolution()
         if length == 0:
@@ -568,7 +569,7 @@ class solenoidPic:
         return exitPoint, angle
 
 
-class undulatorPic:
+class undulatorPic(object):
     def picture(self, scene, pos = pycore.QPointF(0,0), angle = 0):
         length  = self.getLength()*self.getResolution()
         periods = int(self.getPeriods())
@@ -639,7 +640,7 @@ class undulatorPic:
         return exitPoint, angle
 
 
-class watchPic:
+class watchPic(object):
     def picture(self, scene, pos = pycore.QPointF(0,0), angle = 0):
         flagSizePix = self.flagSize*self.getResolution()
 
@@ -661,7 +662,7 @@ class watchPic:
     def newPosition(self, pos, angle):
         return pos, angle
 
-class zeroLengthPic:
+class zeroLengthPic(object):
     def picture(self, scene, pos = pycore.QPointF(0,0), angle = 0):
         size = self.getResolution()/2
         start = pycore.QPointF(0, size)

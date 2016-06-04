@@ -634,7 +634,7 @@ class RbEle(QtGui.QWidget):
 
 
 
-class ComboManager():
+class ComboManager(object):
     """Superclass for the BunchSourceManager and BeamLineSourceManager"""
     SELECT_FILE_CHOICE = 'Use another file ...'
 
@@ -736,7 +736,7 @@ class BunchSourceManager(ComboManager):
     """Manages the state and interaction with the Bunch Source ComboBox"""
 
     def __init__(self, rbele, combo):
-        ComboManager.__init__(self, rbele, combo, 'beam bunch', (BunchTab,))
+        super(BunchSourceManager, self).__init__(rbele, combo, 'beam bunch', (BunchTab,))
         self.combo.currentIndexChanged.connect(self._bunch_source_changed)
 
     def get_bunch_file_name(self):
@@ -782,8 +782,8 @@ class BeamLineSourceManager(ComboManager):
     """Manages the state and interaction with the Beam Line Source ComboBox"""
 
     def __init__(self, rbele, combo):
-        ComboManager.__init__(
-            self, rbele, combo, 'beam line', (RbBunchTransport, RbGenesisTransport))
+        super(BeamLineSourceManager, self).__init__(
+            rbele, combo, 'beam line', (RbBunchTransport, RbGenesisTransport))
         self.loaderCache = {}
         self.combo.currentIndexChanged.connect(self._beam_line_source_changed)
 

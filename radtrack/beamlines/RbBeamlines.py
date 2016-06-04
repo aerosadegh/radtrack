@@ -13,6 +13,7 @@ from radtrack.beamlines.RbElementCommon import sanitizeName
 
 class BeamlineCommon(object):
     def __init__(self, data = None):
+        super(BeamlineCommon, self).__init__()
         if data is None:
             self.setName('B')
             self.data = []
@@ -96,6 +97,7 @@ class BeamlineCommon(object):
 
 class ReverseBeamline(object):
     def __init__(self, beamline):
+        super(ReverseBeamline, self).__init__()
         self.originalBeamline = beamline
 
     def isBeamline(self):
