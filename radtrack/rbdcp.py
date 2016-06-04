@@ -123,8 +123,10 @@ class RbDcp(QtGui.QWidget):
                 self.parent.lastUsedDirectory = dirname(openFile)
 
         ext = splitext(openFile)[-1].lower().lstrip(".")
+        self.currentFiletype = ext
         if isSDDS(openFile):
             self.showDCP_ele(openFile)
+            self.currentFiletype = 'sdds'
         elif ext == 'dat':
             self.showDCP_srw(openFile)
         elif ext == 'h5':
@@ -148,7 +150,6 @@ class RbDcp(QtGui.QWidget):
         except AttributeError:
             pass
 
-        self.currentFiletype = ext
         if ext == 'twi':
             self.twiselect()
         elif ext == 'out':

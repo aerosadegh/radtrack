@@ -1,6 +1,6 @@
 from pykern.pkdebug import pkdc
 from PyQt4 import QtGui, QtCore
-from radtrack.util.fileTools import getSaveFileName
+from radtrack.util.fileTools import getSaveFileName, isSDDS
 import os, shutil
 
 from radtrack.RbRawDataDialogBox import RbRawDataDialogBox
@@ -15,14 +15,26 @@ def add_result_file(listWidget, text, file_name):
     item.setData(QtCore.Qt.UserRole, file_name)
     listWidget.addItem(item)
 
+def is_file_type(file_name, file_extension):
+    if file_name.split('.')[-1].lower() == file_extension:
+        return True
+
+    if file_extension == 'sdds':
+        return isSDDS(file_name)
+
+def can_accept(tabType, file_name):
+    for file_type in tabType.acceptsFileTypes:
+        if is_file_type(file_name, file_type):
+            return True
+    return False
+
 def results_context_menu(listWidget, globalGUI, position):
     """Show the context menu for a result item."""
     if listWidget.currentItem():
         file_name = listWidget.currentItem().data(QtCore.Qt.UserRole).toString()
         menu = QtGui.QMenu()
-        ext = os.path.splitext(file_name)[1].strip('.')
         for tabType in globalGUI.availableTabTypes:
-            if ext in tabType.acceptsFileTypes:
+            if can_accept(tabType, file_name):
                 _add_menu_actions(globalGUI, menu, file_name, tabType, tabType.defaultTitle)
         menu.addSeparator()
         menu.addAction('View raw file ...', lambda : _raw_file_data_dialog(globalGUI, file_name))
