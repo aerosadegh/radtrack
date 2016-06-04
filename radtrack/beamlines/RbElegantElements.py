@@ -38,8 +38,9 @@ def importFile(fileName, importDictionary, classDictionary, nameMangler):
             if line.strip().upper() == 'RETURN':
                 break
             try:
-                defaultBeamlineName = parseLine(line, importDictionary, \
-                                      classDictionary, nameMangler)
+                defName = parseLine(line, importDictionary, classDictionary, nameMangler)
+                if defName:
+                    defaultBeamlineName = defName
             except KeyError as error:
                 text = ' already' if str(error).strip("'") in importDictionary else ' not'
                 raise IOError('In file: ' + fileName + '\n' +
