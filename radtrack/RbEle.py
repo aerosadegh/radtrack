@@ -370,6 +370,7 @@ class RbEle(QtGui.QWidget):
     def _process_started(self):
         """Callback when simulation process has started"""
         self.ui.abortButton.setEnabled(True)
+        beamlineName = None
         if self.ui.elegantEditStackedWidget.currentIndex() == 0:
             beamlineName=self.ui.beamLineComboBox.currentText()
         else:
@@ -378,11 +379,11 @@ class RbEle(QtGui.QWidget):
                     beamlineName = line.split('=', 1)[1].strip().rstrip(',').strip('"').upper()
                     break
         beamline_source = self.beam_line_source_manager.get_lattice_element_loader()
-        if beamline_source:
+        if beamline_source and beamlineName:
             self.beamlineNames = beamline_source.elementDictionary[beamlineName].fullElementNameList()
         else:
             self.beamlineNames = []
-        self.ui.progressBar.setMaximum(len(self.beamlineNames) + 1)
+        self.ui.progressBar.setMaximum(len(self.beamlineNames) + 1 if self.beamlineNames else 0)
         self.ui.progressBar.reset()
         self.progressIndex = 0
 
