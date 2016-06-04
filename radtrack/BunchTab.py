@@ -39,7 +39,7 @@ class BunchTab(QtGui.QWidget):
     category = 'beams'
 
     def __init__(self,parent=None):       # initialization
-        super(BunchTab, self).__init__()
+        super(BunchTab, self).__init__(parent)
         self.ui = Ui_bunchInterface()
         self.ui.setupUi(self)
 

@@ -9,7 +9,7 @@ class RbGenesisTransport(rbcbt.RbCbt):
     task = 'Design a Genesis beam line'
 
     def __init__(self, parent = None):
-        rbcbt.RbCbt.__init__(self, module, parent)
+        super(RbGenesisTransport, self).__init__(module, parent)
 
     def writeElegantFile(self, fileName, momentum):
         with open(fileName, "w") as outputFile:

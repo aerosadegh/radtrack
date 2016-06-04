@@ -18,11 +18,7 @@ class RbSrwTab(QtGui.QWidget):
     category = 'simulations'
 
     def __init__(self, parent):
-        if parent:
-            self.parent = parent
-        else:
-            self.parent = self
-        QtGui.QWidget.__init__(self)
+        super(RbSrwTab, self).__init__(parent)
         self.complexity_widget = QtGui.QCheckBox(self)
         self.complexity_widget.setText('Single-Particle')
         layout = QtGui.QVBoxLayout(self)

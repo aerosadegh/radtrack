@@ -28,7 +28,7 @@ class RbFEL(QtGui.QWidget):
     category = 'tools'
 
     def __init__(self, parent = None):
-        QtGui.QWidget.__init__(self, parent)
+        super(RbFEL, self).__init__(parent)
 
         if parent == None:
             self.parent = self

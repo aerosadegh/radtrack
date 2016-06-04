@@ -10,7 +10,7 @@ class RbLaserTransport(rbcbt.RbCbt):
     category = 'beam lines'
 
     def __init__(self, parent = None):
-        rbcbt.RbCbt.__init__(self, module, parent)
+        super(RbLaserTransport, self).__init__(module, parent)
 
 
 def main():

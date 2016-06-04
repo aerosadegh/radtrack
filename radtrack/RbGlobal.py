@@ -27,8 +27,8 @@ class RbGlobal(QtGui.QMainWindow):
     defaultTitle = 'Just copy file' # used for importing files without loading them into a tab
 
     def __init__(self, beta_test=False):
+        super(RbGlobal, self).__init__()
         self.beta_test=beta_test
-        QtGui.QMainWindow.__init__(self)
         self.ui = Ui_globalgu()
         self.ui.setupUi(self)
 

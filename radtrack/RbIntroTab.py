@@ -7,7 +7,7 @@ class RbIntroTab(QtGui.QWidget):
     acceptsFileTypes = ['start']
 
     def __init__(self, parent):
-        QtGui.QWidget.__init__(self, parent)
+        super(RbIntroTab, self).__init__(parent)
 
         self.ui = Ui_Widget()
         self.ui.setupUi(self)

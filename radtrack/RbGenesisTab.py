@@ -16,13 +16,8 @@ class GenesisTab(QtGui.QWidget):
     task = 'Run a Genesis simulation'
     category = 'simulations'
     
-    def __init__(self,parent):
-        if parent:
-            self.parent = parent
-        else:
-            self.parent = self
-            
-        QtGui.QWidget.__init__(self)
+    def __init__(self, parent):
+        super(GenesisTab, self).__init__(parent)
         layout = QtGui.QVBoxLayout(self)
         self.control = genesis_controller.Base()
         layout.addWidget(self.control.init_widget(self))

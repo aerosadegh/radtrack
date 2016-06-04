@@ -27,7 +27,7 @@ class RbDcp(QtGui.QWidget):
     category = 'tools'
     
     def __init__(self, parent = None):
-        QtGui.QWidget.__init__(self)
+        super(RbDcp, self).__init__(parent)
         main = QtGui.QHBoxLayout()
         self.setLayout(main)
         self.parent = parent

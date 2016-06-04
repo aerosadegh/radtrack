@@ -81,7 +81,7 @@ class RbEle(QtGui.QWidget):
 '''
 
     def __init__(self, parent=None):
-        QtGui.QWidget.__init__(self)
+        super(RbEle, self).__init__(parent)
         self.ui = Ui_ELE()
         self.ui.setupUi(self)
         self.parent = parent

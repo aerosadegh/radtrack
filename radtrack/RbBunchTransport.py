@@ -9,7 +9,7 @@ class RbBunchTransport(rbcbt.RbCbt):
     task = 'Design an Elegant beam line'
 
     def __init__(self, parent = None):
-        rbcbt.RbCbt.__init__(self, module, parent)
+        super(RbBunchTransport, self).__init__(module, parent)
 
     def writeElegantFile(self, fileName, momentum):
         self.exportToFile(fileName)

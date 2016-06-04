@@ -15,7 +15,7 @@ class RbCbt(rt_qt.QtGui.QWidget):
     category = 'beam lines'
 
     def __init__(self, module, parent = None):
-        rt_qt.QtGui.QWidget.__init__(self)
+        super(RbCbt, self).__init__(parent)
         
         #customize for simulation type
         self.beamlineType = module.beamlineType
