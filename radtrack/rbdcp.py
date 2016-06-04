@@ -125,8 +125,11 @@ class RbDcp(QtGui.QWidget):
         ext = splitext(openFile)[-1].lower().lstrip(".")
         self.currentFiletype = ext
         if isSDDS(openFile):
-            self.showDCP_ele(openFile)
-            self.currentFiletype = 'sdds'
+            try:
+                self.showDCP_ele(openFile)
+                self.currentFiletype = 'sdds'
+            except Exception:
+                QtGui.QMessageBox.warning(self, 'Error Opening File', 'The file ' + openFile + ' could not be opened.')
         elif ext == 'dat':
             self.showDCP_srw(openFile)
         elif ext == 'h5':
