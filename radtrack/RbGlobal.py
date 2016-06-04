@@ -22,6 +22,7 @@ from radtrack.RbGenesisTab import GenesisTab
 from radtrack.RbSrwTab import RbSrwTab
 from radtrack.RbIntroTab import RbIntroTab
 from radtrack.util.fileTools import fileTypeList
+from radtrack.util.simulationResultsTools import can_accept
 
 class RbGlobal(QtGui.QMainWindow):
     defaultTitle = 'Just copy file' # used for importing files without loading them into a tab
@@ -259,13 +260,11 @@ class RbGlobal(QtGui.QMainWindow):
                 return
         self.lastUsedDirectory = os.path.dirname(openFile)
 
-        ext = os.path.splitext(openFile)[-1].lower().lstrip(".") # lowercased extension after '.'
-
-        # Find all types of tabs that accept file type "ext"
+        # Find all types of tabs that accept the file
         choices = []
         for tabType in self.availableTabTypes:
             try:
-                if ext in tabType.acceptsFileTypes:
+                if can_accept(tabType, openFile):
                     choices.append(tabType)
             except AttributeError:
                 pass

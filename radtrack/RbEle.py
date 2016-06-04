@@ -130,13 +130,15 @@ class RbEle(QtGui.QWidget):
                 if '=' in line:
                     value = line.split('=', 1)[1].strip().rstrip(',').strip('"')
                     fileNames = value.split()
-                    for fileName in fileNames:
-                        filePath = os.path.join(directory, fileName)
-                        if os.path.isfile(filePath):
-                            shutil.copy2(filePath, self.parent.sessionDirectory)
-                            if filePath.lower().endswith('.lte'):
+                    for refFileName in fileNames:
+                        refFilePath = os.path.join(directory, refFileName)
+                        if os.path.isfile(refFilePath):
+                            shutil.copy2(refFilePath, self.parent.sessionDirectory)
+                            if refFilePath.lower().endswith('.lte'):
                                 loader = RbBunchTransport(self.parent)
-                                loader.importFile(filePath)
+                                loader.importFile(refFilePath)
+        self.ELEGANT_BASE_NAME = os.path.basename(fileName.rsplit('.', 1)[0])
+        self.ui.simulateButton.setEnabled(True)
 
     def append_status(self, line):
         """Formats and appends the line to the status field"""

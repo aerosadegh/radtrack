@@ -1,6 +1,7 @@
 from pykern.pkdebug import pkdc
 from PyQt4 import QtGui, QtCore
 from radtrack.util.fileTools import getSaveFileName, isSDDS
+from radtrack.beamlines.RbElegantElements import fileImporter as elegantFileImport
 import os, shutil
 
 from radtrack.RbRawDataDialogBox import RbRawDataDialogBox
@@ -21,6 +22,13 @@ def is_file_type(file_name, file_extension):
 
     if file_extension == 'sdds':
         return isSDDS(file_name)
+
+    if file_extension == 'lte':
+        try:
+            elegantFileImport(file_name)
+            return True
+        except IOError:
+            return False
 
 def can_accept(tabType, file_name):
     for file_type in tabType.acceptsFileTypes:

@@ -75,8 +75,7 @@ def parseLine(line, importDictionary, classDictionary, nameMangler):
             else:
                 raise KeyError(name)
         else:
-            print('Ignoring line:', line)
-        return
+            raise FileParseException('Invalid line: ' + line)
     definitionList = line.split(':', 1)
     name = definitionList.pop(0).strip()
     # If name contains a colon, it will be surrounded by quotation
@@ -1145,6 +1144,8 @@ def nameMangler(name):
     # drift
     # driffjknadfjd
     # DrIfTeR
+    # dri
+    # DR
     # Are all interpretted as DRIF
     name = name.upper()
     while name:
