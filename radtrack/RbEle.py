@@ -405,14 +405,11 @@ class RbEle(QtGui.QWidget):
                 if re.match('M\d+', outputElementName): # skips generated names of combined magnets
                     continue
 
-                elementDictionary = self.beam_line_source_manager.get_lattice_element_loader().elementDictionary
-                if outputElementName in elementDictionary:
+                if outputElementName in self.beamlineNames:
                     while outputElementName != self.beamlineNames[self.progressIndex]:
-                        self.progressIndex += 1
-                        if self.progressIndex >= len(self.beamlineNames):
-                            self.progressIndex = 0
+                        self.progressIndex = (self.progressIndex + 1) % len(self.beamlineNames)
                     self.ui.progressBar.setValue(self.progressIndex + 1)
-                    self.progressIndex += 1
+                    self.progressIndex = (self.progressIndex + 1) % len(self.beamlineNames)
 
             if line.endswith('particles left'):
                 numberParticlesTransmitted = float(line.split()[0])
