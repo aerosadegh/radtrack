@@ -739,7 +739,7 @@ def itemsInGroup(group):
 # Undo Commands
 class commandEditElement(rt_qt.QtGui.QUndoCommand):
     def __init__(self, widget, currentElement, newElement):
-        rt_qt.QtGui.QUndoCommand.__init__(self)
+        super(commandEditElement, self).__init__()
         self.widget = widget
         self.activeElement = currentElement
         self.oldElement = type(self.activeElement)([self.activeElement.name] + self.activeElement.data[:])
@@ -790,7 +790,7 @@ class commandEditElement(rt_qt.QtGui.QUndoCommand):
 
 class commandLoadElements(rt_qt.QtGui.QUndoCommand):
     def __init__(self, widget, elements):
-        rt_qt.QtGui.QUndoCommand.__init__(self)
+        super(commandLoadElements, self).__init__()
         self.widget = widget
 
         self.createdElements = elements
@@ -883,7 +883,7 @@ class commandLoadElements(rt_qt.QtGui.QUndoCommand):
             
 class commandEditBeam(rt_qt.QtGui.QUndoCommand):
     def __init__(self, widget):
-        rt_qt.QtGui.QUndoCommand.__init__(self)
+        super(commandEditBeam, self).__init__()
         self.widget = widget
 
         self.previousList = self.widget.preListSave[:]
@@ -911,7 +911,7 @@ class commandEditBeam(rt_qt.QtGui.QUndoCommand):
 
 class commandDeleteElement(rt_qt.QtGui.QUndoCommand):
     def __init__(self, widget, name):
-        rt_qt.QtGui.QUndoCommand.__init__(self)
+        super(commandDeleteElement, self).__init__()
         self.widget = widget
         self.element = self.widget.elementDictionary[name]
         self.treeItem = self.widget.findElementInTreeByName(self.element.name)
