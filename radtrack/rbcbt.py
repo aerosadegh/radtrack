@@ -674,21 +674,32 @@ class RbCbt(rt_qt.QtGui.QWidget):
                     if element.data[index]:
                         try:
                             path = os.path.join(os.path.dirname(fileName), element.data[index])
+                            importedPath = os.path.join(self.parent.sessionDirectory, element.data[index])
+
                             if not os.path.isabs(path):
                                 path = os.path.abspath(path)
-                            importedPath = os.path.join(self.parent.sessionDirectory, element.data[index])
+
+                            if not os.path.exists(path):
+                                if '=' in os.path.basename(path):
+                                    # split off Elegant-style column spec (file.ext=Col1+Col2)
+                                    path, importedPath = [p.rsplit('=', 1)[0] for p in [path, importedPath]]
+
                             if path == importedPath:
                                 continue
+
                             if not os.path.exists(os.path.dirname(importedPath)):
                                 os.makedirs(os.path.dirname(importedPath))
+
                             if os.path.exists(importedPath):
                                 os.remove(importedPath)
+
                             shutil.copy2(path, importedPath)
+
                         except IOError:
                             if not ignoreMissingImportFiles:
                                 box = rt_qt.QtGui.QMessageBox(rt_qt.QtGui.QMessageBox.Warning,
                                                         'Missing File Reference',
-                                                        'The file "' + importedPath.replace('\\', '/') + '" specified by element "' + \
+                                                        'The file "' + path.replace('\\', '/') + '" specified by element "' + \
                                                         element.name + '" cannot be found.\n\n' +\
                                                         'Do you wish to ignore future warnings of this type?',
                                                         rt_qt.QtGui.QMessageBox.Yes | rt_qt.QtGui.QMessageBox.No, self)
