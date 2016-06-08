@@ -263,11 +263,8 @@ class RbGlobal(QtGui.QMainWindow):
         # Find all types of tabs that accept the file
         choices = []
         for tabType in self.availableTabTypes:
-            try:
-                if can_accept(tabType, openFile):
-                    choices.append(tabType)
-            except AttributeError:
-                pass
+            if can_accept(tabType, openFile):
+                choices.append(tabType)
         choices.append(type(self))
 
         if len(choices) == 1:
@@ -289,6 +286,9 @@ class RbGlobal(QtGui.QMainWindow):
                 os.remove(destinationPath)
             shutil.copy2(openFile, destinationPath)
             self.addToRecentMenu(openFile, True)
+            QtGui.QMessageBox.information(self,
+                                          'File copied into session directory',
+                                          openFile + '\ncopied into\n' + self.sessionDirectory)
             return
 
         # Check if a tab of this type is already open
