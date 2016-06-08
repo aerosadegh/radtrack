@@ -26,6 +26,7 @@ class RbSrwTab(QtGui.QWidget):
         layout.addWidget(self.complexity_widget)
         self.control = srw_controller.Base()
         layout.addWidget(self.control.init_widget(self))
+        self.parent = parent
 
     def exportToFile(self, fileName = None):
         with open(fileName, 'w'):

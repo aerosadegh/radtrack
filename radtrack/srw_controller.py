@@ -239,7 +239,7 @@ class Base(rt_controller.Controller):
                 for j in pu._form._fields.keys():
                     try:
                         if tabinput == 'beam':
-                            pu._form._fields[j]['widget'].setText(str(self._view.parent.parent.tabWidget.widget(seleceted[0]).control.params.beam[j.replace('beam.','')]))
+                            pu._form._fields[j]['widget'].setText(str(self._view.parent.parent.tabWidget.widget(selected[0]).control.params.beam[j.replace('beam.','')]))
                         elif tabinput == 'undulator': 
                             #self._form._fields[i]['widget'].setText(str(self.parent.parentWidget().parent.tabWidget.widget(choices[responses.index(box.clickedButton())][0]).control.params.radiation_source.undulator[i.replace('undulator.','')]))
                             pass

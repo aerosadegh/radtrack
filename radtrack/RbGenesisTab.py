@@ -22,6 +22,7 @@ class GenesisTab(QtGui.QWidget):
         self.control = genesis_controller.Base()
         layout.addWidget(self.control.init_widget(self))
         self.setLayout(layout)
+        self.parent=parent
         
     def exportToFile(self, fileName = None):
         self.control.write_simulation_file(fileName)
