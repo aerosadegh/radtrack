@@ -27,7 +27,7 @@ def is_file_type(file_name, file_extension):
         try:
             elegantFileImport(file_name)
             return True
-        except IOError:
+        except Exception:
             return False
 
 def can_accept(tabType, file_name):
