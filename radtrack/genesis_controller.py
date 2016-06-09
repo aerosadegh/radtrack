@@ -333,6 +333,7 @@ class Base(rt_controller.Controller):
         sourceDirectory = os.path.dirname(phile.name)
         dollar = 0
         for line in phile:
+            self.msg(line)
             if '$' not in line:
                 if line.count(',') > 1:
                     for i in line.rstrip('\n').split(','):
@@ -346,3 +347,4 @@ class Base(rt_controller.Controller):
                 dollar+=1
                 if dollar == 2:
                     break
+                    
