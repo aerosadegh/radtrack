@@ -26,6 +26,7 @@ class Base(rt_controller.Controller):
         'Simulation_Control','Scan','IO_Control','Simulate')
 
     FILE_PREFIX = 'genesis'
+    INPUT = None
 
     def init(self, parent_widget=None):
         self.decl = rt_params.declarations(self.FILE_PREFIX)['root']
@@ -92,19 +93,22 @@ class Base(rt_controller.Controller):
         self.w.update(genesis_params.to_io_control(self.params.io_control))
 
         with open(fileName,'w') as f:
-            f.write(' $newrun \n')
-            for parameter, data in self.w.items():
-                if isinstance(data, rt_enum.Enum):
-                    f.write(' {}={}\n'.format(parameter, data.value))
-                elif isinstance(data, bool):
-                    f.write(' ' + parameter + '=' + str(int(data)) + '\n')
-                elif isinstance(data, list):
-                    f.write(' ' + parameter + '=' + ' '.join([str(x) for x in data]) + '\n')
-                elif isinstance(data, basestring) and data:
-                    f.write(' ' + parameter + "='" + data + "'\n")
-                elif data:
-                    f.write(' ' + parameter + "=" + str(data) + "\n")
-            f.write(' $end \n')
+            if not self.INPUT:
+                f.write(' $newrun \n')
+                for parameter, data in self.w.items():
+                    if isinstance(data, rt_enum.Enum):
+                        f.write(' {}={}\n'.format(parameter, data.value))
+                    elif isinstance(data, bool):
+                        f.write(' ' + parameter + '=' + str(int(data)) + '\n')
+                    elif isinstance(data, list):
+                        f.write(' ' + parameter + '=' + ' '.join([str(x) for x in data]) + '\n')
+                    elif isinstance(data, basestring) and data:
+                        f.write(' ' + parameter + "='" + data + "'\n")
+                    elif data:
+                        f.write(' ' + parameter + "=" + str(data) + "\n")
+                f.write(' $end \n')
+            else:
+                f.write(self.INPUT)
  
     def action_simulate(self):
         self._view._result_text['simulation'].clear()
@@ -112,7 +116,6 @@ class Base(rt_controller.Controller):
         self.write_simulation_file('genesis_run.in')
         self.msg('Finished')
         self.msg('\nRunning Genesis...')
-
         self.process.start('genesis',['genesis_run.in']) # add option so files start with common name
 
     def list_result_files(self):
@@ -317,7 +320,7 @@ class Base(rt_controller.Controller):
                                               'Missing File Reference',
                                               'The main input file references a file, ' + 
                                               val +
-                                              ', that does not exist. Genesis will probably not run successfully.')
+                                              ', that does not exist. Genesis will likely not run successfully.')
                     return
                 importDestination = os.path.join(self._view.parentWidget().parent.sessionDirectory, val)
                 if originalLocation == importDestination:
@@ -331,9 +334,11 @@ class Base(rt_controller.Controller):
 
 
         sourceDirectory = os.path.dirname(phile.name)
+        self.INPUT = ''
         dollar = 0
         for line in phile:
-            self.msg(line)
+            self.msg(line.rstrip('\n'))
+            self.INPUT+= line
             if '$' not in line:
                 if line.count(',') > 1:
                     for i in line.rstrip('\n').split(','):
