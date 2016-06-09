@@ -267,7 +267,8 @@ class RbGlobal(QtGui.QMainWindow):
                 choices.append(tabType)
         choices.append(type(self))
 
-        if len(choices) == 1:
+        onlyCopy = (len(choices) == 1)
+        if onlyCopy:
             destinationType = choices[0]
         else: # len(choices) > 1
             box = QtGui.QMessageBox(QtGui.QMessageBox.Question, 'Ambiguous Import Destination', 'Multiple tab types can import this file.\nWhich kind of tab should be used?')
@@ -286,9 +287,10 @@ class RbGlobal(QtGui.QMainWindow):
                 os.remove(destinationPath)
             shutil.copy2(openFile, destinationPath)
             self.addToRecentMenu(openFile, True)
-            QtGui.QMessageBox.information(self,
-                                          'File copied into session directory',
-                                          openFile + '\ncopied into\n' + self.sessionDirectory)
+            if onlyCopy:
+                QtGui.QMessageBox.information(self,
+                                              'File copied into session directory',
+                                              openFile + '\ncopied into\n' + self.sessionDirectory)
             return
 
         # Check if a tab of this type is already open
