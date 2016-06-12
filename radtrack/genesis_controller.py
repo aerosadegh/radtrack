@@ -160,6 +160,7 @@ class Base(rt_controller.Controller):
         pass
 
     def _pop_up(self, which):
+                    
         if which == 'beam':
             fromtab=which
         #elif which == 'undulator':
@@ -178,6 +179,18 @@ class Base(rt_controller.Controller):
         
         if pu.exec_():
             self.params[which] = pu.get_params()
+            
+            if self.INPUT:
+                inv_to_gensis = {v:k for k,v in genesis_params.to_genesis().items()}
+                in_list = self.INPUT.split('\n')
+                for w,e in pu.get_params().items():
+                    gkey = inv_to_gensis[w]
+                    for k,v in enumerate(in_list):
+                        if gkey in v:
+                            in_list[k]=' '+gkey+'='+str(e)
+                            break
+                            
+                self.INPUT = ''.join(x+'\n' for x in in_list)
             if which is 'undulator' and self.params[which]['vertical_focus']+self.params[which]['horizontal_focus']!=1.0:
                 box = QtGui.QMessageBox()
                 box.setIcon(QtGui.QMessageBox.Warning)
@@ -273,6 +286,9 @@ class Base(rt_controller.Controller):
             elif 'Bunch' in selected[1]:
                 importBunch(pu,self._view.parent.parent.tabWidget.widget(selected[0]))
             else:
+                #inv_to_gensis = {v:k for k,v in genesis_params.to_genesis().items()}
+                #print(inv_to_gensis['current'])
+                #print(genesis_params.to_genesis()['current'])
                 for j in pu._form._fields.keys():
                     try:
                         if tabinput == 'beam':
@@ -337,19 +353,23 @@ class Base(rt_controller.Controller):
         self.INPUT = ''
         dollar = 0
         for line in phile:
-            self.msg(line.rstrip('\n'))
-            self.INPUT+= line
+            #self.msg(line.rstrip('\n'))
+            #self.INPUT+= line
             if '$' not in line:
                 if line.count(',') > 1:
                     for i in line.rstrip('\n').split(','):
                         try:
                             parse(i)
+                            self.INPUT=self.INPUT+' '+i +'\n'
                         except ValueError:
                             print(i)   
                 else:
-                    parse(line)   
+                    parse(line)  
+                    self.INPUT+=line 
             else:
+                self.INPUT+=line
                 dollar+=1
                 if dollar == 2:
                     break
+        self.msg(self.INPUT)
                     

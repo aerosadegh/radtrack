@@ -220,7 +220,7 @@ def to_genesis():
     res['YBEAM']='vertical_coord'
     res['PXBEAM']='horizontal_angle'
     res['PYBEAM']='vertical_angle'
-    res['CURPEAK']='peak_current'
+    res['CURPEAK']='current'
     res['CUTTAIL']='cut_col'
     res['BUNCH']='bunch_factor'
     res['BUNCHPHASE']='bunch_phase'
