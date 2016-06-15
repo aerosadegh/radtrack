@@ -138,7 +138,10 @@ class RbEle(QtGui.QWidget):
                                 loader = RbBunchTransport(self.parent)
                                 loader.importFile(refFilePath)
         self.ELEGANT_BASE_NAME = os.path.basename(fileName.rsplit('.', 1)[0])
-        self.ui.simulateButton.setEnabled(True)
+        if self.ui.elegantTextEdit.document().toPlainText().strip(): # if there is text:
+            self.ui.simulateButton.setEnabled(True)
+        else:
+            self._toggle_edit_mode()
 
     def append_status(self, line):
         """Formats and appends the line to the status field"""
