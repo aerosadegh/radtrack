@@ -273,11 +273,14 @@ class Base(rt_controller.Controller):
             selected=choices[responses.index(box.clickedButton())]
             if 'Elegant' in selected[1]:
                 if self._view.parent.parent.tabWidget.widget(selected[0]).ui.simulationResultsListWidget.count()!=0:
-                    ops=self._view.parent.parent.tabWidget.widget(selected[0]).ui.simulationResultsListWidget.item(0).data(QtCore.Qt.UserRole).toString()
-                    reader = BunchTab()
-                    reader.readFromSDDS(ops)
-                    reader.calculateTwiss()
-                    importBunch2pu(pu,reader)
+                    for i in range(self._view.parent.parent.tabWidget.widget(selected[0]).ui.simulationResultsListWidget.count()):
+                        if 'phase space' in self._view.parent.parent.tabWidget.widget(selected[0]).ui.simulationResultsListWidget.item(i).text():
+                            ops=self._view.parent.parent.tabWidget.widget(selected[0]).ui.simulationResultsListWidget.item(i).data(QtCore.Qt.UserRole).toString()
+                            reader = BunchTab()
+                            reader.readFromSDDS(ops)
+                            reader.calculateTwiss()
+                            importBunch2pu(pu,reader)
+                            break
                 else:
                     error=QtGui.QMessageBox()
                     error.setIcon(QtGui.QMessageBox.Critical)
