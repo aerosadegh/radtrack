@@ -213,7 +213,7 @@ class Base(rt_controller.Controller):
                 box.exec_()
                 
     def from_tab(self,tabinput,pu):
-        def importBunch(pu,reader):
+        def importBunch2pu(pu,reader):
             rms = reader.myBunch.getDistribution6D().calcRmsValues6D()
             average = reader.myBunch.getDistribution6D().calcAverages6D() 
             for j in pu._form._fields.keys():
@@ -277,14 +277,14 @@ class Base(rt_controller.Controller):
                     reader = BunchTab()
                     reader.readFromSDDS(ops)
                     reader.calculateTwiss()
-                    importBunch(pu,reader)
+                    importBunch2pu(pu,reader)
                 else:
                     error=QtGui.QMessageBox()
                     error.setIcon(QtGui.QMessageBox.Critical)
                     error.setText('No Resultant Output Phase Space')
                     error.exec_()
             elif 'Bunch' in selected[1]:
-                importBunch(pu,self._view.parent.parent.tabWidget.widget(selected[0]))
+                importBunch2pu(pu,self._view.parent.parent.tabWidget.widget(selected[0]))
             else:
                 #inv_to_gensis = {v:k for k,v in genesis_params.to_genesis().items()}
                 #print(inv_to_gensis['current'])
@@ -352,24 +352,43 @@ class Base(rt_controller.Controller):
         sourceDirectory = os.path.dirname(phile.name)
         self.INPUT = ''
         dollar = 0
-        for line in phile:
-            #self.msg(line.rstrip('\n'))
-            #self.INPUT+= line
-            if '$' not in line:
-                if line.count(',') > 1:
-                    for i in line.rstrip('\n').split(','):
-                        try:
-                            parse(i)
-                            self.INPUT=self.INPUT+' '+i +'\n'
-                        except ValueError:
-                            print(i)   
+        if 'in' in os.path.splitext(phile.name)[1]:
+            for line in phile:
+                if '$' not in line:
+                    if line.count(',') > 1:
+                        for i in line.rstrip('\n').split(','):
+                            try:
+                                parse(i)
+                                self.INPUT=self.INPUT+' '+i +'\n'
+                            except ValueError:
+                                print(i)   
+                    else:
+                        parse(line)  
+                        self.INPUT+=line 
                 else:
-                    parse(line)  
-                    self.INPUT+=line 
-            else:
-                self.INPUT+=line
-                dollar+=1
-                if dollar == 2:
-                    break
-        self.msg(self.INPUT)
-                    
+                    self.INPUT+=line
+                    dollar+=1
+                    if dollar == 2:
+                        break
+            self.msg(self.INPUT)
+        elif 'out' in os.path.splitext(phile.name)[1]:
+            reader = BunchTab()
+            reader.readFromSDDS(phile.name)
+            reader.calculateTwiss()
+            rms = reader.myBunch.getDistribution6D().calcRmsValues6D()
+            average = reader.myBunch.getDistribution6D().calcAverages6D()
+            self.params['beam']['num_particle']=reader.myBunch.getDistribution6D().getPhaseSpace6D().getNumParticles()
+            self.params['beam']['gamma']=reader.myBunch.getGamma0()
+            self.params['beam']['rms_energy_spread']=rms[5]
+            self.params['beam']['rms_horizontal_width']=rms[0]
+            self.params['beam']['rms_vertical_width']=rms[2]
+            self.params['beam']['rms_horizontal_emittance']=reader.myBunch.getTwissParamsByName2D('twissX').getEmitRMS()
+            self.params['beam']['rms_vertical_emittance']=reader.myBunch.getTwissParamsByName2D('twissY').getEmitRMS()
+            self.params['beam']['horizontal_alpha']=reader.myBunch.getTwissParamsByName2D('twissX').getAlphaRMS()
+            self.params['beam']['vertical_alpha']=reader.myBunch.getTwissParamsByName2D('twissY').getAlphaRMS()
+            self.params['beam']['horizontal_coord']=average[0]
+            self.params['beam']['vertical_coord']=average[2]
+            self.params['beam']['horizontal_angle']=average[1]
+            self.params['beam']['vertical_angle']=average[3]
+            self.params['beam']['current']=reader.myBunch.getCurrent()
+            

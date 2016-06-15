@@ -12,7 +12,7 @@ from radtrack import genesis_controller
 
 class GenesisTab(QtGui.QWidget):
     defaultTitle = 'Genesis'
-    acceptsFileTypes = ['in']
+    acceptsFileTypes = ['in','out']
     task = 'Run a Genesis simulation'
     category = 'simulations'
     
