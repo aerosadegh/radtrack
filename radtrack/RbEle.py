@@ -811,6 +811,8 @@ class BeamLineSourceManager(ComboManager):
             for line in self.rbele.ui.elegantTextEdit.document().toPlainText().split('\n'):
                 if line.strip().startswith('lattice'):
                     fileName = line.split('=', 1)[1].strip().rstrip(',').strip('"')
+                    if not fileName:
+                        continue
                     self._add_file_to_loader_cache(fileName)
                     loader = self.loaderCache[fileName]
                     break
