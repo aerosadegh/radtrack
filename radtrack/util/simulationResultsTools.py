@@ -65,7 +65,7 @@ def _raw_file_data_dialog(parent, file_name):
     box.exec_()
 
 def _save_file_as(globalGUI, file_name):
-    new_file_name = QtGui.QFileDialog.getSaveFileName(globalGUI, 'Save file as', globalGUI.lastUsedDirectory)
+    new_file_name = QtGui.QFileDialog.getSaveFileName(globalGUI, 'Save file as', file_name)
     if new_file_name:
         shutil.copy2(file_name, new_file_name)
 
