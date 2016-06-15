@@ -15,6 +15,7 @@ Copyright (c) 2013-2014 RadiaBeam Technologies. All rights reserved
 
 # Python imports
 import math
+from scipy import constants
 from collections import OrderedDict
 
 # RadiaBeam imports
@@ -37,13 +38,13 @@ class RbParticleBeam6D:
         self.rt2opi = math.sqrt(2./math.pi)
         
         # specify physical constants
-        self.c     = 299792458.           # speed of light [m/s]
+        self.c     = constants.c          # speed of light [m/s]
         self.cSq   = self.c**2            # speed of light squared
         self.cInv  = 1./self.c            # one over the speed of light
-        self.mu0   = 4.0e-07 * math.pi    # permeability of free space
-        self.eps0  = 1./self.mu0/self.cSq # permittivity of free space
-        self.eMass   = 9.10938215e-31     # electron mass [kG]
-        self.eCharge = 1.602176487e-19    # elementary charge [C]
+        self.mu0   = constants.mu_0    # permeability of free space
+        self.eps0  = constants.epsilon_0 # permittivity of free space
+        self.eMass   = constants.m_e     # electron mass [kG]
+        self.eCharge = constants.e   # elementary charge [C]
         self.eMassEV = self.eMass*self.cSq/self.eCharge  # eMass [eV]
         
         # specify some reasonable defaults
@@ -125,7 +126,7 @@ class RbParticleBeam6D:
         
     def getCurrent(self):
         s=self.distribution6D.calcRmsValues6D()[4]
-        t=s/(self.Beta0*self.c)
+        t=s/(self.getBeta0()*self.c)
         I = self.totalCharge/t
         return I
 
