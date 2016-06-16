@@ -12,9 +12,9 @@ class MplCanvas(FigureCanvas):
         self.fig = Figure()
         self.ax = self.fig.add_subplot(111)
  
-        FigureCanvas.__init__(self, self.fig)
-        FigureCanvas.setSizePolicy(self, QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
-        FigureCanvas.updateGeometry(self)
+        super(MplCanvas, self).__init__(self.fig)
+        super(MplCanvas, self).setSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
+        super(MplCanvas, self).updateGeometry()
  
 #creates embeddable matplotlib figure/canvas with toolbar
 class matplotlibWidget(QtGui.QWidget):
