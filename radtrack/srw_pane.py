@@ -173,29 +173,41 @@ class View(QtGui.QWidget):
         """Adds two boxes on the right side"""
 
         def _add(name, label, desc):
-            """Creates a stretchable TextEdit area with label above"""
-            vbox = QtGui.QVBoxLayout()
-            main.addLayout(vbox, stretch=1)
+            """returns a textedit and its label"""
+            #vbox = QtGui.QVBoxLayout()
+            #main.addLayout(vbox, stretch=1)
             qlabel = rt_qt.set_id(QtGui.QLabel(self), 'heading')
-            rt_qt.i18n_text(label, qlabel)
-            vbox.addWidget(qlabel, alignment=QtCore.Qt.AlignCenter)
+            #rt_qt.i18n_text(label, qlabel)
+            #vbox.addWidget(qlabel, alignment=QtCore.Qt.AlignCenter)
             text = QtGui.QTextEdit(self)
             rt_qt.i18n_text(desc, text)
             text.setReadOnly(True)
-            vbox.addWidget(text)
+            #vbox.addWidget(text)
             self._result_text[name] = text
+            return text,qlabel
 
         self._result_text = {}
-        _add(
+        
+        a,b = _add(
             'simulation',
             'Simulation Results',
             'Click Simulate to run SRW',
         )
-        _add(
+        c,d = _add(
             'analysis',
             'Analysis Results',
             'Click Analysis to approximate a simulation',
         )
+        
+        vbox = QtGui.QVBoxLayout()
+        #rt_qt.i18n_text(label, qlabel)
+        #vbox.addWidget(qlabel, alignment=QtCore.Qt.AlignCenter)
+        a.setMinimumWidth(200)
+        vbox.addWidget(d, alignment=QtCore.Qt.AlignCenter)
+        vbox.addWidget(c)
+        vbox.addWidget(b, alignment=QtCore.Qt.AlignCenter)
+        vbox.addWidget(a)
+        main.addLayout(vbox,stretch=1)
 
     def _add_plot_area(self, main):
         self.plot = matplotlibWidget()
