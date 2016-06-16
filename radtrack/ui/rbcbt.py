@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'radtrack/ui/rbcbt.ui'
 #
-# Created: Thu Jun 16 05:27:15 2016
+# Created: Thu Jun 16 05:40:41 2016
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -104,7 +104,7 @@ class Ui_RBCBT(object):
 
     def retranslateUi(self, RBCBT):
         RBCBT.setWindowTitle(_translate("RBCBT", "Widget", None))
-        self.label.setText(_translate("RBCBT", "New beamline element buttons", None))
+        self.label.setText(_translate("RBCBT", "New Beamline Elements", None))
         self.elementListLabel.setText(_translate("RBCBT", "Beamline Element List", None))
         self.beamlineEditorLabel.setText(_translate("RBCBT", "Beamline Editor - Drag elements here to create beamlines", None))
         self.saveBeamlineButton.setText(_translate("RBCBT", "Save Beamline", None))
