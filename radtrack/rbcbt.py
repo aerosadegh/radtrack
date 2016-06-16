@@ -3,7 +3,8 @@ import os, shutil, math
 from collections import OrderedDict
 import radtrack.rt_qt as rt_qt
 
-from radtrack.ui.cbt import Ui_tree, genDialog, advDialog
+from radtrack.ui.rbcbt import Ui_RBCBT
+from radtrack.ui.cbt import genDialog, advDialog
 from radtrack.util.unitConversion import displayWithUnitsNumber, \
                       convertUnitsNumber
 from radtrack.util.RbMath import roundSigFig
@@ -22,11 +23,26 @@ class RbCbt(rt_qt.QtGui.QWidget):
         self.classDictionary = module.classDictionary
         self.importer = module.fileImporter
         self.exporter = module.fileExporter
+        self.names = sorted(module.classDictionary.keys())
+        self.advancedNames = sorted(module.advancedNames)
 
         self.defaultBeamline = ''
 
         #set layout
-        self.ui = Ui_tree(self, module)
+        self.ui = Ui_RBCBT()
+        self.ui.setupUi(self)
+        self.buttons = []
+        for name in [n for n in self.names if n not in self.advancedNames]:
+            self.buttons.append(rt_qt.QtGui.QPushButton(name))
+            self.buttons[-1].setObjectName(name)
+            self.ui.elementButtonLayout.addWidget(self.buttons[-1])
+        if self.advancedNames:
+            self.advanced = rt_qt.QtGui.QPushButton('ADVANCED')
+            self.advanced.setToolTip('More elements')
+            self.ui.elementButtonLayout.addWidget(self.advanced)
+        height = self.ui.saveBeamlineButton.height() + self.ui.beamlineEditorLabel.height()
+        self.ui.splitter.widget(1).setMinimumHeight(height)
+        self.ui.splitter.widget(1).setMaximumHeight(height)
 
         #undo/redo 
         self.undoStack = rt_qt.QtGui.QUndoStack()
@@ -34,25 +50,29 @@ class RbCbt(rt_qt.QtGui.QWidget):
         #connections
         self.ui.workingBeamline.lengthChange.connect(self.callAfterWorkingBeamlineChanges)
         self.ui.workingBeamline.itemPressed.connect(self.listClick)
-        self.adv = advDialog(self)
-        for button in self.ui.buttons + self.adv.buttons:
-            button.clicked.connect(self.createNewElement)
-            button.setToolTip(wordwrap(self.classDictionary[button.text()].elementDescription, 60))
-        if len(self.ui.advancedNames) > 0:
-            self.ui.advanced.clicked.connect(self.adv.show)
+        self.ui.workingBeamline.contextMenuClicked.connect(self.createContextMenu)
         self.ui.clearBeamlineButton.clicked.connect(self.newBeam)
         self.ui.saveBeamlineButton.clicked.connect(self.addBeam)
+
+        self.adv = advDialog(self)
+        for button in self.buttons + self.adv.buttons:
+            button.clicked.connect(self.createNewElement)
+            button.setToolTip(wordwrap(self.classDictionary[button.text()].elementDescription, 60))
+        if len(self.advancedNames) > 0:
+            self.advanced.clicked.connect(self.adv.show)
+            
         self.ui.treeWidget.itemClicked.connect(self.treeClick)
         self.ui.treeWidget.itemDoubleClicked.connect(self.treeItemDoubleClicked)
         self.ui.treeWidget.itemEntered.connect(self.elementTreeHovered)
         self.ui.treeWidget.itemExited.connect(self.elementTreeExit)
+        self.ui.treeWidget.contextMenuClicked.connect(self.createContextMenu)
         self.ui.graphicsView.itemDoubleClicked.connect(self.editElement)
         self.ui.graphicsView.wheelZoom.connect(self.zoomPreview)
         self.ui.graphicsView.dragDone.connect(self.drawLengthScale)
         self.ui.graphicsView.horizontalScrollBar().valueChanged.connect(self.drawLengthScale)
         self.ui.graphicsView.verticalScrollBar().valueChanged.connect(self.drawLengthScale)
         self.ui.graphicsView.itemDropped.connect(self.droppedOnGraphicsWindow)
-        self.ui.contextMenuClicked.connect(self.createContextMenu)
+        self.ui.graphicsView.contextMenuClicked.connect(self.createContextMenu)
 
         #### Keyboard shortcuts ####
         # Copy element in tree widget
@@ -63,10 +83,9 @@ class RbCbt(rt_qt.QtGui.QWidget):
         rt_qt.QtGui.QShortcut(rt_qt.QtGui.QKeySequence.ZoomOut, self).activated.connect(lambda : self.zoomPreview(-1))
         
         #text
-        self.addToBeamClickText = self.ui.translateUTF8('Add to current beam line')
-        self.beamlineTreeLabel = self.ui.translateUTF8('Beamlines')
-        self.dragTargetMessage = u'Drag elements here \u2192'
-        self.ui.label.setText(self.dragTargetMessage)
+        self.addToBeamClickText = self.translateUTF8('Add to current beam line')
+        self.beamlineTreeLabel = self.translateUTF8('Beamlines')
+        self.dragTargetMessage = self.ui.beamlineEditorLabel.text()
         self.emptyWorkingBeamlineCheck()
 
         #user interaction state
@@ -80,13 +99,16 @@ class RbCbt(rt_qt.QtGui.QWidget):
         self.workingBeamlineName = ''
         self.preListSave = []
         self.preListNameSave = self.workingBeamlineName
-        self.preListLabelSave = self.ui.label.text()
+        self.preListLabelSave = self.ui.beamlineEditorLabel.text()
         self.zoomScale = 1
         self.drawPreviewEnabled = True
         self.imageRotation = dict()
 
         # Graphical length legend for preview
         self.lengthLegend = []
+
+    def translateUTF8(self, string):
+        return rt_qt.QtGui.QApplication.translate(self.objectName(), string, None, rt_qt.QtGui.QApplication.UnicodeUTF8)
 
     def undo(self):
         self.undoStack.undo()
@@ -128,7 +150,7 @@ class RbCbt(rt_qt.QtGui.QWidget):
             self.emptyWorkingBeamlineCheck()
             return
         self.postListNameSave = self.workingBeamlineName
-        self.postListLabelSave = self.ui.label.text()
+        self.postListLabelSave = self.ui.beamlineEditorLabel.text()
         undoAction = commandEditBeam(self)
         self.undoStack.push(undoAction)
         self.preListSave = self.postListSave
@@ -179,9 +201,9 @@ class RbCbt(rt_qt.QtGui.QWidget):
                 mouseMenu.addSeparator()
 
             if location in ['tree', 'picture']:
-                mouseMenu.addAction(self.ui.translateUTF8('Edit ...'), lambda: self.editElement(element.name))
-                mouseMenu.addAction(self.ui.translateUTF8('New copy'), lambda: self.copyElement(element.name))
-                mouseMenu.addAction(self.ui.translateUTF8('Delete element'), lambda: self.deleteElement(element.name))
+                mouseMenu.addAction(self.translateUTF8('Edit ...'), lambda: self.editElement(element.name))
+                mouseMenu.addAction(self.translateUTF8('New copy'), lambda: self.copyElement(element.name))
+                mouseMenu.addAction(self.translateUTF8('Delete element'), lambda: self.deleteElement(element.name))
                 mouseMenu.addSeparator()
 
             if location == 'tree':
@@ -197,12 +219,12 @@ class RbCbt(rt_qt.QtGui.QWidget):
 
             if location == 'list':
                 if element.isBeamline() and type(element).__name__ == 'ElegantBeamline':
-                    mouseMenu.addAction(self.ui.translateUTF8('Reverse'), self.convertToReversed)
+                    mouseMenu.addAction(self.translateUTF8('Reverse'), self.convertToReversed)
 
-                mouseMenu.addAction(self.ui.translateUTF8('Add another'), self.listCopy)
-                mouseMenu.addAction(self.ui.translateUTF8('Add multiple copies ...'), self.listMultipleCopy)
+                mouseMenu.addAction(self.translateUTF8('Add another'), self.listCopy)
+                mouseMenu.addAction(self.translateUTF8('Add multiple copies ...'), self.listMultipleCopy)
 
-                mouseMenu.addAction(self.ui.translateUTF8('Remove from beam line'), self.removeFromWorkingBeamline)
+                mouseMenu.addAction(self.translateUTF8('Remove from beam line'), self.removeFromWorkingBeamline)
 
             containingBeamlines = []
             for bl in self.elementDictionary.values():
@@ -211,25 +233,25 @@ class RbCbt(rt_qt.QtGui.QWidget):
                         containingBeamlines.append(bl)
             if containingBeamlines:
                 mouseMenu.addSeparator()
-                blMenu = rt_qt.QtGui.QMenu(self.ui.translateUTF8('Contained in beamlines'), self)
+                blMenu = rt_qt.QtGui.QMenu(self.translateUTF8('Contained in beamlines'), self)
                 for bl in containingBeamlines:
                     blMenu.addAction(bl.name, lambda name = bl.name : self.gotoElement(name))
                 mouseMenu.addMenu(blMenu)
 
             if location in ['list', 'picture']:
                 mouseMenu.addSeparator()
-                mouseMenu.addAction(self.ui.translateUTF8('Find in element list'), lambda name = element.name : self.gotoElement(name))
+                mouseMenu.addAction(self.translateUTF8('Find in element list'), lambda name = element.name : self.gotoElement(name))
 
         if location == 'picture' and not self.ui.graphicsView.scene().zeroSized():
             mouseMenu.addSeparator()
-            mouseMenu.addAction(self.ui.translateUTF8('Save preview image...'), \
+            mouseMenu.addAction(self.translateUTF8('Save preview image...'), \
                     self.savePreviewImage)
             mouseMenu.addSeparator()
-            mouseMenu.addAction(self.ui.translateUTF8('Reset zoom'), self.drawElement)
-            mouseMenu.addAction(self.ui.translateUTF8('Rotate image ...'), self.rotateImage)
-            mouseMenu.addAction(self.ui.translateUTF8('Reset rotation'), self.resetRotation)
+            mouseMenu.addAction(self.translateUTF8('Reset zoom'), self.drawElement)
+            mouseMenu.addAction(self.translateUTF8('Rotate image ...'), self.rotateImage)
+            mouseMenu.addAction(self.translateUTF8('Reset rotation'), self.resetRotation)
             mouseMenu.addSeparator()
-            mouseMenu.addAction(self.ui.translateUTF8('Turn ' + ('off' if self.drawPreviewEnabled else 'on') + \
+            mouseMenu.addAction(self.translateUTF8('Turn ' + ('off' if self.drawPreviewEnabled else 'on') + \
                     ' graphical preview'), self.toggleDrawPreview)
 
         if mouseMenu.actions():
@@ -387,7 +409,8 @@ class RbCbt(rt_qt.QtGui.QWidget):
 
     def setWorkingBeamline(self, beamline = None):
         self.workingBeamlineName = beamline.name if (beamline and beamline.name in self.elementDictionary) else ''
-        self.ui.label.setText(('Editing "' + self.workingBeamlineName + '"') if self.workingBeamlineName else self.dragTargetMessage)
+        self.ui.beamlineEditorLabel.setText(self.dragTargetMessage + \
+                (' (Editing "' + self.workingBeamlineName + '")' if self.workingBeamlineName else '') )
         self.ui.workingBeamline.clear()
         if beamline:
             self.ui.workingBeamline.addItems([element.name for element in beamline.data])
@@ -418,8 +441,8 @@ class RbCbt(rt_qt.QtGui.QWidget):
         self.drawElement(bl)
 
     def rotateImage(self):
-        rotation, ok = rt_qt.QtGui.QInputDialog.getDouble(self, self.ui.translateUTF8('Image Rotation'),
-                self.ui.translateUTF8('Positive angles (in degrees) rotate clockwise:'), 0, -360, 360, 3)
+        rotation, ok = rt_qt.QtGui.QInputDialog.getDouble(self, self.translateUTF8('Image Rotation'),
+                self.translateUTF8('Positive angles (in degrees) rotate clockwise:'), 0, -360, 360, 3)
         if ok:
             try:
                 self.imageRotation[self.lastDrawnElement] += rotation
@@ -909,7 +932,7 @@ class commandEditBeam(rt_qt.QtGui.QUndoCommand):
         self.widget.ui.workingBeamline.clear()
         self.widget.ui.workingBeamline.addItems(blist)
         self.widget.workingBeamlineName = name
-        self.widget.ui.label.setText(label)
+        self.widget.ui.beamlineEditorLabel.setText(label)
         self.widget.emptyWorkingBeamlineCheck()
         self.widget.workingBeamlinePreview()
 

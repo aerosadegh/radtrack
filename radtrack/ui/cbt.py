@@ -19,6 +19,15 @@ class dtreeWidget(QtGui.QTreeWidget):
         self.lastIndex = QtCore.QPersistentModelIndex()
         self.viewport().installEventFilter(self) # see def eventFilter(...) below
 
+        self.headerItem().setText(0, "Element")
+        self.headerItem().setText(1, "Description")
+        self.headerItem().setText(2, "Length")
+        self.headerItem().setText(3, "Start-End Distance")
+        self.headerItem().setText(4, "Bend")
+        self.headerItem().setText(5, "Element Count")
+        self.headerItem().setText(6, "")
+        self.headerItem().setText(7, "")
+
     def contextMenuEvent(self, event):
         item = self.itemAt(event.pos())
         if item is not None:
@@ -124,122 +133,6 @@ class beamGraphicsWindow(QtGui.QGraphicsView):
         super(beamGraphicsWindow, self).dropEvent(event)
         self.itemDropped.emit()
 
-class Ui_tree(QtCore.QObject):
-    contextMenuClicked = QtCore.pyqtSignal(str,str,QtCore.QPoint)
-
-    def __init__(self, tree, module):
-        super(Ui_tree, self).__init__()
-
-        self.names = sorted(module.classDictionary.keys())
-        self.advancedNames = sorted(module.advancedNames)
-
-        self.treeObjectName = "tree"
-        tree.setObjectName(self.treeObjectName)
-        tree.resize(856, 490)
-        self.treeWidget = dtreeWidget(tree)
-        self.horizontalLayoutWidget = QtGui.QWidget(tree)
-        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(10, 10, 831, 81))
-        self.horizontalLayoutWidget.setObjectName("horizontalLayoutWidget")
-        self.horizontalLayout = QtGui.QHBoxLayout(self.horizontalLayoutWidget)
-        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        self.buttons = []
-        for name in [n for n in self.names if n not in self.advancedNames]:
-            self.buttons.append(QtGui.QPushButton(self.horizontalLayoutWidget))
-            self.buttons[-1].setObjectName(name)
-            self.horizontalLayout.addWidget(self.buttons[-1])
-        if len(self.advancedNames) > 0:
-            self.advanced = QtGui.QPushButton(self.horizontalLayoutWidget)
-            self.advanced.setObjectName("advanced")
-            self.advanced.setToolTip("More elements")
-            self.horizontalLayout.addWidget(self.advanced)
-        self.horizontalLayoutWidget_2 = QtGui.QWidget(tree)
-        self.horizontalLayoutWidget_2.setGeometry(QtCore.QRect(10, 310, 831, 171))
-        self.horizontalLayoutWidget_2.setObjectName("horizontalLayoutWidget_2")
-        self.horizontalLayout_2 = QtGui.QHBoxLayout(self.horizontalLayoutWidget_2)
-        self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
-        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.graphicsView = beamGraphicsWindow(self.horizontalLayoutWidget_2)
-        self.graphicsView.setRenderHints(QtGui.QPainter.Antialiasing | 
-                QtGui.QPainter.SmoothPixmapTransform | 
-                QtGui.QPainter.TextAntialiasing)
-        self.horizontalLayout_2.addWidget(self.graphicsView)
-        self.horizontalLayoutWidget_3 = QtGui.QWidget(tree)
-        self.horizontalLayoutWidget_3.setGeometry(QtCore.QRect(10, 270, 831, 41))
-        self.horizontalLayoutWidget_3.setObjectName("horizontalLayoutWidget_3")
-        self.horizontalLayout_3 = QtGui.QHBoxLayout(self.horizontalLayoutWidget_3)
-        self.horizontalLayout_3.setContentsMargins(0, 0, 0, 0)
-        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
-        self.label = QtGui.QLabel(self.horizontalLayoutWidget_3)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
-        self.label.setSizePolicy(sizePolicy)
-        self.label.setMaximumSize(QtCore.QSize(16777215, 100))
-        self.label.setObjectName("label")
-        self.horizontalLayout_3.addWidget(self.label)
-        self.workingBeamline = dlistWidget(tree)
-        self.horizontalLayout_3.addWidget(self.workingBeamline)
-        self.saveBeamlineButton = QtGui.QPushButton()
-        self.saveBeamlineButton.setObjectName("saveBeamlineButton")
-        self.horizontalLayout_3.addWidget(self.saveBeamlineButton)
-        self.clearBeamlineButton = QtGui.QPushButton()
-        self.clearBeamlineButton.setObjectName("clearBeamlineButton")
-        self.horizontalLayout_3.addWidget(self.clearBeamlineButton)
-
-        # Put it all together
-        tree.verticalLayout = QtGui.QVBoxLayout(tree)
-        tree.verticalLayout.addWidget(self.horizontalLayoutWidget) # Element buttons
-
-        tree.splitter = QtGui.QSplitter(tree)
-        tree.splitter.setOrientation(QtCore.Qt.Vertical)
-        tree.splitter.setChildrenCollapsible(False)
-        tree.verticalLayout.addWidget(tree.splitter)
-
-        tree.splitter.addWidget(self.treeWidget) # Created element list
-        tree.splitter.addWidget(self.horizontalLayoutWidget_3) # Beam line creation space
-        tree.splitter.addWidget(self.horizontalLayoutWidget_2) # Beam line graphical preview
-
-        # Make beam line creation space unresizeable
-        self.horizontalLayoutWidget_3.setMinimumHeight(self.horizontalLayoutWidget_3.height())
-        self.horizontalLayoutWidget_3.setMaximumHeight(self.horizontalLayoutWidget_3.height())
-
-        self.retranslateUi(tree)
-        QtCore.QMetaObject.connectSlotsByName(tree)
-
-        # Signal connections
-        self.treeWidget.contextMenuClicked.connect(self.contextMenu)
-        self.graphicsView.contextMenuClicked.connect(self.contextMenu)
-        self.workingBeamline.contextMenuClicked.connect(self.contextMenu)
-
-    def retranslateUi(self, tree):
-        tree.setWindowTitle(self.translateUTF8("Form"))
-        self.treeWidget.headerItem().setText(0, self.translateUTF8("Element"))
-        self.treeWidget.headerItem().setText(1, self.translateUTF8("Description"))
-        self.treeWidget.headerItem().setText(2, self.translateUTF8("Length"))
-        self.treeWidget.headerItem().setText(3, self.translateUTF8("Start-End Distance"))
-        self.treeWidget.headerItem().setText(4, self.translateUTF8("Bend"))
-        self.treeWidget.headerItem().setText(5, self.translateUTF8("Element Count"))
-        self.treeWidget.headerItem().setText(6, "")
-        self.treeWidget.headerItem().setText(7, "")
-
-        for button in self.buttons:
-            button.setText(self.translateUTF8(str(button.objectName())))
-        if len(self.advancedNames) > 0:
-            self.advanced.setText(self.translateUTF8("ADVANCED"))
-        self.clearBeamlineButton.setText(self.translateUTF8("Clear\nBeamline"))
-        self.saveBeamlineButton.setText(self.translateUTF8("Save\nBeamline"))
-
-    def translateUTF8(self, string):
-        return QtGui.QApplication.translate(self.treeObjectName, \
-                string, \
-                None, \
-                QtGui.QApplication.UnicodeUTF8)
-
-    def contextMenu(self, name, location, globalPosition):
-        self.contextMenuClicked.emit(name, location, globalPosition)
-
 class genDialog(QtGui.QDialog):
     def __init__(self, oldElement):
         super(genDialog, self).__init__()
@@ -326,8 +219,8 @@ class advDialog(QtGui.QDialog):
         encyclopedia = parent.classDictionary
 
         # Choose grid dimensions to be closest to a square
-        columns = int(round(sqrt(len(parent.ui.advancedNames))))
-        for k, name in enumerate(sorted(parent.ui.advancedNames)):
+        columns = int(round(sqrt(len(parent.advancedNames))))
+        for k, name in enumerate(sorted(parent.advancedNames)):
             row = k // columns
             col = k % columns
             button = QtGui.QPushButton(name)

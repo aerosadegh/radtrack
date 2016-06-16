@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>RBCBT</class>
+ <widget class="QWidget" name="RBCBT">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>644</width>
+    <height>938</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Widget</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_4">
+   <item>
+    <widget class="QLabel" name="label">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>New beamline element buttons</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="elementButtonLayout"/>
+   </item>
+   <item>
+    <widget class="QSplitter" name="splitter">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="childrenCollapsible">
+      <bool>false</bool>
+     </property>
+     <widget class="QWidget" name="layoutWidget">
+      <layout class="QVBoxLayout" name="elementListLayout">
+       <item>
+        <widget class="QLabel" name="elementListLabel">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Beamline Element List</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="dtreeWidget" name="treeWidget"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="layoutWidget">
+      <layout class="QVBoxLayout" name="beamlineEditorLayout">
+       <item>
+        <widget class="QLabel" name="beamlineEditorLabel">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Beamline Editor - Drag elements here to create beamlines</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="beamlineEditorLayout_2">
+         <item>
+          <widget class="dlistWidget" name="workingBeamline"/>
+         </item>
+         <item>
+          <widget class="QPushButton" name="saveBeamlineButton">
+           <property name="text">
+            <string>Save Beamline</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="clearBeamlineButton">
+           <property name="text">
+            <string>Clear Beamline</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="layoutWidget">
+      <layout class="QVBoxLayout" name="graphicsLayout">
+       <item>
+        <widget class="QLabel" name="graphicsLabel">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Graphical Preview</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="beamGraphicsWindow" name="graphicsView"/>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>dlistWidget</class>
+   <extends>QListWidget</extends>
+   <header>cbt.h</header>
+  </customwidget>
+  <customwidget>
+   <class>dtreeWidget</class>
+   <extends>QTreeWidget</extends>
+   <header>cbt.h</header>
+  </customwidget>
+  <customwidget>
+   <class>beamGraphicsWindow</class>
+   <extends>QGraphicsView</extends>
+   <header>cbt.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
