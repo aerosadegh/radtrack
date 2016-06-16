@@ -116,6 +116,7 @@ class Base(rt_controller.Controller):
         self.write_simulation_file('genesis_run.in')
         self.msg('Finished')
         self.msg('\nRunning Genesis...')
+        self.msg(self.INPUT)
         self.process.start('genesis',['genesis_run.in']) # add option so files start with common name
 
     def list_result_files(self):
@@ -353,9 +354,9 @@ class Base(rt_controller.Controller):
 
 
         sourceDirectory = os.path.dirname(phile.name)
-        self.INPUT = ''
         dollar = 0
         if 'in' in os.path.splitext(phile.name)[1]:
+            self.INPUT = ''
             for line in phile:
                 if '$' not in line:
                     if line.count(',') > 1:
@@ -375,11 +376,13 @@ class Base(rt_controller.Controller):
                         break
             self.msg(self.INPUT)
         elif 'out' in os.path.splitext(phile.name)[1]:
+            '''
             reader = BunchTab()
             reader.readFromSDDS(phile.name)
             reader.calculateTwiss()
             rms = reader.myBunch.getDistribution6D().calcRmsValues6D()
             average = reader.myBunch.getDistribution6D().calcAverages6D()
+            #update in memory genesis parameters
             self.params['beam']['num_particle']=reader.myBunch.getDistribution6D().getPhaseSpace6D().getNumParticles()
             self.params['beam']['gamma']=reader.myBunch.getGamma0()
             self.params['beam']['rms_energy_spread']=rms[5]
@@ -393,5 +396,20 @@ class Base(rt_controller.Controller):
             self.params['beam']['vertical_coord']=average[2]
             self.params['beam']['horizontal_angle']=average[1]
             self.params['beam']['vertical_angle']=average[3]
-            self.params['beam']['current']=reader.myBunch.getCurrent()
+            self.params['beam']['current']=reader.myBunch.getCurrent()'''
+            #updates imported genesis file input parameters 
+            if self.INPUT:
+                inv_to_gensis = {v:k for k,v in genesis_params.to_genesis().items()}
+                in_list = self.INPUT.split('\n')
+                in_list.insert(int(len(in_list)/2)," DISTFILE= '"+os.path.basename(phile.name)+"'")
+                '''
+                for w in self.decl['beam'].keys():
+                    gkey = inv_to_gensis[w]
+                    for k,v in enumerate(in_list):
+                        if gkey in v:
+                            in_list[k]=' '+gkey+'='+str(self.params['beam'][w])
+                            break 
+                '''                 
+                self.INPUT = ''.join(x+'\n' for x in in_list)
+                self.msg(self.INPUT)
             
