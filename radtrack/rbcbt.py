@@ -83,7 +83,7 @@ class RbCbt(rt_qt.QtGui.QWidget):
         rt_qt.QtGui.QShortcut(rt_qt.QtGui.QKeySequence.ZoomOut, self).activated.connect(lambda : self.zoomPreview(-1))
         
         #text
-        self.addToBeamClickText = self.translateUTF8('Add to current beam line')
+        self.addToBeamClickText = self.translateUTF8('Add to end of current beam line')
         self.beamlineTreeLabel = self.translateUTF8('Beamlines')
         self.dragTargetMessage = self.ui.beamlineEditorLabel.text()
         self.emptyWorkingBeamlineCheck()
