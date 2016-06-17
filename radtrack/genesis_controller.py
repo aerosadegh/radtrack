@@ -199,7 +199,7 @@ class Base(rt_controller.Controller):
                 box.exec_()
             elif which is 'beam' and self.params[which]['num_particle']%(4*self.params['particle_loading']['num_bins'])!= 0:
                 box = QtGui.QMessageBox()
-                box.setIcon(QtGui.QMessageBox.Warning)
+                box.setIcon(QtGui.QMessageBox.Critical)
                 box.setText('Number of Particles must be a multiple of 4*Number of Bins for Phase. \n (specified in particle loading)')
                 box.exec_()
             elif which is 'particle_loading' and self.params[which]['num_bins']<2*self.params['radiation']['num_harmonic']:
