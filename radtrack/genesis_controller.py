@@ -410,4 +410,18 @@ class Base(rt_controller.Controller):
                             break                 
                 self.INPUT = ''.join(x+'\n' for x in in_list)
                 self.msg(self.INPUT)
+        elif 'dist' in os.path.splitext(phile.name)[1]:
+            if self.INPUT:
+                inv_to_gensis = {v:k for k,v in genesis_params.to_genesis().items()}
+                in_list = self.INPUT.split('\n')
+                in_list.insert(int(len(in_list)/2)," DISTFILE= '"+os.path.basename(phile.name)+"'")
+                #for w in self.decl['beam'].keys():
+                #    gkey = inv_to_gensis[w]
+                #    for k,v in enumerate(in_list):
+                #        if gkey in v:
+                #            in_list[k]=' '+gkey+'='+str(self.params['beam'][w])
+                #            break                 
+                self.INPUT = ''.join(x+'\n' for x in in_list)
+                self.msg(self.INPUT)
+            
             

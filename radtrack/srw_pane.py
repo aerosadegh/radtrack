@@ -196,7 +196,7 @@ class View(QtGui.QWidget):
         c,d = _add(
             'analysis',
             'Analysis Results',
-            'Click Analysis to approximate a simulation',
+            'Click Analyze to approximate a simulation',
         )
         
         vbox = QtGui.QVBoxLayout()
