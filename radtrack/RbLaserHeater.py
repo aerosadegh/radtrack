@@ -1,7 +1,9 @@
+#cd C:\d from old\RadiaBeam\src\radiasoft\radtrack\radtrack
+#python radtrack/RbLaserHeater.py
 __author__ = 'swebb'
 
 
-from radtrack.ptclmovers.RbLaserHeaterIntegrator\
+from ptclmovers.RbLaserHeaterIntegrator\
     import RbLaserHeaterIntegrator as integrator
 from radtrack.fields.RbIdealPlanarUndulator\
     import RbIdealPlanarUndulator as undulator
@@ -15,13 +17,14 @@ from scipy import constants as consts
 from scipy import stats
 from scipy.special import jn
 from matplotlib import pyplot as plt
+import pylab as py
 import matplotlib as mpl
-mpl.rc('font',**{'family':'serif','serif':['Palatino']})
-mpl.rc('text', usetex=False)
+#mpl.rc('font',**{'family':'serif','serif':['Palatino']})
+#mpl.rc('text', usetex=True)
 
 # Beam parameters
 gamma0 = 264.188
-dGammaOGamma = 0.
+dGammaOGamma = 0.0
 emittanceX = 0.
 emittanceY = 0.
 betaX = 0.7
@@ -34,10 +37,10 @@ nummacroptcles = 10000
 # Undulator parameters
 lambdaw = 0.05 # [m]
 B0      = 0.33 # [T]
-length  = .5  # [m]
+length  = 0.5  # [m]
 
 # Laser parameters
-laserP  = 1.2e6   # [Watts]
+laserP  = 1.2e6*1   # [Watts]
 lambda0 = 783.3e-9 # [m]
 lambdaR = 5.5     # [m]
 pol     = [1., 0., 0.]
@@ -73,41 +76,51 @@ myundulatorfield = undulator(B0, lambdaw)
 
 # Integrator
 myintegrator = integrator(mylaserfield, myundulatorfield)
+print(myintegrator)
 zInit  = -0.5*length
 zFinal = 0.5*length
 
 x0 = 1.*waistX
 y0 = -2.1*waistY
 initPtcl = np.array([x0, 0., y0, 0.,
-                     -consts.pi/2., gamma0])
+                     -consts.pi/4., gamma0])
+print('OK')
 soln, zrange = myintegrator.integrate(zInit, zFinal, initPtcl)
 
 gamma = np.zeros(zrange.shape[0])
-gamma[:] = (soln[:,5]-gamma0)
+gamma[:] = (soln[:,5]-gamma0)/gamma0
+
 theta = np.zeros(zrange.shape[0])
 theta[:] = soln[:,4] #%(2*np.pi)
 
+"""
 plt.scatter(theta, gamma) #*510.998
 plt.xlabel(r'$\theta$')
 plt.ylabel(r'$\Delta\gamma$')
-plt.tight_layout()
-plt.show(block=False)
-plt.savefig('thetaVgamma.png')
-plt.clf()
-plt.plot(zrange, theta)
+#plt.tight_layout()
+plt.show()
+#plt.savefig('thetaVgamma.png')
+#print(theta, gamma)
+"""
+py.plot(theta, gamma, 'b.')
+py.xlabel(r'$\theta$')
+py.ylabel(r'$\Delta\gamma$')
+py.title('Intensity distribution')                                
+py.grid(True)                                   
+py.show()
+print('done')
+"""
+plt.plot(zrange, theta, 'r.')
 plt.xlabel(r'$z$')
 plt.ylabel(r'$\theta$')
-plt.tight_layout()
-plt.show(block=False)
-plt.savefig('thetaVz.png')
-plt.clf()
-plt.plot(zrange, gamma) #*510.998
+plt.show()
+plt.savefig('thetaVz.png') 
+
+plt.plot(zrange, gamma, 'gs') #*510.998
 plt.xlabel(r'$z$')
 plt.ylabel(r'$\Delta\gamma$')
-plt.tight_layout()
-plt.show(block=False)
-plt.savefig('gammaVz.png')
-plt.clf()
+plt.show()
+"""
 
 slope, intercept, rvalue, pvalue, stderr = stats.linregress(zrange, gamma)
 
