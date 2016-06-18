@@ -3,6 +3,7 @@ package to integrate the equations of motion
 
 moduleauthor:: Stephen Webb <swebb@radiasoft.net
 Copyright (c) 2014 RadiaBeam Technologies. All rights reserved
+#http://genesis.web.psi.ch/download/documentation/genesis_talk.pdf
 """
 
 __author__ = 'swebb'
@@ -19,7 +20,6 @@ from scipy.special import jn
 class RbLaserHeaterIntegrator:
 
     def __init__(self, laser, undulator):
-
 
         self.laserField = laser
         self.undulatorField = undulator
@@ -54,17 +54,37 @@ class RbLaserHeaterIntegrator:
                      /(2*Gamma**2)
         derivGamma = -self.kl*(self.eOmc**2)*self.fB*wigglerA*laserA\
                      *np.sin(Theta)/Gamma #
+        print('%1.3e ' '%1.3e ' '%1.3e ' '%1.3e ' '%1.3e ' '%f ' % \
+        (coords[0], coords[1], coords[2], coords[3], coords[4], coords[5]-np.median(Gamma)))
 
         return np.array([derivX, derivPX, derivY, derivPY, derivTheta,
                          derivGamma])
 
+    def canonicalEquationsTS(self, coords, z):
+        X, PX, Y, PY, Theta, Gamma = coords
+
+        derivX = PX/Gamma
+        derivY = PY/Gamma
+        derivPX = 0
+        derivPY = 0
+        wigglerA = self.undulatorField.getAAmplitude(coords)
+        laserA = self.laserField.getA(coords, z) 
+        print(wigglerA,laserA)        
+        derivTheta = self.ku + self.kl*(1 + PX**2 + PY**2)/2/Gamma**2 
+        derivGamma = -self.kl*self.fB*wigglerA*laserA*np.sin(Theta)/Gamma*(self.eOmc**2)
+        
+        print('%1.3e ' '%1.3e ' '%1.3e ' '%1.3e ' '%1.3e ' '%1.3e ' % \
+        (coords[0], coords[1], coords[2], coords[3], coords[4], coords[5]-264.188-0*np.median(Gamma)))
+        
+        return np.array([derivX, derivPX, derivY, derivPY, derivTheta,
+                         derivGamma])
 
     def integrate(self, zinitial, zfinal, coords):
 
         # Resolve the undulator period
-        dz = 2.*np.pi*0.01/self.ku
+        dz = 2.*np.pi*0.1/self.ku
         zrange = np.arange(zinitial, zfinal, dz)
 
         soln = odeint(self.canonicalEquations, coords, zrange)
-
+        print('integrate')
         return soln, zrange
