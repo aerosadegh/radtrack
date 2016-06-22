@@ -359,7 +359,7 @@ class Base(rt_controller.Controller):
                     os.remove(importDestination)
                 shutil.copy2(originalLocation, importDestination)
                 
-        def sdds2ascii(philename)
+        def sdds2ascii(philename):
             sa='sdds2plaindata {filename} genesis6D.dist -outputMode=ascii -separator="  " -column=x -column=xp -column=y -column=yp -column=t -column=p'
             sa.format(filename=philename)
             return sa
