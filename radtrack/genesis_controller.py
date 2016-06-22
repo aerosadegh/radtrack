@@ -358,8 +358,11 @@ class Base(rt_controller.Controller):
                 if os.path.exists(importDestination):
                     os.remove(importDestination)
                 shutil.copy2(originalLocation, importDestination)
-
-
+                
+        def sdds2ascii(philename)
+            sa='sdds2plaindata {filename} genesis6D.dist -outputMode=ascii -separator="  " -column=x -column=xp -column=y -column=yp -column=t -column=p'
+            sa.format(filename=philename)
+            return sa
 
         sourceDirectory = os.path.dirname(phile.name)
         dollar = 0
