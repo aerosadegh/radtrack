@@ -327,6 +327,7 @@ def to_genesis():
     res['ILOG']='log'
     res['FFSPEC']='ff_spectrum'
     res['LOUT']='output_parameters'
+    res['TRAMA']='trama'
     
     return res
              

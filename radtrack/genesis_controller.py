@@ -117,6 +117,7 @@ class Base(rt_controller.Controller):
         self.msg('Finished')
         self.msg('\nRunning Genesis...')
         self.msg(self.INPUT)
+        print(self.INPUT)
         self.process.start('genesis',['genesis_run.in']) # add option so files start with common name
 
     def list_result_files(self):
@@ -188,7 +189,14 @@ class Base(rt_controller.Controller):
                     gkey = inv_to_gensis[w]
                     for k,v in enumerate(in_list):
                         if gkey in v:
-                            in_list[k]=' '+gkey+'='+str(e)
+                            if 'LOUT' in gkey:
+                                in_list[k]=' ' + gkey + '=' + ' '.join([str(int(self.params[which]['output_parameters'][str(x)])) for x in e])
+                            elif self.decl[which][w].py_type is bool:
+                                in_list[k]=' '+gkey+'='+str(int(e))
+                            elif self.decl[which][w].py_type is str:
+                                in_list[k]=' '+gkey+'='+"'"+str(e)+"'"
+                            else:
+                                in_list[k]=' '+gkey+'='+str(e)
                             break
                             
                 self.INPUT = ''.join(x+'\n' for x in in_list)
@@ -258,8 +266,8 @@ class Base(rt_controller.Controller):
                 elif 'vertical_angle' in key:
                     pu._form._fields[j]['widget'].setText(str(average[3]))
                     #print(key,':',pu._form._fields[j]['widget'].text())
-                elif 'current' in key:
-                    pu._form._fields[j]['widget'].setText(str(reader.myBunch.getCurrent()))
+                #elif 'current' in key:
+                #    pu._form._fields[j]['widget'].setText(str(reader.myBunch.getCurrent()))
                         
         choices = []
         for j in range(self._view.parent.parent.tabWidget.count()):
@@ -396,7 +404,7 @@ class Base(rt_controller.Controller):
             self.params['beam']['vertical_coord']=average[2]
             self.params['beam']['horizontal_angle']=average[1]
             self.params['beam']['vertical_angle']=average[3]
-            self.params['beam']['current']=reader.myBunch.getCurrent()
+            #self.params['beam']['current']=reader.myBunch.getCurrent()
             #updates imported genesis file input parameters 
             if self.INPUT:
                 inv_to_gensis = {v:k for k,v in genesis_params.to_genesis().items()}
@@ -410,6 +418,7 @@ class Base(rt_controller.Controller):
                             break                 
                 self.INPUT = ''.join(x+'\n' for x in in_list)
                 self.msg(self.INPUT)
+
         elif 'dist' in os.path.splitext(phile.name)[1]:
             if self.INPUT:
                 inv_to_gensis = {v:k for k,v in genesis_params.to_genesis().items()}
@@ -422,6 +431,5 @@ class Base(rt_controller.Controller):
                 #            in_list[k]=' '+gkey+'='+str(self.params['beam'][w])
                 #            break                 
                 self.INPUT = ''.join(x+'\n' for x in in_list)
-                self.msg(self.INPUT)
-            
+                self.msg(self.INPUT)            
             
