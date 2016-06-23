@@ -285,7 +285,13 @@ class RbCbt(rt_qt.QtGui.QWidget):
             dialog = genDialog(selectedElement)
             if dialog.exec_():
                 data = dialog.info + dialog.more
+                if len(data) > len(selectedElement.data):
+                    extraData = data.pop()
+                else:
+                    extraData = None
                 newElement = type(selectedElement)([datum[1].text() for datum in data])
+                if extraData is not None:
+                    newElement.extraData = extraData
                 undoAction = commandEditElement(self, selectedElement, newElement)
                 self.undoStack.push(undoAction)
                 self.elementPreview()
@@ -353,7 +359,13 @@ class RbCbt(rt_qt.QtGui.QWidget):
         dialog = genDialog(elementType())
         if dialog.exec_():
             data = [datum[1].text() for datum in dialog.info + dialog.more]
+            if len(data) > len(elementType.parameterNames):
+                extraData = data.pop()
+            else:
+                extraData = None
             element = elementType(data)
+            if extraData is not None:
+                element.extraData = extraData
             undoAction = commandLoadElements(self, [element])
             self.undoStack.push(undoAction)
 

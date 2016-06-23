@@ -13,7 +13,7 @@ from radtrack.dcp.Servicelib import *
 from radtrack.dcp.SRWlib import SRW
 from radtrack.ui.matplotlibwidget import matplotlibWidget
 from radtrack.util.plotTools import scatConPlot
-from radtrack.util.stringTools import removeWhitespace
+from radtrack.util.stringTools import removeWhitespace, isNumber
 from radtrack.util.fileTools import isSDDS
 
 NumPage = 0
@@ -304,7 +304,7 @@ class RbDcp(QtGui.QWidget):
         self.xaxis.clear()
         self.yaxis.clear()
         for i, name in enumerate(options): #self.fileData.columnName
-            if is_number(self.data.item(4, i).text()):
+            if isNumber(self.data.item(4, i).text()):
                 self.xaxis.addItem(name)
                 self.yaxis.addItem(name)
 

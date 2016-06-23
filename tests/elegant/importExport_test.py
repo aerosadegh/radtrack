@@ -18,15 +18,6 @@ suffixes = [particleSuffix, opticalSuffix]
 fileLocations = [elegantFilesLocation, opticalFilesLocation]
 fileHandlers = [ele, opt]
 
-# Can't handle these files with RPN calcs outside element descriptions or other errors
-skipFiles = [os.path.join(os.getcwd(), n) for n in ['use_cases/elegant/elegantExamples/rfDeflectingCavity/lattice.lte',
-                                                    'use_cases/elegant/elegantExamples/ellipseComparison/par10h.lte',
-                                                    'use_cases/elegant/elegantExamples/chromaticResponse/full457MeV.lte',
-                                                    'use_cases/elegant/elegantExamples/beamBreakup/lattice.lte',
-                                                    'use_cases/elegant/elegantExamples/multibunchCollectiveEffects/APS-24Bunch-CBI/lattice.lte',
-                                                    'use_cases/elegant/elegantExamples/rampTunesWithBeam/par10h.lte',
-                                                    'use_cases/elegant/elegantExamples/pepperPot/lattice.lte']]
-
 # Test that importing an .lte file and an exported version of that file
 # result in the same elements being created
 def test_import_export():
@@ -34,8 +25,6 @@ def test_import_export():
         for walkTuple in os.walk(fileLocation):
             dirName = walkTuple[0]
             for fileName in [os.path.join(dirName, name) for name in walkTuple[2] if name.endswith(suffix)]:
-                if fileName in skipFiles:
-                    continue
                 elementDictionary1, default1 = fileHandler.fileImporter(fileName)
                 exportFileName = os.path.splitext(fileName)[0] + exportEnd
                 fileHandler.exportToFile(exportFileName, elementDictionary1, default1)

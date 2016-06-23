@@ -186,6 +186,16 @@ class genDialog(QtGui.QDialog):
             # skip rest of dialog creation
             pass
 
+        if hasattr(oldElement, 'extraData'):
+            i += 1
+            location = self.info if i < 5 else self.more
+            row = i + 1 if i < 5 else i - 5
+            layout = flayout if i < 5 else extlayout
+
+            location.append([QtGui.QLabel(oldElement.extraDataParameterName), customTextEdit(oldElement.extraData)])
+            location[row][1].setToolTip(wordwrap(oldElement.extraDataToolTip, 60))
+            layout.addRow(location[row][0],location[row][1])
+
         if len(self.more)==0:
             moreButton.setEnabled(False)
 
@@ -209,6 +219,16 @@ class genDialog(QtGui.QDialog):
         buttonBox.rejected.connect(self.reject)
         self.setWindowTitle(oldElement.__class__.__name__)
         scrollArea.hide()
+
+
+class customTextEdit(QtGui.QTextEdit):
+    def __init__(self, text, parent = None):
+        super(customTextEdit, self).__init__(parent)
+        for line in text.split('\n'):
+            self.append(line)
+
+    def text(self):
+        return self.toPlainText()
 
 
 class advDialog(QtGui.QDialog):

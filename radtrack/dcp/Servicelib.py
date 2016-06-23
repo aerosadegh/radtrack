@@ -87,10 +87,3 @@ def column(matrix, i):  # separating column in a matrix
 
 def columnS(matrix, i,i1):  # separating columns in a matrix
     return [row[i:i1] for row in matrix]
-        
-def is_number(s):
-    try:
-        float(s)
-        return True
-    except ValueError:
-        return False

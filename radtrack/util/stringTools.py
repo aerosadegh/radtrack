@@ -50,3 +50,10 @@ def characterEscaped(line, position):
 
 def removeWhitespace(line):
     return ''.join(line.split())
+
+def isNumber(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False

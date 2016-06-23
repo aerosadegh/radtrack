@@ -14,7 +14,7 @@ from collections import OrderedDict
 import os
 from radtrack.beamlines.RbElementCommon import *
 from radtrack.beamlines.RbBeamlines import BeamlineCommon
-from radtrack.util.stringTools import wordwrap, stripComments, removeWhitespace
+from radtrack.util.stringTools import wordwrap, stripComments, removeWhitespace, isNumber
 from radtrack.util.fileTools import FileParseException
 
 # Reads the lattice file named fileName;
@@ -29,6 +29,7 @@ def importFile(fileName, importDictionary, classDictionary, nameMangler):
         previousLine = ''
         for lineNumber, line in enumerate(f):
             line = stripComments(line, '!')
+            line = stripComments(line, '%')
             if not line:
                 continue
             line = ''.join([previousLine, line]).strip()
@@ -48,10 +49,15 @@ def importFile(fileName, importDictionary, classDictionary, nameMangler):
                         str(lineNumber+1) + ' produced errors:\n\n' +
                         line + '\n\n' + str(error) + text + ' defined.')
             except FileParseException as error:
-                raise IOError('In file: ' + fileName + '\n' +
-                        'File import stopped because line ' +
-                        str(lineNumber+1) + ' produced errors:\n\n' +
-                        str(error.message))
+                data = line.split()
+                lastElement = importDictionary.values()[-1]
+                if len(data) == 2 and all([isNumber(d) for d in data]) and type(lastElement) == PEPPOT:
+                        lastElement.extraData = lastElement.extraData + '\n' + line
+                else:
+                    raise IOError('In file: ' + fileName + '\n' +
+                            'File import stopped because line ' +
+                            str(lineNumber+1) + ' produced errors:\n\n' +
+                            str(error.message))
             except IncludeException as include:
                 newFileName = os.path.join(os.path.dirname(fileName), include.fileName)
                 _, defaultBeamlineName = importFile(newFileName, importDictionary,\
@@ -74,7 +80,7 @@ def parseLine(line, importDictionary, classDictionary, nameMangler):
             if name in importDictionary:
                 return name # send name of defaultBeamline up
             else:
-                raise KeyError(name)
+                return None # Don't set default beamline if name does not exist
         else:
             raise FileParseException('Invalid line: ' + line)
     definitionList = line.split(':', 1)
@@ -775,6 +781,12 @@ class PEPPOT(elegantElement, particleWatch):
     units = ['m', 'm', ' ', 'rad', 'rad', ' ', ' ']
     dataType = ['double', 'double', 'double', 'double', 'double', 'long', 'string']
     parameterDescription = ['length', 'hole radius', 'transmission of material', 'rotation about longitudinal axis', 'rms scattering from material', 'number of holes', 'Optionally used to assign an element to a group, with a user-defined name. Group names will appear in the parameter output file in the column ElementGroup']
+    extraData = '' # newline-separated list of hole locations
+    extraDataParameterName = 'Hole positions'
+    extraDataToolTip = 'X and Y coordinates (in meters) of holes, one per line'
+
+    def componentLine(self):
+        return super(PEPPOT, self).componentLine() + '\n' + self.extraData
 
 class PFILTER(elegantElement, zeroLengthPic):
     elementDescription = 'An element for energy and momentum filtration.'
