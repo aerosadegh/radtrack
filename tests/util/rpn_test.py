@@ -30,29 +30,36 @@ def test_rpn_files():
     from radtrack.beamlines.RbElegantElements import fileImporter
 
     alreadySeen = []
-    for fileName in glob.glob(os.path.join(os.getcwd(), 'deprecated', 'elegant', 'beamlines', '*.lte')):
-        # Test that files load without errors
-        elementDictionary, _ = fileImporter(fileName)
+    for walkTuple in os.walk(os.path.join(os.getcwd(), 'use_cases', 'elegant')):
+        dirName = walkTuple[0]
+        for fileName in [os.path.join(dirName, name) for name in walkTuple[2] if name.endswith('.lte')]:
+            # Test that files load without errors
+            elementDictionary, _ = fileImporter(fileName)
 
-        for element in elementDictionary.values():
-            if element.isBeamline():
-                continue
-            for thing in element.data:
-                if thing in alreadySeen:
+            for element in elementDictionary.values():
+                if element.isBeamline():
                     continue
-                alreadySeen.append(thing)
-                try:
-                    answer = rpn(thing)
+                for thing in element.data:
+                    if thing in alreadySeen:
+                        continue
+                    alreadySeen.append(thing)
                     try:
-                        if answer == float(thing):
-                            continue # Just a number
-                        else:
-                            assert answer == float(thing) # 2 interpretations of value
+                        answer = rpn(thing)
+                        try:
+                            if answer == float(thing):
+                                continue # Just a number
+                            else:
+                                assert answer == float(thing) # 2 interpretations of value
+                        except ValueError:
+                            pass # thing is an unambiguous rpn expression
                     except ValueError:
-                        pass # thing is an unambiguous rpn expression
-                except ValueError:
-                    if thing != '' and \
-                            thing.lower() not in ['', '+x', '+y', '-y', '-x', 't', 'w'] and \
-                            all([x not in thing.lower() for x in \
-                                ['coord', '%', 'centroid', 'ideal', 'param', 'sdds', 'runge', '.out']]):
-                        assert (fileName, ':', element.name, type(element), element.displayLine(), thing) == None
+                        if len(thing.split()) == 1: # RPN expressions have more than one whitespace-separated part
+                            continue
+                        if element.parameterNames[element.data.index(thing)] in ['GROUP',
+                                                                                 'METHOD',
+                                                                                 'FILENAME',
+                                                                                 'INPUTFILE',
+                                                                                 'COMMAND']:
+                            continue
+                        if thing:
+                            assert (fileName, ':', element.name, type(element), element.displayLine(), thing) == None
