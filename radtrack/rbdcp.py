@@ -21,7 +21,7 @@ ColumnXAxis =-1
 MaxNumParam=999
 
 class RbDcp(QtGui.QWidget):
-    acceptsFileTypes = ['save', 'twi','out','sig','cen','dat','txt','sdds','bun','fin','h5']
+    acceptsFileTypes = ['save', 'twi','out','sig','cen','dat','txt','sdds','bun','fin','h5','dist']
     defaultTitle = 'Data Visualization'
     task = 'Analyze simulation results'
     category = 'tools'
@@ -134,6 +134,8 @@ class RbDcp(QtGui.QWidget):
             self.showDCP_srw(openFile)
         elif ext == 'h5':
             self.showDCP_gen(openFile)
+        elif ext == 'dist':
+            self.showPlain(openFile)
         elif ext == 'save':
             return
         else:
@@ -161,7 +163,21 @@ class RbDcp(QtGui.QWidget):
             self.sigselect()         
         elif ext == 'h5':
             self.h5select()
-             
+            
+    def showPlain(self,openFile):
+        def flatprev(f):
+            pass
+        self.fileData = []
+        with open(openFile, 'r') as phile:
+            for line in phile:
+                if '?' in line or '#' in line:
+                    continue
+                else:
+                    for n,i in enumerate(line.rstrip('\n').split(' ')):
+                        self.fileData.append([])
+                        self.fileData[n].append(i)
+        
+            
     def showDCP_gen(self, openFile):
         def genprev(f):
             for i,a in enumerate(f.keys()):
