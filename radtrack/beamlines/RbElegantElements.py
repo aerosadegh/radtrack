@@ -16,6 +16,7 @@ from radtrack.beamlines.RbElementCommon import *
 from radtrack.beamlines.RbBeamlines import BeamlineCommon
 from radtrack.util.stringTools import wordwrap, stripComments, removeWhitespace, isNumber
 from radtrack.util.fileTools import FileParseException
+from radtrack.util.RbMath import rpn, rpnVariableDict
 
 # Reads the lattice file named fileName;
 # returns a mapping of names to newly created elements and the name of the default beamline
@@ -29,7 +30,9 @@ def importFile(fileName, importDictionary, classDictionary, nameMangler):
         previousLine = ''
         for lineNumber, line in enumerate(f):
             line = stripComments(line, '!')
-            line = stripComments(line, '%')
+            if line.startswith('%'):
+                rpn(line[1:])
+                continue
             if not line:
                 continue
             line = ''.join([previousLine, line]).strip()
@@ -63,6 +66,21 @@ def importFile(fileName, importDictionary, classDictionary, nameMangler):
                 _, defaultBeamlineName = importFile(newFileName, importDictionary,\
                                          classDictionary, nameMangler)
             previousLine = ''
+
+        # Apply stored variables to elements
+        for element in importDictionary.values():
+            if element.isBeamline():
+                continue
+            for index, datum in enumerate(element.data):
+                wordList = datum.split()
+                newWordList = []
+                for word in wordList:
+                    if word in rpnVariableDict:
+                        newWordList.append(str(rpnVariableDict[word]))
+                    else:
+                        newWordList.append(word)
+                element.data[index] = ' '.join(newWordList)
+
 
     return importDictionary, defaultBeamlineName
 

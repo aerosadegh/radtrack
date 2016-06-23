@@ -116,9 +116,20 @@ rpnOp['false'] = lambda stack : False
 rpnOp['=='] = lambda stack : stack.pop(-2) == stack.pop(-1)
 rpnOp['test'] = lambda stack : 'true' if stack.pop(-1) else 'false'
 
+rpnVariableDict = dict()
 def rpn(expression):
     valueStack = []
+    storeNext = False
     for token in expression.strip('"').split():
+        if token == 'sto':
+            storeNext = True
+            continue
+        if storeNext:
+            if token in rpnOp.keys():
+                raise ValueError('Cannot store value in already named function: ' + token + ' in line "' + expression + '"')
+            rpnVariableDict[token] = valueStack[-1]
+            storeNext = False
+            continue
         try:
             valueStack.append(float(token))
         except ValueError: # token is not a number
@@ -126,8 +137,11 @@ def rpn(expression):
                 valueStack.append(rpnOp[token](valueStack))
             except (KeyError, IndexError):
                 # named function not defined in rpnOp or valueStack is empty
-                raise ValueError('Token: "' + token + '" in "' + expression + '" is not a valid RPN expression.')
+                try:
+                    valueStack.append(rpnVariableDict[token])
+                except KeyError:
+                    raise ValueError('Token: "' + token + '" in "' + expression + '" is not a valid RPN expression.')
     if len(valueStack) == 1:
         return valueStack[0]
     else:
-        raise ValueError('"' + expression + '" is not a valid RPN expression.')
+        raise ValueError('"' + expression + '" is not a valid RPN expression.\nFinal value stack = ' + str(valueStack))
