@@ -166,16 +166,42 @@ class RbDcp(QtGui.QWidget):
             
     def showPlain(self,openFile):
         def flatprev(f):
-            pass
-        self.fileData = []
-        with open(openFile, 'r') as phile:
-            for line in phile:
-                if '?' in line or '#' in line:
+            for i,a in enumerate(f):
+                if self.data.rowCount()<(len(a)+3):
+                    if len(a)<1000:
+                        self.data.setRowCount(len(a)+3)
+                    else: self.data.setRowCount(1003)              
+                for j,b in enumerate(a):
+                    if j>=1000:
+                        break
+                    self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b))) 
+                    
+        self.fileData = [[],[],[],[],[],[]]
+        p = None
+        self.reset()
+        self.data.setColumnCount(6)
+        self.data.setRowCount(3)
+        
+        with open(openFile) as phile:
+            for j,line in enumerate(phile):
+        #        line = str(line)
+                if '?' in line and 'COLUMN' in line:
+                    p=line.split('COLUMNS')[1].strip('\n').strip().split(' ')                 
+                elif '#' in line:
                     continue
-                else:
-                    for n,i in enumerate(line.rstrip('\n').split(' ')):
-                        self.fileData.append([])
-                        self.fileData[n].append(i)
+                elif '?' not in line:
+                    #print(line.rstrip('\n').strip('u').split(' '))
+                    #print(line.strip().lstrip('u').rstrip('\n').split('u')) 
+                    for x,i in enumerate(line.strip().lstrip('u').rstrip('\n').split('  ')):
+                        self.fileData[x].append((float(i.strip().strip('\n').strip())))
+        #            if j>5: break
+        #            for n,i in enumerate(line.rstrip('\n').split(' ')):
+        #                self.fileData[n].append(i)
+        #print(p)        
+        for i,a in enumerate(p):
+            self.data.setItem(1,i,QtGui.QTableWidgetItem(a))
+        flatprev(self.fileData)
+        self.dataopt(p)
         
             
     def showDCP_gen(self, openFile):
@@ -416,6 +442,10 @@ class RbDcp(QtGui.QWidget):
             (Xrvec,Yrvec,Npar,Ncol,NcolPicked,NElemCol)=SRWreshape(self.fileData,ColumnXAxis,ColumnPicked)
         elif self.currentFiletype in ['sdds', 'out', 'twi', 'sig', 'cen', 'bun', 'fin']:
             (Xrvec,Yrvec,Ylab,Npar,Ncol,NcolPicked,NElemCol,Npage)=SDDSreshape(self.fileData,ColumnXAxis,ColumnPicked,NumPage)
+        elif self.currentFiletype == 'dist':
+            Xrvec=numpy.array(self.fileData[self.xaxis.currentIndex()])
+            shape=numpy.shape(self.fileData[self.xaxis.currentIndex()])[0]
+            Yrvec=numpy.reshape(numpy.array(self.fileData[self.yaxis.currentIndex()]),[1,shape])
         else:
             shape = numpy.shape(self.fileData[xname])[0]
             Xrvec = numpy.reshape(numpy.array(self.fileData[xname]),-1)
