@@ -3,6 +3,7 @@ Copyright (c) 2013 RadiaBeam Technologies. All rights reserved
 version 2
 """
 import os, re, cgi, shutil, sdds, multiprocessing
+from operator import mul
 from PyQt4 import QtCore, QtGui
 
 from pykern.pkdebug import pkdc
@@ -91,14 +92,12 @@ class RbEle(QtGui.QWidget):
         self.process = QtCore.QProcess(self)
         self.process.readyReadStandardOutput.connect(self._process_stdout)
         self.process.readyReadStandardError.connect(self._process_stderr)
-        self.process.started.connect(self._process_started)
         self.process.finished.connect(self._process_finished)
         self.process.error.connect(self._process_error)
 
         # states: 'summary' or 'full'
         self.status_mode = 'summary'
         self.summary_html = ''
-        self.progressIndex = 0
         self.beamlineNames = []
 
 
@@ -370,26 +369,6 @@ class RbEle(QtGui.QWidget):
 
         processSimulationEndStatus(error, 'Elegant', self.append_status)
 
-    def _process_started(self):
-        """Callback when simulation process has started"""
-        self.ui.abortButton.setEnabled(True)
-        beamlineName = None
-        if self.ui.elegantEditStackedWidget.currentIndex() == 0:
-            beamlineName=self.ui.beamLineComboBox.currentText()
-        else:
-            for line in self.ui.elegantTextEdit.document().toPlainText().split('\n'):
-                if line.strip().startswith('use_beamline'):
-                    beamlineName = line.split('=', 1)[1].strip().rstrip(',').strip('"').upper()
-                    break
-        beamline_source = self.beam_line_source_manager.get_lattice_element_loader()
-        if beamline_source and beamlineName:
-            self.beamlineNames = beamline_source.elementDictionary[beamlineName].fullElementNameList()
-        else:
-            self.beamlineNames = []
-        self.ui.progressBar.setMaximum(len(self.beamlineNames) + 1 if self.beamlineNames else 0)
-        self.ui.progressBar.reset()
-        self.progressIndex = 0
-
     def _process_stderr(self):
         """Callback with simulation stderr text"""
         out = str(self.process.readAllStandardError())
@@ -399,7 +378,8 @@ class RbEle(QtGui.QWidget):
 
     def _process_stdout(self):
         """Callback with simulation stdout text"""
-        out = str(self.process.readAllStandardOutput())
+        out = self.lastLine + str(self.process.readAllStandardOutput())
+        blLength = len(self.beamlineNames)
         for line in out.split("\n"):
             if self._is_error_text(line):
                 self.append_status(line)
@@ -413,16 +393,30 @@ class RbEle(QtGui.QWidget):
 
                 if outputElementName in self.beamlineNames:
                     while outputElementName != self.beamlineNames[self.progressIndex]:
-                        self.progressIndex = (self.progressIndex + 1) % len(self.beamlineNames)
-                    self.ui.progressBar.setValue(self.progressIndex + 1)
-                    self.progressIndex = (self.progressIndex + 1) % len(self.beamlineNames)
+                        self.progressIndex = (self.progressIndex + 1) % blLength
+                    self.ui.progressBar.setValue(self.minProgressIndex + self.progressIndex + 1)
+                    self.progressIndex = (self.progressIndex + 1) % blLength
+
+            if line.startswith('counter advanced'):
+                try:
+                    loopsDone = [int(x) for x in line.split()[2:]]
+                    cumulativeIterations = 1
+                    self.minProgressIndex = 0
+                    for loop, total in zip(loopsDone, self.simulationLoops):
+                        self.minProgressIndex += loop * cumulativeIterations * (blLength + 1)
+                        cumulativeIterations *= total
+                    self.ui.progressBar.setValue(self.minProgressIndex)
+                except IndexError:
+                    pass
 
             if line.endswith('particles left'):
                 numberParticlesTransmitted = float(line.split()[0])
                 if numberParticlesTransmitted == 0:
-                    msg = 'Warning! No particles made it to the end of the beam line.' + \
+                    msg = 'No particles made it to the end of the beam line.' + \
                             '\nOutput phase space files will be empty.'
                     self.append_status(msg)
+
+            self.lastLine = line
 
         self.output_file.write(out)
 
@@ -468,6 +462,29 @@ class RbEle(QtGui.QWidget):
             program = 'mpirun'
             args = ['-np', str(self.ui.numProcSlider.value()), 'Pelegant', elegant_input_file]
         self.append_status('Running simulation ...\n')
+
+        self.progressIndex = 0
+        self.minProgressIndex = 0
+        self.lastLine = ''
+
+        self.ui.abortButton.setEnabled(True)
+        beamlineName = None
+
+        if self.ui.elegantEditStackedWidget.currentIndex() == 0:
+            beamlineName=self.ui.beamLineComboBox.currentText()
+        else:
+            for line in self.ui.elegantTextEdit.document().toPlainText().split('\n'):
+                if line.strip().startswith('use_beamline'):
+                    beamlineName = line.split('=', 1)[1].strip().rstrip(',').strip('"').upper()
+                    break
+        beamline_source = self.beam_line_source_manager.get_lattice_element_loader()
+        if beamline_source and beamlineName:
+            self.beamlineNames = beamline_source.elementDictionary[beamlineName].fullElementNameList()
+        else:
+            self.beamlineNames = []
+        self.ui.progressBar.setMaximum(reduce(mul, self.simulationLoops, 1) * (len(self.beamlineNames) + 1))
+        self.ui.progressBar.reset()
+
         self.process.start(program, args)
 
     def _sdds_description(self, file_name):
@@ -571,6 +588,9 @@ class RbEle(QtGui.QWidget):
         modifiedElegantText = ''
         insideRunSetup = False
         printStatsWritten = False
+        simulationLoopDict = dict()
+        indices = []
+        loops = []
         for line in elegantText.split('\n'):
             if printStatsWritten:
                 modifiedElegantText = modifiedElegantText + '\n' + line
@@ -588,6 +608,22 @@ class RbEle(QtGui.QWidget):
                 printStatsWritten = True
             else:
                 modifiedElegantText = modifiedElegantText + '\n' + line
+
+            if 'index_number' in line:
+                tokens = line.replace(';', ' ').replace(',', ' ').replace('=', ' ').split()
+                index = int(tokens[tokens.index('index_number') + 1])
+                indices.append(index)
+            if 'index_limit' in line:
+                tokens = line.replace(';', ' ').replace(',', ' ').replace('=', ' ').split()
+                loop = int(tokens[tokens.index('index_limit') + 1])
+                loops.append(loop)
+
+        for index, loop in zip(indices, loops):
+            if index in simulationLoopDict:
+                continue
+            simulationLoopDict[index] = loop
+        self.simulationLoops = simulationLoopDict.values()
+
         elegantText = modifiedElegantText + '\n'
 
         with open(elegant_file_name, 'w') as output_file:
