@@ -190,17 +190,14 @@ class RbDcp(QtGui.QWidget):
                 elif '#' in line:
                     continue
                 elif '?' not in line:
-                    #print(line.rstrip('\n').strip('u').split(' '))
-                    #print(line.strip().lstrip('u').rstrip('\n').split('u')) 
                     #removes empty unicode artifacts
                     for i in line.strip().lstrip('u').rstrip('\n').split(' '):
                         if i: e.append(float(i.strip().strip('\n')))
-                        #else: print('non',i)  
-                    #print(e)
                     for x,i in enumerate(e):
                         try:
                             self.fileData[x].append(i)
-                        except ValueError: print('fuck') #print(x,':',i)
+                        except ValueError:
+                            print('fail')
 
         try:        
             for i,a in enumerate(p):
@@ -220,7 +217,10 @@ class RbDcp(QtGui.QWidget):
                     for j,b in enumerate(f[a]):
                         if j >= 1000:
                             break
-                        self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b[0])))             
+                        if type(b) == numpy.ndarray:
+                            self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b[0])))             
+                        else:
+                            self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b)))             
                 except AttributeError:
                     pass
         def preview(Ncol):
