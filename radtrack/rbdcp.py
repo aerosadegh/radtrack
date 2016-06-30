@@ -21,7 +21,7 @@ ColumnXAxis =-1
 MaxNumParam=999
 
 class RbDcp(QtGui.QWidget):
-    acceptsFileTypes = ['save', 'twi','out','sig','cen','dat','txt','sdds','bun','fin','h5','dist']
+    acceptsFileTypes = ['save', 'twi','out','sig','cen','dat','txt','sdds','bun','fin','h5','dist','beam']
     defaultTitle = 'Data Visualization'
     task = 'Analyze simulation results'
     category = 'tools'
@@ -134,7 +134,7 @@ class RbDcp(QtGui.QWidget):
             self.showDCP_srw(openFile)
         elif ext == 'h5':
             self.showDCP_gen(openFile)
-        elif ext == 'dist':
+        elif ext == 'dist' or ext == 'beam':
             self.showPlain(openFile)
         elif ext == 'save':
             return
@@ -176,15 +176,15 @@ class RbDcp(QtGui.QWidget):
                         break
                     self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b))) 
                     
-        self.fileData = [[],[],[],[],[],[]]
+        self.fileData = [[],[],[],[],[],[],[]]
         p = None
         self.reset()
-        self.data.setColumnCount(6)
+        self.data.setColumnCount(7)
         self.data.setRowCount(3)
-        
+
         with open(openFile) as phile:
             for j,line in enumerate(phile):
-        #        line = str(line)
+                e=[]
                 if '?' in line and 'COLUMN' in line:
                     p=line.split('COLUMNS')[1].strip('\n').strip().split(' ')                 
                 elif '#' in line:
@@ -192,14 +192,21 @@ class RbDcp(QtGui.QWidget):
                 elif '?' not in line:
                     #print(line.rstrip('\n').strip('u').split(' '))
                     #print(line.strip().lstrip('u').rstrip('\n').split('u')) 
-                    for x,i in enumerate(line.strip().lstrip('u').rstrip('\n').split('  ')):
-                        self.fileData[x].append((float(i.strip().strip('\n').strip())))
-        #            if j>5: break
-        #            for n,i in enumerate(line.rstrip('\n').split(' ')):
-        #                self.fileData[n].append(i)
-        #print(p)        
-        for i,a in enumerate(p):
-            self.data.setItem(1,i,QtGui.QTableWidgetItem(a))
+                    #removes empty unicode artifacts
+                    for i in line.strip().lstrip('u').rstrip('\n').split(' '):
+                        if i: e.append(float(i.strip().strip('\n')))
+                        #else: print('non',i)  
+                    #print(e)
+                    for x,i in enumerate(e):
+                        try:
+                            self.fileData[x].append(i)
+                        except ValueError: print('fuck') #print(x,':',i)
+
+        try:        
+            for i,a in enumerate(p):
+                self.data.setItem(1,i,QtGui.QTableWidgetItem(a))
+        except TypeError:
+            print('no parameters')
         flatprev(self.fileData)
         self.dataopt(p)
         
@@ -326,7 +333,7 @@ class RbDcp(QtGui.QWidget):
         self.reset()
 
         #set table sizes
-        self.data.setRowCount(1000)
+        self.data.setRowCount(1003)
         self.data.setColumnCount(Ncol)
 
         for i,a in enumerate(self.fileData.columnDefinition):
@@ -442,7 +449,7 @@ class RbDcp(QtGui.QWidget):
             (Xrvec,Yrvec,Npar,Ncol,NcolPicked,NElemCol)=SRWreshape(self.fileData,ColumnXAxis,ColumnPicked)
         elif self.currentFiletype in ['sdds', 'out', 'twi', 'sig', 'cen', 'bun', 'fin']:
             (Xrvec,Yrvec,Ylab,Npar,Ncol,NcolPicked,NElemCol,Npage)=SDDSreshape(self.fileData,ColumnXAxis,ColumnPicked,NumPage)
-        elif self.currentFiletype == 'dist':
+        elif self.currentFiletype == 'dist' or self.currentFiletype=='beam':
             Xrvec=numpy.array(self.fileData[self.xaxis.currentIndex()])
             shape=numpy.shape(self.fileData[self.xaxis.currentIndex()])[0]
             Yrvec=numpy.reshape(numpy.array(self.fileData[self.yaxis.currentIndex()]),[1,shape])

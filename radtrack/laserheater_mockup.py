@@ -26,18 +26,26 @@ class View(QtGui.QWidget):
         laser_button=QtGui.QPushButton('laser')
         beam_label=QtGui.QLineEdit('select beam')
         laser_label=QtGui.QLineEdit('select laser')
+        start=QtGui.QPushButton('Simulate')
         hbox1=QtGui.QHBoxLayout()
         hbox2=QtGui.QHBoxLayout()
         hbox1.addWidget(beam_button)
         hbox1.addWidget(beam_label)
         hbox2.addWidget(laser_button)
         hbox2.addWidget(laser_label)
-        vbox.addLayout(hbox1,stretch=1)
-        vbox.addLayout(hbox2,stretch=1)
+        vbox.addWidget(QtGui.QLabel('RadTrack'))
+        vbox.addLayout(hbox1)
+        vbox.addLayout(hbox2)
+        vbox.addWidget(start)
+        vbox.addStretch()
         main.addLayout(vbox,stretch=1)
+        start.clicked.connect(self.start_click)
         beam_button.clicked.connect(self.beam_click)
         laser_button.clicked.connect(self.laser_click)
         
+    def start_click(self):
+        print('simulate clicked')
+    
     def laser_click(self):
         print('laser button clicked')
         
