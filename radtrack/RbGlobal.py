@@ -258,6 +258,7 @@ class RbGlobal(QtGui.QMainWindow):
             openFile = QtGui.QFileDialog.getOpenFileName(self, 'Open file', self.lastUsedDirectory, fileTypeList(self.allExtensions))
             if not openFile:
                 return
+        self.addToRecentMenu(openFile, True)
         self.lastUsedDirectory = os.path.dirname(openFile)
 
         # Find all types of tabs that accept the file
@@ -286,7 +287,6 @@ class RbGlobal(QtGui.QMainWindow):
             if os.path.exists(destinationPath):
                 os.remove(destinationPath)
             shutil.copy2(openFile, destinationPath)
-            self.addToRecentMenu(openFile, True)
             if onlyCopy:
                 QtGui.QMessageBox.information(self,
                                               'File copied into session directory',
@@ -321,7 +321,6 @@ class RbGlobal(QtGui.QMainWindow):
 
             self.ui.statusbar.showMessage('Importing ' + openFile + ' ...')
             self.tabWidget.currentWidget().importFile(openFile)
-            self.addToRecentMenu(openFile, True)
             if os.path.dirname(openFile) != self.sessionDirectory:
                 shutil.copy2(openFile, self.sessionDirectory)
         except IndexError: # Cancel was pressed
@@ -376,10 +375,9 @@ class RbGlobal(QtGui.QMainWindow):
                     self.lastUsedDirectory)
             if not directory:
                 return
+        self.addToRecentMenu(self.sessionDirectory, True)
 
         self.saveProject()
-
-        self.addToRecentMenu(self.sessionDirectory, True)
 
         self.sessionDirectory = directory
         self.lastUsedDirectory = directory
@@ -548,10 +546,10 @@ class RbGlobal(QtGui.QMainWindow):
             self.tabWidget.currentWidget().redo()
 
     def closeEvent(self, event):
+        self.addToRecentMenu(self.sessionDirectory, True)
         self.saveProject()
         event.accept()
         QtGui.QMainWindow.closeEvent(self, event)
-        self.addToRecentMenu(self.sessionDirectory, True)
         self.writeRecentFiles()
         for tab in self.allWidgets():
             tab.close()
