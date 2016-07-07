@@ -455,9 +455,14 @@ class RbDcp(QtGui.QWidget):
             Yrvec=numpy.reshape(numpy.array(self.fileData[self.yaxis.currentIndex()]),[1,shape])
         else:
             shape = numpy.shape(self.fileData[xname])[0]
+            #print('x shap: ',shape)
+            #print('xrvec shap: ', numpy.array(self.fileData[xname]).shape,' xrvec siz: ',numpy.array(self.fileData[xname]).size)
+            #print('yrvec shap: ', numpy.array(self.fileData[yname]).shape,' yrvec siz: ',numpy.array(self.fileData[yname]).size)
             Xrvec = numpy.reshape(numpy.array(self.fileData[xname]),-1)
             Yrvec = numpy.reshape(numpy.array(self.fileData[yname]),[1,shape])
-
+            #print('after reshpae')
+            #print('xrvec shap: ', Xrvec.shape,' xrvec siz: ',Xrvec.size)
+            #print('yrvec shap: ', Yrvec.shape,' yrvec siz: ',Yrvec.size)
         try:
             yu = ' ['+self.fileData.columnDefinition[ColumnPicked[0]][1]+']'
             xu = ' ['+self.fileData.columnDefinition[ColumnXAxis][1]+']'

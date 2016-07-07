@@ -198,7 +198,8 @@ class Base(rt_controller.Controller):
                             else:
                                 in_list[k]=' '+gkey+'='+str(e)
                             break
-                            
+                if which=='io_control':
+                    in_list.insert(int(len(in_list)/2)," OUTPUTFILE= '"+self.params[which]['output_filename']+"'")
                 self.INPUT = ''.join(x+'\n' for x in in_list)
             if which is 'undulator' and self.params[which]['vertical_focus']+self.params[which]['horizontal_focus']!=1.0:
                 box = QtGui.QMessageBox()
@@ -330,7 +331,16 @@ class Base(rt_controller.Controller):
                         elif self.decl[i][D[key]].py_type is list:
                             op_children=value.split()
                             for n,j in enumerate(self.params[i][D[key]]):
-                                self.params[i][D[key]][j]=bool(int(op_children[n]))
+                                try:
+                                    self.params[i][D[key]][j]=bool(int(op_children[n]))
+                                except IndexError:
+                                    print(IndexError)
+                                    if n==18:
+                                        error=QtGui.QMessageBox()
+                                        error.setIcon(QtGui.QMessageBox.Warning)
+                                        error.setText('Not enough parameters for LOUT')
+                                        error.exec_()
+                                    #raise RuntimeError('Not enough parameters for LOUT')
                 except KeyError:
                     print(key)
 
@@ -385,9 +395,9 @@ class Base(rt_controller.Controller):
                     dollar+=1
                     if dollar == 2:
                         break
-            self.msg(self.INPUT)
-        elif 'out' in os.path.splitext(phile.name)[1]:
-            
+            self.msg(self.INPUT) 
+                     
+        elif 'out' in os.path.splitext(phile.name)[1]:       
             reader = BunchTab()
             reader.readFromSDDS(phile.name)
             reader.calculateTwiss()
@@ -427,12 +437,9 @@ class Base(rt_controller.Controller):
                 inv_to_gensis = {v:k for k,v in genesis_params.to_genesis().items()}
                 in_list = self.INPUT.split('\n')
                 in_list.insert(int(len(in_list)/2)," DISTFILE= '"+os.path.basename(phile.name)+"'")
-                #for w in self.decl['beam'].keys():
-                #    gkey = inv_to_gensis[w]
-                #    for k,v in enumerate(in_list):
-                #        if gkey in v:
-                #            in_list[k]=' '+gkey+'='+str(self.params['beam'][w])
-                #            break                 
+                
+                self.params['io_control']['phase_file']=os.path.basename(phile.name)
+                                
                 self.INPUT = ''.join(x+'\n' for x in in_list)
                 self.msg(self.INPUT)            
             

@@ -32,7 +32,7 @@
  DRL   =  2.000000D+00
  F1ST  =  1.000000D+00
  NBINS =    4
- LOUT  = 1 1 1 1 1 0 1 1 1 1 1 
  CURPEAK=  2.400000D+02
+ LOUT  = 1 1 1 1 1 0 1 1 1 1 1
  ITDP  =    0
  $end
