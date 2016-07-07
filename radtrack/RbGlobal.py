@@ -316,15 +316,15 @@ class RbGlobal(QtGui.QMainWindow):
             else: # Pre-existing tab
                 tabIndex = openWidgetIndexes[destinationIndex]
                 self.tabWidget.setCurrentIndex(tabIndex)
-
-            QtGui.QApplication.processEvents()
-
-            self.ui.statusbar.showMessage('Importing ' + openFile + ' ...')
-            self.tabWidget.currentWidget().importFile(openFile)
-            if os.path.dirname(openFile) != self.sessionDirectory:
-                shutil.copy2(openFile, self.sessionDirectory)
         except IndexError: # Cancel was pressed
-            pass
+            return
+
+        QtGui.QApplication.processEvents()
+
+        self.ui.statusbar.showMessage('Importing ' + openFile + ' ...')
+        self.tabWidget.currentWidget().importFile(openFile)
+        if os.path.dirname(openFile) != self.sessionDirectory:
+            shutil.copy2(openFile, self.sessionDirectory)
         self.ui.statusbar.clearMessage()
 
 
