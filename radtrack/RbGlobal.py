@@ -205,17 +205,12 @@ class RbGlobal(QtGui.QMainWindow):
         else:
             return
 
-        if len(menu.actions()) >= 20:
+        if not addToTop and len(menu.actions()) >= 20:
             return
 
-        if addToTop:
-            oldList = menu.actions()
-            menu.clear()
-            menu.addAction(menuSelect)
-            for action in [a for a in oldList if a.objectName() != name]:
-                menu.addAction(action)
-        else:
-            menu.addAction(menuSelect)
+        oldActions = [a for a in menu.actions() if a.objectName() != menuSelect.objectName()]
+        menu.clear()
+        menu.addActions([menuSelect] + oldActions if addToTop else oldActions + [menuSelect])
         menu.setEnabled(True)
 
     def newTab(self, newTabType):
