@@ -82,6 +82,11 @@ class RbDcp(QtGui.QWidget):
         form.addRow('Plot Type', self.plotType)
         form.addRow('Plot Style', self.plotStyle)
         layout.addLayout(form)
+        self.slide=QtGui.QSlider()
+        self.slide.setOrientation(QtCore.Qt.Horizontal)
+        self.slide.setSizePolicy(QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Minimum)
+        layout.addWidget(self.slide)
+        self.slide.hide()
 
         layout.addStretch()   
         self.legend = QtGui.QTextEdit()
@@ -240,7 +245,14 @@ class RbDcp(QtGui.QWidget):
         stringOut = "Columns: "+ str(Ncol) + " Pages: 1" + " ColumnElements: ?"
         self.legend.setText(QtGui.QApplication.translate("dcpwidget", 'FILE INFO \n'+'File Name: '+\
             phile.fileName()+'\nFile Size: '+str(phile.size())+' bytes \n'+stringOut, None, QtGui.QApplication.UnicodeUTF8))
-        
+        for i in self.fileData.keys():
+            try:
+                if self.fileData[i].shape[1]>1:
+                    self.slide.show()
+            except IndexError:
+                continue
+            except AttributeError:
+                continue
         preview(Ncol)
         #preview hdf5 file data    
         genprev(self.fileData)
