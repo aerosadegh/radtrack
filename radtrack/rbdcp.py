@@ -214,7 +214,7 @@ class RbDcp(QtGui.QWidget):
         
             
     def showDCP_gen(self, openFile):
-        def genprev(f):
+        def genprev(f,t=0):
             for i,a in enumerate(f.keys()):
                 if self.data.rowCount()<len(f[a]):
                     self.data.setRowCount(len(f[a]))
@@ -245,14 +245,18 @@ class RbDcp(QtGui.QWidget):
         stringOut = "Columns: "+ str(Ncol) + " Pages: 1" + " ColumnElements: ?"
         self.legend.setText(QtGui.QApplication.translate("dcpwidget", 'FILE INFO \n'+'File Name: '+\
             phile.fileName()+'\nFile Size: '+str(phile.size())+' bytes \n'+stringOut, None, QtGui.QApplication.UnicodeUTF8))
+        time=0
         for i in self.fileData.keys():
             try:
                 if self.fileData[i].shape[1]>1:
                     self.slide.show()
+                    time+=1
+                    break
             except IndexError:
                 continue
             except AttributeError:
                 continue
+            if time==0: self.slide.hide()
         preview(Ncol)
         #preview hdf5 file data    
         genprev(self.fileData)
