@@ -99,6 +99,8 @@ class RbDcp(QtGui.QWidget):
         self.yaxis.activated.connect(self.customgraph)
         self.plotStyle.activated.connect(self.customgraph)
         self.plotType.activated.connect(self.customgraph)
+        self.slide.sliderReleased.connect(lambda:self.genprev(self.slide.value()))
+        self.slide.valueChanged.connect(lambda:self.customgraph(self.slide.value()))
         
     def right_panel(self,main):
         vb = QtGui.QVBoxLayout()
@@ -286,16 +288,24 @@ class RbDcp(QtGui.QWidget):
             try:
                 if self.fileData[i].shape[1]>1:
                     self.slide.show()
-                    time+=1
+                    self.xaxis.setEnabled(False)
+                    self.quickplot.setEnabled(False)
+                    if time<self.fileData[i].shape[0]: time=self.fileData[i].shape[0]
                     break
             except IndexError:
                 continue
             except AttributeError:
                 continue
-            if time==-1: self.slide.hide()
+        if time==-1: 
+            self.slide.hide()
+            self.xaxis.setEnabled(True)
+            self.quickplot.setEnabled(True)
+        else: 
+            self.slide.setMaximum(time)
+            self.slide.setValue(time-1)
         preview(Ncol)
         #preview hdf5 file data    
-        self.genprev(time)
+        self.genprev(time-1)
         #populate graph options
         self.dataopt(self.fileData.keys())       
             
@@ -485,10 +495,12 @@ class RbDcp(QtGui.QWidget):
                     param = removeWhitespace(self.quickplot.currentText()).split('.', 1)[1].lower()
                     param = param.replace('.', '')
                     self.yaxis.setCurrentIndex(find_param(param))
-     
-        self.customgraph()
+        if self.slide.isHidden:
+            self.customgraph()
+        else:
+            self.customgraph(self.slide.value())
     
-    def customgraph(self):
+    def customgraph(self,t=-1):
         if not self.fileData:
             return
 
@@ -508,16 +520,13 @@ class RbDcp(QtGui.QWidget):
             Xrvec=numpy.array(self.fileData[self.xaxis.currentIndex()])
             shape=numpy.shape(self.fileData[self.xaxis.currentIndex()])[0]
             Yrvec=numpy.reshape(numpy.array(self.fileData[self.yaxis.currentIndex()]),[1,shape])
-        else:
+        elif t==-1:
             shape = numpy.shape(self.fileData[xname])[0]
-            #print('x shap: ',shape)
-            #print('xrvec shap: ', numpy.array(self.fileData[xname]).shape,' xrvec siz: ',numpy.array(self.fileData[xname]).size)
-            #print('yrvec shap: ', numpy.array(self.fileData[yname]).shape,' yrvec siz: ',numpy.array(self.fileData[yname]).size)
             Xrvec = numpy.reshape(numpy.array(self.fileData[xname]),-1)
             Yrvec = numpy.reshape(numpy.array(self.fileData[yname]),[1,shape])
-            #print('after reshpae')
-            #print('xrvec shap: ', Xrvec.shape,' xrvec siz: ',Xrvec.size)
-            #print('yrvec shap: ', Yrvec.shape,' yrvec siz: ',Yrvec.size)
+        else:
+            Xrvec = numpy.arange(0,self.fileData[yname][self.slide.value()].shape[0],1)
+            Yrvec = self.fileData[yname][self.slide.value()]
         try:
             yu = ' ['+self.fileData.columnDefinition[ColumnPicked[0]][1]+']'
             xu = ' ['+self.fileData.columnDefinition[ColumnXAxis][1]+']'
@@ -534,14 +543,25 @@ class RbDcp(QtGui.QWidget):
             nLevels = 5 + int(math.pow(numParticles, 0.333333333))
             nDivs = 10 + int(math.pow(numParticles, 0.2))
             self.widget.canvas.ax.clear()
-            scatConPlot(self.plotStyle.currentText().lower(),
+            if t==-1:
+                self.widget.canvas.ax.set_xlabel(xname + xu)
+                scatConPlot(self.plotStyle.currentText().lower(),
                         removeWhitespace(self.plotType.currentText().lower()),
                         Xrvec,
                         Yrvec[0,:],
                         self.widget.canvas.ax,
                         nDivs,
                         nLevels)
-            self.widget.canvas.ax.set_xlabel(xname + xu)
+            else:
+                self.widget.canvas.ax.set_xlabel('Slice Number')
+                scatConPlot(self.plotStyle.currentText().lower(),
+                        removeWhitespace(self.plotType.currentText().lower()),
+                        Xrvec,
+                        Yrvec,
+                        self.widget.canvas.ax,
+                        nDivs,
+                        nLevels)
+            
             self.widget.canvas.ax.set_ylabel(yname + yu)
             self.widget.canvas.fig.set_facecolor('w')
             self.widget.canvas.fig.tight_layout()
@@ -550,8 +570,12 @@ class RbDcp(QtGui.QWidget):
             xMin = min(Xrvec)
             xMax = max(Xrvec)
             xRange = xMax - xMin
-            yMin = min(Yrvec[0])
-            yMax = max(Yrvec[0])
+            if t==-1:
+                yMin = min(Yrvec[0])
+                yMax = max(Yrvec[0])
+            else:
+                yMin=min(Yrvec)
+                yMax=max(Yrvec)
             yRange = yMax - yMin
 
             self.widget.canvas.ax.set_xlim([xMin - margin*xRange, xMax + margin*xRange])
@@ -559,9 +583,9 @@ class RbDcp(QtGui.QWidget):
             self.widget.canvas.draw()
 
         except ValueError: # Attempted to plot non-numeric values
+            print(ValueError)
             print(numpy.shape(Xrvec))
             print(numpy.shape(Yrvec))
-            
 
         self.parent.ui.statusbar.clearMessage()
                 
