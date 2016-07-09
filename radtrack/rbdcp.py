@@ -212,20 +212,55 @@ class RbDcp(QtGui.QWidget):
         flatprev(self.fileData)
         self.dataopt(p)
     
-    def genprev(self,t=0):
-        for i,a in enumerate(self.fileData.keys()):
-            if self.data.rowCount()<len(self.fileData[a]):
-                self.data.setRowCount(len(self.fileData[a]))
-            try:
-                for j,b in enumerate(self.fileData[a]):
-                    if j >= 1000:
-                        break
-                    if type(b) == numpy.ndarray:
-                        self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b[0])))             
-                    else:
-                        self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b)))             
-            except AttributeError:
-                pass    
+    def genprev(self,t):
+        if t==-1:
+            for i,a in enumerate(self.fileData.keys()):
+                if self.data.rowCount()<len(self.fileData[a]):
+                    self.data.setRowCount(len(self.fileData[a]))
+                try:
+                    for j,b in enumerate(self.fileData[a]):
+                        if j >= 1000:
+                            break
+                        if type(b) == numpy.ndarray:
+                            self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b[0])))             
+                        else:
+                            self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b)))             
+                except AttributeError:
+                    pass    
+        else: 
+            l=[]
+            for i in self.fileData.keys():
+                if type(self.fileData[i])==h5py._hl.group.Group: continue
+                else:
+                    for j in self.fileData[i].shape:
+                        l.append(j)
+            if self.data.rowCount()<max(l):
+                self.data.setRowCount(max(l))
+                
+            for i,a in enumerate(self.fileData.keys()):
+                if type(self.fileData[a])==h5py._hl.group.Group: continue
+                elif len(self.fileData[a].shape)==1 or self.fileData[a].shape[1]==1:
+                    try:
+                        for j,b in enumerate(self.fileData[a]):
+                            if j >= 1000:
+                                break
+                            if type(b) == numpy.ndarray:
+                                self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b[0])))             
+                            else:
+                                self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b)))             
+                    except AttributeError:
+                        pass
+                else:
+                    try:
+                        for j,b in enumerate(self.fileData[a][t]):
+                            if j >= 1000:
+                                break
+                            if type(b) == numpy.ndarray:
+                                self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b[0])))             
+                            else:
+                                self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b)))             
+                    except AttributeError:
+                        pass 
             
     def showDCP_gen(self, openFile):
        
@@ -246,7 +281,7 @@ class RbDcp(QtGui.QWidget):
         stringOut = "Columns: "+ str(Ncol) + " Pages: 1" + " ColumnElements: ?"
         self.legend.setText(QtGui.QApplication.translate("dcpwidget", 'FILE INFO \n'+'File Name: '+\
             phile.fileName()+'\nFile Size: '+str(phile.size())+' bytes \n'+stringOut, None, QtGui.QApplication.UnicodeUTF8))
-        time=0
+        time=-1
         for i in self.fileData.keys():
             try:
                 if self.fileData[i].shape[1]>1:
@@ -257,10 +292,10 @@ class RbDcp(QtGui.QWidget):
                 continue
             except AttributeError:
                 continue
-            if time==0: self.slide.hide()
+            if time==-1: self.slide.hide()
         preview(Ncol)
         #preview hdf5 file data    
-        self.genprev()
+        self.genprev(time)
         #populate graph options
         self.dataopt(self.fileData.keys())       
             
@@ -370,9 +405,12 @@ class RbDcp(QtGui.QWidget):
         self.xaxis.clear()
         self.yaxis.clear()
         for i, name in enumerate(options): #self.fileData.columnName
-            if isNumber(self.data.item(4, i).text()):
-                self.xaxis.addItem(name)
-                self.yaxis.addItem(name)
+            try:
+                if isNumber(self.data.item(4, i).text()):
+                    self.xaxis.addItem(name)
+                    self.yaxis.addItem(name)
+            except AttributeError:
+                continue
 
     def twiselect(self):
         self.quickplot.clear()
