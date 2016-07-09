@@ -211,23 +211,24 @@ class RbDcp(QtGui.QWidget):
             print('no parameters')
         flatprev(self.fileData)
         self.dataopt(p)
-        
+    
+    def genprev(self,t=0):
+        for i,a in enumerate(self.fileData.keys()):
+            if self.data.rowCount()<len(self.fileData[a]):
+                self.data.setRowCount(len(self.fileData[a]))
+            try:
+                for j,b in enumerate(self.fileData[a]):
+                    if j >= 1000:
+                        break
+                    if type(b) == numpy.ndarray:
+                        self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b[0])))             
+                    else:
+                        self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b)))             
+            except AttributeError:
+                pass    
             
     def showDCP_gen(self, openFile):
-        def genprev(f,t=0):
-            for i,a in enumerate(f.keys()):
-                if self.data.rowCount()<len(f[a]):
-                    self.data.setRowCount(len(f[a]))
-                try:
-                    for j,b in enumerate(f[a]):
-                        if j >= 1000:
-                            break
-                        if type(b) == numpy.ndarray:
-                            self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b[0])))             
-                        else:
-                            self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b)))             
-                except AttributeError:
-                    pass
+       
         def preview(Ncol):
             self.reset()
             self.data.setColumnCount(Ncol)
@@ -259,7 +260,7 @@ class RbDcp(QtGui.QWidget):
             if time==0: self.slide.hide()
         preview(Ncol)
         #preview hdf5 file data    
-        genprev(self.fileData)
+        self.genprev()
         #populate graph options
         self.dataopt(self.fileData.keys())       
             
