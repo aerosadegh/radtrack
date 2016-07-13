@@ -253,74 +253,50 @@ class RbGlobal(QtGui.QMainWindow):
             openFile = QtGui.QFileDialog.getOpenFileName(self, 'Open file', self.lastUsedDirectory, fileTypeList(self.allExtensions))
             if not openFile:
                 return
+        if os.path.dirname(openFile) == self.sessionDirectory:
+            return
+
         self.addToRecentMenu(openFile, True)
         self.lastUsedDirectory = os.path.dirname(openFile)
 
         # Find all types of tabs that accept the file
-        choices = []
-        for tabType in self.availableTabTypes:
-            if can_accept(tabType, openFile):
-                choices.append(tabType)
-        choices.append(type(self))
-
-        onlyCopy = (len(choices) == 1)
-        if onlyCopy:
-            destinationType = choices[0]
-        else: # len(choices) > 1
+        choices = [t for t in self.availableTabTypes if can_accept(t, openFile)] + [type(self)]
+        destinationType = choices[0]
+        if len(choices) > 1:
             box = QtGui.QMessageBox(QtGui.QMessageBox.Question, 'Ambiguous Import Destination', 'Multiple tab types can import this file.\nWhich kind of tab should be used?')
             responses = [box.addButton(widgetType.defaultTitle, QtGui.QMessageBox.ActionRole) for widgetType in choices] + [box.addButton(QtGui.QMessageBox.Cancel)]
             box.exec_()
-            try:
-                destinationType = choices[responses.index(box.clickedButton())]
-            except IndexError:
-                return # Cancel selected
+            if box.standardButton(box.clickedButton()) == QtGui.QMessageBox.Cancel:
+                return
+            destinationType = choices[responses.index(box.clickedButton())]
         
-        if destinationType == type(self): # User just wants to copy a file into the session directory
-            destinationPath = os.path.join(self.sessionDirectory, os.path.basename(openFile))
-            if destinationPath == openFile:
-                return
-            if os.path.exists(destinationPath):
-                os.remove(destinationPath)
-            shutil.copy2(openFile, destinationPath)
-            if onlyCopy:
-                QtGui.QMessageBox.information(self,
-                                              'File copied into session directory',
-                                              openFile + '\ncopied into\n' + self.sessionDirectory)
-            return
+        if destinationType != type(self):
+            # Check if a tab of this type is already open
+            openWidgetIndexes = [i for i in range(self.tabWidget.count()) if type(self.tabWidget.widget(i)) == destinationType]
+            destinationIndex = -1
+            if openWidgetIndexes:
+                choices = [self.tabWidget.tabText(i) for i in openWidgetIndexes] + ['New ' + destinationType.defaultTitle + ' Tab']
+                box = QtGui.QMessageBox(QtGui.QMessageBox.Question, 'Choose Import Destination', 'Which tab should receive the data?')
+                responses = [box.addButton(widgetType, QtGui.QMessageBox.ActionRole) for widgetType in choices] + [box.addButton(QtGui.QMessageBox.Cancel)]
 
-        # Check if a tab of this type is already open
-        openWidgetIndexes = [i for i in range(self.tabWidget.count()) if type(self.tabWidget.widget(i)) == destinationType]
-        newTabLabel = 'New ' + destinationType.defaultTitle + ' Tab'
-        if openWidgetIndexes:
-            choices = [self.tabWidget.tabText(i) for i in openWidgetIndexes] + [newTabLabel]
-            box = QtGui.QMessageBox(QtGui.QMessageBox.Question, 'Choose Import Destination', 'Which tab should receive the data?')
-            responses = [box.addButton(widgetType, QtGui.QMessageBox.ActionRole) for widgetType in choices] + [box.addButton(QtGui.QMessageBox.Cancel)]
+                box.exec_()
+                if box.standardButton(box.clickedButton()) == QtGui.QMessageBox.Cancel:
+                    return
+                destinationIndex = responses.index(box.clickedButton())
 
-            box.exec_()
-            destinationIndex = responses.index(box.clickedButton())
             try:
-                choice = choices[destinationIndex]
-            except IndexError: # Cancel was pressed
-                return
-        else:
-            choice = newTabLabel
-
-        try:
-            if choice == newTabLabel: # Make a new tab
+                self.tabWidget.setCurrentIndex(openWidgetIndexes[destinationIndex])
+            except IndexError:
                 self.newTab(destinationType)
-            else: # Pre-existing tab
-                tabIndex = openWidgetIndexes[destinationIndex]
-                self.tabWidget.setCurrentIndex(tabIndex)
-        except IndexError: # Cancel was pressed
-            return
+            self.tabWidget.currentWidget().importFile(openFile)
 
         QtGui.QApplication.processEvents()
 
         self.ui.statusbar.showMessage('Importing ' + openFile + ' ...')
-        self.tabWidget.currentWidget().importFile(openFile)
-        if os.path.dirname(openFile) != self.sessionDirectory:
-            shutil.copy2(openFile, self.sessionDirectory)
+        shutil.copy2(openFile, self.sessionDirectory)
         self.ui.statusbar.clearMessage()
+        if len(choices) == 1:
+            QtGui.QMessageBox.information(self, 'File copied into session directory', openFile + '\ncopied into\n' + self.sessionDirectory)
 
 
     def setProjectLocation(self, directory = ''):
