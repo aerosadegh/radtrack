@@ -253,8 +253,6 @@ class RbGlobal(QtGui.QMainWindow):
             openFile = QtGui.QFileDialog.getOpenFileName(self, 'Open file', self.lastUsedDirectory, fileTypeList(self.allExtensions))
             if not openFile:
                 return
-        if os.path.dirname(openFile) == self.sessionDirectory:
-            return
 
         self.addToRecentMenu(openFile, True)
         self.lastUsedDirectory = os.path.dirname(openFile)
@@ -288,13 +286,14 @@ class RbGlobal(QtGui.QMainWindow):
                 self.tabWidget.setCurrentIndex(openWidgetIndexes[destinationIndex])
             except IndexError:
                 self.newTab(destinationType)
+            self.ui.statusbar.showMessage('Importing ' + openFile + ' ...')
             self.tabWidget.currentWidget().importFile(openFile)
+            self.ui.statusbar.clearMessage()
 
         QtGui.QApplication.processEvents()
 
-        self.ui.statusbar.showMessage('Importing ' + openFile + ' ...')
-        shutil.copy2(openFile, self.sessionDirectory)
-        self.ui.statusbar.clearMessage()
+        if os.path.dirname(openFile) != self.sessionDirectory:
+            shutil.copy2(openFile, self.sessionDirectory)
         if len(choices) == 1:
             QtGui.QMessageBox.information(self, 'File copied into session directory', openFile + '\ncopied into\n' + self.sessionDirectory)
 
