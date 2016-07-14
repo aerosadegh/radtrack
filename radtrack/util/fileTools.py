@@ -36,6 +36,7 @@ __fileTypeDescription['start'] = None
 __fileTypeDescription['tiff'] = 'TIFF Image'
 __fileTypeDescription['twi'] = 'Twiss parameter file'
 __fileTypeDescription['txt'] = 'Text file'
+__fileTypeDescription['w'] = None
 __fileTypeDescription['xbm'] = 'XBM Image'
 __fileTypeDescription['xpm'] = 'XPM Image'
 

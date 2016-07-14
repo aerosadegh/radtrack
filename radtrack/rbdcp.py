@@ -19,9 +19,10 @@ from radtrack.util.fileTools import isSDDS
 NumPage = 0
 ColumnXAxis =-1
 MaxNumParam=999
+#Ncol=0
 
 class RbDcp(QtGui.QWidget):
-    acceptsFileTypes = ['save', 'twi','out','sig','cen','dat','txt','sdds','bun','fin','h5','dist','beam']
+    acceptsFileTypes = ['save', 'twi','out','sig','cen','dat','txt','sdds','bun','fin','h5','dist','beam','w']
     defaultTitle = 'Data Visualization'
     task = 'Analyze simulation results'
     category = 'tools'
@@ -99,8 +100,8 @@ class RbDcp(QtGui.QWidget):
         self.yaxis.activated.connect(self.customgraph)
         self.plotStyle.activated.connect(self.customgraph)
         self.plotType.activated.connect(self.customgraph)
-        self.slide.sliderReleased.connect(lambda:self.genprev(self.slide.value()))
-        self.slide.valueChanged.connect(lambda:self.customgraph(self.slide.value()))
+        self.slide.sliderReleased.connect(self.slide_prev)
+        self.slide.sliderMoved.connect(self.customgraph)
         
     def right_panel(self,main):
         vb = QtGui.QVBoxLayout()
@@ -117,6 +118,12 @@ class RbDcp(QtGui.QWidget):
         self.widget = matplotlibWidget()
         vb.addWidget(self.widget)
         main.addLayout(vb)
+        
+    def slide_prev(self):
+        if self.currentFiletype=='h5':
+            self.genprev(self.slide.value())
+        else: self.sddsprev()
+
         
     def importFromFileList(self, listItem):
         self.importFile(listItem.text())
@@ -307,22 +314,25 @@ class RbDcp(QtGui.QWidget):
         #preview hdf5 file data    
         self.genprev(time-1)
         #populate graph options
-        self.dataopt(self.fileData.keys())       
+        self.dataopt(self.fileData.keys())     
+        
+    def sddsprev(self):
+        (_,_,_,_,Ncol,_,_,_)=SDDSreshape(self.fileData,-1,[0],0)
+        ColumnPicked = range(Ncol)
+        if not self.slide.isHidden():
+            NumPage=self.slide.value()
+        else: NumPage = 0
+        (Xrvec,Yrvec,YLab,Npar,Ncol,NcolPicked,NElemCol,Npage)=SDDSreshape(self.fileData,ColumnXAxis,ColumnPicked,NumPage) #reshapes file into vectors and a matrix
+        for i, a in enumerate(Yrvec):
+            for j, b in enumerate(a):
+                if j >= 1000:
+                    break
+                self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b)))
+            else:
+                self.data.setRowCount(np.shape(Yrvec)[1]+3)  
             
     def showDCP_ele(self, openFile):
-        def sddsprev(Ncol):
-            ColumnPicked = range(Ncol)
-            (Xrvec,Yrvec,YLab,Npar,Ncol,NcolPicked,NElemCol,Npage)=SDDSreshape(self.fileData,ColumnXAxis,ColumnPicked,NumPage) #reshapes file into vectors and a matrix
 
-            for i, a in enumerate(Yrvec):
-                #if i>0:# skip first column i+1=>i to adjust, because of extra 0 column!!!?
-                for j, b in enumerate(a):
-                    if j >= 1000:
-                        break
-                    self.data.setItem(j+3,i,QtGui.QTableWidgetItem(str(b)))
-                else:
-                    self.data.setRowCount(np.shape(Yrvec)[1]+3)
-                    
         #reset data selection
         ColumnPicked = [0]
         ColumnXAxis = -1
@@ -339,6 +349,7 @@ class RbDcp(QtGui.QWidget):
 
         #get # of pages and columns
         (_,_,_,_,Ncol,_,_,Npage)=SDDSreshape(self.fileData,ColumnXAxis,ColumnPicked,NumPage)
+
         stringOut="Columns: "+str(Ncol)+" Pages: "+str(Npage)+" ColumnElements: "+\
         str(np.shape(self.fileData.columnData)[2])
         paramsOut ='\nPARAMTER INFO \n'
@@ -347,12 +358,22 @@ class RbDcp(QtGui.QWidget):
         self.legend.setText(QtGui.QApplication.translate("dcpwidget",\
             'FILE INFO \n'+'File Name: '+phile.fileName()+'\nFile Size: '+str(phile.size())+' bytes \n'+\
             self.fileData.description[0]+stringOut+paramsOut, None, QtGui.QApplication.UnicodeUTF8))
+        
+        if Npage == 1:
+            self.slide.hide()
+        elif Npage>1:
+            self.slide.setMaximum(Npage-1)
+            self.slide.setMinimum(0)
+            self.slide.show()
+            
+        self.xaxis.setEnabled(True)
+        self.quickplot.setEnabled(True)
 
         #preview of parameters
         self.preview(Ncol)
 
         #preview of sdds data
-        sddsprev(Ncol)
+        self.sddsprev()
         
         #populate graph data
         self.dataopt(self.fileData.columnName)
@@ -495,12 +516,9 @@ class RbDcp(QtGui.QWidget):
                     param = removeWhitespace(self.quickplot.currentText()).split('.', 1)[1].lower()
                     param = param.replace('.', '')
                     self.yaxis.setCurrentIndex(find_param(param))
-        if self.slide.isHidden:
-            self.customgraph()
-        else:
-            self.customgraph(self.slide.value())
+        self.customgraph()
     
-    def customgraph(self,t=-1):
+    def customgraph(self):
         if not self.fileData:
             return
 
@@ -508,23 +526,27 @@ class RbDcp(QtGui.QWidget):
         #ColumnXAxis=0
         xname = self.xaxis.currentText()
         yname = self.yaxis.currentText()
-        if self.currentFiletype in ['sdds', 'out', 'twi', 'sig', 'cen', 'bun', 'fin','dat']:
+        if self.currentFiletype in ['sdds', 'out', 'twi', 'sig', 'cen', 'bun', 'fin','dat','w']:
             ColumnXAxis = self.fileData.columnName.index(xname)
             ColumnPicked = [self.fileData.columnName.index(yname)]
 
         if self.currentFiletype == 'dat':
             (Xrvec,Yrvec,Npar,Ncol,NcolPicked,NElemCol)=SRWreshape(self.fileData,ColumnXAxis,ColumnPicked)
-        elif self.currentFiletype in ['sdds', 'out', 'twi', 'sig', 'cen', 'bun', 'fin']:
+        elif self.currentFiletype in ['sdds', 'out', 'twi', 'sig', 'cen', 'bun', 'fin','w']:
+            if not self.slide.isHidden():
+                NumPage=self.slide.value()
+            else: NumPage=0
             (Xrvec,Yrvec,Ylab,Npar,Ncol,NcolPicked,NElemCol,Npage)=SDDSreshape(self.fileData,ColumnXAxis,ColumnPicked,NumPage)
+            #print(NumPage)
         elif self.currentFiletype == 'dist' or self.currentFiletype=='beam':
             Xrvec=numpy.array(self.fileData[self.xaxis.currentIndex()])
             shape=numpy.shape(self.fileData[self.xaxis.currentIndex()])[0]
             Yrvec=numpy.reshape(numpy.array(self.fileData[self.yaxis.currentIndex()]),[1,shape])
-        elif t==-1:
+        elif (self.slide.isHidden() and self.currentFiletype=='h5') or ((len(self.fileData[xname].shape)<2 and len(self.fileData[yname]).shape<2) and self.currentFiletype=='h5'):
             shape = numpy.shape(self.fileData[xname])[0]
             Xrvec = numpy.reshape(numpy.array(self.fileData[xname]),-1)
             Yrvec = numpy.reshape(numpy.array(self.fileData[yname]),[1,shape])
-        else:
+        elif not self.slide.isHidden() and self.currentFiletype=='h5':
             Xrvec = numpy.arange(0,self.fileData[yname][self.slide.value()].shape[0],1)
             Yrvec = self.fileData[yname][self.slide.value()]
         try:
@@ -543,8 +565,9 @@ class RbDcp(QtGui.QWidget):
             nLevels = 5 + int(math.pow(numParticles, 0.333333333))
             nDivs = 10 + int(math.pow(numParticles, 0.2))
             self.widget.canvas.ax.clear()
-            if t==-1:
+            if self.slide.isHidden() or self.currentFiletype in ['sdds', 'out', 'twi', 'sig', 'cen', 'bun', 'fin','w']:
                 self.widget.canvas.ax.set_xlabel(xname + xu)
+                #print(self.slide.isHidden(), self.currentFiletype)
                 scatConPlot(self.plotStyle.currentText().lower(),
                         removeWhitespace(self.plotType.currentText().lower()),
                         Xrvec,
@@ -570,7 +593,7 @@ class RbDcp(QtGui.QWidget):
             xMin = min(Xrvec)
             xMax = max(Xrvec)
             xRange = xMax - xMin
-            if t==-1:
+            if self.slide.isHidden():
                 yMin = min(Yrvec[0])
                 yMax = max(Yrvec[0])
             else:
@@ -579,10 +602,10 @@ class RbDcp(QtGui.QWidget):
             yRange = yMax - yMin
 
             self.widget.canvas.ax.set_xlim([xMin - margin*xRange, xMax + margin*xRange])
-            self.widget.canvas.ax.set_ylim([yMin - margin*yRange, yMax + margin*yRange])
+            #self.widget.canvas.ax.set_ylim([yMin - margin*yRange, yMax + margin*yRange])
             self.widget.canvas.draw()
 
-        except ValueError: # Attempted to plot non-numeric values
+        except IOError: # Attempted to plot non-numeric values
             print(ValueError)
             print(numpy.shape(Xrvec))
             print(numpy.shape(Yrvec))
