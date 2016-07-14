@@ -548,6 +548,7 @@ class RbGlobal(QtGui.QMainWindow):
         logFile.write('Current directory: ' + os.getcwd() + '\n')
 
         updateProc = QtCore.QProcess(self)
+        updateProc.setProcessChannelMode(QtCore.QProcess.MergedChannels)
         updateProc.start(command[0], command[1:])
 
         # Allow GUI to process events (like the progress dialog)
@@ -556,8 +557,7 @@ class RbGlobal(QtGui.QMainWindow):
         loop.exec_()
 
         output = str(updateProc.readAllStandardOutput())
-        errors = str(updateProc.readAllStandardError())
-        logFile.write('\nSTDOUT:\n' + output + '\n--------\n\nSTDERR:\n' + errors + '\n--------\n')
+        logFile.write('\nOutput:\n' + output + '\n--------\n')
 
         if updateProc.exitCode() == 2:
             box = QtGui.QMessageBox(QtGui.QMessageBox.Warning,
@@ -565,7 +565,7 @@ class RbGlobal(QtGui.QMainWindow):
                                     "Update not successful. See below text for more information.",
                                     QtGui.QMessageBox.Ok,
                                     self)
-            box.setDetailedText('Errors:\n' + errors + '\nOther output:\n' + output)
+            box.setDetailedText('Output:\n' + output)
             box.exec_()
             return 2
         else:
