@@ -1,11 +1,9 @@
 """
 Module defining the GaussHermite (m,n) mode for a laser profile.
-
-moduleauthor:: Stephen Webb <swebb@radiasoft.net>
 Copyright (c) 2014 RadiaBeam Technologies. All rights reserved
 """
 
-__author__ = 'Stephen Webb, David Bruhwiler'
+__author__ = 'Stephen Webb, David Bruhwiler, T. Shaftan'
 __copyright__ = "Copyright &copy RadiaBeam Technologies 2013, all rights " \
                 "reserved"
 __version__ = "0.1"
@@ -25,7 +23,7 @@ class RbGaussHermiteMN:
     These limitations will be removed in the future.
     """
 
-    def __init__(self, pol, lambda0, waistX, waistY, wRotAngle, hCoeffsIn):
+    def __init__(self, pol, lambda0, waistX, waistY, KL, zR, wRotAngle, hCoeffsIn):
         """The constructor requires some basic data.
 
         Args:
@@ -54,6 +52,8 @@ class RbGaussHermiteMN:
         self.lambda0 = lambda0         # central wavelength [m]
         self.k0 = 2.*np.pi/lambda0   # central wavenumber [Rad/m]
         self.omega = self.k0 * consts.c  # central frequency [Rad/m]
+        self.KL=KL                      # equivalent K parameter for laser
+        self.zR=zR                     # Raleigh range [m]
         self.setWaistX(waistX)         # horiz. waist size [m]
         self.setWaistY(waistY)         #  vert. waist size [m]
         self.setWRotAngle(wRotAngle)   # spot rotation angle [Rad]
@@ -325,6 +325,19 @@ class RbGaussHermiteMN:
         Alaser *= np.sqrt(np.dot(self.polVector, self.polVector))
 
         return abs(Alaser)
+
+    def getATS(self, coords, z):
+        x, px, y, py, theta, gamma = coords
+
+        w=self.waistX*(1.0+(z/self.zR)**2)**0.5
+        R=z*(1.0+(z/self.zR)**2)**0.5+1E-3
+        eta=np.arctan(z/self.zR)
+        rho2=(x**2+y**2)
+        laserA=self.KL*self.waistX/w*np.exp(-rho2/w**2) #*np.cos(self.k0*z-eta+self.k0*rho2/2/R)
+
+#        laserA=0.038 #plane laser wave
+        
+        return laserA
 
 # Get the name of the file used for saving data (not used)
     def getFileName(self):

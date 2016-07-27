@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 """
 Module defining an ideal planar undulator
 
@@ -5,7 +7,7 @@ moduleauthor:: Stephen Webb <swebb@radiasoft.net
 Copyright (c) 2014 RadiaBeam Technologies. All rights reserved
 """
 
-__author__ = 'swebb'
+__author__ = 'swebb&tshaftan'
 __copyright__ = "Copyright &copy RadiaBeam Technologies 2013, all rights " \
                 "reserved"
 __version__ = "1.0"
@@ -81,11 +83,13 @@ class RbIdealPlanarUndulator:
         return Aw**2
 
     def getAAmplitude(self, coords):
-        return self.B/self.kwiggler
+        return self.B
 
     def getAdAdX(self, coords, z):
         return 0.
 
     def getAdAdY(self, coords, z):
         return 0.
-
+    
+ #   def ky(self)
+ #       return self.eOmc**2*self.B*self.kwiggler/np.sqrt(2.0)/self.gamma0

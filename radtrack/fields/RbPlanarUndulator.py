@@ -19,7 +19,7 @@ import scipy.constants as consts
 
 
 class RbPlanarUndulator:
-    def __init__(self, _B0, _lambda_w, _gap, _polarization='y'):
+    def __init__(self, _B0, _lambda_w, _gap, _polarization='y', _gamma0):
         """Create a planar undulator with default polarization in the 'y
         direction
         :param _B0: magnetic field strength of permanent magnets (Tesla)
@@ -35,6 +35,7 @@ class RbPlanarUndulator:
         self.h = _gap
         self.kwiggler = 2 * np.pi / (_lambda_w)
         self.gapFactor = 1.-np.exp(-self.h * self.kwiggler)
+        self.gamma0 = _gamma0
 
     def evaluateEField(self, x, t):
         """Get the electric field at a space-time point for an ideal planar
